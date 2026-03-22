@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw models` (trạng thái/danh sách/thiết lập/quét, bí danh, dự phòng, xác thực)"
+summary: "Khám phá cách sử dụng CLI cho OpenClaw Models: trạng thái, danh sách, thiết lập, quét và xác thực dễ dàng."
 read_when:
   - Bạn muốn thay đổi mô hình mặc định hoặc xem trạng thái xác thực của nhà cung cấp
   - Bạn muốn quét các mô hình/nhà cung cấp có sẵn và gỡ lỗi hồ sơ xác thực
-title: "models"
+title: "Hướng Dẫn CLI OpenClaw Models"
 ---
 
 # `openclaw models`

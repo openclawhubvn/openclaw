@@ -1,10 +1,10 @@
 ---
-summary: "Bộ công cụ kiểm thử: bộ unit/e2e/live, Docker runners và phạm vi của từng loại kiểm thử"
+summary: "Khám phá bộ công cụ kiểm thử phần mềm: unit, e2e, live và Docker runners. Tối ưu hóa quy trình kiểm thử của bạn ngay hôm nay."
 read_when:
   - Chạy kiểm thử cục bộ hoặc trong CI
   - Thêm các hồi quy cho lỗi mô hình/nhà cung cấp
   - Gỡ lỗi hành vi gateway + agent
-title: "Kiểm thử"
+title: "Hướng Dẫn Kiểm Thử Phần Mềm Toàn Diện"
 ---
 
 # Kiểm thử

@@ -1,9 +1,9 @@
 ---
-summary: "Chạy OpenClaw Gateway trên exe.dev (VM + proxy HTTPS) để truy cập từ xa"
+summary: "Cài đặt OpenClaw Gateway trên exe.dev để truy cập từ xa qua VM và proxy HTTPS. Hướng dẫn chi tiết từng bước."
 read_when:
   - Bạn cần một máy chủ Linux luôn hoạt động với chi phí thấp cho Gateway
   - Bạn muốn truy cập Control UI từ xa mà không cần chạy VPS riêng
-title: "exe.dev"
+title: "Hướng Dẫn Cài Đặt OpenClaw Trên exe.dev"
 ---
 
 # exe.dev

@@ -1,9 +1,9 @@
 ---
-summary: "Cung cấp endpoint HTTP /v1/responses tương thích với OpenResponses từ Gateway"
+summary: "Khám phá cách sử dụng endpoint HTTP /v1/responses từ Gateway, tương thích với OpenResponses, để tối ưu hóa tích hợp hệ thống."
 read_when:
   - Tích hợp các client sử dụng API OpenResponses
   - Cần đầu vào theo từng mục, gọi công cụ client, hoặc sự kiện SSE
-title: "API OpenResponses"
+title: "Hướng Dẫn API OpenResponses HTTP"
 ---
 
 # API OpenResponses (HTTP)

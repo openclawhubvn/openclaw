@@ -1,9 +1,9 @@
 ---
-summary: "Bộ điều hợp RPC cho các CLI bên ngoài (signal-cli, imsg cũ) và các mẫu gateway"
+summary: "Tìm hiểu cách cấu hình bộ điều hợp RPC cho CLI bên ngoài và mẫu gateway, tối ưu hóa tích hợp hệ thống hiệu quả."
 read_when:
   - Thêm hoặc thay đổi tích hợp CLI bên ngoài
   - Gỡ lỗi bộ điều hợp RPC (signal-cli, imsg)
-title: "Bộ điều hợp RPC"
+title: "Hướng Dẫn Cấu Hình Bộ Điều Hợp RPC"
 ---
 
 # Bộ điều hợp RPC

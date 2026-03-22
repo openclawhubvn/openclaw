@@ -1,8 +1,8 @@
 ---
-summary: "Tham khảo CLI cho `openclaw config` (get/set/unset/file/validate)"
+summary: "Tìm hiểu cách sử dụng lệnh 'openclaw config' để thiết lập, kiểm tra và quản lý cấu hình hệ thống hiệu quả."
 read_when:
   - Bạn muốn đọc hoặc chỉnh sửa cấu hình không tương tác
-title: "config"
+title: "Hướng Dẫn Cấu Hình CLI OpenClaw"
 ---
 
 # `openclaw config`

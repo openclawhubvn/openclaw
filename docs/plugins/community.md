@@ -1,9 +1,9 @@
 ---
-summary: "Plugin OpenClaw do cộng đồng phát triển: duyệt, cài đặt và gửi plugin của bạn"
+summary: "Khám phá cách duyệt, cài đặt và gửi plugin OpenClaw do cộng đồng phát triển. Tăng cường tính năng cho hệ thống của bạn."
 read_when:
   - Bạn muốn tìm plugin OpenClaw từ bên thứ ba
   - Bạn muốn xuất bản hoặc liệt kê plugin của mình
-title: "Plugin Cộng Đồng"
+title: "Hướng Dẫn Cài Đặt Plugin Cộng Đồng"
 ---
 
 # Plugin Cộng Đồng

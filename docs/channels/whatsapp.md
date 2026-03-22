@@ -1,8 +1,8 @@
 ---
-summary: "Hỗ trợ kênh WhatsApp, kiểm soát truy cập, hành vi gửi tin và vận hành"
+summary: "Khám phá cách cấu hình và kiểm soát truy cập WhatsApp, tối ưu hóa gửi tin và vận hành hiệu quả."
 read_when:
   - Làm việc với hành vi kênh WhatsApp/web hoặc định tuyến hộp thư đến
-title: "WhatsApp"
+title: "Hướng Dẫn Cấu Hình Kênh WhatsApp"
 ---
 
 # WhatsApp (Kênh Web)

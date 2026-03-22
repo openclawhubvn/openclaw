@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw backup` (tạo bản sao lưu cục bộ)"
+summary: "Tìm hiểu cách sử dụng lệnh CLI để tạo bản sao lưu cục bộ với OpenClaw. Đảm bảo dữ liệu của bạn luôn an toàn."
 read_when:
   - Bạn muốn tạo bản sao lưu chất lượng cao cho trạng thái OpenClaw cục bộ
   - Bạn muốn xem trước các đường dẫn sẽ được bao gồm trước khi reset hoặc gỡ cài đặt
-title: "backup"
+title: "Hướng Dẫn Sử Dụng OpenClaw Backup CLI"
 ---
 
 # `openclaw backup`

@@ -1,11 +1,11 @@
 ---
-summary: "OAuth trong OpenClaw: trao đổi token, lưu trữ và mô hình đa tài khoản"
+summary: "Tìm hiểu cách trao đổi token, lưu trữ và quản lý mô hình đa tài khoản với OAuth trong OpenClaw. Đảm bảo bảo mật và hiệu quả."
 read_when:
   - Bạn muốn hiểu toàn diện về OAuth trong OpenClaw
   - Bạn gặp vấn đề về token bị vô hiệu hóa hoặc đăng xuất
   - Bạn muốn thiết lập token hoặc luồng xác thực OAuth
   - Bạn muốn sử dụng nhiều tài khoản hoặc định tuyến hồ sơ
-title: "OAuth"
+title: "Hướng Dẫn Cấu Hình OAuth Trong OpenClaw"
 ---
 
 # OAuth

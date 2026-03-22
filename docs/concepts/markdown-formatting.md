@@ -1,10 +1,10 @@
 ---
-summary: "Quy trình định dạng Markdown cho các kênh outbound"
+summary: "Tìm hiểu cách định dạng Markdown cho các kênh outbound, giúp tối ưu hóa nội dung và giao tiếp hiệu quả hơn."
 read_when:
   - Bạn đang thay đổi định dạng hoặc chia nhỏ Markdown cho các kênh outbound
   - Bạn đang thêm một bộ định dạng kênh mới hoặc ánh xạ kiểu dáng
   - Bạn đang gỡ lỗi các vấn đề định dạng trên các kênh
-title: "Định dạng Markdown"
+title: "Hướng Dẫn Định Dạng Markdown Hiệu Quả"
 ---
 
 # Định dạng Markdown

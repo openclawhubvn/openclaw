@@ -1,6 +1,6 @@
 ---
-title: Lobster
-summary: "Runtime workflow có kiểu cho OpenClaw với các điểm dừng phê duyệt có thể tiếp tục."
+title: "Hướng Dẫn Cấu Hình Lobster Workflow"
+summary: "Tìm hiểu cách cấu hình Lobster cho OpenClaw với các điểm dừng phê duyệt linh hoạt, tối ưu hóa quy trình làm việc của bạn."
 read_when:
   - Bạn muốn có các quy trình nhiều bước xác định với phê duyệt rõ ràng
   - Bạn cần tiếp tục một quy trình mà không phải chạy lại các bước trước đó

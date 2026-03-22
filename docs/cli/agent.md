@@ -1,8 +1,8 @@
 ---
-summary: "Tham khảo CLI cho `openclaw agent` (gửi một lượt agent qua Gateway)"
+summary: "Khám phá cách cấu hình và sử dụng OpenClaw Agent qua CLI để gửi agent qua Gateway hiệu quả."
 read_when:
   - Bạn muốn chạy một lượt agent từ script (có thể gửi kèm phản hồi)
-title: "agent"
+title: "Hướng Dẫn Cấu Hình OpenClaw Agent CLI"
 ---
 
 # `openclaw agent`

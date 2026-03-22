@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng mô hình Venice AI tập trung vào quyền riêng tư trong OpenClaw"
+summary: "Tìm hiểu cách cấu hình Venice AI với OpenClaw, đảm bảo quyền riêng tư và tối ưu hóa hiệu suất hệ thống của bạn."
 read_when:
   - Bạn muốn suy luận tập trung vào quyền riêng tư trong OpenClaw
   - Bạn cần hướng dẫn cài đặt Venice AI
-title: "Venice AI"
+title: "Hướng Dẫn Cấu Hình Venice AI Trong OpenClaw"
 ---
 
 # Venice AI (Điểm nổi bật của Venice)

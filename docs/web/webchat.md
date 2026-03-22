@@ -1,8 +1,8 @@
 ---
-summary: "Sử dụng Loopback WebChat làm host tĩnh và Gateway WS cho giao diện chat"
+summary: "Khám phá cách sử dụng Loopback WebChat làm host tĩnh và Gateway WS, tối ưu hóa giao diện chat của bạn."
 read_when:
   - Gặp sự cố hoặc cấu hình truy cập WebChat
-title: "WebChat"
+title: "Hướng Dẫn Cấu Hình WebChat Với Loopback"
 ---
 
 # WebChat (Giao diện WebSocket của Gateway)

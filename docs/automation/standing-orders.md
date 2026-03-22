@@ -1,10 +1,10 @@
 ---
-summary: "Xác định quyền hoạt động lâu dài cho các chương trình tác nhân tự động"
+summary: "Khám phá cách thiết lập lệnh đứng cho tác nhân tự động, đảm bảo hoạt động liên tục và hiệu quả cho hệ thống của bạn."
 read_when:
   - Thiết lập quy trình làm việc cho tác nhân tự động mà không cần nhắc nhở từng nhiệm vụ
   - Xác định những gì tác nhân có thể làm độc lập và những gì cần sự phê duyệt của con người
   - Cấu trúc các tác nhân đa chương trình với ranh giới và quy tắc thăng cấp rõ ràng
-title: "Lệnh Đứng"
+title: "Hướng Dẫn Cấu Hình Lệnh Đứng Tự Động"
 ---
 
 # Lệnh Đứng

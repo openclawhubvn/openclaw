@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw setup` (khởi tạo cấu hình + workspace)"
+summary: "Khám phá cách thiết lập cấu hình và workspace cho OpenClaw CLI, giúp bạn bắt đầu nhanh chóng và hiệu quả."
 read_when:
   - Bạn đang thực hiện thiết lập lần đầu mà không có hướng dẫn đầy đủ từ CLI
   - Bạn muốn đặt đường dẫn mặc định cho workspace
-title: "setup"
+title: "Hướng Dẫn Cấu Hình OpenClaw CLI"
 ---
 
 # `openclaw setup`

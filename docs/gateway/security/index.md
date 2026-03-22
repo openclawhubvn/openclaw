@@ -1,8 +1,8 @@
 ---
-summary: "Các cân nhắc về bảo mật và mô hình mối đe dọa khi chạy một AI gateway với quyền truy cập shell"
+summary: "Khám phá các biện pháp bảo mật và mô hình mối đe dọa khi chạy AI gateway với quyền truy cập shell."
 read_when:
   - Thêm các tính năng mở rộng quyền truy cập hoặc tự động hóa
-title: "Bảo mật"
+title: "Hướng Dẫn Bảo Mật AI Gateway"
 ---
 
 # Bảo mật

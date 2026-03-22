@@ -1,10 +1,10 @@
 ---
-summary: "Tham khảo CLI cho `openclaw secrets` (reload, audit, configure, apply)"
+summary: "Khám phá cách sử dụng OpenClaw Secrets CLI để reload, audit, cấu hình và áp dụng bảo mật hiệu quả."
 read_when:
   - Tái giải quyết tham chiếu bí mật khi chạy
   - Kiểm tra dư lượng văn bản rõ và tham chiếu chưa giải quyết
   - Cấu hình SecretRefs và áp dụng thay đổi xóa một chiều
-title: "secrets"
+title: "Hướng Dẫn Cấu Hình OpenClaw Secrets CLI"
 ---
 
 # `openclaw secrets`

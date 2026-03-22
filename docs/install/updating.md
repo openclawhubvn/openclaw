@@ -1,9 +1,9 @@
 ---
-summary: "Cập nhật OpenClaw an toàn (cài đặt toàn cầu hoặc từ nguồn), cùng chiến lược quay lui"
+summary: "Tìm hiểu cách cập nhật OpenClaw an toàn với hướng dẫn chi tiết và chiến lược quay lui hiệu quả."
 read_when:
   - Cập nhật OpenClaw
   - Có sự cố sau khi cập nhật
-title: "Cập nhật"
+title: "Hướng Dẫn Cập Nhật OpenClaw An Toàn"
 ---
 
 # Cập nhật

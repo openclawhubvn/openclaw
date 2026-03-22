@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw clawbot` (không gian tên alias cũ)"
+summary: "Khám phá cách sử dụng CLI cho OpenClaw Clawbot, bao gồm các lệnh và cấu hình cần thiết để tối ưu hóa trải nghiệm của bạn."
 read_when:
   - Bạn duy trì các script cũ sử dụng `openclaw clawbot ...`
   - Bạn cần hướng dẫn chuyển đổi sang lệnh hiện tại
-title: "clawbot"
+title: "Hướng Dẫn CLI Cho OpenClaw Clawbot"
 ---
 
 # `openclaw clawbot`

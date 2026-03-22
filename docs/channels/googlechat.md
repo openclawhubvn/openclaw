@@ -1,8 +1,8 @@
 ---
-summary: "Trạng thái hỗ trợ, khả năng và cấu hình ứng dụng Google Chat"
+summary: "Khám phá cách cấu hình và tối ưu hóa Google Chat để cải thiện giao tiếp nhóm và quản lý công việc hiệu quả."
 read_when:
   - Đang làm việc với các tính năng kênh Google Chat
-title: "Google Chat"
+title: "Hướng Dẫn Cấu Hình Google Chat"
 ---
 
 # Google Chat (Chat API)

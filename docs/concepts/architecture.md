@@ -1,8 +1,8 @@
 ---
-summary: "Kiến trúc gateway WebSocket, các thành phần và luồng khách hàng"
+summary: "Tìm hiểu kiến trúc Gateway WebSocket, các thành phần chính và luồng hoạt động để tối ưu hóa hệ thống của bạn."
 read_when:
   - Làm việc với giao thức gateway, khách hàng, hoặc phương tiện truyền tải
-title: "Kiến trúc Gateway"
+title: "Hướng Dẫn Kiến Trúc Gateway WebSocket"
 ---
 
 # Kiến trúc Gateway

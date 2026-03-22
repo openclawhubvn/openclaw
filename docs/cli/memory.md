@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw memory` (trạng thái/chỉ mục/tìm kiếm)"
+summary: "Khám phá cách sử dụng lệnh OpenClaw Memory để quản lý trạng thái, chỉ mục và tìm kiếm hiệu quả."
 read_when:
   - Bạn muốn lập chỉ mục hoặc tìm kiếm bộ nhớ ngữ nghĩa
   - Bạn đang gỡ lỗi khả năng bộ nhớ hoặc lập chỉ mục
-title: "memory"
+title: "Hướng Dẫn Sử Dụng OpenClaw Memory CLI"
 ---
 
 # `openclaw memory`

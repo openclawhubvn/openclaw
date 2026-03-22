@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw skills` (list/info/check) và điều kiện sử dụng skill"
+summary: "Khám phá cách sử dụng OpenClaw Skills CLI với các lệnh list, info, check để quản lý và điều kiện sử dụng skill hiệu quả."
 read_when:
   - Bạn muốn xem những skill nào có sẵn và sẵn sàng chạy
   - Bạn muốn gỡ lỗi các binary/env/config bị thiếu cho skill
-title: "skills"
+title: "Hướng Dẫn Sử Dụng OpenClaw Skills CLI"
 ---
 
 # `openclaw skills`

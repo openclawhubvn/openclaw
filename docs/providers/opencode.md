@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng các catalog Zen và Go của OpenCode với OpenClaw"
+summary: "Tìm hiểu cách sử dụng catalog Zen và Go của OpenCode để tối ưu hóa trải nghiệm với OpenClaw."
 read_when:
   - Bạn muốn truy cập mô hình được lưu trữ bởi OpenCode
   - Bạn muốn chọn giữa catalog Zen và Go
-title: "OpenCode"
+title: "Hướng Dẫn Sử Dụng OpenCode Với OpenClaw"
 ---
 
 # OpenCode

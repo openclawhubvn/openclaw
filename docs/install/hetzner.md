@@ -1,11 +1,11 @@
 ---
-summary: "Chạy OpenClaw Gateway 24/7 trên VPS giá rẻ của Hetzner (Docker) với trạng thái bền vững và nhúng sẵn các binary"
+summary: "Khám phá cách cài đặt OpenClaw Gateway trên VPS Hetzner giá rẻ, đảm bảo hoạt động 24/7 với Docker và tích hợp sẵn binary."
 read_when:
   - Bạn muốn OpenClaw chạy 24/7 trên VPS đám mây (không phải laptop của bạn)
   - Bạn muốn một Gateway chất lượng sản xuất, luôn hoạt động trên VPS của riêng mình
   - Bạn muốn kiểm soát hoàn toàn về tính bền vững, các binary và hành vi khởi động lại
   - Bạn đang chạy OpenClaw trong Docker trên Hetzner hoặc nhà cung cấp tương tự
-title: "Hetzner"
+title: "Hướng Dẫn Cài Đặt OpenClaw Trên Hetzner"
 ---
 
 # OpenClaw trên Hetzner (Docker, Hướng dẫn VPS sản xuất)

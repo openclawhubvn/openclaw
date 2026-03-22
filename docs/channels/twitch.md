@@ -1,8 +1,8 @@
 ---
-summary: "Cấu hình và thiết lập bot chat Twitch"
+summary: "Khám phá cách cấu hình và thiết lập bot chat trên Twitch để nâng cao trải nghiệm người xem và quản lý kênh hiệu quả."
 read_when:
   - Thiết lập tích hợp chat Twitch cho OpenClaw
-title: "Twitch"
+title: "Hướng Dẫn Cấu Hình Bot Chat Twitch"
 ---
 
 # Twitch (plugin)

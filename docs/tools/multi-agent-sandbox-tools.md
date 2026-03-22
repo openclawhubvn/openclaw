@@ -1,6 +1,6 @@
 ---
-summary: "Hạn chế công cụ và sandbox theo từng agent, thứ tự ưu tiên và ví dụ"
-title: Cấu hình Sandbox & Công cụ cho Multi-Agent
+summary: "Khám phá cách cấu hình sandbox và công cụ cho từng agent, tối ưu hóa thứ tự ưu tiên với ví dụ minh họa."
+title: "Hướng Dẫn Cấu Hình Multi-Agent Sandbox"
 read_when: "Khi cần sandbox hoặc chính sách cho phép/từ chối công cụ theo từng agent trong một gateway đa agent."
 status: active
 ---

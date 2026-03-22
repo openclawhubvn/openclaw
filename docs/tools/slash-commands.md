@@ -1,9 +1,9 @@
 ---
-summary: "Slash commands: text vs native, cấu hình, và các lệnh hỗ trợ"
+summary: "Tìm hiểu cách cấu hình lệnh Slash trong OpenClaw, so sánh text và native, và khám phá các lệnh hỗ trợ hữu ích."
 read_when:
   - Sử dụng hoặc cấu hình lệnh chat
   - Gỡ lỗi định tuyến lệnh hoặc quyền truy cập
-title: "Lệnh Slash"
+title: "Hướng Dẫn Cấu Hình Lệnh Slash OpenClaw"
 ---
 
 # Lệnh Slash

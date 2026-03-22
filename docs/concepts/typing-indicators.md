@@ -1,8 +1,8 @@
 ---
-summary: "Khi nào OpenClaw hiển thị chỉ báo đang gõ và cách điều chỉnh chúng"
+summary: "Tìm hiểu cách hiển thị và điều chỉnh chỉ báo đang gõ trong OpenClaw để cải thiện trải nghiệm người dùng."
 read_when:
   - Thay đổi hành vi hoặc mặc định của chỉ báo đang gõ
-title: "Chỉ báo đang gõ"
+title: "Hướng Dẫn Cấu Hình Chỉ Báo Đang Gõ OpenClaw"
 ---
 
 # Chỉ báo đang gõ

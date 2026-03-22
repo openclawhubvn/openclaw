@@ -1,9 +1,9 @@
 ---
-summary: "Khắc phục sự cố ghép nối node, yêu cầu foreground, quyền truy cập và lỗi công cụ"
+summary: "Tìm hiểu cách xử lý sự cố ghép nối node, yêu cầu foreground, quyền truy cập và lỗi công cụ hiệu quả."
 read_when:
   - Node đã kết nối nhưng công cụ camera/canvas/screen/exec không hoạt động
   - Cần mô hình tư duy về ghép nối node và phê duyệt
-title: "Khắc phục sự cố Node"
+title: "Hướng Dẫn Khắc Phục Sự Cố Node"
 ---
 
 # Khắc phục sự cố Node

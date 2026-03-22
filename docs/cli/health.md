@@ -1,8 +1,8 @@
 ---
-summary: "Tham khảo CLI cho `openclaw health` (điểm cuối sức khỏe gateway qua RPC)"
+summary: "Tìm hiểu cách sử dụng lệnh `openclaw health` để kiểm tra sức khỏe gateway qua RPC, đảm bảo hệ thống hoạt động ổn định."
 read_when:
   - Bạn muốn nhanh chóng kiểm tra tình trạng hoạt động của Gateway
-title: "health"
+title: "Hướng Dẫn Sử Dụng OpenClaw Health CLI"
 ---
 
 # `openclaw health`

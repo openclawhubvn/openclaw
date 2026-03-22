@@ -1,9 +1,9 @@
 ---
-summary: "CLI onboarding: hướng dẫn thiết lập gateway, workspace, kênh và kỹ năng"
+summary: "Thiết lập gateway, workspace, kênh và kỹ năng với hướng dẫn CLI chi tiết. Bắt đầu nhanh chóng và hiệu quả."
 read_when:
   - Chạy hoặc cấu hình CLI onboarding
   - Thiết lập máy mới
-title: "Onboarding (CLI)"
+title: "Hướng Dẫn Onboarding CLI OpenClaw"
 sidebarTitle: "Onboarding: CLI"
 ---
 

@@ -1,8 +1,8 @@
 ---
-summary: "Trạng thái hỗ trợ bot Microsoft Teams, khả năng và cấu hình"
+summary: "Khám phá cách cấu hình và tối ưu bot trên Microsoft Teams, nâng cao khả năng hỗ trợ và tương tác hiệu quả."
 read_when:
   - Làm việc với các tính năng kênh Microsoft Teams
-title: "Microsoft Teams"
+title: "Hướng Dẫn Cấu Hình Bot Trên Microsoft Teams"
 ---
 
 # Microsoft Teams (plugin)

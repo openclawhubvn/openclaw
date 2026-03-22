@@ -1,9 +1,9 @@
 ---
-summary: "Gửi khảo sát qua gateway + CLI"
+summary: "Khám phá cách gửi khảo sát tự động qua gateway và CLI, tối ưu hóa quy trình thu thập dữ liệu nhanh chóng và hiệu quả."
 read_when:
   - Thêm hoặc chỉnh sửa hỗ trợ khảo sát
   - Gỡ lỗi gửi khảo sát từ CLI hoặc gateway
-title: "Khảo sát"
+title: "Hướng Dẫn Khảo Sát Tự Động Qua Gateway"
 ---
 
 # Khảo sát

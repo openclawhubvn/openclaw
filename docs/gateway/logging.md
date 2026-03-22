@@ -1,9 +1,9 @@
 ---
-summary: "Các bề mặt log, log file, kiểu log WS và định dạng console"
+summary: "Khám phá cách cấu hình logging cho gateway, bao gồm bề mặt log, kiểu log WS và định dạng console. Tối ưu hóa hệ thống của bạn."
 read_when:
   - Thay đổi đầu ra hoặc định dạng log
   - Gỡ lỗi CLI hoặc đầu ra gateway
-title: "Logging"
+title: "Hướng Dẫn Cấu Hình Logging Gateway"
 ---
 
 # Logging

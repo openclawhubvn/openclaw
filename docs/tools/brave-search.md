@@ -1,9 +1,9 @@
 ---
-summary: "Thiết lập Brave Search API cho web_search"
+summary: "Tìm hiểu cách thiết lập Brave Search API để tối ưu hóa tìm kiếm trên website của bạn một cách hiệu quả và nhanh chóng."
 read_when:
   - Bạn muốn sử dụng Brave Search cho web_search
   - Bạn cần BRAVE_API_KEY hoặc thông tin chi tiết về gói
-title: "Brave Search"
+title: "Hướng Dẫn Cấu Hình Brave Search API"
 ---
 
 # Brave Search API

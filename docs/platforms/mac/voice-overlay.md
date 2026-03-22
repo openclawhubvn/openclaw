@@ -1,8 +1,8 @@
 ---
-summary: "Vòng đời của voice overlay khi wake-word và push-to-talk trùng nhau"
+summary: "Tìm hiểu cách cấu hình voice overlay trên Mac khi wake-word và push-to-talk trùng nhau, đảm bảo hiệu suất tối ưu."
 read_when:
   - Điều chỉnh hành vi của voice overlay
-title: "Voice Overlay"
+title: "Hướng Dẫn Cấu Hình Voice Overlay Trên Mac"
 ---
 
 # Vòng Đời Voice Overlay (macOS)

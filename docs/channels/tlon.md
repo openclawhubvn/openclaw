@@ -1,8 +1,8 @@
 ---
-summary: "Trạng thái hỗ trợ, khả năng và cấu hình của Tlon/Urbit"
+summary: "Khám phá khả năng và cấu hình Tlon trên Urbit. Tìm hiểu cách tối ưu hóa và sử dụng hiệu quả nền tảng này."
 read_when:
   - Đang làm việc với các tính năng kênh Tlon/Urbit
-title: "Tlon"
+title: "Hướng Dẫn Cấu Hình Tlon Trên Urbit"
 ---
 
 # Tlon (plugin)

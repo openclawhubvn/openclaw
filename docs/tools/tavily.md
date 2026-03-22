@@ -1,11 +1,11 @@
 ---
-summary: "Công cụ tìm kiếm và trích xuất Tavily"
+summary: "Khám phá cách sử dụng Tavily để tìm kiếm và trích xuất dữ liệu hiệu quả, nâng cao hiệu suất công việc của bạn."
 read_when:
   - Bạn muốn tìm kiếm web hỗ trợ bởi Tavily
   - Bạn cần một API key của Tavily
   - Bạn muốn sử dụng Tavily làm nhà cung cấp web_search
   - Bạn muốn trích xuất nội dung từ URL
-title: "Tavily"
+title: "Hướng Dẫn Sử Dụng Công Cụ Tavily"
 ---
 
 # Tavily

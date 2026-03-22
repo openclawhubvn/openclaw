@@ -1,9 +1,9 @@
 ---
-summary: "Xử lý múi giờ cho agents, envelopes và prompts"
+summary: "Tìm hiểu cách xử lý múi giờ cho agents, envelopes và prompts, đảm bảo hoạt động chính xác và hiệu quả."
 read_when:
   - Cần hiểu cách chuẩn hóa dấu thời gian cho mô hình
   - Cấu hình múi giờ người dùng cho hệ thống prompts
-title: "Múi giờ"
+title: "Hướng Dẫn Cấu Hình Múi Giờ Cho AI"
 ---
 
 # Múi giờ

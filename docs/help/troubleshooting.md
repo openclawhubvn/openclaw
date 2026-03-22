@@ -1,9 +1,9 @@
 ---
-summary: "Trung tâm xử lý sự cố theo triệu chứng cho OpenClaw"
+summary: "Khám phá cách giải quyết các sự cố phổ biến trên OpenClaw, giúp bạn nhanh chóng khắc phục và tối ưu hóa hệ thống."
 read_when:
   - OpenClaw không hoạt động và cần tìm cách khắc phục nhanh nhất
   - Muốn có quy trình phân loại trước khi đi sâu vào tài liệu chi tiết
-title: "Xử lý sự cố chung"
+title: "Hướng Dẫn Xử Lý Sự Cố OpenClaw"
 ---
 
 # Xử lý sự cố

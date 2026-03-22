@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng Qwen OAuth (miễn phí) trong OpenClaw"
+summary: "Tìm hiểu cách cấu hình và sử dụng Qwen OAuth miễn phí để tích hợp hiệu quả vào hệ thống OpenClaw của bạn."
 read_when:
   - Bạn muốn sử dụng Qwen với OpenClaw
   - Bạn muốn truy cập OAuth miễn phí cho Qwen Coder
-title: "Qwen"
+title: "Hướng Dẫn Sử Dụng Qwen OAuth Trong OpenClaw"
 ---
 
 # Qwen

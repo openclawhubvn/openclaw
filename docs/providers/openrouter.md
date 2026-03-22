@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng API hợp nhất của OpenRouter để truy cập nhiều mô hình trong OpenClaw"
+summary: "Khám phá cách dùng API OpenRouter để truy cập và tích hợp nhiều mô hình AI trong OpenClaw hiệu quả."
 read_when:
   - Bạn muốn một API key duy nhất cho nhiều LLMs
   - Bạn muốn chạy mô hình qua OpenRouter trong OpenClaw
-title: "OpenRouter"
+title: "Hướng Dẫn Sử Dụng API OpenRouter"
 ---
 
 # OpenRouter

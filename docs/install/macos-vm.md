@@ -1,11 +1,11 @@
 ---
-summary: "Chạy OpenClaw trong một máy ảo macOS được cách ly (local hoặc hosted) khi cần sự cô lập hoặc tích hợp iMessage"
+summary: "Tìm hiểu cách cài đặt và cấu hình máy ảo macOS để chạy OpenClaw, đảm bảo sự cô lập và tích hợp iMessage hiệu quả."
 read_when:
   - Bạn muốn OpenClaw được cách ly khỏi môi trường macOS chính
   - Bạn muốn tích hợp iMessage (BlueBubbles) trong một sandbox
   - Bạn muốn một môi trường macOS có thể reset và clone
   - Bạn muốn so sánh các tùy chọn máy ảo macOS local và hosted
-title: "Máy ảo macOS"
+title: "Hướng Dẫn Cài Đặt Máy Ảo macOS Cho OpenClaw"
 ---
 
 # OpenClaw trên Máy Ảo macOS (Sandboxing)

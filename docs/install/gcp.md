@@ -1,10 +1,10 @@
 ---
-summary: "Chạy OpenClaw Gateway 24/7 trên GCP Compute Engine VM (Docker) với trạng thái bền vững"
+summary: "Cài đặt OpenClaw Gateway trên GCP với Docker, đảm bảo hoạt động liên tục và bền vững. Khám phá cách tối ưu hóa hiệu suất."
 read_when:
   - Bạn muốn OpenClaw chạy 24/7 trên GCP
   - Bạn muốn một Gateway luôn hoạt động, đạt chuẩn sản xuất trên VM của riêng mình
   - Bạn muốn kiểm soát hoàn toàn việc lưu trữ, nhị phân và hành vi khởi động lại
-title: "GCP"
+title: "Hướng Dẫn Cài Đặt OpenClaw Trên GCP"
 ---
 
 # OpenClaw trên GCP Compute Engine (Docker, Hướng dẫn VPS sản xuất)

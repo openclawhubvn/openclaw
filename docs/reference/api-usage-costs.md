@@ -1,10 +1,10 @@
 ---
-summary: "Kiểm tra những gì có thể tiêu tiền, các khóa nào được sử dụng và cách xem mức sử dụng"
+summary: "Khám phá cách theo dõi chi phí API, quản lý khóa sử dụng và tối ưu hóa mức tiêu thụ hiệu quả."
 read_when:
   - Bạn muốn hiểu tính năng nào có thể gọi API trả phí
   - Bạn cần kiểm tra khóa, chi phí và khả năng xem mức sử dụng
   - Bạn đang giải thích báo cáo chi phí /status hoặc /usage
-title: "Sử dụng API và Chi phí"
+title: "Hướng Dẫn Sử Dụng API và Quản Lý Chi Phí"
 ---
 
 # Sử dụng API & Chi phí

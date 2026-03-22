@@ -1,8 +1,8 @@
 ---
-summary: "Cú pháp chỉ thị cho /think, /fast, /verbose và khả năng hiển thị lý luận"
+summary: "Tìm hiểu cú pháp chỉ thị /think, /fast, /verbose và cách hiển thị lý luận hiệu quả với OpenClaw."
 read_when:
   - Điều chỉnh phân tích cú pháp hoặc mặc định của chỉ thị thinking, fast-mode, hoặc verbose
-title: "Các cấp độ tư duy"
+title: "Hướng Dẫn Sử Dụng Công Cụ Tư Duy OpenClaw"
 ---
 
 # Các cấp độ tư duy (chỉ thị /think)

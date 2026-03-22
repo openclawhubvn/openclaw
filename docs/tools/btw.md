@@ -1,9 +1,9 @@
 ---
-summary: "Câu hỏi phụ tạm thời với /btw"
+summary: "Khám phá cách sử dụng công cụ BTW để tối ưu hóa quy trình làm việc của bạn với các câu hỏi phụ hiệu quả."
 read_when:
   - Bạn muốn hỏi một câu hỏi phụ nhanh về phiên hiện tại
   - Bạn đang triển khai hoặc gỡ lỗi hành vi BTW trên các client
-title: "Câu hỏi phụ BTW"
+title: "Hướng Dẫn Sử Dụng Công Cụ BTW"
 ---
 
 # Câu hỏi phụ BTW

@@ -1,10 +1,10 @@
 ---
-summary: "Cài đặt OpenClaw — script cài đặt, npm/pnpm, từ source, Docker và nhiều hơn nữa"
+summary: "Khám phá cách cài đặt OpenClaw qua script, npm/pnpm, từ source, Docker và nhiều phương pháp khác. Dễ dàng và nhanh chóng."
 read_when:
   - Bạn cần phương pháp cài đặt khác ngoài hướng dẫn nhanh trong phần Bắt đầu
   - Bạn muốn triển khai lên nền tảng đám mây
   - Bạn cần cập nhật, di chuyển, hoặc gỡ cài đặt
-title: "Cài đặt"
+title: "Hướng Dẫn Cài Đặt OpenClaw Chi Tiết"
 ---
 
 # Cài đặt

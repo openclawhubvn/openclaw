@@ -1,6 +1,6 @@
 ---
-title: "Tham khảo cấu hình bộ nhớ"
-summary: "Tham khảo đầy đủ cấu hình cho tìm kiếm bộ nhớ OpenClaw, nhà cung cấp embedding, backend QMD, tìm kiếm kết hợp và bộ nhớ đa phương tiện"
+title: "Hướng Dẫn Cấu Hình Bộ Nhớ OpenClaw"
+summary: "Khám phá cách cấu hình bộ nhớ OpenClaw, tối ưu hóa tìm kiếm và tích hợp nhà cung cấp embedding, backend QMD hiệu quả."
 read_when:
   - Bạn muốn cấu hình nhà cung cấp tìm kiếm bộ nhớ hoặc mô hình embedding
   - Bạn muốn thiết lập backend QMD

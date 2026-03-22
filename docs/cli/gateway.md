@@ -1,10 +1,10 @@
 ---
-summary: "OpenClaw Gateway CLI (`openclaw gateway`) — chạy, truy vấn và khám phá các gateway"
+summary: "Khám phá cách chạy và truy vấn OpenClaw Gateway CLI hiệu quả. Tìm hiểu chi tiết để tối ưu hóa hệ thống của bạn."
 read_when:
   - Chạy Gateway từ CLI (dev hoặc server)
   - Gỡ lỗi xác thực Gateway, chế độ bind và kết nối
   - Khám phá gateway qua Bonjour (LAN + tailnet)
-title: "gateway"
+title: "Hướng Dẫn Sử Dụng OpenClaw Gateway CLI"
 ---
 
 # Gateway CLI

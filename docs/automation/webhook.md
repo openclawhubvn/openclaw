@@ -1,9 +1,9 @@
 ---
-summary: "Webhook ingress để kích hoạt và chạy agent cách ly"
+summary: "Khám phá cách cấu hình Webhooks để kích hoạt và chạy agent cách ly hiệu quả trong hệ thống OpenClaw."
 read_when:
   - Thêm hoặc thay đổi endpoint webhook
   - Kết nối hệ thống bên ngoài vào OpenClaw
-title: "Webhooks"
+title: "Hướng Dẫn Cấu Hình Webhooks OpenClaw"
 ---
 
 # Webhooks

@@ -1,8 +1,8 @@
 ---
-summary: "Cách Gateway, các node và canvas host kết nối với nhau."
+summary: "Tìm hiểu cách cấu hình Gateway, node và canvas host để tối ưu hóa kết nối mạng hiệu quả."
 read_when:
   - Bạn muốn có cái nhìn ngắn gọn về mô hình mạng của Gateway
-title: "Mô hình mạng"
+title: "Hướng Dẫn Cấu Hình Mô Hình Mạng Gateway"
 ---
 
 # Mô hình mạng

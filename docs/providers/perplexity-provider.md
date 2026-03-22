@@ -1,6 +1,6 @@
 ---
-title: "Perplexity (Provider)"
-summary: "Thiết lập nhà cung cấp tìm kiếm web Perplexity (API key, chế độ tìm kiếm, lọc)"
+title: "Hướng Dẫn Cấu Hình Perplexity Provider"
+summary: "Tìm hiểu cách thiết lập Perplexity Provider với API key, chế độ tìm kiếm và bộ lọc để tối ưu hóa trải nghiệm tìm kiếm web."
 read_when:
   - Bạn muốn cấu hình Perplexity làm nhà cung cấp tìm kiếm web
   - Bạn cần API key của Perplexity hoặc thiết lập proxy OpenRouter

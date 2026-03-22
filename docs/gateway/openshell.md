@@ -1,6 +1,6 @@
 ---
-title: OpenShell
-summary: "Sử dụng OpenShell như một backend sandbox được quản lý cho các agent của OpenClaw"
+title: "Hướng Dẫn Sử Dụng OpenShell Backend"
+summary: "Tìm hiểu cách sử dụng OpenShell làm sandbox quản lý cho agent OpenClaw, tối ưu hóa hiệu suất và bảo mật."
 read_when:
   - Bạn muốn sử dụng sandbox được quản lý trên cloud thay vì Docker cục bộ
   - Bạn đang thiết lập plugin OpenShell

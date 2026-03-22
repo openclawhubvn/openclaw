@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw devices` (ghép nối thiết bị + xoay vòng/hủy token)"
+summary: "Khám phá cách sử dụng CLI để ghép nối thiết bị và quản lý token hiệu quả với OpenClaw."
 read_when:
   - Bạn đang phê duyệt yêu cầu ghép nối thiết bị
   - Bạn cần xoay vòng hoặc hủy token thiết bị
-title: "devices"
+title: "Hướng Dẫn CLI OpenClaw Devices"
 ---
 
 # `openclaw devices`

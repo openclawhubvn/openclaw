@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng Z.AI (mô hình GLM) với OpenClaw"
+summary: "Tìm hiểu cách cấu hình và sử dụng Z.AI, mô hình GLM, để tối ưu hóa trải nghiệm AI trên nền tảng OpenClaw."
 read_when:
   - Bạn muốn tích hợp mô hình Z.AI / GLM vào OpenClaw
   - Bạn cần thiết lập ZAI_API_KEY đơn giản
-title: "Z.AI"
+title: "Hướng Dẫn Sử Dụng Z.AI Với OpenClaw"
 ---
 
 # Z.AI

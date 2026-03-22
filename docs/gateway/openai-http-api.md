@@ -1,8 +1,8 @@
 ---
-summary: "Cung cấp endpoint HTTP /v1/chat/completions tương thích với OpenAI từ Gateway"
+summary: "Khám phá cách cấu hình endpoint HTTP /v1/chat/completions tương thích OpenAI, giúp tích hợp AI vào ứng dụng của bạn dễ dàng."
 read_when:
   - Tích hợp các công cụ yêu cầu OpenAI Chat Completions
-title: "OpenAI Chat Completions"
+title: "Hướng Dẫn Cấu Hình OpenAI Chat API"
 ---
 
 # OpenAI Chat Completions (HTTP)

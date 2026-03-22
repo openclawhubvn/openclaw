@@ -1,9 +1,9 @@
 ---
-summary: "Khám phá và gỡ lỗi Bonjour/mDNS (Gateway beacons, clients, và các lỗi thường gặp)"
+summary: "Tìm hiểu cách cấu hình và gỡ lỗi Bonjour/mDNS, xử lý Gateway beacons và các lỗi thường gặp hiệu quả."
 read_when:
   - Gỡ lỗi vấn đề khám phá Bonjour trên macOS/iOS
   - Thay đổi loại dịch vụ mDNS, bản ghi TXT, hoặc trải nghiệm khám phá
-title: "Khám phá Bonjour"
+title: "Hướng Dẫn Cấu Hình Bonjour/mDNS"
 ---
 
 # Khám phá Bonjour / mDNS

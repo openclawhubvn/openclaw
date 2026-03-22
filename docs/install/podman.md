@@ -1,8 +1,8 @@
 ---
-summary: "Chạy OpenClaw trong container Podman không cần quyền root"
+summary: "Khám phá cách chạy OpenClaw trong container Podman mà không cần quyền root, tối ưu hóa hiệu suất và bảo mật cho hệ thống của bạn."
 read_when:
   - Bạn muốn sử dụng Podman thay vì Docker để chạy gateway dưới dạng container
-title: "Podman"
+title: "Hướng Dẫn Cài Đặt OpenClaw Với Podman"
 ---
 
 # Podman

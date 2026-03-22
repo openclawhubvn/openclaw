@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw completion` (tạo/cài đặt script hoàn thành shell)"
+summary: "Khám phá cách tạo và cài đặt script hoàn thành shell cho OpenClaw CLI, tối ưu hóa trải nghiệm dòng lệnh của bạn."
 read_when:
   - Bạn muốn có tính năng hoàn thành lệnh cho zsh/bash/fish/PowerShell
   - Bạn cần lưu trữ script hoàn thành dưới trạng thái OpenClaw
-title: "completion"
+title: "Hướng Dẫn Cài Đặt Script Hoàn Thành Shell"
 ---
 
 # `openclaw completion`

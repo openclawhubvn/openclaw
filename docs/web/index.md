@@ -1,9 +1,9 @@
 ---
-summary: "Giao diện web Gateway: UI điều khiển, chế độ bind, và bảo mật"
+summary: "Khám phá cách cấu hình giao diện Web Gateway với UI điều khiển, chế độ bind và bảo mật tối ưu."
 read_when:
   - Bạn muốn truy cập Gateway qua Tailscale
   - Bạn muốn sử dụng giao diện điều khiển trên trình duyệt và chỉnh sửa cấu hình
-title: "Web"
+title: "Hướng Dẫn Cấu Hình Giao Diện Web Gateway"
 ---
 
 # Web (Gateway)

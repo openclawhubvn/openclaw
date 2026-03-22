@@ -1,3 +1,12 @@
+---
+summary: "Khám phá cách cấu hình công cụ TTS của OpenClaw để chuyển đổi văn bản thành giọng nói tự nhiên, nâng cao trải nghiệm người dùng."
+read_when:
+  - Khi bật tính năng chuyển văn bản thành giọng nói cho phản hồi
+  - Khi cấu hình nhà cung cấp TTS hoặc thiết lập giới hạn
+  - Khi sử dụng các lệnh /tts
+title: "Hướng Dẫn Cấu Hình Công Cụ TTS OpenClaw"
+---
+
 # Chuyển văn bản thành giọng nói (TTS)
 
 OpenClaw có thể chuyển đổi các phản hồi gửi đi thành âm thanh bằng cách sử dụng ElevenLabs, Microsoft hoặc OpenAI. Tính năng này hoạt động ở bất kỳ nơi nào OpenClaw có thể gửi âm thanh; trên Telegram, nó sẽ xuất hiện dưới dạng một bong bóng ghi chú giọng nói.

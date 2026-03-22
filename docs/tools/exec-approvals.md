@@ -1,10 +1,10 @@
 ---
-summary: "Phê duyệt thực thi, danh sách cho phép và các yêu cầu thoát sandbox"
+summary: "Tìm hiểu cách phê duyệt thực thi, quản lý danh sách cho phép và yêu cầu thoát sandbox hiệu quả với OpenClaw."
 read_when:
   - Cấu hình phê duyệt thực thi hoặc danh sách cho phép
   - Triển khai UX phê duyệt thực thi trong ứng dụng macOS
   - Xem xét các yêu cầu thoát sandbox và tác động
-title: "Phê Duyệt Thực Thi"
+title: "Hướng Dẫn Phê Duyệt Thực Thi OpenClaw"
 ---
 
 # Phê Duyệt Thực Thi

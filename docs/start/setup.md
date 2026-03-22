@@ -1,9 +1,9 @@
 ---
-summary: "Thiết lập nâng cao và quy trình phát triển cho OpenClaw"
+summary: "Khám phá cách thiết lập nâng cao và quy trình phát triển hiệu quả cho OpenClaw, tối ưu hóa hệ thống của bạn dễ dàng."
 read_when:
   - Thiết lập máy mới
   - Muốn có phiên bản mới nhất mà không ảnh hưởng đến cấu hình cá nhân
-title: "Thiết lập"
+title: "Hướng Dẫn Cấu Hình OpenClaw Nâng Cao"
 ---
 
 # Thiết lập

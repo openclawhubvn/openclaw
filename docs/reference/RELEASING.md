@@ -1,6 +1,6 @@
 ---
-title: "Chính sách phát hành"
-summary: "Các kênh phát hành công khai, cách đặt tên phiên bản và tần suất phát hành"
+title: "Hướng Dẫn Chính Sách Phát Hành OpenClaw"
+summary: "Khám phá kênh phát hành, quy tắc đặt tên phiên bản và tần suất phát hành cho OpenClaw. Tối ưu hóa quy trình của bạn ngay hôm nay."
 read_when:
   - Tìm kiếm định nghĩa về kênh phát hành công khai
   - Tìm kiếm cách đặt tên phiên bản và tần suất phát hành

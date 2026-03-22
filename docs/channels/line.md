@@ -1,10 +1,10 @@
 ---
-summary: "Thiết lập, cấu hình và sử dụng plugin LINE Messaging API"
+summary: "Tìm hiểu cách thiết lập và cấu hình LINE Messaging API để tối ưu hóa giao tiếp và tích hợp với hệ thống của bạn."
 read_when:
   - Bạn muốn kết nối OpenClaw với LINE
   - Bạn cần thiết lập webhook và thông tin xác thực LINE
   - Bạn muốn tùy chọn tin nhắn đặc thù cho LINE
-title: LINE
+title: "Hướng Dẫn Cấu Hình LINE Messaging API"
 ---
 
 # LINE (plugin)

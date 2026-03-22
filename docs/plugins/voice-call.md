@@ -1,9 +1,9 @@
 ---
-summary: "Plugin cuộc gọi thoại: gọi đi + gọi đến qua Twilio/Telnyx/Plivo (cài đặt plugin + cấu hình + CLI)"
+summary: "Tìm hiểu cách cài đặt và cấu hình plugin cuộc gọi thoại qua Twilio, Telnyx, Plivo. Hỗ trợ gọi đi và gọi đến dễ dàng."
 read_when:
   - Bạn muốn thực hiện cuộc gọi thoại đi từ OpenClaw
   - Bạn đang cấu hình hoặc phát triển plugin cuộc gọi thoại
-title: "Plugin Cuộc Gọi Thoại"
+title: "Hướng Dẫn Cấu Hình Plugin Cuộc Gọi Thoại"
 ---
 
 # Cuộc Gọi Thoại (plugin)

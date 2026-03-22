@@ -1,9 +1,9 @@
 ---
-summary: "Phân tích vị trí kênh inbound (Telegram + WhatsApp) và các trường ngữ cảnh"
+summary: "Khám phá cách phân tích và cấu hình vị trí kênh inbound như Telegram, WhatsApp để tối ưu hóa ngữ cảnh và hiệu quả."
 read_when:
   - Thêm hoặc chỉnh sửa phân tích vị trí kênh
   - Sử dụng các trường ngữ cảnh vị trí trong lời nhắc hoặc công cụ của agent
-title: "Phân Tích Vị Trí Kênh"
+title: "Hướng Dẫn Cấu Hình Vị Trí Kênh Inbound"
 ---
 
 # Phân tích vị trí kênh

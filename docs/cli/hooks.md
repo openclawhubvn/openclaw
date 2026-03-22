@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw hooks` (agent hooks)"
+summary: "Khám phá cách cấu hình và sử dụng OpenClaw Hooks trong CLI để tối ưu hóa quy trình tự động hóa của bạn."
 read_when:
   - Bạn muốn quản lý agent hooks
   - Bạn muốn cài đặt hoặc cập nhật hooks
-title: "hooks"
+title: "Hướng Dẫn Cấu Hình OpenClaw Hooks"
 ---
 
 # `openclaw hooks`

@@ -1,8 +1,8 @@
 ---
-summary: "Các hub liên kết đến mọi tài liệu OpenClaw"
+summary: "Khám phá các hub tài liệu OpenClaw, nơi tập hợp mọi hướng dẫn và cấu hình cần thiết cho người dùng."
 read_when:
   - Bạn muốn có một bản đồ đầy đủ của tài liệu
-title: "Các Hub Tài Liệu"
+title: "Hướng Dẫn Sử Dụng Hub Tài Liệu OpenClaw"
 ---
 
 # Các Hub Tài Liệu

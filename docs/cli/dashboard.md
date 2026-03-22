@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw dashboard` (mở Giao diện Điều khiển)"
+summary: "Khám phá cách sử dụng OpenClaw Dashboard qua CLI, tối ưu hóa quản lý và điều khiển hệ thống dễ dàng."
 read_when:
   - Bạn muốn mở Giao diện Điều khiển với token hiện tại
   - Bạn muốn in URL mà không cần mở trình duyệt
-title: "dashboard"
+title: "Hướng Dẫn Sử Dụng OpenClaw Dashboard CLI"
 ---
 
 # `openclaw dashboard`

@@ -1,6 +1,6 @@
 ---
-title: "Quy trình phát triển Pi"
-summary: "Quy trình làm việc cho tích hợp Pi: xây dựng, kiểm thử và xác thực trực tiếp"
+title: "Hướng Dẫn Phát Triển và Tích Hợp Pi"
+summary: "Khám phá quy trình phát triển Pi: từ xây dựng, kiểm thử đến xác thực, giúp tối ưu hóa tích hợp hệ thống hiệu quả."
 read_when:
   - Đang làm việc với mã tích hợp Pi hoặc kiểm thử
   - Chạy các quy trình lint, kiểm tra kiểu và kiểm thử trực tiếp dành riêng cho Pi

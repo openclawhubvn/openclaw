@@ -1,9 +1,9 @@
 ---
-summary: "Khắc phục sự cố kênh nhanh chóng với dấu hiệu lỗi và cách sửa chữa cho từng kênh"
+summary: "Tìm hiểu cách nhận diện và sửa lỗi kênh nhanh chóng, đảm bảo hoạt động ổn định cho hệ thống của bạn."
 read_when:
   - Kênh truyền tải báo kết nối nhưng phản hồi thất bại
   - Cần kiểm tra cụ thể từng kênh trước khi xem tài liệu nhà cung cấp chi tiết
-title: "Khắc phục sự cố kênh"
+title: "Hướng Dẫn Khắc Phục Sự Cố Kênh OpenClaw"
 ---
 
 # Khắc phục sự cố kênh

@@ -1,9 +1,9 @@
 ---
-summary: "Di chuyển (migrate) một cài đặt OpenClaw từ máy này sang máy khác"
+summary: "Tìm hiểu cách di chuyển cài đặt OpenClaw giữa các máy, đảm bảo dữ liệu và cấu hình được bảo toàn."
 read_when:
   - Bạn đang chuyển OpenClaw sang laptop/máy chủ mới
   - Bạn muốn giữ nguyên các phiên làm việc, xác thực và đăng nhập kênh (WhatsApp, v.v.)
-title: "Hướng Dẫn Di Chuyển"
+title: "Hướng Dẫn Di Chuyển OpenClaw Dễ Dàng"
 ---
 
 # Di Chuyển OpenClaw Sang Máy Mới

@@ -1,9 +1,9 @@
 ---
-summary: "Giao diện cài đặt Skills trên macOS và trạng thái hỗ trợ từ gateway"
+summary: "Khám phá cách cài đặt và quản lý Skills trên macOS, tối ưu hóa trải nghiệm người dùng với hỗ trợ từ gateway."
 read_when:
   - Cập nhật giao diện cài đặt Skills trên macOS
   - Thay đổi hành vi cài đặt hoặc điều kiện sử dụng skills
-title: "Skills (macOS)"
+title: "Hướng Dẫn Cài Đặt Skills Trên macOS"
 ---
 
 # Skills (macOS)

@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng các mô hình Xiaomi MiMo với OpenClaw"
+summary: "Tìm hiểu cách cấu hình và sử dụng mô hình Xiaomi MiMo với OpenClaw để tối ưu hóa hiệu suất và trải nghiệm người dùng."
 read_when:
   - Bạn muốn sử dụng mô hình Xiaomi MiMo trong OpenClaw
   - Bạn cần thiết lập XIAOMI_API_KEY
-title: "Xiaomi MiMo"
+title: "Hướng Dẫn Cấu Hình Xiaomi MiMo Với OpenClaw"
 ---
 
 # Xiaomi MiMo

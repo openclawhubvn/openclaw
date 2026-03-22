@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw doctor` (kiểm tra sức khỏe + sửa chữa hướng dẫn)"
+summary: "Khám phá cách sử dụng OpenClaw Doctor CLI để kiểm tra và sửa chữa hệ thống hiệu quả, đảm bảo hoạt động ổn định."
 read_when:
   - Gặp vấn đề kết nối/xác thực và cần hướng dẫn sửa chữa
   - Đã cập nhật và muốn kiểm tra tính ổn định
-title: "doctor"
+title: "Hướng Dẫn Sử Dụng OpenClaw Doctor CLI"
 ---
 
 # `openclaw doctor`

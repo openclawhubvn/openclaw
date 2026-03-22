@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng API tương thích OpenAI của NVIDIA trong OpenClaw"
+summary: "Tìm hiểu cách sử dụng API NVIDIA tương thích OpenAI trong OpenClaw để tối ưu hóa hiệu suất và tích hợp dễ dàng."
 read_when:
   - Bạn muốn sử dụng các mô hình của NVIDIA trong OpenClaw
   - Bạn cần thiết lập NVIDIA_API_KEY
-title: "NVIDIA"
+title: "Hướng Dẫn Cấu Hình NVIDIA API OpenAI"
 ---
 
 # NVIDIA

@@ -1,9 +1,9 @@
 ---
-summary: "Hỗ trợ iMessage cũ qua imsg (JSON-RPC qua stdio). Các thiết lập mới nên dùng BlueBubbles."
+summary: "Khám phá cách cấu hình iMessage qua BlueBubbles, tối ưu hóa trải nghiệm nhắn tin với hướng dẫn chi tiết và dễ hiểu."
 read_when:
   - Thiết lập hỗ trợ iMessage
   - Gỡ lỗi gửi/nhận iMessage
-title: "iMessage"
+title: "Hướng Dẫn Cấu Hình iMessage với BlueBubbles"
 ---
 
 # iMessage (cũ: imsg)

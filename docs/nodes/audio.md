@@ -1,8 +1,8 @@
 ---
-summary: "Cách tải xuống, chuyển đổi giọng nói thành văn bản và chèn vào phản hồi"
+summary: "Khám phá cách tải xuống và chuyển đổi giọng nói thành văn bản, tích hợp vào phản hồi dễ dàng và hiệu quả."
 read_when:
   - Thay đổi chuyển đổi âm thanh hoặc xử lý media
-title: "Âm thanh và Ghi chú Giọng nói"
+title: "Hướng Dẫn Chuyển Đổi Âm Thanh Thành Văn Bản"
 ---
 
 # Âm thanh / Ghi chú Giọng nói (2026-01-17)

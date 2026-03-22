@@ -1,8 +1,8 @@
 ---
-summary: "Thiết kế hàng đợi lệnh để tuần tự hóa các lần chạy tự động trả lời đến"
+summary: "Tìm hiểu cách thiết kế hàng đợi lệnh để tối ưu hóa tuần tự hóa và quản lý các lần chạy tự động hiệu quả."
 read_when:
   - Thay đổi thực thi hoặc đồng thời của tự động trả lời
-title: "Hàng Đợi Lệnh"
+title: "Hướng Dẫn Thiết Kế Hàng Đợi Lệnh"
 ---
 
 # Hàng Đợi Lệnh (2026-01-16)

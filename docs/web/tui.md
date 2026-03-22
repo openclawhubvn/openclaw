@@ -1,9 +1,9 @@
 ---
-summary: "Terminal UI (TUI): kết nối với Gateway từ bất kỳ máy nào"
+summary: "Tìm hiểu cách kết nối Terminal UI với Gateway từ bất kỳ máy nào, đảm bảo truy cập dễ dàng và hiệu quả."
 read_when:
   - Bạn muốn hướng dẫn dễ hiểu về TUI
   - Bạn cần danh sách đầy đủ các tính năng, lệnh và phím tắt của TUI
-title: "TUI"
+title: "Hướng Dẫn Cấu Hình Terminal UI (TUI)"
 ---
 
 # TUI (Giao diện dòng lệnh)

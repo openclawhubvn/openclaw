@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng OpenAI qua API keys hoặc đăng ký Codex trong OpenClaw"
+summary: "Khám phá cách cấu hình và sử dụng OpenAI qua API keys, đăng ký Codex để tích hợp vào OpenClaw hiệu quả."
 read_when:
   - Bạn muốn sử dụng mô hình OpenAI trong OpenClaw
   - Bạn muốn xác thực đăng ký Codex thay vì API keys
-title: "OpenAI"
+title: "Hướng Dẫn Sử Dụng OpenAI API Key"
 ---
 
 # OpenAI

@@ -1,6 +1,6 @@
 ---
-title: "Cloudflare AI Gateway"
-summary: "Thiết lập Cloudflare AI Gateway (xác thực + chọn mô hình)"
+title: "Hướng Dẫn Cấu Hình Cloudflare AI Gateway"
+summary: "Thiết lập và cấu hình Cloudflare AI Gateway với hướng dẫn chi tiết về xác thực và lựa chọn mô hình AI tối ưu."
 read_when:
   - Bạn muốn sử dụng Cloudflare AI Gateway với OpenClaw
   - Bạn cần ID tài khoản, ID gateway, hoặc biến môi trường API key

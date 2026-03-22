@@ -1,10 +1,10 @@
 ---
-summary: "Hướng dẫn ClawHub: đăng ký kỹ năng công khai + quy trình CLI"
+summary: "Tìm hiểu cách đăng ký kỹ năng công khai và sử dụng quy trình CLI trong ClawHub để tối ưu hóa trải nghiệm người dùng."
 read_when:
   - Giới thiệu ClawHub cho người dùng mới
   - Cài đặt, tìm kiếm hoặc xuất bản kỹ năng
   - Giải thích các cờ CLI và hành vi đồng bộ của ClawHub
-title: "ClawHub"
+title: "Hướng Dẫn Cấu Hình ClawHub Chi Tiết"
 ---
 
 # ClawHub

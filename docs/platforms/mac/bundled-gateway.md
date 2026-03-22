@@ -1,10 +1,10 @@
 ---
-summary: "Chạy Gateway trên macOS (dịch vụ launchd bên ngoài)"
+summary: "Tìm hiểu cách cấu hình và chạy dịch vụ Gateway trên macOS với launchd, tối ưu hóa hiệu suất hệ thống của bạn."
 read_when:
   - Đóng gói OpenClaw.app
   - Gỡ lỗi dịch vụ launchd gateway trên macOS
   - Cài đặt gateway CLI cho macOS
-title: "Gateway trên macOS"
+title: "Hướng Dẫn Chạy Gateway Trên macOS"
 ---
 
 # Gateway trên macOS (dịch vụ launchd bên ngoài)

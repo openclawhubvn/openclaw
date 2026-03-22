@@ -1,9 +1,9 @@
 ---
-summary: Ghi chú và cách khắc phục lỗi "__name is not a function" khi chạy Node + tsx
+summary: "Hướng dẫn chi tiết cách xử lý lỗi crash Node.js khi sử dụng TSX, giúp hệ thống hoạt động ổn định và hiệu quả hơn."
 read_when:
   - Gặp lỗi khi debug script dev chỉ chạy trên Node hoặc chế độ watch
   - Điều tra lỗi crash của tsx/esbuild loader trong OpenClaw
-title: "Lỗi Crash Node + tsx"
+title: "Khắc Phục Lỗi Crash Node.js Với TSX"
 ---
 
 # Lỗi Crash Node + tsx "\_\_name is not a function"

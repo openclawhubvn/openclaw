@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw node` (máy chủ node không giao diện)"
+summary: "Khám phá cách sử dụng OpenClaw Node CLI để quản lý máy chủ không giao diện hiệu quả. Tối ưu hóa hệ thống của bạn ngay hôm nay."
 read_when:
   - Chạy máy chủ node không giao diện
   - Ghép nối một node không phải macOS cho system.run
-title: "node"
+title: "Hướng Dẫn Cấu Hình OpenClaw Node CLI"
 ---
 
 # `openclaw node`

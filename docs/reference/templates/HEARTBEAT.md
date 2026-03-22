@@ -1,6 +1,6 @@
 ---
-title: "Mẫu HEARTBEAT.md"
-summary: "Mẫu Workspace cho HEARTBEAT.md"
+title: "Hướng Dẫn Cấu Hình Mẫu HEARTBEAT"
+summary: "Khám phá cách cấu hình mẫu HEARTBEAT trong Workspace để tối ưu hóa hiệu suất và giám sát hệ thống hiệu quả."
 read_when:
   - Khởi tạo workspace thủ công
 ---

@@ -1,8 +1,8 @@
 ---
-summary: "Câu chuyện và truyền thuyết về OpenClaw để hiểu rõ ngữ cảnh và giọng điệu"
+summary: "Khám phá truyền thuyết OpenClaw để hiểu rõ ngữ cảnh và giọng điệu của hệ thống, tạo nền tảng kiến thức vững chắc."
 read_when:
   - Viết tài liệu hoặc nội dung UX có tham chiếu đến truyền thuyết
-title: "Truyền Thuyết OpenClaw"
+title: "Truyền Thuyết và Câu Chuyện OpenClaw"
 ---
 
 # Truyền Thuyết OpenClaw 🦞📖

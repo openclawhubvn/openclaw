@@ -1,8 +1,8 @@
 ---
-summary: "Hướng dẫn vận hành dịch vụ Gateway, vòng đời và hoạt động"
+summary: "Khám phá cách cấu hình và quản lý dịch vụ Gateway hiệu quả, tối ưu hóa vòng đời và hoạt động của hệ thống."
 read_when:
   - Chạy hoặc gỡ lỗi quá trình gateway
-title: "Hướng dẫn Gateway"
+title: "Hướng Dẫn Cấu Hình Gateway Chi Tiết"
 ---
 
 # Hướng dẫn Gateway

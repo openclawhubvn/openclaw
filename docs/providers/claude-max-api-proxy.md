@@ -1,10 +1,10 @@
 ---
-summary: "Proxy cộng đồng để sử dụng thông tin đăng ký Claude như một endpoint tương thích OpenAI"
+summary: "Tìm hiểu cách sử dụng Claude Max API Proxy để kết nối và tương thích với OpenAI, tối ưu hóa hiệu suất và bảo mật."
 read_when:
   - Bạn muốn sử dụng gói Claude Max với các công cụ tương thích OpenAI
   - Bạn cần một server API cục bộ để bao bọc Claude Code CLI
   - Bạn muốn so sánh giữa truy cập dựa trên đăng ký và API-key của Anthropic
-title: "Claude Max API Proxy"
+title: "Hướng Dẫn Cấu Hình Claude Max API Proxy"
 ---
 
 # Claude Max API Proxy

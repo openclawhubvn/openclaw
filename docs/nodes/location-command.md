@@ -1,9 +1,9 @@
 ---
-summary: "Lệnh vị trí cho các node (location.get), chế độ quyền truy cập và hành vi nền trên Android"
+summary: "Khám phá cách sử dụng lệnh vị trí cho node, quản lý quyền truy cập và hành vi nền trên Android hiệu quả."
 read_when:
   - Thêm hỗ trợ node vị trí hoặc giao diện quyền truy cập
   - Thiết kế quyền truy cập vị trí trên Android hoặc hành vi nền
-title: "Lệnh Vị Trí"
+title: "Hướng Dẫn Sử Dụng Lệnh Vị Trí Node"
 ---
 
 # Lệnh vị trí (các node)

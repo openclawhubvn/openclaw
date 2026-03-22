@@ -1,9 +1,9 @@
 ---
-summary: "Tổng quan về các tùy chọn và quy trình onboarding của OpenClaw"
+summary: "Khám phá quy trình và tùy chọn onboarding của OpenClaw, giúp bạn bắt đầu nhanh chóng và hiệu quả."
 read_when:
   - Lựa chọn con đường onboarding
   - Thiết lập môi trường mới
-title: "Tổng quan Onboarding"
+title: "Hướng Dẫn Onboarding OpenClaw"
 sidebarTitle: "Tổng quan Onboarding"
 ---
 

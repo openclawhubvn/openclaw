@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw daemon` (bí danh cũ để quản lý dịch vụ gateway)"
+summary: "Khám phá cách sử dụng OpenClaw Daemon để quản lý dịch vụ gateway hiệu quả. Hướng dẫn chi tiết và dễ hiểu."
 read_when:
   - Bạn vẫn sử dụng `openclaw daemon ...` trong các script
   - Bạn cần các lệnh quản lý vòng đời dịch vụ (cài đặt/bắt đầu/dừng/khởi động lại/trạng thái)
-title: "daemon"
+title: "Hướng Dẫn Cấu Hình OpenClaw Daemon"
 ---
 
 # `openclaw daemon`

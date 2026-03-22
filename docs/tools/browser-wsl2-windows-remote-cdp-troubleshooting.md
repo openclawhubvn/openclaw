@@ -1,10 +1,10 @@
 ---
-summary: "Khắc phục sự cố WSL2 Gateway + Windows Chrome remote CDP theo từng lớp"
+summary: "Tìm hiểu cách giải quyết các vấn đề khi sử dụng WSL2 với Chrome CDP trên Windows. Hướng dẫn chi tiết từng bước."
 read_when:
   - Chạy OpenClaw Gateway trong WSL2 trong khi Chrome chạy trên Windows
   - Gặp lỗi trình duyệt/giao diện điều khiển chồng chéo giữa WSL2 và Windows
   - Quyết định giữa Chrome MCP host-local và remote CDP thô trong cấu hình chia tách host
-title: "Khắc phục sự cố WSL2 + Windows + remote Chrome CDP"
+title: "Hướng Dẫn Khắc Phục Sự Cố WSL2 và Chrome CDP"
 ---
 
 # Khắc phục sự cố WSL2 + Windows + remote Chrome CDP

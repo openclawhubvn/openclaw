@@ -1,6 +1,6 @@
 ---
-title: "Kiến trúc Tích hợp Pi"
-summary: "Kiến trúc tích hợp agent Pi nhúng và vòng đời phiên trong OpenClaw"
+title: "Hướng Dẫn Tích Hợp Agent Pi"
+summary: "Khám phá kiến trúc tích hợp Agent Pi nhúng và quản lý vòng đời phiên hiệu quả trong OpenClaw."
 read_when:
   - Hiểu thiết kế tích hợp Pi SDK trong OpenClaw
   - Sửa đổi vòng đời phiên agent, công cụ, hoặc kết nối provider cho Pi

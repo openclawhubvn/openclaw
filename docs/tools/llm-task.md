@@ -1,9 +1,9 @@
 ---
-summary: "Nhiệm vụ LLM chỉ sử dụng JSON cho quy trình làm việc (công cụ plugin tùy chọn)"
+summary: "Khám phá cách cấu hình nhiệm vụ LLM với JSON, tối ưu quy trình làm việc và tích hợp công cụ plugin hiệu quả."
 read_when:
   - Bạn muốn một bước LLM chỉ sử dụng JSON trong quy trình làm việc
   - Bạn cần đầu ra LLM được xác thực theo schema cho tự động hóa
-title: "Nhiệm vụ LLM"
+title: "Hướng Dẫn Cấu Hình Nhiệm Vụ LLM"
 ---
 
 # Nhiệm vụ LLM

@@ -1,9 +1,9 @@
 ---
-summary: "Chính sách thử lại cho các cuộc gọi nhà cung cấp outbound"
+summary: "Tìm hiểu cách cấu hình chính sách thử lại cho cuộc gọi outbound, đảm bảo kết nối hiệu quả và tối ưu hóa trải nghiệm khách hàng."
 read_when:
   - Cập nhật hành vi hoặc mặc định thử lại của nhà cung cấp
   - Gỡ lỗi lỗi gửi hoặc giới hạn tốc độ của nhà cung cấp
-title: "Chính sách Thử Lại"
+title: "Hướng Dẫn Cấu Hình Chính Sách Thử Lại"
 ---
 
 # Chính sách Thử Lại

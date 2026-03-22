@@ -1,9 +1,9 @@
 ---
-summary: "Thiết lập và hướng dẫn sử dụng Docker tùy chọn cho OpenClaw"
+summary: "Thiết lập Docker cho OpenClaw dễ dàng với hướng dẫn chi tiết từng bước. Tối ưu hóa hệ thống của bạn ngay hôm nay."
 read_when:
   - Bạn muốn một gateway dạng container thay vì cài đặt cục bộ
   - Bạn đang kiểm tra quy trình Docker
-title: "Docker"
+title: "Hướng Dẫn Cài Đặt Docker Cho OpenClaw"
 ---
 
 # Docker (tùy chọn)

@@ -1,3 +1,11 @@
+---
+summary: "Bảng Canvas được agent điều khiển, được nhúng thông qua WKWebView + custom URL scheme"
+read_when:
+  - Khi triển khai Canvas panel trên macOS
+  - Khi thêm các điều khiển agent cho không gian làm việc trực quan
+  - Khi debug việc load canvas bằng WKWebView
+title: "Hướng Dẫn Cấu Hình Canvas Trên MacOS"
+---
 # Canvas (Ứng dụng macOS)
 
 Ứng dụng macOS tích hợp một **Canvas panel** được điều khiển bởi agent thông qua `WKWebView`. Đây là một không gian làm việc trực quan nhẹ cho HTML/CSS/JS, A2UI và các bề mặt UI tương tác nhỏ.

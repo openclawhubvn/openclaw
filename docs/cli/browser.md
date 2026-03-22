@@ -1,10 +1,10 @@
 ---
-summary: "Tham khảo CLI cho `openclaw browser` (hồ sơ, tab, hành động, Chrome MCP và CDP)"
+summary: "Khám phá cách sử dụng OpenClaw Browser CLI với hướng dẫn chi tiết về hồ sơ, tab, hành động, Chrome MCP và CDP."
 read_when:
   - Bạn sử dụng `openclaw browser` và muốn có ví dụ cho các tác vụ thường gặp
   - Bạn muốn điều khiển trình duyệt chạy trên máy khác thông qua node host
   - Bạn muốn kết nối với Chrome đã đăng nhập trên máy của mình qua Chrome MCP
-title: "browser"
+title: "Hướng Dẫn Sử Dụng OpenClaw Browser CLI"
 ---
 
 # `openclaw browser`

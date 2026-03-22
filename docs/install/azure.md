@@ -1,10 +1,10 @@
 ---
-summary: "Chạy OpenClaw Gateway 24/7 trên Azure Linux VM với trạng thái bền vững"
+summary: "Triển khai OpenClaw Gateway 24/7 trên Azure Linux VM, đảm bảo hiệu suất và tính bền vững cho hệ thống của bạn."
 read_when:
   - Bạn muốn OpenClaw chạy 24/7 trên Azure với bảo mật Network Security Group
   - Bạn muốn một OpenClaw Gateway chất lượng sản xuất, luôn hoạt động trên Azure Linux VM của mình
   - Bạn muốn quản trị an toàn với Azure Bastion SSH
-title: "Azure"
+title: "Hướng Dẫn Cài Đặt OpenClaw Trên Azure"
 ---
 
 # OpenClaw trên Azure Linux VM

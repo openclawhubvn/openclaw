@@ -1,10 +1,10 @@
 ---
-summary: "Nghi thức khởi tạo agent để thiết lập workspace và các file định danh"
+summary: "Tìm hiểu cách khởi tạo Agent để thiết lập workspace và định danh file hiệu quả. Bắt đầu nhanh chóng với OpenClaw."
 read_when:
   - Hiểu những gì xảy ra khi agent chạy lần đầu
   - Giải thích vị trí lưu trữ các file khởi tạo
   - Gỡ lỗi thiết lập định danh khi bắt đầu
-title: "Khởi tạo Agent"
+title: "Hướng Dẫn Khởi Tạo Agent OpenClaw"
 sidebarTitle: "Khởi tạo"
 ---
 

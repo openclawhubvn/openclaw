@@ -1,9 +1,9 @@
 ---
-summary: "Chạy nhiều OpenClaw Gateway trên một máy chủ (cách ly, cổng, và cấu hình)"
+summary: "Tìm hiểu cách chạy nhiều Gateway OpenClaw trên một máy chủ, tối ưu hóa cách ly, cổng và cấu hình hiệu quả."
 read_when:
   - Chạy nhiều hơn một Gateway trên cùng một máy
   - Cần cấu hình/trạng thái/cổng riêng biệt cho từng Gateway
-title: "Nhiều Gateway"
+title: "Hướng Dẫn Cấu Hình Nhiều Gateway OpenClaw"
 ---
 
 # Nhiều Gateway (trên cùng một máy chủ)

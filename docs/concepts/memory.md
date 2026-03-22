@@ -1,6 +1,6 @@
 ---
-title: "Bộ nhớ"
-summary: "Cách hoạt động của bộ nhớ OpenClaw (tệp workspace + tự động xóa bộ nhớ)"
+title: "Hướng Dẫn Cấu Hình Bộ Nhớ OpenClaw"
+summary: "Khám phá cách hoạt động và cấu hình bộ nhớ OpenClaw, từ quản lý tệp workspace đến tự động xóa bộ nhớ hiệu quả."
 read_when:
   - Bạn muốn biết cấu trúc và quy trình làm việc của tệp bộ nhớ
   - Bạn muốn điều chỉnh tính năng tự động xóa bộ nhớ trước khi nén

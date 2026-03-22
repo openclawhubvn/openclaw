@@ -1,10 +1,10 @@
 ---
-summary: "Giao thức Bridge (node cũ): TCP JSONL, ghép đôi, RPC có phạm vi"
+summary: "Tìm hiểu cách cấu hình giao thức Bridge với TCP JSONL, ghép đôi và RPC để tối ưu hóa kết nối hệ thống."
 read_when:
   - Xây dựng hoặc gỡ lỗi các client node (chế độ node iOS/Android/macOS)
   - Điều tra lỗi ghép đôi hoặc xác thực bridge
   - Kiểm tra bề mặt node được gateway phơi bày
-title: "Giao thức Bridge"
+title: "Hướng Dẫn Cấu Hình Giao Thức Bridge"
 ---
 
 # Giao thức Bridge (truyền tải node cũ)

@@ -1,9 +1,9 @@
 ---
-summary: "Cấu hình kỹ năng và ví dụ"
+summary: "Tìm hiểu cách cấu hình kỹ năng trong OpenClaw với hướng dẫn chi tiết và ví dụ thực tế, giúp tối ưu hóa trải nghiệm người dùng."
 read_when:
   - Thêm hoặc chỉnh sửa cấu hình kỹ năng
   - Điều chỉnh danh sách cho phép hoặc hành vi cài đặt
-title: "Cấu hình Kỹ năng"
+title: "Hướng Dẫn Cấu Hình Kỹ Năng OpenClaw"
 ---
 
 # Cấu hình Kỹ năng

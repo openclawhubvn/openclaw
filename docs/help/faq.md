@@ -1,9 +1,9 @@
 ---
-summary: "Các câu hỏi thường gặp về cài đặt, cấu hình và sử dụng OpenClaw"
+summary: "Khám phá câu hỏi thường gặp về cài đặt, cấu hình và sử dụng OpenClaw để tối ưu hóa trải nghiệm của bạn."
 read_when:
   - Trả lời các câu hỏi thường gặp về cài đặt, cài đặt, onboarding hoặc hỗ trợ runtime
   - Phân loại các vấn đề do người dùng báo cáo trước khi đi sâu vào gỡ lỗi
-title: "FAQ"
+title: "Hướng Dẫn FAQ Cài Đặt OpenClaw"
 ---
 
 # FAQ

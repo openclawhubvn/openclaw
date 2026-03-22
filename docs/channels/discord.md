@@ -1,8 +1,8 @@
 ---
-summary: "Trạng thái hỗ trợ bot Discord, khả năng và cấu hình"
+summary: "Khám phá cách cấu hình và tối ưu hóa bot Discord để nâng cao trải nghiệm người dùng và quản lý server hiệu quả."
 read_when:
   - Làm việc với các tính năng kênh Discord
-title: "Discord"
+title: "Hướng Dẫn Cấu Hình Bot Discord"
 ---
 
 # Discord (Bot API)

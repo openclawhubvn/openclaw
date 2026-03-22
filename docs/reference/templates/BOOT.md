@@ -1,6 +1,6 @@
 ---
-title: "Mẫu BOOT.md"
-summary: "Mẫu Workspace cho BOOT.md"
+title: "Hướng Dẫn Cấu Hình Mẫu BOOT"
+summary: "Khám phá cách cấu hình mẫu BOOT cho workspace, tối ưu hóa quy trình làm việc và cải thiện hiệu suất dự án của bạn."
 read_when:
   - Thêm checklist BOOT.md
 ---

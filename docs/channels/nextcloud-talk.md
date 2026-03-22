@@ -1,8 +1,8 @@
 ---
-summary: "Trạng thái hỗ trợ, khả năng và cấu hình của Nextcloud Talk"
+summary: "Khám phá cách cấu hình và tối ưu hóa Nextcloud Talk để cải thiện khả năng giao tiếp và hỗ trợ nhóm hiệu quả."
 read_when:
   - Đang làm việc với các tính năng kênh Nextcloud Talk
-title: "Nextcloud Talk"
+title: "Hướng Dẫn Cấu Hình Nextcloud Talk"
 ---
 
 # Nextcloud Talk (plugin)

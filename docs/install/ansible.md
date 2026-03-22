@@ -1,10 +1,10 @@
 ---
-summary: "Cài đặt OpenClaw tự động và bảo mật với Ansible, Tailscale VPN và cách ly tường lửa"
+summary: "Tìm hiểu cách cài đặt OpenClaw tự động và an toàn với Ansible, Tailscale VPN và bảo mật tường lửa hiệu quả."
 read_when:
   - Bạn muốn triển khai máy chủ tự động với bảo mật cao
   - Bạn cần thiết lập cách ly tường lửa với truy cập VPN
   - Bạn đang triển khai trên máy chủ Debian/Ubuntu từ xa
-title: "Ansible"
+title: "Hướng Dẫn Cài Đặt OpenClaw Với Ansible"
 ---
 
 # Cài đặt Ansible

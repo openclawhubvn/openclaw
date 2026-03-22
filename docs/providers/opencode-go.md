@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng danh mục OpenCode Go với thiết lập OpenCode chung"
+summary: "Tìm hiểu cách thiết lập và sử dụng OpenCode Go hiệu quả với hướng dẫn chi tiết từng bước. Khám phá ngay!"
 read_when:
   - Bạn muốn danh mục OpenCode Go
   - Bạn cần tham chiếu mô hình runtime cho các mô hình được lưu trữ trên Go
-title: "OpenCode Go"
+title: "Hướng Dẫn Cấu Hình OpenCode Go"
 ---
 
 # OpenCode Go

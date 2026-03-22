@@ -1,6 +1,6 @@
 ---
-title: "Volcengine (Doubao)"
-summary: "Thiết lập Volcano Engine (mô hình Doubao, endpoint tổng quát + mã hóa)"
+title: "Hướng Dẫn Cấu Hình Volcengine Doubao"
+summary: "Thiết lập Volcengine với mô hình Doubao, hướng dẫn cấu hình endpoint và mã hóa chi tiết."
 read_when:
   - Bạn muốn sử dụng Volcano Engine hoặc mô hình Doubao với OpenClaw
   - Bạn cần thiết lập khóa API của Volcengine

@@ -1,9 +1,9 @@
 ---
-summary: "Chạy OpenClaw với SGLang (máy chủ tự lưu trữ tương thích OpenAI)"
+summary: "Khám phá cách chạy OpenClaw trên máy chủ tự lưu trữ SGLang, tương thích với OpenAI, để tối ưu hiệu suất."
 read_when:
   - Bạn muốn chạy OpenClaw với máy chủ SGLang cục bộ
   - Bạn muốn sử dụng các endpoint /v1 tương thích OpenAI với mô hình của riêng mình
-title: "SGLang"
+title: "Hướng Dẫn Cấu Hình SGLang Với OpenClaw"
 ---
 
 # SGLang

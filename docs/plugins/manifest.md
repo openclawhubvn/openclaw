@@ -1,3 +1,11 @@
+---
+summary: "Tìm hiểu cách cấu hình Plugin Manifest để tối ưu hóa hiệu suất và tích hợp liền mạch với hệ thống OpenClaw."
+read_when:
+  - You are building an OpenClaw plugin
+  - You need to ship a plugin config schema or debug plugin validation errors
+title: "Hướng Dẫn Cấu Hình Plugin Manifest"
+---
+
 # Plugin Manifest (openclaw.plugin.json)
 
 Trang này chỉ dành cho **manifest plugin gốc của OpenClaw**.

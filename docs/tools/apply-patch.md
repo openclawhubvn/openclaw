@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng công cụ apply_patch để áp dụng các bản vá nhiều file"
+summary: "Khám phá cách áp dụng bản vá nhiều file hiệu quả với công cụ apply_patch. Nâng cao hiệu suất công việc của bạn ngay hôm nay."
 read_when:
   - Cần chỉnh sửa cấu trúc file trên nhiều file
   - Muốn ghi lại hoặc gỡ lỗi các chỉnh sửa dựa trên bản vá
-title: "Công cụ apply_patch"
+title: "Hướng Dẫn Sử Dụng Công Cụ Apply Patch"
 ---
 
 # Công cụ apply_patch

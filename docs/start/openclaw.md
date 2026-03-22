@@ -1,9 +1,9 @@
 ---
-summary: "Hướng dẫn chi tiết để chạy OpenClaw như một trợ lý cá nhân với các lưu ý an toàn"
+summary: "Khám phá cách thiết lập OpenClaw làm trợ lý AI cá nhân, đảm bảo an toàn và hiệu quả cho người dùng."
 read_when:
   - Khi khởi tạo một instance trợ lý mới
   - Khi xem xét các tác động về an toàn/quyền hạn
-title: "Thiết lập Trợ lý Cá nhân"
+title: "Hướng Dẫn Cấu Hình Trợ Lý AI OpenClaw"
 ---
 
 # Xây dựng trợ lý cá nhân với OpenClaw

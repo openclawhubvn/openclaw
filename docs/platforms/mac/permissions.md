@@ -1,10 +1,10 @@
 ---
-summary: "Duy trì quyền truy cập trên macOS (TCC) và yêu cầu ký ứng dụng"
+summary: "Tìm hiểu cách duy trì và cấu hình quyền truy cập trên macOS, bao gồm yêu cầu ký ứng dụng để đảm bảo an toàn và bảo mật."
 read_when:
   - Khắc phục lỗi khi quyền truy cập trên macOS bị thiếu hoặc không hiển thị
   - Đóng gói hoặc ký ứng dụng macOS
   - Thay đổi bundle ID hoặc đường dẫn cài đặt ứng dụng
-title: "Quyền truy cập trên macOS"
+title: "Hướng Dẫn Cấu Hình Quyền Truy Cập macOS"
 ---
 
 # Quyền truy cập trên macOS (TCC)

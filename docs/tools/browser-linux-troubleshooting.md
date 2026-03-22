@@ -1,7 +1,7 @@
 ---
-summary: "Khắc phục sự cố khởi động Chrome/Brave/Edge/Chromium CDP cho điều khiển trình duyệt OpenClaw trên Linux"
+summary: "Giải quyết lỗi khởi động Chrome, Brave, Edge, Chromium trên Linux với OpenClaw. Tối ưu hóa điều khiển trình duyệt hiệu quả."
 read_when: "Điều khiển trình duyệt không hoạt động trên Linux, đặc biệt với snap Chromium"
-title: "Khắc phục sự cố trình duyệt"
+title: "Hướng Dẫn Khắc Phục Sự Cố Trình Duyệt Linux"
 ---
 
 # Khắc phục sự cố trình duyệt (Linux)

@@ -1,7 +1,8 @@
 ---
-summary: "Hồ sơ nhận diện Agent"
+summary: "Tìm hiểu cách tạo và cấu hình hồ sơ nhận diện Agent, giúp tối ưu hóa khả năng nhận diện và quản lý thông tin hiệu quả."
 read_when:
   - Khởi tạo workspace thủ công
+title: "Hướng Dẫn Cấu Hình Hồ Sơ Nhận Diện Agent"
 ---
 
 # IDENTITY.md - Tôi Là Ai?

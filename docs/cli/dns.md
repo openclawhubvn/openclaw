@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw dns` (công cụ hỗ trợ khám phá diện rộng)"
+summary: "Khám phá cách sử dụng công cụ CLI 'openclaw dns' để quản lý và cấu hình DNS hiệu quả, hỗ trợ khám phá diện rộng."
 read_when:
   - Bạn muốn khám phá diện rộng (DNS-SD) qua Tailscale + CoreDNS
   - Bạn đang thiết lập DNS phân tách cho một miền khám phá tùy chỉnh (ví dụ: openclaw.internal)
-title: "dns"
+title: "Hướng Dẫn Cấu Hình DNS Với OpenClaw"
 ---
 
 # `openclaw dns`

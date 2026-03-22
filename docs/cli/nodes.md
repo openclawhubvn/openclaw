@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw nodes` (danh sách/trạng thái/phê duyệt/kích hoạt, camera/canvas/màn hình)"
+summary: "Khám phá cách sử dụng CLI để quản lý nodes: danh sách, trạng thái, phê duyệt và kích hoạt. Tối ưu hóa camera, canvas và màn hình."
 read_when:
   - Bạn đang quản lý các node đã ghép đôi (camera, màn hình, canvas)
   - Bạn cần phê duyệt yêu cầu hoặc kích hoạt lệnh node
-title: "nodes"
+title: "Hướng Dẫn CLI OpenClaw Nodes"
 ---
 
 # `openclaw nodes`

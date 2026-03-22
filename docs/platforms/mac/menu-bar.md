@@ -1,8 +1,8 @@
 ---
-summary: "Logic hiển thị thanh menu và thông tin cho người dùng"
+summary: "Tìm hiểu cách cấu hình và tối ưu hóa thanh menu trên Mac để cải thiện trải nghiệm người dùng và hiệu suất hệ thống."
 read_when:
   - Điều chỉnh giao diện hoặc logic trạng thái menu trên mac
-title: "Thanh Menu"
+title: "Hướng Dẫn Cấu Hình Thanh Menu Trên Mac"
 ---
 
 # Logic Trạng Thái Thanh Menu

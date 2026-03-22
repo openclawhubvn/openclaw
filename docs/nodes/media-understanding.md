@@ -1,9 +1,9 @@
 ---
-summary: "Hiểu nội dung media (hình ảnh/âm thanh/video) đầu vào (tùy chọn) với provider + CLI dự phòng"
+summary: "Khám phá cách phân tích hình ảnh, âm thanh, video với công cụ CLI và provider, tối ưu hóa quy trình xử lý media."
 read_when:
   - Thiết kế hoặc tái cấu trúc việc hiểu media
   - Tinh chỉnh xử lý trước âm thanh/video/hình ảnh đầu vào
-title: "Hiểu Nội Dung Media"
+title: "Hướng Dẫn Hiểu Nội Dung Media Tự Động"
 ---
 
 # Hiểu Nội Dung Media - Đầu Vào (2026-01-17)

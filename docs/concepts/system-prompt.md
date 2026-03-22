@@ -1,9 +1,9 @@
 ---
-summary: "Nội dung và cách cấu trúc của System Prompt trong OpenClaw"
+summary: "Khám phá cách cấu trúc System Prompt trong OpenClaw để tối ưu hóa hiệu suất và cải thiện trải nghiệm người dùng."
 read_when:
   - Chỉnh sửa văn bản system prompt, danh sách công cụ, hoặc các phần thời gian/heartbeat
   - Thay đổi hành vi khởi tạo workspace hoặc chèn kỹ năng
-title: "System Prompt"
+title: "Hướng Dẫn Cấu Trúc System Prompt OpenClaw"
 ---
 
 # System Prompt

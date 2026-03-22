@@ -1,10 +1,10 @@
 ---
-summary: "Tham khảo: Quy tắc làm sạch và sửa chữa bản ghi cụ thể cho từng nhà cung cấp"
+summary: "Khám phá quy tắc làm sạch và sửa chữa bản ghi cho từng nhà cung cấp, tối ưu hóa hiệu suất AI của bạn."
 read_when:
   - Bạn đang gỡ lỗi các yêu cầu bị từ chối do hình dạng bản ghi
   - Bạn đang thay đổi logic làm sạch hoặc sửa chữa cuộc gọi công cụ
   - Bạn đang điều tra sự không khớp id cuộc gọi công cụ giữa các nhà cung cấp
-title: "Vệ sinh Bản ghi"
+title: "Hướng Dẫn Vệ Sinh Bản Ghi Cho AI"
 ---
 
 # Vệ sinh Bản ghi (Sửa chữa theo Nhà cung cấp)

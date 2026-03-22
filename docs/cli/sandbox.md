@@ -1,6 +1,6 @@
 ---
-title: Sandbox CLI
-summary: "Quản lý môi trường sandbox và kiểm tra chính sách sandbox hiệu quả"
+title: "Hướng Dẫn Cấu Hình Sandbox CLI"
+summary: "Khám phá cách quản lý và kiểm tra môi trường sandbox hiệu quả với CLI. Tối ưu hóa chính sách bảo mật của bạn ngay hôm nay."
 read_when: "Khi bạn quản lý môi trường sandbox hoặc gỡ lỗi hành vi sandbox/chính sách công cụ."
 status: active
 ---

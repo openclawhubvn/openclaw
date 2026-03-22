@@ -1,6 +1,6 @@
 ---
-title: "Kilo Gateway"
-summary: "Sử dụng API hợp nhất của Kilo Gateway để truy cập nhiều mô hình trong OpenClaw"
+title: "Hướng Dẫn Cấu Hình Kilo Gateway API"
+summary: "Tìm hiểu cách sử dụng API Kilo Gateway để truy cập và tích hợp nhiều mô hình AI trong OpenClaw hiệu quả."
 read_when:
   - Bạn muốn một API key duy nhất cho nhiều LLMs
   - Bạn muốn chạy mô hình qua Kilo Gateway trong OpenClaw

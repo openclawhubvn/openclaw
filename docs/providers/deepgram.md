@@ -1,9 +1,9 @@
 ---
-summary: "Chuyển giọng nói thành văn bản với Deepgram cho ghi chú thoại đến"
+summary: "Tìm hiểu cách cấu hình Deepgram để chuyển giọng nói thành văn bản, tối ưu ghi chú thoại nhanh chóng và chính xác."
 read_when:
   - Bạn muốn sử dụng Deepgram để chuyển giọng nói thành văn bản cho tệp âm thanh đính kèm
   - Bạn cần ví dụ cấu hình nhanh cho Deepgram
-title: "Deepgram"
+title: "Hướng Dẫn Cấu Hình Deepgram Chuyển Giọng Nói"
 ---
 
 # Deepgram (Chuyển giọng nói thành văn bản)

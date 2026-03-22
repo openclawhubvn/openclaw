@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo đầy đủ về quy trình thiết lập CLI, cấu hình xác thực/mô hình, đầu ra và nội bộ"
+summary: "Khám phá cách thiết lập và cấu hình CLI với hướng dẫn chi tiết về xác thực, mô hình và đầu ra. Nâng cao hiệu suất hệ thống của bạn."
 read_when:
   - Cần hành vi chi tiết cho onboard OpenClaw
   - Đang gỡ lỗi kết quả onboarding hoặc tích hợp khách hàng onboarding
-title: "Tham khảo Thiết lập CLI"
+title: "Hướng Dẫn Cấu Hình CLI Chi Tiết"
 sidebarTitle: "Tham khảo CLI"
 ---
 

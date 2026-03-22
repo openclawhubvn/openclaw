@@ -1,10 +1,10 @@
 ---
-summary: "Sub-agents: tạo các phiên agent độc lập chạy nền và thông báo kết quả về kênh chat yêu cầu"
+summary: "Tìm hiểu cách tạo và cấu hình sub-agents để chạy nền và gửi thông báo kết quả về kênh chat một cách hiệu quả."
 read_when:
   - Bạn muốn thực hiện công việc nền hoặc song song qua agent
   - Bạn đang thay đổi chính sách sessions_spawn hoặc công cụ sub-agent
   - Bạn đang triển khai hoặc xử lý sự cố các phiên sub-agent gắn với luồng
-title: "Sub-Agents"
+title: "Hướng Dẫn Cấu Hình Sub-Agents"
 ---
 
 # Sub-agents

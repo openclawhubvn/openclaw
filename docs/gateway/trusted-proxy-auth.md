@@ -1,6 +1,6 @@
 ---
-title: "Xác Thực Proxy Tin Cậy"
-summary: "Ủy quyền xác thực gateway cho một reverse proxy tin cậy (Pomerium, Caddy, nginx + OAuth)"
+title: "Hướng Dẫn Cấu Hình Proxy Tin Cậy"
+summary: "Tìm hiểu cách cấu hình xác thực gateway qua reverse proxy tin cậy như Pomerium, Caddy, nginx với OAuth."
 read_when:
   - Chạy OpenClaw sau một proxy nhận diện danh tính
   - Cài đặt Pomerium, Caddy, hoặc nginx với OAuth trước OpenClaw

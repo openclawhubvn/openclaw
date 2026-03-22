@@ -1,6 +1,6 @@
 ---
-title: "Mẫu BOOTSTRAP.md"
-summary: "Nghi thức khởi động cho các agent mới"
+title: "Hướng Dẫn Cấu Hình Mẫu Bootstrap"
+summary: "Tìm hiểu cách cấu hình và sử dụng mẫu Bootstrap cho các agent mới, giúp tối ưu hóa quy trình khởi động nhanh chóng."
 read_when:
   - Khởi tạo workspace thủ công
 ---

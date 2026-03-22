@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw security` (kiểm tra và khắc phục các vấn đề bảo mật phổ biến)"
+summary: "Khám phá cách kiểm tra và khắc phục các vấn đề bảo mật phổ biến với OpenClaw CLI. Tăng cường an ninh hệ thống dễ dàng."
 read_when:
   - Bạn muốn thực hiện kiểm tra bảo mật nhanh trên cấu hình/trạng thái
   - Bạn muốn áp dụng các đề xuất "sửa chữa" an toàn (chmod, thắt chặt mặc định)
-title: "security"
+title: "Hướng Dẫn Cấu Hình Bảo Mật OpenClaw CLI"
 ---
 
 # `openclaw security`

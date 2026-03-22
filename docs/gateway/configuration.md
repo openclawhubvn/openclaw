@@ -1,10 +1,10 @@
 ---
-summary: "Tổng quan cấu hình: các tác vụ phổ biến, thiết lập nhanh và liên kết đến tài liệu tham khảo đầy đủ"
+summary: "Khám phá cách cấu hình Gateway với các bước thiết lập nhanh và liên kết tài liệu tham khảo đầy đủ. Tối ưu hóa hệ thống của bạn ngay hôm nay."
 read_when:
   - Thiết lập OpenClaw lần đầu tiên
   - Tìm kiếm các mẫu cấu hình phổ biến
   - Điều hướng đến các phần cấu hình cụ thể
-title: "Cấu hình"
+title: "Hướng Dẫn Cấu Hình Gateway Chi Tiết"
 ---
 
 # Cấu hình

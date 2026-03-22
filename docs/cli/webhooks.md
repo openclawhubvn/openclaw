@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw webhooks` (trợ giúp webhook + Gmail Pub/Sub)"
+summary: "Khám phá cách cấu hình Webhooks với OpenClaw CLI, tích hợp Gmail Pub/Sub dễ dàng và hiệu quả."
 read_when:
   - Bạn muốn kết nối sự kiện Gmail Pub/Sub vào OpenClaw
   - Bạn cần lệnh trợ giúp webhook
-title: "webhooks"
+title: "Hướng Dẫn Cấu Hình Webhooks OpenClaw"
 ---
 
 # `openclaw webhooks`

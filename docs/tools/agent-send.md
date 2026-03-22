@@ -1,9 +1,9 @@
 ---
-summary: "Chạy agent từ CLI và tùy chọn gửi phản hồi đến các kênh"
+summary: "Tìm hiểu cách chạy agent từ CLI và gửi phản hồi đến các kênh hiệu quả. Tối ưu hóa quy trình làm việc của bạn."
 read_when:
   - Bạn muốn kích hoạt agent từ script hoặc dòng lệnh
   - Bạn cần gửi phản hồi của agent đến một kênh chat một cách tự động
-title: "Gửi Agent"
+title: "Hướng Dẫn Gửi Agent Qua CLI"
 ---
 
 # Gửi Agent

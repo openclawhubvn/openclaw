@@ -1,8 +1,8 @@
 ---
-summary: "Thiết lập Slack và hành vi runtime (Socket Mode + HTTP Events API)"
+summary: "Thiết lập Slack với OpenClaw, tối ưu hóa hành vi runtime qua Socket Mode và HTTP Events API. Tăng hiệu suất và kết nối dễ dàng."
 read_when:
   - Thiết lập Slack hoặc gỡ lỗi chế độ socket/HTTP của Slack
-title: "Slack"
+title: "Hướng Dẫn Cấu Hình Slack Với OpenClaw"
 ---
 
 # Slack

@@ -1,10 +1,10 @@
 ---
-summary: "iMessage qua máy chủ BlueBubbles trên macOS (gửi/nhận REST, trạng thái gõ, phản ứng, ghép nối, hành động nâng cao)."
+summary: "Khám phá cách cấu hình iMessage qua BlueBubbles trên macOS, hỗ trợ gửi/nhận tin, trạng thái gõ và nhiều tính năng nâng cao."
 read_when:
   - Thiết lập kênh BlueBubbles
   - Khắc phục sự cố ghép nối webhook
   - Cấu hình iMessage trên macOS
-title: "BlueBubbles"
+title: "Hướng Dẫn Cấu Hình iMessage Với BlueBubbles"
 ---
 
 # BlueBubbles (macOS REST)

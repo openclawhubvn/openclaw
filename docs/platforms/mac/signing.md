@@ -1,8 +1,8 @@
 ---
-summary: "Các bước ký cho bản debug trên macOS được tạo bởi script đóng gói"
+summary: "Tìm hiểu cách ký ứng dụng macOS cho bản debug với hướng dẫn chi tiết từng bước, đảm bảo an toàn và tuân thủ quy định của Apple."
 read_when:
   - Xây dựng hoặc ký bản debug trên macOS
-title: "Ký macOS"
+title: "Hướng Dẫn Ký Ứng Dụng macOS Chi Tiết"
 ---
 
 # Ký macOS (bản debug)

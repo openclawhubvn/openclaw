@@ -1,6 +1,6 @@
 ---
-title: "Mẫu SOUL.md"
-summary: "Mẫu Workspace cho SOUL.md"
+title: "Hướng Dẫn Mẫu Workspace SOUL"
+summary: "Khám phá cách sử dụng mẫu Workspace SOUL để tối ưu hóa quy trình làm việc của bạn. Hướng dẫn chi tiết và dễ hiểu."
 read_when:
   - Tự tạo workspace thủ công
 ---

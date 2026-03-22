@@ -1,9 +1,9 @@
 ---
-summary: "Tổng quan hỗ trợ nền tảng (Gateway + ứng dụng đi kèm)"
+summary: "Khám phá cách cấu hình nền tảng OpenClaw với Gateway và ứng dụng đi kèm, tối ưu hóa hiệu suất hệ thống của bạn."
 read_when:
   - Tìm kiếm hỗ trợ hệ điều hành hoặc đường dẫn cài đặt
   - Quyết định nơi chạy Gateway
-title: "Nền tảng"
+title: "Hướng Dẫn Cấu Hình Nền Tảng OpenClaw"
 ---
 
 # Nền tảng

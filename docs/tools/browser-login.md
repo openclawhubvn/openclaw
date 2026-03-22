@@ -1,9 +1,9 @@
 ---
-summary: "Đăng nhập thủ công cho tự động hóa trình duyệt + đăng bài trên X/Twitter"
+summary: "Tìm hiểu cách đăng nhập tự động trên trình duyệt để tối ưu hóa việc đăng bài trên X/Twitter nhanh chóng và hiệu quả."
 read_when:
   - Cần đăng nhập vào các trang web để tự động hóa trình duyệt
   - Muốn đăng bài cập nhật lên X/Twitter
-title: "Đăng nhập trình duyệt"
+title: "Hướng Dẫn Đăng Nhập Trình Duyệt Tự Động"
 ---
 
 # Đăng nhập trình duyệt + đăng bài trên X/Twitter

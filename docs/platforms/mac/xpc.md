@@ -1,8 +1,8 @@
 ---
-summary: "Kiến trúc IPC trên macOS cho ứng dụng OpenClaw, vận chuyển node gateway, và PeekabooBridge"
+summary: "Khám phá kiến trúc IPC trên macOS, tối ưu vận chuyển node gateway và PeekabooBridge cho ứng dụng OpenClaw."
 read_when:
   - Chỉnh sửa hợp đồng IPC hoặc IPC của ứng dụng thanh menu
-title: "IPC trên macOS"
+title: "Hướng Dẫn IPC Trên macOS Với OpenClaw"
 ---
 
 # Kiến trúc IPC của OpenClaw trên macOS

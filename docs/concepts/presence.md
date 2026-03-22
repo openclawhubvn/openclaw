@@ -1,10 +1,10 @@
 ---
-summary: "Cách OpenClaw tạo, hợp nhất và hiển thị các mục hiện diện"
+summary: "Khám phá cách OpenClaw tạo và hiển thị hiện diện, giúp tối ưu hóa trải nghiệm người dùng với thông tin hợp nhất."
 read_when:
   - Gỡ lỗi tab Instances
   - Điều tra các hàng instance trùng lặp hoặc lỗi thời
   - Thay đổi kết nối gateway WS hoặc beacon sự kiện hệ thống
-title: "Hiện diện"
+title: "Hướng Dẫn Cấu Hình Hiện Diện OpenClaw"
 ---
 
 # Hiện diện

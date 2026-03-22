@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng công cụ exec, các chế độ stdin và hỗ trợ TTY"
+summary: "Khám phá cách sử dụng công cụ Exec với các chế độ stdin và TTY, tối ưu hóa quy trình làm việc của bạn."
 read_when:
   - Sử dụng hoặc chỉnh sửa công cụ exec
   - Gỡ lỗi hành vi stdin hoặc TTY
-title: "Công cụ Exec"
+title: "Hướng Dẫn Sử Dụng Công Cụ Exec Hiệu Quả"
 ---
 
 # Công cụ Exec

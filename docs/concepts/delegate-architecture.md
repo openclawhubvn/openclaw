@@ -1,6 +1,6 @@
 ---
-summary: "Kiến trúc đại diện: chạy OpenClaw như một agent có tên đại diện cho tổ chức"
-title: Kiến trúc Đại diện
+summary: "Tìm hiểu cách chạy OpenClaw như một agent đại diện cho tổ chức, tối ưu hóa quản lý và bảo mật."
+title: "Hướng Dẫn Kiến Trúc Đại Diện OpenClaw"
 read_when: "Khi cần một agent có danh tính riêng hoạt động thay mặt cho con người trong tổ chức."
 status: active
 ---

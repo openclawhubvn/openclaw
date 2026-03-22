@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng mô hình xAI Grok trong OpenClaw"
+summary: "Khám phá cách sử dụng mô hình xAI Grok để tối ưu hóa hệ thống OpenClaw của bạn, mang lại hiệu suất vượt trội và thông minh hơn."
 read_when:
   - Bạn muốn sử dụng mô hình Grok trong OpenClaw
   - Bạn đang cấu hình xAI auth hoặc model ids
-title: "xAI"
+title: "Hướng Dẫn Sử Dụng xAI Grok Trong OpenClaw"
 ---
 
 # xAI

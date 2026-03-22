@@ -1,9 +1,9 @@
 ---
-summary: "Chạy OpenClaw với Ollama (mô hình đám mây và cục bộ)"
+summary: "Tìm hiểu cách chạy OpenClaw trên nền tảng Ollama, hỗ trợ cả mô hình đám mây và cục bộ, tối ưu hiệu suất."
 read_when:
   - Bạn muốn chạy OpenClaw với mô hình đám mây hoặc cục bộ qua Ollama
   - Bạn cần hướng dẫn cài đặt và cấu hình Ollama
-title: "Ollama"
+title: "Hướng Dẫn Chạy OpenClaw Với Ollama"
 ---
 
 # Ollama

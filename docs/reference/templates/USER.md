@@ -1,7 +1,8 @@
 ---
-summary: "Hồ sơ người dùng"
+summary: "Khám phá cách tạo và quản lý hồ sơ người dùng hiệu quả, tối ưu hóa trải nghiệm và bảo mật thông tin cá nhân."
 read_when:
   - Khởi tạo workspace thủ công
+title: "Hướng Dẫn Cấu Hình Hồ Sơ Người Dùng"
 ---
 
 # USER.md - Về Người Dùng

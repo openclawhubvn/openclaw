@@ -1,9 +1,9 @@
 ---
-summary: "Triển khai OpenClaw trên DigitalOcean Droplet"
+summary: "Tìm hiểu cách triển khai OpenClaw trên DigitalOcean Droplet nhanh chóng và hiệu quả. Tối ưu hóa hệ thống của bạn ngay hôm nay."
 read_when:
   - Cài đặt OpenClaw trên DigitalOcean
   - Tìm kiếm VPS trả phí đơn giản cho OpenClaw
-title: "DigitalOcean"
+title: "Hướng Dẫn Cài Đặt OpenClaw Trên DigitalOcean"
 ---
 
 # DigitalOcean

@@ -1,9 +1,9 @@
 ---
-summary: "Quy trình Bun (thử nghiệm): cài đặt và lưu ý so với pnpm"
+summary: "Khám phá cách cài đặt Bun và so sánh với pnpm. Tối ưu hóa hệ thống của bạn với công nghệ mới nhất."
 read_when:
   - Bạn muốn vòng lặp phát triển local nhanh nhất (bun + watch)
   - Bạn gặp vấn đề với Bun install/patch/lifecycle script
-title: "Bun (Thử nghiệm)"
+title: "Hướng Dẫn Cài Đặt Bun - Trợ Lý AI"
 ---
 
 # Bun (Thử nghiệm)

@@ -1,9 +1,9 @@
 ---
-summary: "Cửa sổ ngữ cảnh và nén: cách OpenClaw giữ phiên trong giới hạn của mô hình"
+summary: "Khám phá cách OpenClaw sử dụng nén dữ liệu để tối ưu hóa hiệu suất và duy trì phiên trong giới hạn mô hình."
 read_when:
   - Bạn muốn hiểu về tự động nén và /compact
   - Bạn đang gỡ lỗi các phiên dài vượt quá giới hạn ngữ cảnh
-title: "Nén"
+title: "Hướng Dẫn Nén Dữ Liệu Trong OpenClaw"
 ---
 
 # Cửa sổ Ngữ cảnh & Nén

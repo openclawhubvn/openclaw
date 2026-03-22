@@ -1,6 +1,6 @@
 ---
-title: CI Pipeline
-summary: "Biểu đồ công việc CI, cổng phạm vi, và các lệnh tương đương cục bộ"
+title: "Hướng Dẫn Cấu Hình CI Pipeline"
+summary: "Khám phá cách thiết lập CI Pipeline với biểu đồ công việc, cổng phạm vi và lệnh tương đương cục bộ. Tối ưu hóa quy trình phát triển của bạn."
 read_when:
   - Cần hiểu tại sao một công việc CI đã hoặc không được chạy
   - Đang gỡ lỗi các kiểm tra GitHub Actions thất bại

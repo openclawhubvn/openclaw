@@ -1,9 +1,9 @@
 ---
-summary: "Trung tâm trợ giúp: các cách khắc phục phổ biến, kiểm tra cài đặt, và nơi cần tìm khi có sự cố"
+summary: "Khám phá cách khắc phục sự cố phổ biến, kiểm tra cài đặt và tìm kiếm hỗ trợ nhanh chóng cho OpenClaw."
 read_when:
   - Bạn mới bắt đầu và cần hướng dẫn "nhấp/chạy cái gì"
   - Có sự cố và bạn muốn tìm cách khắc phục nhanh nhất
-title: "Trợ giúp"
+title: "Hướng Dẫn Khắc Phục Sự Cố OpenClaw"
 ---
 
 # Trợ giúp

@@ -1,9 +1,9 @@
 ---
-summary: "Lệnh Doctor: kiểm tra sức khỏe, di chuyển cấu hình và các bước sửa chữa"
+summary: "Khám phá cách sử dụng lệnh Doctor để kiểm tra sức khỏe hệ thống, di chuyển cấu hình và thực hiện sửa chữa hiệu quả."
 read_when:
   - Thêm hoặc chỉnh sửa di chuyển trong doctor
   - Giới thiệu thay đổi cấu hình gây ảnh hưởng
-title: "Doctor"
+title: "Hướng Dẫn Sử Dụng Lệnh Doctor OpenClaw"
 ---
 
 # Doctor

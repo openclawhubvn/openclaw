@@ -1,9 +1,9 @@
 ---
-summary: "Cách OpenClaw xoay vòng hồ sơ xác thực và chuyển đổi dự phòng giữa các mô hình"
+summary: "Tìm hiểu cách cấu hình chuyển đổi dự phòng giữa các mô hình AI, đảm bảo hệ thống hoạt động liên tục và hiệu quả."
 read_when:
   - Chẩn đoán xoay vòng hồ sơ xác thực, thời gian chờ, hoặc hành vi chuyển đổi dự phòng mô hình
   - Cập nhật quy tắc chuyển đổi dự phòng cho hồ sơ xác thực hoặc mô hình
-title: "Chuyển đổi dự phòng mô hình"
+title: "Hướng Dẫn Chuyển Đổi Dự Phòng Mô Hình AI"
 ---
 
 # Chuyển đổi dự phòng mô hình

@@ -1,10 +1,10 @@
 ---
-summary: "Hợp đồng cho kế hoạch `secrets apply`: xác thực mục tiêu, khớp đường dẫn, và phạm vi mục tiêu `auth-profiles.json`"
+summary: "Tìm hiểu cách xác thực và khớp đường dẫn cho kế hoạch 'secrets apply', tối ưu hóa phạm vi mục tiêu trong 'auth-profiles.json'."
 read_when:
   - Tạo hoặc xem xét kế hoạch `openclaw secrets apply`
   - Gỡ lỗi lỗi `Invalid plan target path`
   - Hiểu hành vi xác thực loại và đường dẫn mục tiêu
-title: "Hợp đồng Kế hoạch Secrets Apply"
+title: "Hướng Dẫn Hợp Đồng Kế Hoạch Secrets"
 ---
 
 # Hợp đồng kế hoạch secrets apply

@@ -1,6 +1,6 @@
 ---
-title: "Vercel AI Gateway"
-summary: "Thiết lập Vercel AI Gateway (xác thực + lựa chọn mô hình)"
+title: "Hướng Dẫn Cấu Hình Vercel AI Gateway"
+summary: "Khám phá cách thiết lập Vercel AI Gateway với hướng dẫn chi tiết về xác thực và lựa chọn mô hình AI hiệu quả."
 read_when:
   - Bạn muốn sử dụng Vercel AI Gateway với OpenClaw
   - Bạn cần biến môi trường API key hoặc lựa chọn xác thực CLI

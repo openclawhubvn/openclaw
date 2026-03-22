@@ -1,6 +1,6 @@
 ---
-title: "Tạo Skills"
-summary: "Xây dựng và kiểm tra kỹ năng tùy chỉnh trong workspace với SKILL.md"
+title: "Hướng Dẫn Tạo Skills Trong OpenClaw"
+summary: "Khám phá cách tạo và kiểm tra kỹ năng tùy chỉnh trong OpenClaw với SKILL.md, nâng cao hiệu suất làm việc của bạn."
 read_when:
   - Bạn đang tạo một kỹ năng tùy chỉnh mới trong workspace
   - Bạn cần một quy trình bắt đầu nhanh cho các kỹ năng dựa trên SKILL.md

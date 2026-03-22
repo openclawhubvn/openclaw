@@ -1,9 +1,9 @@
 ---
-summary: "Tích hợp Tailscale Serve/Funnel cho bảng điều khiển Gateway"
+summary: "Khám phá cách tích hợp Tailscale Serve/Funnel vào bảng điều khiển Gateway để tối ưu hóa kết nối mạng an toàn và hiệu quả."
 read_when:
   - Khi cần mở rộng giao diện điều khiển Gateway ra ngoài localhost
   - Khi cần tự động hóa truy cập dashboard qua tailnet hoặc công khai
-title: "Tailscale"
+title: "Hướng Dẫn Tích Hợp Tailscale Trên Gateway"
 ---
 
 # Tailscale (bảng điều khiển Gateway)

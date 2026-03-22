@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw tui` (giao diện dòng lệnh kết nối với Gateway)"
+summary: "Khám phá cách sử dụng OpenClaw TUI để kết nối với Gateway qua giao diện dòng lệnh hiệu quả và dễ dàng."
 read_when:
   - Bạn cần giao diện dòng lệnh cho Gateway (thân thiện với truy cập từ xa)
   - Bạn muốn truyền url/token/session từ các script
-title: "tui"
+title: "Hướng Dẫn Sử Dụng OpenClaw TUI"
 ---
 
 # `openclaw tui`

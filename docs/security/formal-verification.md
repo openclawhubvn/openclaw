@@ -1,6 +1,6 @@
 ---
-title: Xác Minh Hình Thức (Mô Hình Bảo Mật)
-summary: Mô hình bảo mật được kiểm tra bằng máy cho các đường dẫn có rủi ro cao nhất của OpenClaw.
+title: "Hướng Dẫn Xác Minh Hình Thức Bảo Mật"
+summary: "Tìm hiểu cách xác minh hình thức bảo mật để kiểm tra và giảm thiểu rủi ro cao nhất trong hệ thống OpenClaw."
 read_when:
   - Xem xét các đảm bảo hoặc giới hạn của mô hình bảo mật hình thức
   - Tái tạo hoặc cập nhật các kiểm tra mô hình bảo mật TLA+/TLC

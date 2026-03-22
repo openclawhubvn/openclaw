@@ -1,9 +1,9 @@
 ---
-summary: "Kết nối Gmail Pub/Sub push với webhook của OpenClaw qua gogcli"
+summary: "Tìm hiểu cách kết nối Gmail Pub/Sub với webhook qua gogcli, tối ưu hóa tự động hóa email của bạn."
 read_when:
   - Kết nối kích hoạt hộp thư Gmail với OpenClaw
   - Thiết lập Pub/Sub push để đánh thức agent
-title: "Gmail PubSub"
+title: "Hướng Dẫn Cấu Hình Gmail Pub/Sub"
 ---
 
 # Gmail Pub/Sub -> OpenClaw

@@ -1,6 +1,6 @@
 ---
-summary: "Định tuyến đa tác nhân: tác nhân cô lập, tài khoản kênh và liên kết"
-title: Định tuyến Đa Tác Nhân
+summary: "Khám phá cách định tuyến đa tác nhân, tối ưu hóa tác nhân cô lập và quản lý tài khoản kênh hiệu quả."
+title: "Hướng Dẫn Định Tuyến Đa Tác Nhân"
 read_when: "Bạn muốn nhiều tác nhân cô lập (workspace + xác thực) trong một quá trình gateway."
 status: active
 ---

@@ -1,9 +1,9 @@
 ---
-summary: "Ngữ nghĩa công cụ phản hồi trên tất cả các kênh hỗ trợ"
+summary: "Tìm hiểu cách cấu hình và sử dụng công cụ phản hồi để tối ưu hóa giao tiếp trên các kênh hỗ trợ."
 read_when:
   - Làm việc với phản hồi trong bất kỳ kênh nào
   - Hiểu cách phản hồi bằng emoji khác nhau trên các nền tảng
-title: "Phản hồi"
+title: "Hướng Dẫn Sử Dụng Công Cụ Phản Hồi"
 ---
 
 # Phản hồi

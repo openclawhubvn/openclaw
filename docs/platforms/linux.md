@@ -1,9 +1,9 @@
 ---
-summary: "Hỗ trợ Linux + trạng thái ứng dụng đi kèm"
+summary: "Khám phá cách cấu hình và tối ưu hóa ứng dụng trên hệ điều hành Linux, đảm bảo hiệu suất và tính tương thích cao."
 read_when:
   - Tìm kiếm trạng thái ứng dụng đi kèm trên Linux
   - Lên kế hoạch hỗ trợ nền tảng hoặc đóng góp
-title: "Ứng dụng Linux"
+title: "Hướng Dẫn Cấu Hình Ứng Dụng Trên Linux"
 ---
 
 # Ứng dụng Linux

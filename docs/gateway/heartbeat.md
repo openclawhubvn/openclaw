@@ -1,9 +1,9 @@
 ---
-summary: "Thông điệp kiểm tra định kỳ và quy tắc thông báo"
+summary: "Tìm hiểu cách cấu hình và kiểm tra định kỳ Heartbeat Gateway để đảm bảo hệ thống hoạt động ổn định."
 read_when:
   - Điều chỉnh tần suất kiểm tra định kỳ hoặc thông điệp
   - Quyết định giữa kiểm tra định kỳ và cron cho các tác vụ theo lịch
-title: "Kiểm tra định kỳ"
+title: "Hướng Dẫn Cấu Hình Heartbeat Gateway"
 ---
 
 # Kiểm tra định kỳ (Gateway)

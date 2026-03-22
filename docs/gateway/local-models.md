@@ -1,10 +1,10 @@
 ---
-summary: "Chạy OpenClaw trên các mô hình LLM cục bộ (LM Studio, vLLM, LiteLLM, endpoint OpenAI tùy chỉnh)"
+summary: "Khám phá cách chạy OpenClaw trên các mô hình LLM cục bộ như LM Studio, vLLM, và LiteLLM để tối ưu hóa hiệu suất."
 read_when:
   - Bạn muốn phục vụ mô hình từ máy GPU của mình
   - Bạn đang kết nối LM Studio hoặc proxy tương thích OpenAI
   - Bạn cần hướng dẫn mô hình cục bộ an toàn nhất
-title: "Mô hình cục bộ"
+title: "Hướng Dẫn Chạy OpenClaw Trên Mô Hình Cục Bộ"
 ---
 
 # Mô hình cục bộ

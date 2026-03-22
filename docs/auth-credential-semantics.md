@@ -1,6 +1,6 @@
 ---
-title: "Ngữ Nghĩa Chứng Thực Credential"
-summary: "Ngữ nghĩa chuẩn về điều kiện và cách giải quyết credential cho các hồ sơ chứng thực"
+title: "Hướng Dẫn Ngữ Nghĩa Chứng Thực Credential"
+summary: "Tìm hiểu ngữ nghĩa và cách xử lý credential trong hồ sơ chứng thực, đảm bảo an toàn và hiệu quả."
 read_when:
   - Làm việc với việc giải quyết hồ sơ chứng thực hoặc định tuyến credential
   - Gỡ lỗi các lỗi chứng thực mô hình hoặc thứ tự hồ sơ

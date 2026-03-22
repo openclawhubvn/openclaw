@@ -1,3 +1,12 @@
+---
+summary: "Tổng quan về node: ghép đôi, khả năng, quyền và các trợ giúp CLI cho canvas/camera/screen/device/notifications/system"
+read_when:
+  - Ghép đôi node iOS/Android với gateway
+  - Sử dụng canvas/camera của node cho ngữ cảnh agent
+  - Thêm lệnh node mới hoặc trợ giúp CLI
+title: "Hướng Dẫn Cấu Hình Node Trong OpenClaw"
+---
+
 # Nodes
 
 **Node** là một thiết bị phụ trợ (macOS/iOS/Android/headless) kết nối với Gateway qua **WebSocket** (cùng cổng với operators) với `role: "node"` và cung cấp một bề mặt lệnh (ví dụ: `canvas.*`, `camera.*`, `device.*`, `notifications.*`, `system.*`) thông qua `node.invoke`. Chi tiết giao thức: [Gateway protocol](/gateway/protocol).

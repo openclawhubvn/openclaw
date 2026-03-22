@@ -1,8 +1,8 @@
 ---
-summary: "Liên kết đến các tài liệu OpenClaw được sử dụng nhiều nhất."
+summary: "Khám phá các tài liệu OpenClaw phổ biến nhất, giúp bạn dễ dàng tìm kiếm và sử dụng hiệu quả."
 read_when:
   - Bạn muốn truy cập nhanh vào các trang tài liệu chính
-title: "Thư mục tài liệu"
+title: "Hướng Dẫn Sử Dụng Tài Liệu OpenClaw"
 ---
 
 # Thư mục Tài liệu

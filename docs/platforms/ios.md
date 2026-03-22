@@ -1,10 +1,10 @@
 ---
-summary: "Ứng dụng node iOS: kết nối với Gateway, ghép đôi, canvas và xử lý sự cố"
+summary: "Khám phá cách kết nối ứng dụng iOS với Gateway, ghép đôi thiết bị, sử dụng canvas và xử lý sự cố hiệu quả."
 read_when:
   - Ghép đôi hoặc kết nối lại node iOS
   - Chạy ứng dụng iOS từ mã nguồn
   - Gỡ lỗi phát hiện gateway hoặc lệnh canvas
-title: "Ứng dụng iOS"
+title: "Hướng Dẫn Cấu Hình Ứng Dụng iOS OpenClaw"
 ---
 
 # Ứng dụng iOS (Node)

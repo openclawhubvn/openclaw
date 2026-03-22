@@ -1,9 +1,9 @@
 ---
-summary: "Xử lý ngày và giờ trong các phong bì, lời nhắc, công cụ và kết nối"
+summary: "Khám phá cách xử lý ngày và giờ hiệu quả trong ứng dụng, từ phong bì đến lời nhắc và công cụ kết nối."
 read_when:
   - Bạn đang thay đổi cách hiển thị dấu thời gian cho mô hình hoặc người dùng
   - Bạn đang gỡ lỗi định dạng thời gian trong tin nhắn hoặc đầu ra của hệ thống
-title: "Ngày và Giờ"
+title: "Hướng Dẫn Xử Lý Ngày Giờ Trong Ứng Dụng"
 ---
 
 # Ngày & Giờ

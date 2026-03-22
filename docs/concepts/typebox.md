@@ -1,8 +1,8 @@
 ---
-summary: "TypeBox schemas là nguồn duy nhất cho giao thức gateway"
+summary: "Tìm hiểu cách sử dụng TypeBox để tạo schema duy nhất cho giao thức gateway, tối ưu hóa cấu hình hệ thống của bạn."
 read_when:
   - Cập nhật schema giao thức hoặc codegen
-title: "TypeBox"
+title: "Hướng Dẫn Sử Dụng TypeBox Trong Gateway"
 ---
 
 # TypeBox là nguồn duy nhất cho giao thức

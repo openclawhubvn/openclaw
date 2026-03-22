@@ -1,10 +1,10 @@
 ---
-summary: "Tham khảo CLI cho `openclaw system` (sự kiện hệ thống, heartbeat, presence)"
+summary: "Khám phá cách sử dụng CLI cho OpenClaw System, quản lý sự kiện hệ thống, heartbeat và presence hiệu quả."
 read_when:
   - Bạn muốn xếp hàng một sự kiện hệ thống mà không cần tạo cron job
   - Bạn cần bật hoặc tắt heartbeat
   - Bạn muốn kiểm tra các mục presence của hệ thống
-title: "system"
+title: "Hướng Dẫn CLI OpenClaw System"
 ---
 
 # `openclaw system`

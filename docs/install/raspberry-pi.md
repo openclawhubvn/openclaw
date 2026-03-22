@@ -1,10 +1,10 @@
 ---
-summary: "Chạy OpenClaw trên Raspberry Pi để tự host liên tục"
+summary: "Tìm hiểu cách cài đặt và chạy OpenClaw trên Raspberry Pi để tự host liên tục, đảm bảo hiệu suất tối ưu cho dự án của bạn."
 read_when:
   - Cài đặt OpenClaw trên Raspberry Pi
   - Chạy OpenClaw trên thiết bị ARM
   - Xây dựng AI cá nhân giá rẻ luôn hoạt động
-title: "Raspberry Pi"
+title: "Hướng Dẫn Cài Đặt OpenClaw Trên Raspberry Pi"
 ---
 
 # Raspberry Pi

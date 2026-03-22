@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw directory` (self, peers, groups)"
+summary: "Khám phá cách sử dụng OpenClaw Directory CLI để quản lý self, peers và groups hiệu quả. Tối ưu hóa quy trình làm việc của bạn."
 read_when:
   - Bạn muốn tra cứu id của liên hệ/nhóm/bản thân cho một kênh
   - Bạn đang phát triển một adapter thư mục kênh
-title: "directory"
+title: "Hướng Dẫn Sử Dụng OpenClaw Directory CLI"
 ---
 
 # `openclaw directory`

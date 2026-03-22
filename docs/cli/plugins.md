@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw plugins` (liệt kê, cài đặt, marketplace, gỡ cài đặt, bật/tắt, kiểm tra)"
+summary: "Khám phá cách liệt kê, cài đặt, quản lý và kiểm tra plugins trên OpenClaw qua CLI. Tối ưu hóa trải nghiệm của bạn dễ dàng."
 read_when:
   - Bạn muốn cài đặt hoặc quản lý các plugin Gateway hoặc các gói tương thích
   - Bạn muốn gỡ lỗi khi plugin không tải được
-title: "plugins"
+title: "Hướng Dẫn Sử Dụng OpenClaw Plugins CLI"
 ---
 
 # `openclaw plugins`

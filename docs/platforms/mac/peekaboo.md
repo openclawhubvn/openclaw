@@ -1,10 +1,10 @@
 ---
-summary: "Tích hợp PeekabooBridge cho tự động hóa giao diện người dùng trên macOS"
+summary: "Tìm hiểu cách tích hợp Peekaboo Bridge để tự động hóa giao diện người dùng trên macOS hiệu quả và nhanh chóng."
 read_when:
   - Lưu trữ PeekabooBridge trong OpenClaw.app
   - Tích hợp Peekaboo qua Swift Package Manager
   - Thay đổi giao thức/đường dẫn của PeekabooBridge
-title: "Peekaboo Bridge"
+title: "Hướng Dẫn Cấu Hình Peekaboo Bridge macOS"
 ---
 
 # Peekaboo Bridge (Tự động hóa giao diện người dùng trên macOS)

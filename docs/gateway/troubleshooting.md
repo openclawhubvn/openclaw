@@ -1,9 +1,9 @@
 ---
-summary: "Hướng dẫn xử lý sự cố chuyên sâu cho gateway, kênh, tự động hóa, node và trình duyệt"
+summary: "Khám phá cách xử lý sự cố gateway, kênh, tự động hóa và node hiệu quả. Tối ưu hóa hệ thống của bạn ngay hôm nay."
 read_when:
   - Trung tâm xử lý sự cố đã chỉ bạn đến đây để chẩn đoán sâu hơn
   - Bạn cần các phần hướng dẫn dựa trên triệu chứng ổn định với các lệnh chính xác
-title: "Xử lý sự cố"
+title: "Hướng Dẫn Xử Lý Sự Cố Gateway"
 ---
 
 # Xử lý sự cố Gateway

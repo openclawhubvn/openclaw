@@ -1,6 +1,6 @@
 ---
-title: "Mẫu AGENTS.md"
-summary: "Mẫu workspace cho AGENTS.md"
+title: "Hướng Dẫn Cấu Hình Mẫu AGENTS"
+summary: "Khám phá cách cấu hình và sử dụng mẫu AGENTS trong workspace, tối ưu hóa quy trình làm việc của bạn."
 read_when:
   - Khởi tạo workspace thủ công
 ---

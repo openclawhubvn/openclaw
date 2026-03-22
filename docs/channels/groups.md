@@ -1,8 +1,8 @@
 ---
-summary: "Hành vi chat nhóm trên các nền tảng (WhatsApp/Telegram/Discord/Slack/Signal/iMessage/Microsoft Teams/Zalo)"
+summary: "Khám phá cách sử dụng và tối ưu hóa chat nhóm trên WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Teams, Zalo."
 read_when:
   - Thay đổi hành vi chat nhóm hoặc điều chỉnh nhắc đến
-title: "Nhóm"
+title: "Hướng Dẫn Chat Nhóm Trên Nhiều Nền Tảng"
 ---
 
 # Nhóm

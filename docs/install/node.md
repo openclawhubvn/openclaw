@@ -1,6 +1,6 @@
 ---
-title: "Node.js"
-summary: "Cài đặt và cấu hình Node.js cho OpenClaw — yêu cầu phiên bản, tùy chọn cài đặt và xử lý sự cố PATH"
+title: "Hướng Dẫn Cài Đặt Node.js Cho OpenClaw"
+summary: "Tìm hiểu cách cài đặt và cấu hình Node.js cho OpenClaw, bao gồm yêu cầu phiên bản và xử lý sự cố PATH hiệu quả."
 read_when:
   - "Cần cài đặt Node.js trước khi cài OpenClaw"
   - "Đã cài OpenClaw nhưng lệnh `openclaw` không tìm thấy"

@@ -1,10 +1,10 @@
 ---
-summary: "Gửi tin nhắn WhatsApp đến nhiều agent"
+summary: "Tìm hiểu cách tạo và cấu hình nhóm phát sóng WhatsApp để gửi tin nhắn đến nhiều agent một cách hiệu quả."
 read_when:
   - Cấu hình nhóm phát sóng
   - Khắc phục sự cố phản hồi đa agent trên WhatsApp
 status: experimental
-title: "Nhóm Phát Sóng"
+title: "Hướng Dẫn Tạo Nhóm Phát Sóng WhatsApp"
 ---
 
 # Nhóm Phát Sóng

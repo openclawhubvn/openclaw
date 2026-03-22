@@ -1,10 +1,10 @@
 ---
-summary: "Tổng quan về công cụ và plugin của OpenClaw: khả năng của agent và cách mở rộng"
+summary: "Khám phá khả năng của agent và cách mở rộng với công cụ, plugin OpenClaw. Tối ưu hóa hiệu suất hệ thống của bạn."
 read_when:
   - Bạn muốn hiểu các công cụ OpenClaw cung cấp
   - Bạn cần cấu hình, cho phép hoặc từ chối công cụ
   - Bạn đang phân vân giữa công cụ tích hợp sẵn, kỹ năng và plugin
-title: "Công cụ và Plugin"
+title: "Hướng Dẫn Công Cụ và Plugin OpenClaw"
 ---
 
 # Công cụ và Plugin

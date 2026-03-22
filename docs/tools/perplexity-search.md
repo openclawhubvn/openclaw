@@ -1,9 +1,9 @@
 ---
-summary: "API Tìm kiếm Perplexity và khả năng tương thích Sonar/OpenRouter cho web_search"
+summary: "Khám phá API Tìm kiếm Perplexity và tích hợp Sonar/OpenRouter để tối ưu hóa web_search của bạn."
 read_when:
   - Bạn muốn sử dụng Tìm kiếm Perplexity cho tìm kiếm web
   - Bạn cần thiết lập PERPLEXITY_API_KEY hoặc OPENROUTER_API_KEY
-title: "Tìm kiếm Perplexity"
+title: "Hướng Dẫn Cấu Hình Tìm Kiếm Perplexity"
 ---
 
 # API Tìm kiếm Perplexity

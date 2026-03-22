@@ -1,9 +1,9 @@
 ---
-summary: "Hỗ trợ Signal qua signal-cli (JSON-RPC + SSE), thiết lập đường dẫn và mô hình số"
+summary: "Thiết lập Signal qua signal-cli với JSON-RPC và SSE, tối ưu hóa đường dẫn và mô hình số dễ dàng."
 read_when:
   - Thiết lập hỗ trợ Signal
   - Gỡ lỗi gửi/nhận Signal
-title: "Signal"
+title: "Hướng Dẫn Cấu Hình Signal Với Signal-CLI"
 ---
 
 # Signal (signal-cli)

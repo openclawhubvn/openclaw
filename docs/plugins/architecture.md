@@ -1,11 +1,11 @@
 ---
-summary: "Nội dung bên trong Plugin: mô hình khả năng, quyền sở hữu, hợp đồng, quy trình tải, và các trợ giúp runtime"
+summary: "Khám phá kiến trúc plugin với mô hình khả năng, quyền sở hữu, hợp đồng, và quy trình tải để tối ưu hóa hệ thống của bạn."
 read_when:
   - Xây dựng hoặc gỡ lỗi plugin OpenClaw gốc
   - Hiểu mô hình khả năng của plugin hoặc ranh giới quyền sở hữu
   - Làm việc trên quy trình tải plugin hoặc registry
   - Triển khai các hook runtime của provider hoặc plugin kênh
-title: "Nội dung Bên trong Plugin"
+title: "Kiến Trúc Plugin: Mô Hình và Quy Trình"
 sidebarTitle: "Nội dung Bên trong"
 ---
 

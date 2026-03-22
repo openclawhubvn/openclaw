@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw uninstall` (gỡ bỏ dịch vụ gateway + dữ liệu cục bộ)"
+summary: "Tìm hiểu cách gỡ bỏ dịch vụ OpenClaw và xóa dữ liệu cục bộ dễ dàng với hướng dẫn chi tiết từng bước."
 read_when:
   - Bạn muốn gỡ bỏ dịch vụ gateway và/hoặc trạng thái cục bộ
   - Bạn muốn chạy thử trước khi thực hiện
-title: "uninstall"
+title: "Hướng Dẫn Gỡ Bỏ OpenClaw CLI"
 ---
 
 # `openclaw uninstall`

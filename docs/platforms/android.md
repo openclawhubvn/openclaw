@@ -1,10 +1,10 @@
 ---
-summary: "Ứng dụng Android (node): hướng dẫn kết nối + bề mặt lệnh Connect/Chat/Voice/Canvas"
+summary: "Tìm hiểu cách kết nối và sử dụng lệnh Connect, Chat, Voice, Canvas trên ứng dụng Android một cách hiệu quả."
 read_when:
   - Ghép đôi hoặc kết nối lại node Android
   - Gỡ lỗi phát hiện hoặc xác thực gateway Android
   - Xác minh lịch sử chat đồng bộ trên các client
-title: "Ứng dụng Android"
+title: "Hướng Dẫn Kết Nối Ứng Dụng Android"
 ---
 
 # Ứng dụng Android (Node)

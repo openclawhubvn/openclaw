@@ -1,10 +1,10 @@
 ---
-summary: "Cách hoạt động của các script cài đặt (install.sh, install-cli.sh, install.ps1), các flag và tự động hóa"
+summary: "Khám phá cách sử dụng script cài đặt OpenClaw, các flag và tự động hóa để tối ưu hóa quy trình cài đặt của bạn."
 read_when:
   - Bạn muốn hiểu `openclaw.ai/install.sh`
   - Bạn muốn tự động hóa cài đặt (CI / headless)
   - Bạn muốn cài đặt từ một bản checkout GitHub
-title: "Chi tiết bên trong Installer"
+title: "Hướng Dẫn Cài Đặt OpenClaw Installer"
 ---
 
 # Chi tiết bên trong Installer

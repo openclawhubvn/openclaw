@@ -1,9 +1,9 @@
 ---
-summary: "Chụp ảnh và quay video ngắn (iOS/Android nodes + ứng dụng macOS) cho agent: ảnh (jpg) và video ngắn (mp4)"
+summary: "Tìm hiểu cách chụp ảnh và quay video ngắn trên iOS, Android và macOS với OpenClaw. Tạo nội dung đa phương tiện dễ dàng."
 read_when:
   - Thêm hoặc chỉnh sửa chức năng chụp ảnh trên iOS/Android nodes hoặc macOS
   - Mở rộng quy trình làm việc với tệp tạm thời MEDIA cho agent
-title: "Chụp Ảnh và Video"
+title: "Hướng Dẫn Chụp Ảnh, Quay Video Trên OpenClaw"
 ---
 
 # Chụp Ảnh và Video (agent)

@@ -1,10 +1,10 @@
 ---
-summary: "Giao thức Gateway WebSocket: bắt tay, khung dữ liệu, phiên bản"
+summary: "Tìm hiểu cách cấu hình giao thức Gateway WebSocket, bao gồm bắt tay, khung dữ liệu và phiên bản để tối ưu kết nối."
 read_when:
   - Triển khai hoặc cập nhật client WS cho gateway
   - Gỡ lỗi không khớp giao thức hoặc kết nối thất bại
   - Tái tạo schema/mô hình giao thức
-title: "Giao thức Gateway"
+title: "Hướng Dẫn Cấu Hình Giao Thức Gateway"
 ---
 
 # Giao thức Gateway (WebSocket)

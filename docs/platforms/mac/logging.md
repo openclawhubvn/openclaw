@@ -1,3 +1,11 @@
+---
+summary: "Tìm hiểu cách cấu hình logging trên hệ điều hành Mac để theo dõi và phân tích hoạt động hệ thống hiệu quả."
+read_when:
+  - Khi thu thập log trên macOS hoặc kiểm tra việc ghi log có chứa dữ liệu riêng tư
+  - Khi debug các vấn đề liên quan đến voice wake hoặc vòng đời session
+title: "Hướng Dẫn Cấu Hình Logging Trên Mac"
+---
+
 # Ghi nhật ký (macOS)
 
 ## Ghi nhật ký tệp chẩn đoán xoay vòng (Debug pane)

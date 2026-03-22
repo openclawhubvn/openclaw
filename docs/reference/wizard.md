@@ -1,10 +1,10 @@
 ---
-summary: "Tham khảo đầy đủ cho CLI onboarding: từng bước, cờ, và trường cấu hình"
+summary: "Khám phá cách cấu hình Onboarding CLI với hướng dẫn từng bước, cờ và trường cấu hình chi tiết."
 read_when:
   - Tìm kiếm một bước hoặc cờ onboarding cụ thể
   - Tự động hóa onboarding với chế độ không tương tác
   - Gỡ lỗi hành vi onboarding
-title: "Tham khảo Onboarding"
+title: "Hướng Dẫn Cấu Hình Onboarding CLI"
 sidebarTitle: "Tham khảo Onboarding"
 ---
 

@@ -1,8 +1,8 @@
 ---
-summary: "Tham khảo CLI cho `openclaw agents` (liệt kê/thêm/xóa/ràng buộc/kết nối/hủy kết nối/đặt danh tính)"
+summary: "Khám phá cách sử dụng CLI để quản lý OpenClaw Agents: liệt kê, thêm, xóa, ràng buộc và kết nối hiệu quả."
 read_when:
   - Bạn muốn có nhiều agent độc lập (workspaces + định tuyến + xác thực)
-title: "agents"
+title: "Hướng Dẫn Sử Dụng CLI OpenClaw Agents"
 ---
 
 # `openclaw agents`

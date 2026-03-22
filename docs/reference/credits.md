@@ -1,8 +1,8 @@
 ---
-summary: "Nguồn gốc dự án, người đóng góp và giấy phép."
+summary: "Khám phá nguồn gốc dự án, danh sách người đóng góp và thông tin giấy phép chi tiết. Tìm hiểu thêm về sự phát triển của dự án."
 read_when:
   - Bạn muốn biết câu chuyện đằng sau dự án hoặc ghi nhận người đóng góp
-title: "Ghi nhận"
+title: "Nguồn Gốc Dự Án và Đóng Góp"
 ---
 
 # Ghi nhận và Cảm ơn

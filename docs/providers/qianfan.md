@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng API thống nhất của Qianfan để truy cập nhiều mô hình trong OpenClaw"
+summary: "Khám phá cách sử dụng API Qianfan để truy cập và tích hợp nhiều mô hình AI trong OpenClaw hiệu quả."
 read_when:
   - Bạn muốn một API key duy nhất cho nhiều LLMs
   - Bạn cần hướng dẫn cài đặt Baidu Qianfan
-title: "Qianfan"
+title: "Hướng Dẫn Sử Dụng API Qianfan"
 ---
 
 # Hướng dẫn sử dụng Qianfan

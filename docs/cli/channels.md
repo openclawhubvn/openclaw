@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw channels` (tài khoản, trạng thái, đăng nhập/đăng xuất, nhật ký)"
+summary: "Khám phá cách sử dụng OpenClaw Channels CLI để quản lý tài khoản, trạng thái, và thực hiện đăng nhập/đăng xuất hiệu quả."
 read_when:
   - Bạn muốn thêm/xóa tài khoản kênh (WhatsApp/Telegram/Discord/Google Chat/Slack/Mattermost (plugin)/Signal/iMessage)
   - Bạn muốn kiểm tra trạng thái kênh hoặc theo dõi nhật ký kênh
-title: "channels"
+title: "Hướng Dẫn Sử Dụng OpenClaw Channels CLI"
 ---
 
 # `openclaw channels`

@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng API tương thích Anthropic của Synthetic trong OpenClaw"
+summary: "Tìm hiểu cách sử dụng API Synthetic tương thích Anthropic trong OpenClaw để tối ưu hóa ứng dụng của bạn."
 read_when:
   - Bạn muốn sử dụng Synthetic làm nhà cung cấp mô hình
   - Bạn cần thiết lập khóa API hoặc URL cơ sở của Synthetic
-title: "Synthetic"
+title: "Hướng Dẫn Sử Dụng API Synthetic Anthropic"
 ---
 
 # Synthetic

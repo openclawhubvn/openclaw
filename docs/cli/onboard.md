@@ -1,8 +1,8 @@
 ---
-summary: "Tham khảo CLI cho `openclaw onboard` (hướng dẫn thiết lập tương tác)"
+summary: "Khám phá cách thiết lập và sử dụng lệnh CLI 'openclaw onboard' để tối ưu hóa tương tác hệ thống."
 read_when:
   - Bạn muốn thiết lập có hướng dẫn cho gateway, workspace, xác thực, kênh và kỹ năng
-title: "onboard"
+title: "Hướng Dẫn Cấu Hình OpenClaw Onboard"
 ---
 
 # `openclaw onboard`

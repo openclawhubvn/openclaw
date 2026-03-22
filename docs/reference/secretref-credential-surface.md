@@ -1,10 +1,10 @@
 ---
-summary: "So sánh giữa SecretRef được hỗ trợ và không được hỗ trợ"
+summary: "Khám phá sự khác biệt giữa SecretRef được hỗ trợ và không được hỗ trợ, giúp bạn cấu hình hệ thống hiệu quả hơn."
 read_when:
   - Kiểm tra phạm vi hỗ trợ của SecretRef
   - Đánh giá xem một thông tin xác thực có đủ điều kiện cho `secrets configure` hoặc `secrets apply` không
   - Xác minh lý do một thông tin xác thực nằm ngoài phạm vi hỗ trợ
-title: "Phạm vi SecretRef Credential"
+title: "Hướng Dẫn SecretRef Credential Cấu Hình"
 ---
 
 # Phạm vi SecretRef Credential

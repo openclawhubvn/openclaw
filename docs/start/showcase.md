@@ -1,6 +1,6 @@
 ---
-title: "Showcase"
-summary: "Dự án và tích hợp do cộng đồng xây dựng với OpenClaw"
+title: "Dự Án Cộng Đồng Với OpenClaw"
+summary: "Khám phá các dự án và tích hợp nổi bật do cộng đồng xây dựng với OpenClaw, mang lại giải pháp sáng tạo và hiệu quả."
 read_when:
   - Tìm kiếm ví dụ thực tế về việc sử dụng OpenClaw
   - Cập nhật nổi bật dự án cộng đồng

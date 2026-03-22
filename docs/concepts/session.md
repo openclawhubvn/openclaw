@@ -1,8 +1,8 @@
 ---
-summary: "Quy tắc quản lý phiên, khóa và lưu trữ cho các cuộc trò chuyện"
+summary: "Khám phá cách quản lý phiên, khóa và lưu trữ hiệu quả cho các cuộc trò chuyện với OpenClaw."
 read_when:
   - Thay đổi xử lý hoặc lưu trữ phiên
-title: "Quản lý Phiên"
+title: "Hướng Dẫn Quản Lý Phiên Trong OpenClaw"
 ---
 
 # Quản lý Phiên

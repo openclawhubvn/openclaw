@@ -1,8 +1,8 @@
 ---
-summary: "Hướng dẫn thiết lập cho các nhà phát triển làm việc trên ứng dụng OpenClaw macOS"
+summary: "Thiết lập môi trường phát triển trên macOS cho ứng dụng OpenClaw, tối ưu hóa quy trình làm việc của bạn."
 read_when:
   - Thiết lập môi trường phát triển macOS
-title: "Thiết lập Dev trên macOS"
+title: "Hướng Dẫn Cấu Hình Dev Trên macOS"
 ---
 
 # Thiết lập Dev trên macOS

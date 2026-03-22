@@ -1,8 +1,8 @@
 ---
-summary: "Quy trình điều khiển từ xa ứng dụng macOS cho OpenClaw gateway qua SSH"
+summary: "Khám phá cách điều khiển từ xa macOS qua SSH với OpenClaw, giúp quản lý hệ thống hiệu quả và an toàn."
 read_when:
   - Cài đặt hoặc gỡ lỗi điều khiển mac từ xa
-title: "Điều Khiển Từ Xa"
+title: "Hướng Dẫn Điều Khiển Từ Xa macOS Qua SSH"
 ---
 
 # Điều Khiển Từ Xa OpenClaw (macOS ⇄ máy chủ từ xa)

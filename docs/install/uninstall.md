@@ -1,9 +1,9 @@
 ---
-summary: "Gỡ cài đặt OpenClaw hoàn toàn (CLI, dịch vụ, trạng thái, workspace)"
+summary: "Tìm hiểu cách gỡ cài đặt OpenClaw hoàn toàn, bao gồm CLI, dịch vụ, trạng thái và workspace. Đảm bảo hệ thống sạch sẽ."
 read_when:
   - Bạn muốn xóa OpenClaw khỏi máy
   - Dịch vụ gateway vẫn chạy sau khi gỡ cài đặt
-title: "Gỡ cài đặt"
+title: "Hướng Dẫn Gỡ Cài Đặt OpenClaw"
 ---
 
 # Gỡ cài đặt

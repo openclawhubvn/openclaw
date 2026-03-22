@@ -1,8 +1,8 @@
 ---
-summary: "Công cụ phiên làm việc cho việc liệt kê phiên, lấy lịch sử và gửi tin nhắn giữa các phiên"
+summary: "Tìm hiểu cách liệt kê, truy xuất lịch sử và gửi tin nhắn giữa các phiên với công cụ phiên OpenClaw."
 read_when:
   - Thêm hoặc chỉnh sửa công cụ phiên làm việc
-title: "Công Cụ Phiên Làm Việc"
+title: "Hướng Dẫn Sử Dụng Công Cụ Phiên OpenClaw"
 ---
 
 # Công Cụ Phiên Làm Việc

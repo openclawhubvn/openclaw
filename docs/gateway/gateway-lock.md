@@ -1,9 +1,9 @@
 ---
-summary: "Cơ chế bảo vệ đơn nhất cho Gateway bằng cách sử dụng WebSocket listener bind"
+summary: "Tìm hiểu cách bảo vệ Gateway với WebSocket listener bind, đảm bảo an toàn và hiệu quả cho hệ thống của bạn."
 read_when:
   - Khi chạy hoặc gỡ lỗi quá trình gateway
   - Khi điều tra việc thực thi đơn nhất
-title: "Khóa Gateway"
+title: "Hướng Dẫn Khóa Gateway Bằng WebSocket"
 ---
 
 # Khóa Gateway

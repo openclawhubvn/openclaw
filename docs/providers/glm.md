@@ -1,9 +1,9 @@
 ---
-summary: "Tổng quan về dòng mô hình GLM và cách sử dụng trong OpenClaw"
+summary: "Khám phá cách cấu hình và áp dụng mô hình GLM trong OpenClaw để tối ưu hóa hiệu suất hệ thống của bạn."
 read_when:
   - Bạn muốn sử dụng mô hình GLM trong OpenClaw
   - Bạn cần biết quy ước đặt tên và thiết lập mô hình
-title: "Mô hình GLM"
+title: "Hướng Dẫn Sử Dụng Mô Hình GLM OpenClaw"
 ---
 
 # Mô hình GLM

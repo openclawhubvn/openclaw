@@ -1,10 +1,10 @@
 ---
-summary: "Công cụ gỡ lỗi: chế độ theo dõi, luồng mô hình thô, và theo dõi rò rỉ lý luận"
+summary: "Tìm hiểu cách sử dụng công cụ gỡ lỗi OpenClaw với chế độ theo dõi, luồng mô hình thô và theo dõi rò rỉ lý luận."
 read_when:
   - Cần kiểm tra đầu ra thô của mô hình để phát hiện rò rỉ lý luận
   - Muốn chạy Gateway ở chế độ theo dõi trong quá trình lặp
   - Cần quy trình gỡ lỗi có thể lặp lại
-title: "Gỡ lỗi"
+title: "Hướng Dẫn Gỡ Lỗi OpenClaw Hiệu Quả"
 ---
 
 # Gỡ lỗi

@@ -1,9 +1,9 @@
 ---
-summary: "Cài đặt OpenClaw và bắt đầu cuộc trò chuyện đầu tiên chỉ trong vài phút."
+summary: "Khám phá cách cài đặt OpenClaw và bắt đầu cuộc trò chuyện đầu tiên chỉ trong vài phút. Dễ dàng và nhanh chóng."
 read_when:
   - Thiết lập lần đầu từ đầu
   - Bạn muốn con đường nhanh nhất để có một cuộc trò chuyện hoạt động
-title: "Bắt đầu"
+title: "Hướng Dẫn Cài Đặt OpenClaw Nhanh Chóng"
 ---
 
 # Bắt đầu

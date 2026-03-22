@@ -1,7 +1,7 @@
 ---
-title: "Di chuyển Plugin SDK"
+title: "Hướng Dẫn Di Chuyển Plugin SDK"
 sidebarTitle: "Di chuyển SDK"
-summary: "Chuyển từ lớp tương thích ngược cũ sang SDK plugin hiện đại"
+summary: "Tìm hiểu cách chuyển đổi từ lớp tương thích cũ sang SDK plugin hiện đại, tối ưu hóa hiệu suất và tính năng."
 read_when:
   - Bạn thấy cảnh báo OPENCLAW_PLUGIN_SDK_COMPAT_DEPRECATED
   - Bạn thấy cảnh báo OPENCLAW_EXTENSION_API_DEPRECATED

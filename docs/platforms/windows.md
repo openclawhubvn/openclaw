@@ -1,3 +1,12 @@
+---
+summary: "Tìm hiểu cách cài đặt và cấu hình OpenClaw trên hệ điều hành Windows để tối ưu hóa hiệu suất và trải nghiệm người dùng."
+read_when:
+  - Installing OpenClaw on Windows
+  - Choosing between native Windows and WSL2
+  - Looking for Windows companion app status
+title: "Hướng Dẫn Cấu Hình OpenClaw Trên Windows"
+---
+
 # Windows
 
 OpenClaw hỗ trợ cả hai phương thức cài đặt trên **Windows gốc** và **WSL2**. WSL2 là lựa chọn ổn định hơn và được khuyến nghị để có trải nghiệm đầy đủ — CLI, Gateway và các công cụ chạy trong môi trường Linux với khả năng tương thích hoàn toàn. Windows gốc hoạt động tốt cho việc sử dụng CLI và Gateway cơ bản, nhưng có một số lưu ý dưới đây.

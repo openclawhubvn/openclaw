@@ -1,9 +1,9 @@
 ---
-summary: "Từ khóa đánh thức giọng nói toàn cầu (do Gateway quản lý) và cách chúng đồng bộ trên các node"
+summary: "Khám phá cách cấu hình từ khóa đánh thức giọng nói toàn cầu và đồng bộ hóa trên các node dễ dàng."
 read_when:
   - Thay đổi hành vi hoặc mặc định của từ khóa đánh thức giọng nói
   - Thêm nền tảng node mới cần đồng bộ từ khóa đánh thức
-title: "Đánh Thức Giọng Nói"
+title: "Hướng Dẫn Cấu Hình Đánh Thức Giọng Nói"
 ---
 
 # Đánh Thức Giọng Nói (Từ Khóa Đánh Thức Toàn Cầu)

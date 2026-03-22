@@ -1,9 +1,9 @@
 ---
-summary: "Gọi trực tiếp một công cụ qua endpoint HTTP của Gateway"
+summary: "Tìm hiểu cách gọi công cụ trực tiếp qua HTTP Gateway, tối ưu hóa tích hợp API cho hệ thống của bạn."
 read_when:
   - Gọi công cụ mà không cần chạy toàn bộ agent
   - Xây dựng tự động hóa cần thực thi chính sách công cụ
-title: "API Gọi Công Cụ"
+title: "Hướng Dẫn Gọi API Công Cụ Qua HTTP"
 ---
 
 # Gọi Công Cụ (HTTP)

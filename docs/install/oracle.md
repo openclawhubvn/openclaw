@@ -1,10 +1,10 @@
 ---
-summary: "Triển khai OpenClaw trên Oracle Cloud với gói Always Free ARM"
+summary: "Tìm hiểu cách triển khai OpenClaw trên Oracle Cloud với gói Always Free ARM, tối ưu chi phí và hiệu suất."
 read_when:
   - Cài đặt OpenClaw trên Oracle Cloud
   - Tìm kiếm dịch vụ VPS miễn phí cho OpenClaw
   - Muốn chạy OpenClaw 24/7 trên máy chủ nhỏ
-title: "Oracle Cloud"
+title: "Hướng Dẫn Cài Đặt OpenClaw Trên Oracle Cloud"
 ---
 
 # Oracle Cloud

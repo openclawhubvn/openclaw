@@ -1,8 +1,8 @@
 ---
-summary: "Trạng thái hỗ trợ bot Telegram, khả năng và cấu hình"
+summary: "Khám phá cách cấu hình và tối ưu hóa bot Telegram để nâng cao khả năng hỗ trợ và tương tác với người dùng."
 read_when:
   - Làm việc với các tính năng hoặc webhook của Telegram
-title: "Telegram"
+title: "Hướng Dẫn Cấu Hình Bot Telegram"
 ---
 
 # Telegram (Bot API)

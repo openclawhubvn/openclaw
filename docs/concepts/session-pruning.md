@@ -1,6 +1,6 @@
 ---
-title: "Tỉa Bớt Phiên Làm Việc"
-summary: "Tỉa bớt kết quả công cụ để giảm tải ngữ cảnh"
+title: "Hướng Dẫn Tỉa Bớt Phiên Làm Việc OpenClaw"
+summary: "Tối ưu hóa hiệu suất bằng cách tỉa bớt phiên làm việc, giảm tải ngữ cảnh và cải thiện tốc độ xử lý công cụ."
 read_when:
   - Bạn muốn giảm sự phát triển ngữ cảnh LLM từ kết quả công cụ
   - Bạn đang điều chỉnh agents.defaults.contextPruning

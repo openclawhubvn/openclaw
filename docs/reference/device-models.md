@@ -1,9 +1,9 @@
 ---
-summary: "Cách OpenClaw chuyển đổi mã định danh thiết bị Apple thành tên thân thiện trong ứng dụng macOS."
+summary: "Tìm hiểu cách chuyển đổi mã định danh thiết bị Apple thành tên thân thiện trên macOS với OpenClaw. Tối ưu hóa trải nghiệm người dùng."
 read_when:
   - Cập nhật ánh xạ mã định danh thiết bị hoặc tệp NOTICE/license
   - Thay đổi cách giao diện Instances hiển thị tên thiết bị
-title: "Cơ sở dữ liệu mô hình thiết bị"
+title: "Hướng Dẫn Cấu Hình Mô Hình Thiết Bị Apple"
 ---
 
 # Cơ sở dữ liệu mô hình thiết bị (tên thân thiện)

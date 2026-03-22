@@ -1,10 +1,10 @@
 ---
-summary: "CLI backends: dự phòng chỉ văn bản qua các AI CLI cục bộ"
+summary: "Khám phá cách cấu hình và sử dụng CLI backends AI cục bộ, đảm bảo dự phòng và hiệu quả cho hệ thống của bạn."
 read_when:
   - Bạn cần một phương án dự phòng đáng tin cậy khi các nhà cung cấp API gặp sự cố
   - Bạn đang chạy Claude Code CLI hoặc các AI CLI cục bộ khác và muốn tái sử dụng chúng
   - Bạn cần một con đường chỉ văn bản, không công cụ nhưng vẫn hỗ trợ phiên và hình ảnh
-title: "CLI Backends"
+title: "Hướng Dẫn Cấu Hình CLI Backends AI"
 ---
 
 # CLI backends (thời gian chạy dự phòng)

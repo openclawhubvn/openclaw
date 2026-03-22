@@ -1,6 +1,6 @@
 ---
-title: "Google (Gemini)"
-summary: "Thiết lập Google Gemini (API key + OAuth, tạo hình ảnh, hiểu phương tiện, tìm kiếm web)"
+title: "Hướng Dẫn Cấu Hình Google Gemini API"
+summary: "Thiết lập Google Gemini với API key và OAuth để tạo hình ảnh, hiểu phương tiện và tìm kiếm web hiệu quả."
 read_when:
   - Bạn muốn sử dụng mô hình Google Gemini với OpenClaw
   - Bạn cần API key hoặc quy trình xác thực OAuth

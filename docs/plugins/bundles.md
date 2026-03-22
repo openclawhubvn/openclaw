@@ -1,10 +1,10 @@
 ---
-summary: "Cài đặt và sử dụng các gói Codex, Claude, và Cursor như plugin của OpenClaw"
+summary: "Tìm hiểu cách cài đặt và sử dụng các gói Codex, Claude, Cursor như plugin để tối ưu hóa trải nghiệm OpenClaw."
 read_when:
   - Bạn muốn cài đặt một gói tương thích với Codex, Claude, hoặc Cursor
   - Bạn cần hiểu cách OpenClaw ánh xạ nội dung gói thành các tính năng gốc
   - Bạn đang gỡ lỗi phát hiện gói hoặc thiếu khả năng
-title: "Gói Plugin"
+title: "Hướng Dẫn Cài Đặt Gói Plugin OpenClaw"
 ---
 
 # Gói Plugin

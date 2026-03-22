@@ -1,9 +1,9 @@
 ---
-summary: "Tự động hóa onboarding và thiết lập agent cho OpenClaw CLI"
+summary: "Khám phá cách tự động hóa onboarding và thiết lập agent cho OpenClaw CLI, giúp tối ưu hóa quy trình làm việc hiệu quả hơn."
 read_when:
   - Bạn đang tự động hóa onboarding trong script hoặc CI
   - Bạn cần ví dụ không tương tác cho các nhà cung cấp cụ thể
-title: "Tự động hóa CLI"
+title: "Hướng Dẫn Tự Động Hóa OpenClaw CLI"
 sidebarTitle: "Tự động hóa CLI"
 ---
 

@@ -1,8 +1,8 @@
 ---
-summary: "Vòng đời của agent loop, luồng dữ liệu và cách chờ đợi"
+summary: "Khám phá vòng đời agent loop, luồng dữ liệu và cách tối ưu chờ đợi trong hệ thống OpenClaw."
 read_when:
   - Cần hướng dẫn chi tiết về vòng lặp agent hoặc các sự kiện vòng đời
-title: "Vòng Lặp Agent"
+title: "Hướng Dẫn Vòng Lặp Agent Trong OpenClaw"
 ---
 
 # Vòng Lặp Agent (OpenClaw)

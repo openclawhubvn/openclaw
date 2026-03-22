@@ -1,8 +1,8 @@
 ---
-summary: "Tham khảo CLI cho `openclaw docs` (tìm kiếm chỉ mục tài liệu trực tiếp)"
+summary: "Khám phá cách sử dụng OpenClaw CLI để tìm kiếm và truy cập tài liệu nhanh chóng, hiệu quả."
 read_when:
   - Bạn muốn tìm kiếm tài liệu trực tiếp của OpenClaw từ terminal
-title: "docs"
+title: "Hướng Dẫn Sử Dụng OpenClaw CLI"
 ---
 
 # `openclaw docs`

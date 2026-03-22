@@ -1,10 +1,10 @@
 ---
-summary: "Hướng dẫn lựa chọn giữa heartbeat và cron jobs cho tự động hóa"
+summary: "So sánh chi tiết giữa cron jobs và heartbeat để tối ưu hóa tự động hóa hệ thống của bạn. Tìm hiểu ưu và nhược điểm từng phương pháp."
 read_when:
   - Quyết định cách lập lịch cho các tác vụ lặp lại
   - Thiết lập giám sát nền hoặc thông báo
   - Tối ưu hóa việc sử dụng token cho các kiểm tra định kỳ
-title: "Cron vs Heartbeat"
+title: "Hướng Dẫn Chọn Cron Jobs Hay Heartbeat"
 ---
 
 # Cron vs Heartbeat: Khi nào nên sử dụng

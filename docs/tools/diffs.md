@@ -1,6 +1,6 @@
 ---
-title: "Diffs"
-summary: "Trình xem diff chỉ đọc và trình kết xuất file cho agents (plugin tùy chọn)"
+title: "Hướng Dẫn Sử Dụng Trình Xem Diff"
+summary: "Khám phá cách sử dụng trình xem diff và kết xuất file cho agents, giúp bạn quản lý thay đổi mã nguồn hiệu quả."
 read_when:
   - Bạn muốn agents hiển thị chỉnh sửa mã hoặc markdown dưới dạng diff
   - Bạn cần URL xem sẵn sàng cho canvas hoặc file diff đã kết xuất

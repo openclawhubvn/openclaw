@@ -1,8 +1,8 @@
 ---
-summary: "Quy tắc xử lý hình ảnh và phương tiện cho gửi, gateway và phản hồi của agent"
+summary: "Khám phá quy tắc xử lý hình ảnh, phương tiện cho gửi, gateway và phản hồi của agent. Tối ưu hóa hiệu suất và chất lượng."
 read_when:
   - Sửa đổi pipeline phương tiện hoặc tệp đính kèm
-title: "Hỗ trợ Hình ảnh và Phương tiện"
+title: "Hướng Dẫn Cấu Hình Hình Ảnh và Phương Tiện"
 ---
 
 # Hỗ trợ Hình ảnh & Phương tiện (2025-12-05)

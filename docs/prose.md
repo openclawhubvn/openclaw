@@ -1,10 +1,10 @@
 ---
-summary: "OpenProse: quy trình .prose, lệnh gạch chéo, và trạng thái trong OpenClaw"
+summary: "Khám phá quy trình .prose, lệnh gạch chéo và trạng thái trong OpenClaw để tối ưu hóa trải nghiệm người dùng."
 read_when:
   - Bạn muốn chạy hoặc viết quy trình .prose
   - Bạn muốn kích hoạt plugin OpenProse
   - Bạn cần hiểu về lưu trữ trạng thái
-title: "OpenProse"
+title: "Hướng Dẫn Sử Dụng OpenProse Chi Tiết"
 ---
 
 # OpenProse

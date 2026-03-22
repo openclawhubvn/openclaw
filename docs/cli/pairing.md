@@ -1,8 +1,8 @@
 ---
-summary: "Tham khảo CLI cho `openclaw pairing` (duyệt/xem danh sách yêu cầu ghép đôi)"
+summary: "Khám phá cách sử dụng CLI để duyệt và xem danh sách yêu cầu ghép đôi trong OpenClaw. Tối ưu hóa quy trình làm việc của bạn."
 read_when:
   - Bạn đang sử dụng chế độ ghép đôi DMs và cần duyệt người gửi
-title: "pairing"
+title: "Hướng Dẫn Ghép Đôi CLI OpenClaw"
 ---
 
 # `openclaw pairing`

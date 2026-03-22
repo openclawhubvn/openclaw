@@ -1,8 +1,8 @@
 ---
-summary: "Tham khảo CLI cho `openclaw configure` (cấu hình tương tác)"
+summary: "Tìm hiểu cách sử dụng lệnh 'openclaw configure' để cấu hình hệ thống CLI hiệu quả và dễ dàng."
 read_when:
   - Bạn muốn điều chỉnh thông tin đăng nhập, thiết bị hoặc mặc định của agent một cách tương tác
-title: "configure"
+title: "Hướng Dẫn Cấu Hình OpenClaw CLI"
 ---
 
 # `openclaw configure`

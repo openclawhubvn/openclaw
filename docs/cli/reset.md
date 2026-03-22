@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw reset` (đặt lại trạng thái/cấu hình cục bộ)"
+summary: "Khám phá cách sử dụng lệnh 'openclaw reset' để đặt lại cấu hình và trạng thái cục bộ nhanh chóng, hiệu quả."
 read_when:
   - Bạn muốn xóa trạng thái cục bộ nhưng giữ lại CLI đã cài đặt
   - Bạn muốn chạy thử để xem những gì sẽ bị xóa
-title: "reset"
+title: "Hướng Dẫn Reset Cấu Hình OpenClaw CLI"
 ---
 
 # `openclaw reset`

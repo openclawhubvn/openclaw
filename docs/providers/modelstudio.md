@@ -1,6 +1,6 @@
 ---
-title: "Model Studio"
-summary: "Thiết lập Alibaba Cloud Model Studio (Kế hoạch mã hóa, điểm cuối hai khu vực)"
+title: "Hướng Dẫn Cấu Hình Model Studio"
+summary: "Khám phá cách thiết lập Alibaba Cloud Model Studio với hướng dẫn chi tiết về mã hóa và điểm cuối khu vực."
 read_when:
   - Bạn muốn sử dụng Alibaba Cloud Model Studio với OpenClaw
   - Bạn cần biến môi trường API key cho Model Studio

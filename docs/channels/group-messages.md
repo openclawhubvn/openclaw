@@ -1,8 +1,8 @@
 ---
-summary: "Cách xử lý và cấu hình tin nhắn nhóm WhatsApp (mentionPatterns được chia sẻ trên nhiều nền tảng)"
+summary: "Tìm hiểu cách xử lý và cấu hình tin nhắn nhóm WhatsApp hiệu quả, tối ưu hóa giao tiếp nhóm trên nhiều nền tảng."
 read_when:
   - Thay đổi quy tắc tin nhắn nhóm hoặc đề cập
-title: "Tin nhắn nhóm"
+title: "Hướng Dẫn Cấu Hình Tin Nhắn Nhóm WhatsApp"
 ---
 
 # Tin nhắn nhóm (kênh WhatsApp web)

@@ -1,6 +1,6 @@
 ---
-title: IRC
-summary: "Thiết lập plugin IRC, kiểm soát truy cập và xử lý sự cố"
+title: "Hướng Dẫn Cấu Hình IRC Plugin"
+summary: "Thiết lập và kiểm soát truy cập IRC dễ dàng. Khám phá cách xử lý sự cố hiệu quả để duy trì kết nối ổn định."
 read_when:
   - Bạn muốn kết nối OpenClaw với các kênh hoặc tin nhắn trực tiếp trên IRC
   - Bạn đang cấu hình danh sách cho phép IRC, chính sách nhóm, hoặc điều kiện nhắc tên

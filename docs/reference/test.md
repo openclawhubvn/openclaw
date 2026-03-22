@@ -1,8 +1,8 @@
 ---
-summary: "Hướng dẫn chạy kiểm thử cục bộ (vitest) và khi nào sử dụng chế độ force/coverage"
+summary: "Tìm hiểu cách chạy kiểm thử cục bộ với Vitest, sử dụng chế độ force và coverage để tối ưu hóa quy trình phát triển phần mềm."
 read_when:
   - Chạy hoặc sửa lỗi kiểm thử
-title: "Kiểm thử"
+title: "Hướng Dẫn Kiểm Thử Cục Bộ Với Vitest"
 ---
 
 # Kiểm thử

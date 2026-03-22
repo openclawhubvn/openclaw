@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng Anthropic Claude qua API keys hoặc setup-token trong OpenClaw"
+summary: "Khám phá cách cấu hình và sử dụng Anthropic Claude qua API keys hoặc setup-token trong OpenClaw dễ dàng."
 read_when:
   - Bạn muốn sử dụng mô hình Anthropic trong OpenClaw
   - Bạn muốn dùng setup-token thay vì API keys
-title: "Anthropic"
+title: "Hướng Dẫn Sử Dụng Anthropic Claude API"
 ---
 
 # Anthropic (Claude)

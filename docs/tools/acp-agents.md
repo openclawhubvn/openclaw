@@ -1,12 +1,12 @@
 ---
-summary: "Sử dụng phiên làm việc ACP runtime cho Pi, Claude Code, Codex, OpenCode, Gemini CLI và các tác nhân harness khác"
+summary: "Khám phá cách sử dụng ACP runtime cho Pi, Claude Code, Codex và các tác nhân khác. Tối ưu hóa hiệu suất công việc của bạn."
 read_when:
   - Chạy coding harnesses qua ACP
   - Thiết lập các phiên ACP gắn liền với thread trên các kênh hỗ trợ thread
   - Gắn các kênh Discord hoặc chủ đề diễn đàn Telegram vào các phiên ACP liên tục
   - Khắc phục sự cố backend ACP và kết nối plugin
   - Thực hiện lệnh /acp từ chat
-title: "Tác nhân ACP"
+title: "Hướng Dẫn Sử Dụng Tác Nhân ACP"
 ---
 
 # Tác nhân ACP

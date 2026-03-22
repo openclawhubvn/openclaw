@@ -1,9 +1,9 @@
 ---
-summary: "Triển khai OpenClaw Gateway lên cụm Kubernetes với Kustomize"
+summary: "Tìm hiểu cách triển khai OpenClaw Gateway trên Kubernetes bằng Kustomize, đảm bảo hệ thống hoạt động hiệu quả."
 read_when:
   - Bạn muốn chạy OpenClaw trên cụm Kubernetes
   - Bạn muốn thử nghiệm OpenClaw trong môi trường Kubernetes
-title: "Kubernetes"
+title: "Hướng Dẫn Cài Đặt OpenClaw Trên Kubernetes"
 ---
 
 # OpenClaw trên Kubernetes

@@ -1,10 +1,10 @@
 ---
-summary: "Nơi OpenClaw tải các biến môi trường và thứ tự ưu tiên"
+summary: "Tìm hiểu cách tải và cấu hình biến môi trường trong OpenClaw, đảm bảo thứ tự ưu tiên và hoạt động hiệu quả."
 read_when:
   - Cần biết biến môi trường nào được tải và thứ tự tải
   - Đang gỡ lỗi thiếu khóa API trong Gateway
   - Đang viết tài liệu về xác thực nhà cung cấp hoặc môi trường triển khai
-title: "Biến Môi Trường"
+title: "Hướng Dẫn Cấu Hình Biến Môi Trường OpenClaw"
 ---
 
 # Biến Môi Trường

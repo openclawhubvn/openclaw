@@ -1,7 +1,7 @@
 ---
-title: "Xây dựng Plugin"
+title: "Hướng Dẫn Xây Dựng Plugin OpenClaw"
 sidebarTitle: "Xây dựng Plugin"
-summary: "Hướng dẫn từng bước để tạo plugin OpenClaw với bất kỳ tổ hợp khả năng nào"
+summary: "Khám phá cách tạo và cấu hình plugin OpenClaw với mọi khả năng, tối ưu hóa trải nghiệm người dùng."
 read_when:
   - Bạn muốn tạo một plugin OpenClaw mới
   - Bạn cần hiểu các mẫu import SDK plugin

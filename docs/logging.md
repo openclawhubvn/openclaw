@@ -1,3 +1,12 @@
+---
+summary: "Tổng quan về logging: file logs, console output, CLI tailing và Control UI"
+read_when:
+  - Bạn cần một cái nhìn tổng quan về logging
+  - Bạn muốn cấu hình mức độ hoặc định dạng log
+  - Bạn đang khắc phục sự cố và cần tìm log một cách nhanh chóng
+title: "Hướng Dẫn Cấu Hình Logging Trong OpenClaw"
+---
+
 # Logging
 
 OpenClaw ghi log ở hai nơi:

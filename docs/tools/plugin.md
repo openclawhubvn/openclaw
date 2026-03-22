@@ -1,10 +1,10 @@
 ---
-summary: "Cài đặt, cấu hình và quản lý plugin OpenClaw"
+summary: "Tìm hiểu cách cài đặt và quản lý plugin OpenClaw hiệu quả, giúp tối ưu hóa hệ thống của bạn."
 read_when:
   - Cài đặt hoặc cấu hình plugin
   - Hiểu về khám phá và quy tắc tải plugin
   - Làm việc với gói plugin tương thích Codex/Claude
-title: "Plugins"
+title: "Hướng Dẫn Cài Đặt Plugin OpenClaw"
 sidebarTitle: "Cài đặt và Cấu hình"
 ---
 

@@ -1,10 +1,10 @@
 ---
-summary: "Ngữ cảnh: những gì mô hình thấy, cách nó được xây dựng và cách kiểm tra"
+summary: "Tìm hiểu cách xây dựng và kiểm tra ngữ cảnh để tối ưu hóa khả năng hiểu biết của mô hình AI."
 read_when:
   - Bạn muốn hiểu "ngữ cảnh" trong OpenClaw nghĩa là gì
   - Bạn đang gỡ lỗi tại sao mô hình "biết" điều gì đó (hoặc quên nó)
   - Bạn muốn giảm tải ngữ cảnh (/context, /status, /compact)
-title: "Ngữ cảnh"
+title: "Hướng Dẫn Ngữ Cảnh Trong Trợ Lý AI"
 ---
 
 # Ngữ cảnh

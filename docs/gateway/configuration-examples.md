@@ -1,10 +1,10 @@
 ---
-summary: "Ví dụ cấu hình chính xác theo schema cho các thiết lập OpenClaw phổ biến"
+summary: "Khám phá các ví dụ cấu hình OpenClaw chuẩn xác, giúp bạn thiết lập hệ thống một cách hiệu quả và nhanh chóng."
 read_when:
   - Tìm hiểu cách cấu hình OpenClaw
   - Tìm kiếm ví dụ cấu hình
   - Thiết lập OpenClaw lần đầu tiên
-title: "Ví dụ Cấu Hình"
+title: "Hướng Dẫn Cấu Hình OpenClaw Chi Tiết"
 ---
 
 # Ví dụ Cấu Hình

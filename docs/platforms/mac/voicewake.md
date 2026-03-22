@@ -1,8 +1,8 @@
 ---
-summary: "Chế độ kích hoạt bằng giọng nói và nhấn để nói cùng chi tiết định tuyến trong ứng dụng macOS"
+summary: "Khám phá cách kích hoạt giọng nói và nhấn để nói trên macOS, tối ưu hóa trải nghiệm điều khiển bằng giọng nói của bạn."
 read_when:
   - Làm việc với đường dẫn kích hoạt giọng nói hoặc nhấn để nói
-title: "Kích Hoạt Giọng Nói (macOS)"
+title: "Hướng Dẫn Kích Hoạt Giọng Nói Trên macOS"
 ---
 
 # Kích Hoạt Giọng Nói & Nhấn Để Nói

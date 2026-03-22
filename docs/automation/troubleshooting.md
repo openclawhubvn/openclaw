@@ -1,10 +1,10 @@
 ---
-summary: "Khắc phục sự cố cron và heartbeat trong lập lịch và gửi thông điệp"
+summary: "Giải quyết vấn đề cron và heartbeat trong lập lịch tự động, đảm bảo hệ thống hoạt động mượt mà và hiệu quả."
 read_when:
   - Cron không chạy
   - Cron chạy nhưng không có thông điệp nào được gửi
   - Heartbeat có vẻ im lặng hoặc bị bỏ qua
-title: "Khắc phục sự cố tự động hóa"
+title: "Hướng Dẫn Khắc Phục Sự Cố Tự Động Hóa"
 ---
 
 # Khắc phục sự cố tự động hóa

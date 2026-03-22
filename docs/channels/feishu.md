@@ -1,9 +1,9 @@
 ---
-summary: "Tổng quan về bot Feishu, các tính năng và cấu hình"
+summary: "Khám phá cách cấu hình và sử dụng bot Feishu hiệu quả, tối ưu hóa tính năng để nâng cao trải nghiệm người dùng."
 read_when:
   - Bạn muốn kết nối một bot Feishu/Lark
   - Bạn đang cấu hình kênh Feishu
-title: Feishu
+title: "Hướng Dẫn Cấu Hình Bot Feishu Chi Tiết"
 ---
 
 # Bot Feishu

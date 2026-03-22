@@ -1,9 +1,9 @@
 ---
-summary: "Đăng nhập GitHub Copilot từ OpenClaw bằng device flow"
+summary: "Tìm hiểu cách đăng nhập GitHub Copilot qua OpenClaw bằng device flow, giúp bạn tận dụng tối đa trợ lý AI trong lập trình."
 read_when:
   - Bạn muốn sử dụng GitHub Copilot làm nhà cung cấp mô hình
   - Bạn cần quy trình `openclaw models auth login-github-copilot`
-title: "GitHub Copilot"
+title: "Hướng Dẫn Đăng Nhập GitHub Copilot"
 ---
 
 # GitHub Copilot

@@ -1,8 +1,8 @@
 ---
-summary: "Trạng thái và hoạt ảnh của biểu tượng thanh menu cho OpenClaw trên macOS"
+summary: "Khám phá cách cấu hình biểu tượng thanh menu cho OpenClaw trên macOS, tối ưu trạng thái và hoạt ảnh dễ dàng."
 read_when:
   - Thay đổi hành vi biểu tượng thanh menu
-title: "Biểu Tượng Thanh Menu"
+title: "Hướng Dẫn Cấu Hình Biểu Tượng Menu macOS"
 ---
 
 # Trạng Thái Biểu Tượng Thanh Menu

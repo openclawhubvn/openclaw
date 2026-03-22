@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw status` (chẩn đoán, kiểm tra, ảnh chụp nhanh sử dụng)"
+summary: "Khám phá cách sử dụng lệnh 'openclaw status' để chẩn đoán, kiểm tra và chụp nhanh tình trạng hệ thống hiệu quả."
 read_when:
   - Bạn muốn chẩn đoán nhanh tình trạng kênh và người nhận phiên gần đây
   - Bạn cần trạng thái “tất cả” có thể dán để gỡ lỗi
-title: "status"
+title: "Hướng Dẫn Sử Dụng OpenClaw CLI Status"
 ---
 
 # `openclaw status`

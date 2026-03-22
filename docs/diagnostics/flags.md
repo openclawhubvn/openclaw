@@ -1,9 +1,9 @@
 ---
-summary: "Cờ chẩn đoán cho nhật ký gỡ lỗi mục tiêu"
+summary: "Tìm hiểu cách cấu hình cờ chẩn đoán để tối ưu hóa quá trình gỡ lỗi và cải thiện hiệu suất hệ thống của bạn."
 read_when:
   - Cần nhật ký gỡ lỗi mục tiêu mà không cần tăng mức độ ghi nhật ký toàn cầu
   - Cần thu thập nhật ký cụ thể của từng hệ thống con để hỗ trợ
-title: "Cờ Chẩn Đoán"
+title: "Hướng Dẫn Cấu Hình Cờ Chẩn Đoán"
 ---
 
 # Cờ Chẩn Đoán

@@ -1,9 +1,9 @@
 ---
-summary: "Giao diện điều khiển trên trình duyệt cho Gateway (chat, nodes, cấu hình)"
+summary: "Khám phá cách sử dụng giao diện điều khiển trên trình duyệt cho Gateway, bao gồm chat, nodes và cấu hình dễ dàng."
 read_when:
   - Bạn muốn vận hành Gateway từ trình duyệt
   - Bạn muốn truy cập Tailnet mà không cần SSH tunnels
-title: "Giao diện điều khiển"
+title: "Hướng Dẫn Sử Dụng Giao Diện Điều Khiển"
 ---
 
 # Giao diện điều khiển (trình duyệt)

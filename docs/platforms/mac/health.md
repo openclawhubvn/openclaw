@@ -1,8 +1,8 @@
 ---
-summary: "Cách ứng dụng macOS báo cáo trạng thái sức khỏe của gateway/Baileys"
+summary: "Tìm hiểu cách kiểm tra và báo cáo trạng thái sức khỏe của hệ thống trên macOS, đảm bảo hiệu suất tối ưu cho thiết bị của bạn."
 read_when:
   - Gỡ lỗi chỉ số sức khỏe của ứng dụng macOS
-title: "Kiểm tra sức khỏe (macOS)"
+title: "Hướng Dẫn Kiểm Tra Sức Khỏe Trên macOS"
 ---
 
 # Kiểm tra sức khỏe trên macOS

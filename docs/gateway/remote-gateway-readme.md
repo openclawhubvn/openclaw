@@ -1,7 +1,7 @@
 ---
-summary: "Thiết lập SSH tunnel cho OpenClaw.app kết nối đến gateway từ xa"
+summary: "Hướng dẫn chi tiết cách thiết lập SSH tunnel để kết nối OpenClaw.app với gateway từ xa, đảm bảo an toàn và hiệu quả."
 read_when: "Kết nối ứng dụng macOS đến gateway từ xa qua SSH"
-title: "Thiết lập Gateway Từ Xa"
+title: "Hướng Dẫn Cấu Hình Gateway Từ Xa"
 ---
 
 # Chạy OpenClaw.app với Gateway Từ Xa

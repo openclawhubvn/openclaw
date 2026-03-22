@@ -1,9 +1,9 @@
 ---
-summary: "Hỗ trợ tài khoản cá nhân Zalo qua zca-js (đăng nhập QR), khả năng và cấu hình"
+summary: "Khám phá cách đăng nhập Zalo cá nhân bằng QR, cấu hình và khả năng tích hợp với zca-js dễ dàng và nhanh chóng."
 read_when:
   - Cài đặt Zalo Personal cho OpenClaw
   - Khắc phục sự cố đăng nhập hoặc luồng tin nhắn Zalo Personal
-title: "Zalo Personal"
+title: "Hướng Dẫn Cấu Hình Zalo Cá Nhân Qua zca-js"
 ---
 
 # Zalo Personal (không chính thức)

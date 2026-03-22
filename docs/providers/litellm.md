@@ -1,6 +1,6 @@
 ---
-title: "LiteLLM"
-summary: "Chạy OpenClaw qua LiteLLM Proxy để truy cập mô hình thống nhất và theo dõi chi phí"
+title: "Hướng Dẫn Cấu Hình LiteLLM Proxy"
+summary: "Tìm hiểu cách chạy OpenClaw qua LiteLLM Proxy để truy cập mô hình thống nhất và quản lý chi phí hiệu quả."
 read_when:
   - Bạn muốn định tuyến OpenClaw qua proxy LiteLLM
   - Bạn cần theo dõi chi phí, ghi log, hoặc định tuyến mô hình qua LiteLLM

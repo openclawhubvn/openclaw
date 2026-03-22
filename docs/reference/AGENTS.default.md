@@ -1,6 +1,6 @@
 ---
-title: "Default AGENTS.md"
-summary: "Hướng dẫn và danh sách kỹ năng mặc định cho trợ lý cá nhân OpenClaw"
+title: "Hướng Dẫn Cấu Hình AGENTS Mặc Định"
+summary: "Khám phá danh sách kỹ năng mặc định và cách cấu hình trợ lý cá nhân OpenClaw hiệu quả."
 read_when:
   - Bắt đầu một phiên OpenClaw agent mới
   - Kích hoạt hoặc kiểm tra kỹ năng mặc định

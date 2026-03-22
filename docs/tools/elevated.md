@@ -1,9 +1,9 @@
 ---
-summary: "Chế độ nâng cao: chạy lệnh trên máy chủ gateway từ agent bị cô lập"
+summary: "Khám phá cách sử dụng chế độ nâng cao để chạy lệnh trên máy chủ gateway từ agent bị cô lập, tối ưu hóa hiệu suất hệ thống."
 read_when:
   - Điều chỉnh mặc định chế độ nâng cao, danh sách cho phép, hoặc hành vi lệnh gạch chéo
   - Hiểu cách agent bị cô lập có thể truy cập máy chủ
-title: "Chế độ Nâng Cao"
+title: "Hướng Dẫn Chế Độ Nâng Cao OpenClaw"
 ---
 
 # Chế độ Nâng Cao

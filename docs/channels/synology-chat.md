@@ -1,9 +1,9 @@
 ---
-summary: "Cài đặt webhook Synology Chat và cấu hình OpenClaw"
+summary: "Tìm hiểu cách cài đặt và cấu hình webhook cho Synology Chat, giúp tích hợp hiệu quả với OpenClaw. Đơn giản và nhanh chóng."
 read_when:
   - Cài đặt Synology Chat với OpenClaw
   - Khắc phục sự cố định tuyến webhook Synology Chat
-title: "Synology Chat"
+title: "Hướng Dẫn Cấu Hình Synology Chat Webhook"
 ---
 
 # Synology Chat (plugin)

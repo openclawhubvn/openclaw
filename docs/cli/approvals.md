@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw approvals` (phê duyệt thực thi cho gateway hoặc node hosts)"
+summary: "Tìm hiểu cách cấu hình OpenClaw Approvals để quản lý phê duyệt thực thi cho gateway và node hosts hiệu quả."
 read_when:
   - Bạn muốn chỉnh sửa phê duyệt thực thi từ CLI
   - Bạn cần quản lý danh sách cho phép trên gateway hoặc node hosts
-title: "approvals"
+title: "Hướng Dẫn Cấu Hình OpenClaw Approvals"
 ---
 
 # `openclaw approvals`

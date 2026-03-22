@@ -1,10 +1,10 @@
 ---
-summary: "Cấu hình Moonshot K2 và Kimi Coding (nhà cung cấp và khóa riêng biệt)"
+summary: "Khám phá cách cấu hình Moonshot K2 và Kimi Coding, tối ưu hóa hiệu suất AI với hướng dẫn chi tiết và dễ hiểu."
 read_when:
   - Bạn muốn thiết lập Moonshot K2 (Moonshot Open Platform) và Kimi Coding
   - Bạn cần hiểu về các endpoint, khóa và tham chiếu mô hình riêng biệt
   - Bạn muốn có cấu hình copy/paste cho từng nhà cung cấp
-title: "Moonshot AI"
+title: "Hướng Dẫn Cấu Hình Moonshot AI"
 ---
 
 # Moonshot AI (Kimi)

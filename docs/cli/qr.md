@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw qr` (tạo mã QR ghép nối iOS + mã thiết lập)"
+summary: "Tìm hiểu cách tạo mã QR ghép nối iOS và mã thiết lập qua OpenClaw CLI. Hướng dẫn chi tiết giúp bạn dễ dàng thực hiện."
 read_when:
   - Bạn muốn ghép nối ứng dụng iOS với gateway nhanh chóng
   - Bạn cần xuất mã thiết lập để chia sẻ từ xa/thủ công
-title: "qr"
+title: "Hướng Dẫn Tạo Mã QR Với OpenClaw CLI"
 ---
 
 # `openclaw qr`

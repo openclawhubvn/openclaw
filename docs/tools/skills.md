@@ -1,9 +1,9 @@
 ---
-summary: "Kỹ năng: quản lý vs workspace, quy tắc gating, và cấu hình/môi trường"
+summary: "Khám phá cách quản lý workspace, quy tắc gating và cấu hình môi trường hiệu quả với OpenClaw."
 read_when:
   - Thêm hoặc chỉnh sửa kỹ năng
   - Thay đổi quy tắc gating hoặc tải kỹ năng
-title: "Kỹ năng"
+title: "Hướng Dẫn Cấu Hình Kỹ Năng OpenClaw"
 ---
 
 # Kỹ năng (OpenClaw)

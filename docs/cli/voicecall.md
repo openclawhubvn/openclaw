@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw voicecall` (bề mặt lệnh plugin voice-call)"
+summary: "Khám phá cách sử dụng lệnh OpenClaw VoiceCall CLI để quản lý cuộc gọi hiệu quả. Hướng dẫn chi tiết và dễ hiểu."
 read_when:
   - Bạn sử dụng plugin voice-call và muốn biết các điểm vào CLI
   - Bạn cần ví dụ nhanh cho `voicecall call|continue|status|tail|expose`
-title: "voicecall"
+title: "Hướng Dẫn Sử Dụng OpenClaw VoiceCall CLI"
 ---
 
 # `openclaw voicecall`

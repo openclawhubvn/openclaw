@@ -1,10 +1,10 @@
 ---
-summary: "Dịch vụ điều khiển trình duyệt tích hợp + lệnh hành động"
+summary: "Khám phá cách điều khiển trình duyệt với OpenClaw, tích hợp lệnh hành động để tối ưu hóa trải nghiệm duyệt web của bạn."
 read_when:
   - Thêm tự động hóa trình duyệt do agent điều khiển
   - Gỡ lỗi tại sao OpenClaw can thiệp vào Chrome của bạn
   - Triển khai cài đặt trình duyệt + vòng đời trong ứng dụng macOS
-title: "Trình duyệt (do OpenClaw quản lý)"
+title: "Hướng Dẫn Sử Dụng Trình Duyệt OpenClaw"
 ---
 
 # Trình duyệt (do OpenClaw quản lý)

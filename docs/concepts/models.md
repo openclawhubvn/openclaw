@@ -1,3 +1,12 @@
+---
+summary: "Khám phá giao diện dòng lệnh Models CLI: liệt kê, thiết lập, bí danh, dự phòng, trạng thái và quét mô hình."
+read_when:
+  - Thêm mới hoặc sửa đổi Models CLI (liệt kê/thiết lập/quét/bí danh/dự phòng mô hình)
+  - Thay đổi hành vi mô hình dự phòng (fallback) hoặc trải nghiệm người dùng lúc chọn mô hình (UX)
+  - Cập nhật các mẫu quét kiểm tra mô hình (công cụ/hình ảnh)
+title: "Hướng Dẫn Cấu Hình Models CLI"
+---
+
 # CLI Models
 
 Xem thêm tại [/concepts/model-failover](/concepts/model-failover) để biết về việc xoay vòng hồ sơ xác thực, thời gian chờ và cách chúng tương tác với các phương án dự phòng. Tổng quan nhanh về nhà cung cấp và ví dụ: [/concepts/model-providers](/concepts/model-providers).

@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI OpenClaw cho các lệnh, lệnh con và tùy chọn của `openclaw`"
+summary: "Khám phá các lệnh và tùy chọn CLI của OpenClaw để tối ưu hóa quy trình làm việc của bạn."
 read_when:
   - Thêm hoặc chỉnh sửa lệnh CLI hoặc tùy chọn
   - Tài liệu hóa bề mặt lệnh mới
-title: "Tham khảo CLI"
+title: "Hướng Dẫn Sử Dụng CLI OpenClaw"
 ---
 
 # Tham khảo CLI

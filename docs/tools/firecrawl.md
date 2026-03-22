@@ -1,3 +1,13 @@
+---
+summary: "Khám phá cách sử dụng Firecrawl để tìm kiếm, trích xuất dữ liệu web hỗ trợ vượt rào anti-bot hiệu quả."
+read_when:
+  - Bạn muốn trích xuất dữ liệu web với sự hỗ trợ của Firecrawl
+  - Bạn cần thiết lập API key cho nền tảng Firecrawl
+  - Bạn muốn sử dụng Firecrawl làm nhà cung cấp dịch vụ web_search
+  - Bạn cần khả năng trích xuất chống bot (anti-bot) cho web_fetch
+title: "Hướng Dẫn Cấu Hình Firecrawl Trích Xuất Dữ Liệu"
+---
+
 # Firecrawl
 
 OpenClaw có thể sử dụng **Firecrawl** theo ba cách:

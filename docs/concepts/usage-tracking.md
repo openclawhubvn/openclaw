@@ -1,9 +1,9 @@
 ---
-summary: "Theo dõi sử dụng và yêu cầu thông tin xác thực"
+summary: "Khám phá cách theo dõi sử dụng và yêu cầu thông tin xác thực, giúp tối ưu hóa hiệu suất và bảo mật hệ thống."
 read_when:
   - Bạn đang kết nối các bề mặt sử dụng/hạn mức của nhà cung cấp
   - Bạn cần giải thích hành vi theo dõi sử dụng hoặc yêu cầu xác thực
-title: "Theo dõi sử dụng"
+title: "Hướng Dẫn Theo Dõi Sử Dụng OpenClaw"
 ---
 
 # Theo dõi sử dụng

@@ -1,9 +1,9 @@
 ---
-summary: "Chế độ Talk: hội thoại liên tục với ElevenLabs TTS"
+summary: "Khám phá cách sử dụng chế độ Talk để hội thoại liên tục với ElevenLabs TTS, nâng cao trải nghiệm giao tiếp bằng giọng nói."
 read_when:
   - Triển khai chế độ Talk trên macOS/iOS/Android
   - Thay đổi giọng nói/TTS/hành vi ngắt quãng
-title: "Chế độ Talk"
+title: "Hướng Dẫn Chế Độ Talk Với ElevenLabs"
 ---
 
 # Chế độ Talk

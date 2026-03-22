@@ -1,8 +1,8 @@
 ---
-summary: "Vòng đời Gateway trên macOS (launchd)"
+summary: "Khám phá cách cấu hình và quản lý vòng đời Gateway trên macOS với launchd để tối ưu hiệu suất hệ thống."
 read_when:
   - Tích hợp ứng dụng mac với vòng đời gateway
-title: "Vòng đời Gateway"
+title: "Hướng Dẫn Cấu Hình Gateway Trên macOS"
 ---
 
 # Vòng đời Gateway trên macOS

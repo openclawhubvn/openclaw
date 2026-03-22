@@ -1,10 +1,10 @@
 ---
-summary: "Luồng tin nhắn, phiên làm việc, hàng đợi và khả năng hiển thị lý do"
+summary: "Khám phá cách quản lý luồng tin nhắn, phiên làm việc và hàng đợi hiệu quả trong OpenClaw. Tối ưu hóa khả năng hiển thị và xử lý."
 read_when:
   - Giải thích cách tin nhắn đến trở thành phản hồi
   - Làm rõ về phiên làm việc, chế độ hàng đợi hoặc hành vi streaming
   - Tài liệu về khả năng hiển thị lý do và tác động sử dụng
-title: "Tin nhắn"
+title: "Hướng Dẫn Quản Lý Tin Nhắn Trong OpenClaw"
 ---
 
 # Tin nhắn

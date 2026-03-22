@@ -1,9 +1,9 @@
 ---
-summary: "Không gian làm việc của agent: vị trí, bố cục và chiến lược sao lưu"
+summary: "Khám phá cách tối ưu không gian làm việc của agent với bố cục và chiến lược sao lưu hiệu quả."
 read_when:
   - Bạn cần giải thích về không gian làm việc của agent hoặc bố cục file của nó
   - Bạn muốn sao lưu hoặc di chuyển không gian làm việc của agent
-title: "Không gian làm việc của Agent"
+title: "Hướng Dẫn Không Gian Làm Việc Agent"
 ---
 
 # Không gian làm việc của Agent

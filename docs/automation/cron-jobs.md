@@ -1,10 +1,10 @@
 ---
-summary: "Cron jobs và wakeups cho bộ lập lịch Gateway"
+summary: "Tìm hiểu cách thiết lập và quản lý cron jobs cho bộ lập lịch Gateway, tối ưu hóa tự động hóa tác vụ hiệu quả."
 read_when:
   - Lập lịch công việc nền hoặc wakeups
   - Tích hợp tự động hóa chạy cùng hoặc bên cạnh heartbeats
   - Quyết định giữa heartbeat và cron cho các tác vụ định kỳ
-title: "Cron Jobs"
+title: "Hướng Dẫn Cấu Hình Cron Jobs Gateway"
 ---
 
 # Cron jobs (Bộ lập lịch Gateway)

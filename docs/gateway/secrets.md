@@ -1,10 +1,10 @@
 ---
-summary: "Quản lý bí mật: Hợp đồng SecretRef, hành vi snapshot runtime, và xóa an toàn một chiều"
+summary: "Khám phá cách quản lý bí mật hiệu quả với SecretRef, snapshot runtime và xóa an toàn trong OpenClaw."
 read_when:
   - Cấu hình SecretRefs cho thông tin đăng nhập của nhà cung cấp và tham chiếu `auth-profiles.json`
   - Vận hành tải lại bí mật, kiểm tra, cấu hình và áp dụng an toàn trong môi trường sản xuất
   - Hiểu về khởi động nhanh chóng, lọc bề mặt không hoạt động, và hành vi tốt nhất đã biết
-title: "Quản lý Bí mật"
+title: "Hướng Dẫn Quản Lý Bí Mật Với OpenClaw"
 ---
 
 # Quản lý Bí mật

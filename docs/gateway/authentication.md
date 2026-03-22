@@ -1,3 +1,11 @@
+---
+summary: "Khám phá cách cấu hình xác thực cho Gateway, đảm bảo an toàn và bảo mật tối ưu cho hệ thống của bạn."
+read_when:
+  - Khi debug lỗi xác thực model hoặc OAuth hết hạn
+  - Khi tài liệu hóa quy trình xác thực hoặc cách lưu trữ thông tin đăng nhập
+title: "Hướng Dẫn Cấu Hình Xác Thực Gateway"
+---
+
 # Xác thực
 
 OpenClaw hỗ trợ OAuth và API keys cho các nhà cung cấp mô hình. Đối với các máy chủ gateway hoạt động liên tục, API keys thường là lựa chọn ổn định nhất. Các luồng đăng ký/OAuth cũng được hỗ trợ khi phù hợp với mô hình tài khoản của nhà cung cấp.

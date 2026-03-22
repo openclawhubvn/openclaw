@@ -1,9 +1,9 @@
 ---
-summary: "Chạy cầu nối ACP cho tích hợp IDE"
+summary: "Tìm hiểu cách chạy cầu nối ACP để tích hợp hiệu quả với IDE, giúp tối ưu hóa quy trình phát triển phần mềm của bạn."
 read_when:
   - Thiết lập tích hợp IDE dựa trên ACP
   - Gỡ lỗi định tuyến phiên ACP đến Gateway
-title: "acp"
+title: "Hướng Dẫn Cấu Hình ACP Cho IDE"
 ---
 
 # acp

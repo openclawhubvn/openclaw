@@ -1,9 +1,9 @@
 ---
-summary: "Các nền tảng nhắn tin mà OpenClaw có thể kết nối"
+summary: "Khám phá cách kết nối OpenClaw với các nền tảng nhắn tin phổ biến, tối ưu hóa giao tiếp và quản lý dễ dàng."
 read_when:
   - Bạn muốn chọn kênh chat cho OpenClaw
   - Bạn cần cái nhìn tổng quan nhanh về các nền tảng nhắn tin được hỗ trợ
-title: "Kênh Chat"
+title: "Hướng Dẫn Kết Nối Kênh Chat OpenClaw"
 ---
 
 # Kênh Chat

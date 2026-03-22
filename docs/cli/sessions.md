@@ -1,8 +1,8 @@
 ---
-summary: "Tham khảo CLI cho `openclaw sessions` (danh sách các phiên đã lưu + cách sử dụng)"
+summary: "Khám phá cách sử dụng OpenClaw Sessions CLI để quản lý và truy cập danh sách các phiên đã lưu hiệu quả."
 read_when:
   - Bạn muốn liệt kê các phiên đã lưu và xem hoạt động gần đây
-title: "sessions"
+title: "Hướng Dẫn Sử Dụng OpenClaw Sessions CLI"
 ---
 
 # `openclaw sessions`

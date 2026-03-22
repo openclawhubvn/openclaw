@@ -1,9 +1,9 @@
 ---
-summary: "Ứng dụng đồng hành OpenClaw trên macOS (thanh menu + gateway broker)"
+summary: "Khám phá cách cài đặt và sử dụng ứng dụng OpenClaw trên macOS, tích hợp thanh menu và gateway broker tiện lợi."
 read_when:
   - Triển khai tính năng ứng dụng macOS
   - Thay đổi vòng đời gateway hoặc cầu nối node trên macOS
-title: "Ứng dụng macOS"
+title: "Hướng Dẫn Cài Đặt Ứng Dụng OpenClaw macOS"
 ---
 
 # Ứng dụng đồng hành OpenClaw trên macOS (thanh menu + gateway broker)

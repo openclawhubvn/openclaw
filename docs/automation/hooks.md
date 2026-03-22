@@ -1,9 +1,9 @@
 ---
-summary: "Hooks: tự động hóa dựa trên sự kiện cho các lệnh và sự kiện vòng đời"
+summary: "Khám phá cách sử dụng Hooks để tự động hóa lệnh và sự kiện vòng đời, tối ưu hóa quy trình làm việc của bạn."
 read_when:
   - Bạn muốn tự động hóa dựa trên sự kiện cho /new, /reset, /stop và các sự kiện vòng đời của agent
   - Bạn muốn xây dựng, cài đặt hoặc gỡ lỗi hooks
-title: "Hooks"
+title: "Hướng Dẫn Cấu Hình Hooks Tự Động Hóa"
 ---
 
 # Hooks

@@ -1,9 +1,9 @@
 ---
-summary: "Kênh Nostr DM qua tin nhắn mã hóa NIP-04"
+summary: "Tìm hiểu cách cấu hình kênh Nostr DM với tin nhắn mã hóa NIP-04, đảm bảo an toàn và bảo mật cho giao tiếp của bạn."
 read_when:
   - Bạn muốn OpenClaw nhận DMs qua Nostr
   - Bạn đang thiết lập nhắn tin phi tập trung
-title: "Nostr"
+title: "Hướng Dẫn Cấu Hình Kênh Nostr DM"
 ---
 
 # Nostr

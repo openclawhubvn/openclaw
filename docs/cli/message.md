@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw message` (gửi + hành động kênh)"
+summary: "Khám phá cách sử dụng CLI để gửi tin nhắn và thực hiện hành động kênh với OpenClaw. Tối ưu hóa giao tiếp dễ dàng."
 read_when:
   - Thêm hoặc chỉnh sửa hành động CLI tin nhắn
   - Thay đổi hành vi kênh gửi đi
-title: "message"
+title: "Hướng Dẫn CLI OpenClaw Message"
 ---
 
 # `openclaw message`

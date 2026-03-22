@@ -1,10 +1,10 @@
 ---
-summary: "Các kênh ổn định, beta và dev: ý nghĩa, chuyển đổi, ghim và gắn thẻ"
+summary: "Khám phá cách chuyển đổi giữa các kênh ổn định, beta và dev. Tìm hiểu ý nghĩa, cách ghim và gắn thẻ hiệu quả."
 read_when:
   - Bạn muốn chuyển đổi giữa ổn định/beta/dev
   - Bạn muốn ghim một phiên bản, thẻ hoặc SHA cụ thể
   - Bạn đang gắn thẻ hoặc phát hành bản thử nghiệm
-title: "Kênh Phát Hành"
+title: "Hướng Dẫn Cấu Hình Kênh Phát Hành OpenClaw"
 sidebarTitle: "Kênh Phát Hành"
 ---
 

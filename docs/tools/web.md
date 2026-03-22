@@ -1,3 +1,12 @@
+---
+summary: "Khám phá cách sử dụng công cụ web OpenClaw để tối ưu hóa quy trình làm việc và cải thiện hiệu suất dự án của bạn."
+read_when:
+  - You want to enable web_search or web_fetch
+  - You need provider API key setup
+  - You want to use Gemini with Google Search grounding
+title: "Hướng Dẫn Sử Dụng Công Cụ Web OpenClaw"
+---
+
 # Công cụ web
 
 OpenClaw cung cấp hai công cụ web nhẹ:

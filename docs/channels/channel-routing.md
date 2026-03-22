@@ -1,8 +1,8 @@
 ---
-summary: "Quy tắc định tuyến theo kênh (WhatsApp, Telegram, Discord, Slack) và ngữ cảnh chia sẻ"
+summary: "Tìm hiểu cách định tuyến kênh WhatsApp, Telegram, Discord, Slack để tối ưu hóa giao tiếp và chia sẻ ngữ cảnh hiệu quả."
 read_when:
   - Thay đổi định tuyến kênh hoặc hành vi hộp thư
-title: "Định tuyến kênh"
+title: "Hướng Dẫn Định Tuyến Kênh Trên OpenClaw"
 ---
 
 # Kênh & định tuyến

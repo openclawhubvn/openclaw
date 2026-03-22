@@ -1,10 +1,10 @@
 ---
-summary: "Chạy OpenClaw trên máy chủ Linux hoặc VPS đám mây — chọn nhà cung cấp, kiến trúc và tối ưu hóa"
+summary: "Tìm hiểu cách chọn nhà cung cấp, cấu hình và tối ưu hóa máy chủ Linux để chạy OpenClaw hiệu quả."
 read_when:
   - Muốn chạy Gateway trên máy chủ Linux hoặc VPS đám mây
   - Cần bản đồ nhanh về hướng dẫn hosting
   - Muốn tối ưu hóa máy chủ Linux chung cho OpenClaw
-title: "Máy chủ Linux"
+title: "Hướng Dẫn Cài Đặt OpenClaw Trên VPS Linux"
 sidebarTitle: "Máy chủ Linux"
 ---
 

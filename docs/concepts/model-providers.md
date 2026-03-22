@@ -1,9 +1,9 @@
 ---
-summary: "Tổng quan về nhà cung cấp mô hình với ví dụ cấu hình + luồng CLI"
+summary: "Khám phá cách cấu hình và sử dụng nhà cung cấp mô hình với ví dụ chi tiết và luồng CLI, giúp tối ưu hóa hiệu suất hệ thống."
 read_when:
   - Cần tham khảo thiết lập mô hình theo từng nhà cung cấp
   - Muốn có ví dụ cấu hình hoặc lệnh CLI để bắt đầu với các nhà cung cấp mô hình
-title: "Nhà cung cấp mô hình"
+title: "Hướng Dẫn Cấu Hình Nhà Cung Cấp Mô Hình"
 ---
 
 # Nhà cung cấp mô hình

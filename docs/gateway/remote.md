@@ -1,8 +1,8 @@
 ---
-summary: "Truy cập từ xa bằng SSH tunnels (Gateway WS) và tailnets"
+summary: "Tìm hiểu cách cấu hình truy cập từ xa an toàn qua SSH tunnels và tailnets, đảm bảo kết nối bảo mật và hiệu quả."
 read_when:
   - Đang chạy hoặc xử lý sự cố cài đặt gateway từ xa
-title: "Truy cập từ xa"
+title: "Hướng Dẫn Truy Cập Từ Xa Qua SSH Tunnels"
 ---
 
 # Truy cập từ xa (SSH, tunnels và tailnets)

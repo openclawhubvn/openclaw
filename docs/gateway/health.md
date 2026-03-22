@@ -1,8 +1,8 @@
 ---
-summary: "Các bước kiểm tra sức khỏe kết nối kênh"
+summary: "Khám phá cách kiểm tra sức khỏe kết nối kênh Gateway để đảm bảo hiệu suất và độ tin cậy tối ưu."
 read_when:
   - Chẩn đoán sức khỏe kênh WhatsApp
-title: "Kiểm tra sức khỏe"
+title: "Hướng Dẫn Kiểm Tra Sức Khỏe Gateway"
 ---
 
 # Kiểm tra sức khỏe (CLI)

@@ -1,10 +1,10 @@
 ---
-summary: "Tổng quan về Pairing: phê duyệt ai có thể nhắn tin cho bạn + thiết bị nào có thể tham gia"
+summary: "Tìm hiểu cách phê duyệt người nhắn tin và quản lý thiết bị tham gia với hướng dẫn cấu hình Pairing chi tiết."
 read_when:
   - Thiết lập kiểm soát truy cập DM
   - Ghép nối một node iOS/Android mới
   - Xem xét tư thế bảo mật của OpenClaw
-title: "Pairing"
+title: "Hướng Dẫn Cấu Hình Pairing Trên OpenClaw"
 ---
 
 # Pairing

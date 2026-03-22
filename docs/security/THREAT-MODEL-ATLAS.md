@@ -1,6 +1,6 @@
 ---
-title: "Mô hình mối đe dọa (MITRE ATLAS)"
-summary: "Mô hình mối đe dọa của OpenClaw được ánh xạ theo khung MITRE ATLAS"
+title: "Hướng Dẫn Mô Hình Mối Đe Dọa MITRE ATLAS"
+summary: "Khám phá cách OpenClaw sử dụng mô hình mối đe dọa theo khung MITRE ATLAS để bảo vệ hệ thống của bạn."
 read_when:
   - Đánh giá tư thế bảo mật hoặc kịch bản mối đe dọa
   - Làm việc trên các tính năng bảo mật hoặc phản hồi kiểm toán

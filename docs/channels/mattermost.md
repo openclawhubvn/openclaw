@@ -1,9 +1,9 @@
 ---
-summary: "Thiết lập bot Mattermost và cấu hình OpenClaw"
+summary: "Thiết lập và cấu hình bot Mattermost với OpenClaw để tối ưu hóa giao tiếp và quản lý nhóm hiệu quả."
 read_when:
   - Thiết lập Mattermost
   - Gỡ lỗi định tuyến Mattermost
-title: "Mattermost"
+title: "Hướng Dẫn Cấu Hình Bot Mattermost"
 ---
 
 # Mattermost (plugin)

@@ -1,8 +1,8 @@
 ---
-summary: "Khả năng của OpenClaw trên các kênh, định tuyến, phương tiện và UX."
+summary: "Tìm hiểu khả năng của OpenClaw trên các kênh, định tuyến, phương tiện và UX. Khám phá cách tối ưu hóa trải nghiệm người dùng."
 read_when:
   - Bạn muốn có danh sách đầy đủ về những gì OpenClaw hỗ trợ
-title: "Tính năng"
+title: "Khám Phá Tính Năng OpenClaw"
 ---
 
 # Tính năng

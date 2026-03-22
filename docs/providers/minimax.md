@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng các mô hình MiniMax trong OpenClaw"
+summary: "Khám phá cách sử dụng mô hình MiniMax trong OpenClaw để tối ưu hóa hiệu suất và cải thiện kết quả dự án của bạn."
 read_when:
   - Bạn muốn sử dụng mô hình MiniMax trong OpenClaw
   - Bạn cần hướng dẫn thiết lập MiniMax
-title: "MiniMax"
+title: "Hướng Dẫn Sử Dụng MiniMax Trong OpenClaw"
 ---
 
 # MiniMax

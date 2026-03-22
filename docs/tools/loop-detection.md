@@ -1,6 +1,6 @@
 ---
-title: "Phát hiện vòng lặp công cụ"
-summary: "Cách kích hoạt và điều chỉnh các biện pháp bảo vệ để phát hiện vòng lặp gọi công cụ lặp lại"
+title: "Hướng Dẫn Phát Hiện Vòng Lặp Công Cụ"
+summary: "Tìm hiểu cách kích hoạt và điều chỉnh bảo vệ để phát hiện vòng lặp công cụ hiệu quả, đảm bảo hệ thống hoạt động ổn định."
 read_when:
   - Người dùng báo cáo agent bị kẹt trong việc lặp lại gọi công cụ
   - Cần điều chỉnh bảo vệ gọi lặp lại

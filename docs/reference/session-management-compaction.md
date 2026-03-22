@@ -1,10 +1,10 @@
 ---
-summary: "Khám phá sâu: lưu trữ phiên + bản ghi, vòng đời, và nội bộ (tự động) nén"
+summary: "Tìm hiểu cách lưu trữ, quản lý vòng đời phiên và nén dữ liệu tự động hiệu quả. Tối ưu hóa hệ thống của bạn ngay hôm nay."
 read_when:
   - Cần gỡ lỗi session ids, transcript JSONL, hoặc các trường trong sessions.json
   - Đang thay đổi hành vi tự động nén hoặc thêm công việc dọn dẹp trước khi nén
   - Muốn triển khai xả bộ nhớ hoặc các thao tác hệ thống im lặng
-title: "Khám Phá Sâu Quản Lý Phiên"
+title: "Hướng Dẫn Quản Lý Phiên và Nén Dữ Liệu"
 ---
 
 # Quản Lý Phiên & Nén (Khám Phá Sâu)

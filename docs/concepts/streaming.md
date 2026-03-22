@@ -1,10 +1,10 @@
 ---
-summary: "Hành vi streaming + chunking (phản hồi theo khối, streaming xem trước kênh, ánh xạ chế độ)"
+summary: "Tìm hiểu cách cấu hình streaming và chunking để tối ưu hóa phản hồi và xem trước kênh hiệu quả."
 read_when:
   - Giải thích cách streaming hoặc chunking hoạt động trên các kênh
   - Thay đổi hành vi streaming theo khối hoặc chunking kênh
   - Gỡ lỗi phản hồi theo khối trùng lặp/sớm hoặc streaming xem trước kênh
-title: "Streaming và Chunking"
+title: "Hướng Dẫn Streaming và Chunking"
 ---
 
 # Streaming + chunking

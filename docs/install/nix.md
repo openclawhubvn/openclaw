@@ -1,10 +1,10 @@
 ---
-summary: "Cài đặt OpenClaw một cách khai báo với Nix"
+summary: "Tìm hiểu cách cài đặt OpenClaw bằng Nix, giúp bạn dễ dàng quản lý và triển khai hệ thống một cách hiệu quả."
 read_when:
   - Bạn muốn cài đặt có thể tái tạo và quay lại phiên bản trước
   - Bạn đã sử dụng Nix/NixOS/Home Manager
   - Bạn muốn mọi thứ được quản lý và cố định một cách khai báo
-title: "Nix"
+title: "Hướng Dẫn Cài Đặt OpenClaw Với Nix"
 ---
 
 # Cài đặt Nix

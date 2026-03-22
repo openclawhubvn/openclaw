@@ -1,9 +1,9 @@
 ---
-summary: "Chạy OpenClaw với vLLM (máy chủ cục bộ tương thích OpenAI)"
+summary: "Tìm hiểu cách chạy OpenClaw với vLLM, máy chủ cục bộ tương thích OpenAI, để tối ưu hiệu suất và khả năng tương thích."
 read_when:
   - Bạn muốn chạy OpenClaw với máy chủ vLLM cục bộ
   - Bạn muốn sử dụng các endpoint /v1 tương thích OpenAI với mô hình của riêng mình
-title: "vLLM"
+title: "Hướng Dẫn Cấu Hình vLLM Cho OpenClaw"
 ---
 
 # vLLM

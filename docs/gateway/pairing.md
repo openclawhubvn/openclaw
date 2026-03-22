@@ -1,10 +1,10 @@
 ---
-summary: "Ghép nối node do Gateway quản lý (Tùy chọn B) cho iOS và các node từ xa khác"
+summary: "Tìm hiểu cách ghép nối node qua Gateway trên iOS và các node từ xa khác. Đơn giản hóa quy trình kết nối của bạn."
 read_when:
   - Triển khai phê duyệt ghép nối node mà không cần giao diện macOS
   - Thêm luồng CLI để phê duyệt node từ xa
   - Mở rộng giao thức gateway với quản lý node
-title: "Ghép Nối Do Gateway Quản Lý"
+title: "Hướng Dẫn Ghép Nối Node Qua Gateway"
 ---
 
 # Ghép nối do Gateway quản lý (Tùy chọn B)

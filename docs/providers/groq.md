@@ -1,6 +1,6 @@
 ---
-title: "Groq"
-summary: "Thiết lập Groq (xác thực + chọn mô hình)"
+title: "Hướng Dẫn Cấu Hình Groq Trên OpenClaw"
+summary: "Khám phá cách thiết lập Groq với hướng dẫn chi tiết về xác thực và chọn mô hình, tối ưu hóa hiệu suất hệ thống của bạn."
 read_when:
   - Bạn muốn sử dụng Groq với OpenClaw
   - Bạn cần biến môi trường API key hoặc lựa chọn xác thực CLI

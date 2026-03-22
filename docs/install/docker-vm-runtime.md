@@ -1,9 +1,9 @@
 ---
-summary: "Các bước runtime Docker VM chia sẻ cho các host OpenClaw Gateway lâu dài"
+summary: "Tìm hiểu cách cấu hình Docker VM Runtime cho OpenClaw Gateway, đảm bảo hoạt động ổn định và lâu dài."
 read_when:
   - Bạn đang triển khai OpenClaw trên một cloud VM với Docker
   - Bạn cần quy trình bake binary chia sẻ, duy trì và cập nhật
-title: "Docker VM Runtime"
+title: "Hướng Dẫn Cấu Hình Docker VM Runtime"
 ---
 
 # Docker VM Runtime

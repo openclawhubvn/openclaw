@@ -1,8 +1,8 @@
 ---
-summary: "Truy cập và xác thực dashboard Gateway (Control UI)"
+summary: "Tìm hiểu cách truy cập và xác thực Dashboard Gateway dễ dàng, tối ưu hóa quản lý hệ thống của bạn."
 read_when:
   - Thay đổi chế độ xác thực hoặc phơi bày dashboard
-title: "Dashboard"
+title: "Hướng Dẫn Cấu Hình Dashboard Gateway"
 ---
 
 # Dashboard (Control UI)

@@ -1,10 +1,10 @@
 ---
-summary: "Khám phá node và các phương thức truyền tải (Bonjour, Tailscale, SSH) để tìm gateway"
+summary: "Tìm hiểu cách khám phá node và các phương thức truyền tải như Bonjour, Tailscale, SSH để tìm gateway hiệu quả."
 read_when:
   - Thực hiện hoặc thay đổi khám phá/quảng cáo Bonjour
   - Điều chỉnh chế độ kết nối từ xa (trực tiếp vs SSH)
   - Thiết kế khám phá node + ghép nối cho các node từ xa
-title: "Khám phá và Phương thức truyền tải"
+title: "Hướng Dẫn Khám Phá Gateway và Truyền Tải"
 ---
 
 # Khám phá & Phương thức truyền tải

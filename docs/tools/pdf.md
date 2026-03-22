@@ -1,6 +1,6 @@
 ---
-title: "Công cụ PDF"
-summary: "Phân tích một hoặc nhiều tài liệu PDF với hỗ trợ từ nhà cung cấp và chế độ dự phòng trích xuất"
+title: "Hướng Dẫn Phân Tích Tài Liệu PDF"
+summary: "Khám phá cách phân tích tài liệu PDF hiệu quả với công cụ hỗ trợ và chế độ dự phòng trích xuất. Tối ưu hóa quy trình làm việc của bạn."
 read_when:
   - Bạn muốn phân tích PDF từ các agent
   - Bạn cần biết chính xác tham số và giới hạn của công cụ PDF

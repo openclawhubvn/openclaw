@@ -1,8 +1,8 @@
 ---
-summary: "Cách ứng dụng macOS nhúng WebChat của gateway và cách debug"
+summary: "Tìm hiểu cách nhúng WebChat vào ứng dụng macOS và thực hiện debug dễ dàng, nâng cao trải nghiệm người dùng."
 read_when:
   - Debug giao diện WebChat trên mac hoặc cổng loopback
-title: "WebChat (macOS)"
+title: "Hướng Dẫn Nhúng WebChat Trên macOS"
 ---
 
 # WebChat (ứng dụng macOS)

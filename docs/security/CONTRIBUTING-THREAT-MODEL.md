@@ -1,6 +1,6 @@
 ---
-title: "Đóng góp cho Mô hình Đe dọa"
-summary: "Cách đóng góp cho mô hình đe dọa của OpenClaw"
+title: "Hướng Dẫn Đóng Góp Mô Hình Đe Dọa"
+summary: "Khám phá cách đóng góp vào mô hình đe dọa, cải thiện an ninh hệ thống và bảo vệ dữ liệu hiệu quả."
 read_when:
   - Bạn muốn đóng góp phát hiện bảo mật hoặc kịch bản đe dọa
   - Đang xem xét hoặc cập nhật mô hình đe dọa

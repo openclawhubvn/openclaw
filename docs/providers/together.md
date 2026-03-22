@@ -1,6 +1,6 @@
 ---
-title: "Together AI"
-summary: "Cài đặt Together AI (xác thực + chọn mô hình)"
+title: "Hướng Dẫn Cài Đặt Together AI"
+summary: "Tìm hiểu cách cài đặt và cấu hình Together AI, bao gồm xác thực và lựa chọn mô hình phù hợp cho nhu cầu của bạn."
 read_when:
   - Bạn muốn sử dụng Together AI với OpenClaw
   - Bạn cần biến môi trường API key hoặc lựa chọn xác thực CLI

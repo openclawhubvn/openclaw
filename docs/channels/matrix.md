@@ -1,9 +1,9 @@
 ---
-summary: "Trạng thái hỗ trợ Matrix, thiết lập và ví dụ cấu hình"
+summary: "Khám phá cách thiết lập và cấu hình Matrix với OpenClaw, tối ưu hóa trải nghiệm giao tiếp và quản lý kênh hiệu quả."
 read_when:
   - Thiết lập Matrix trong OpenClaw
   - Cấu hình Matrix E2EE và xác minh
-title: "Matrix"
+title: "Hướng Dẫn Cấu Hình Matrix Trên OpenClaw"
 ---
 
 # Matrix (plugin)

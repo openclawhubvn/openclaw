@@ -1,9 +1,9 @@
 ---
-summary: "Thiết lập Hugging Face Inference (xác thực + chọn mô hình)"
+summary: "Thiết lập và cấu hình Hugging Face Inference, bao gồm xác thực và lựa chọn mô hình, để tối ưu hóa quá trình suy luận AI."
 read_when:
   - Bạn muốn sử dụng Hugging Face Inference với OpenClaw
   - Bạn cần biến môi trường token HF hoặc lựa chọn xác thực qua CLI
-title: "Hugging Face (Inference)"
+title: "Hướng Dẫn Cấu Hình Hugging Face Inference"
 ---
 
 # Hugging Face (Inference)

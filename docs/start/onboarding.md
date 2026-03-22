@@ -1,9 +1,9 @@
 ---
-summary: "Quy trình thiết lập lần đầu cho OpenClaw (ứng dụng macOS)"
+summary: "Thiết lập OpenClaw trên macOS dễ dàng với hướng dẫn chi tiết từng bước. Bắt đầu trải nghiệm ngay!"
 read_when:
   - Thiết kế trợ lý onboarding cho macOS
   - Triển khai xác thực hoặc thiết lập danh tính
-title: "Onboarding (Ứng dụng macOS)"
+title: "Hướng Dẫn Onboarding OpenClaw macOS"
 sidebarTitle: "Onboarding: Ứng dụng macOS"
 ---
 

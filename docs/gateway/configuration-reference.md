@@ -1,6 +1,6 @@
 ---
-title: "Tham Khảo Cấu Hình"
-summary: "Tham khảo đầy đủ cho mọi khóa cấu hình OpenClaw, giá trị mặc định và cài đặt kênh"
+title: "Hướng Dẫn Cấu Hình OpenClaw Gateway"
+summary: "Khám phá chi tiết các khóa cấu hình OpenClaw Gateway, giá trị mặc định và cách cài đặt hiệu quả."
 read_when:
   - Cần chính xác ngữ nghĩa cấu hình cấp trường hoặc giá trị mặc định
   - Đang xác thực các khối cấu hình kênh, mô hình, gateway hoặc công cụ

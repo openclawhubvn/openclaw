@@ -1,10 +1,10 @@
 ---
-summary: "Context engine: lắp ráp ngữ cảnh có thể cắm thêm, nén và vòng đời subagent"
+summary: "Tìm hiểu cách lắp ráp ngữ cảnh, nén dữ liệu và quản lý vòng đời subagent với Context Engine hiệu quả."
 read_when:
   - Bạn muốn hiểu cách OpenClaw lắp ráp ngữ cảnh mô hình
   - Bạn đang chuyển đổi giữa engine cũ và engine plugin
   - Bạn đang xây dựng một plugin engine ngữ cảnh
-title: "Context Engine"
+title: "Hướng Dẫn Cấu Hình Context Engine"
 ---
 
 # Context Engine

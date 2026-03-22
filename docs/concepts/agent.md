@@ -1,8 +1,8 @@
 ---
-summary: "Thời gian chạy của agent, hợp đồng workspace, và khởi động phiên"
+summary: "Tìm hiểu cách cấu hình thời gian chạy của Agent, quản lý hợp đồng workspace và khởi động phiên hiệu quả."
 read_when:
   - Thay đổi thời gian chạy của agent, khởi động workspace, hoặc hành vi phiên
-title: "Thời Gian Chạy của Agent"
+title: "Hướng Dẫn Cấu Hình Thời Gian Chạy Agent"
 ---
 
 # Thời Gian Chạy của Agent

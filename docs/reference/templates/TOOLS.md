@@ -1,6 +1,6 @@
 ---
-title: "Mẫu TOOLS.md"
-summary: "Mẫu workspace cho TOOLS.md"
+title: "Hướng Dẫn Cấu Hình Mẫu TOOLS.md"
+summary: "Khám phá cách tạo và cấu hình mẫu TOOLS.md cho workspace hiệu quả, tối ưu hóa quy trình làm việc của bạn."
 read_when:
   - Tự tạo workspace thủ công
 ---

@@ -1,9 +1,9 @@
 ---
-summary: "Sử dụng mô hình Mistral và chuyển đổi giọng nói Voxtral với OpenClaw"
+summary: "Khám phá cách sử dụng Mistral và chuyển đổi giọng nói Voxtral với OpenClaw, cải thiện trải nghiệm người dùng."
 read_when:
   - Bạn muốn sử dụng mô hình Mistral trong OpenClaw
   - Bạn cần hướng dẫn API key Mistral và tham chiếu mô hình
-title: "Mistral"
+title: "Hướng Dẫn Sử Dụng Mô Hình Mistral"
 ---
 
 # Mistral

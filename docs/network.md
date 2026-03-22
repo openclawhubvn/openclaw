@@ -1,10 +1,10 @@
 ---
-summary: "Trung tâm mạng: bề mặt gateway, ghép nối, khám phá và bảo mật"
+summary: "Khám phá cách cấu hình gateway, ghép nối và bảo mật mạng hiệu quả. Tối ưu hóa hệ thống mạng của bạn ngay hôm nay."
 read_when:
   - Cần tổng quan về kiến trúc mạng và bảo mật
   - Đang gỡ lỗi truy cập cục bộ so với tailnet hoặc ghép nối
   - Muốn danh sách tài liệu mạng chuẩn
-title: "Mạng"
+title: "Hướng Dẫn Cấu Hình Mạng và Bảo Mật"
 ---
 
 # Trung tâm mạng

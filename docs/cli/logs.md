@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw logs` (theo dõi log Gateway qua RPC)"
+summary: "Tìm hiểu cách theo dõi log Gateway qua RPC với hướng dẫn chi tiết sử dụng lệnh OpenClaw Logs CLI."
 read_when:
   - Cần theo dõi log Gateway từ xa (không cần SSH)
   - Muốn dòng log dạng JSON cho công cụ
-title: "logs"
+title: "Hướng Dẫn Sử Dụng OpenClaw Logs CLI"
 ---
 
 # `openclaw logs`

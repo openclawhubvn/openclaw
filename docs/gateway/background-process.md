@@ -1,9 +1,9 @@
 ---
-summary: "Thực thi nền và quản lý tiến trình"
+summary: "Khám phá cách thực thi nền và quản lý tiến trình hiệu quả, tối ưu hóa hiệu suất hệ thống với hướng dẫn chi tiết từng bước."
 read_when:
   - Thêm hoặc chỉnh sửa hành vi thực thi nền
   - Gỡ lỗi các tác vụ thực thi dài
-title: "Công Cụ Thực Thi Nền và Quản Lý Tiến Trình"
+title: "Hướng Dẫn Thực Thi Nền và Quản Lý Tiến Trình"
 ---
 
 # Công Cụ Thực Thi Nền + Quản Lý Tiến Trình

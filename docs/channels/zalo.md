@@ -1,8 +1,8 @@
 ---
-summary: "Trạng thái hỗ trợ, khả năng và cấu hình bot Zalo"
+summary: "Khám phá cách cấu hình và tối ưu hóa bot Zalo để nâng cao khả năng tương tác và hỗ trợ khách hàng hiệu quả."
 read_when:
   - Làm việc với các tính năng hoặc webhook của Zalo
-title: "Zalo"
+title: "Hướng Dẫn Cấu Hình Bot Zalo"
 ---
 
 # Zalo (Bot API)

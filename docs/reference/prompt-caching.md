@@ -1,6 +1,6 @@
 ---
-title: "Bộ nhớ đệm Prompt"
-summary: "Các tùy chỉnh bộ nhớ đệm prompt, thứ tự gộp, hành vi của nhà cung cấp và các mẫu điều chỉnh"
+title: "Hướng Dẫn Cấu Hình Bộ Nhớ Đệm Prompt"
+summary: "Khám phá cách tùy chỉnh bộ nhớ đệm prompt, tối ưu hóa thứ tự gộp và điều chỉnh hành vi nhà cung cấp hiệu quả."
 read_when:
   - Bạn muốn giảm chi phí token prompt bằng cách giữ lại bộ nhớ đệm
   - Bạn cần hành vi bộ nhớ đệm theo từng agent trong các thiết lập nhiều agent

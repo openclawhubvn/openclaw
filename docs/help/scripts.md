@@ -1,9 +1,9 @@
 ---
-summary: "Các script trong repository: mục đích, phạm vi và lưu ý an toàn"
+summary: "Khám phá mục đích, phạm vi và lưu ý an toàn khi sử dụng scripts trong repository của bạn. Tối ưu hóa hiệu suất và bảo mật."
 read_when:
   - Chạy script từ repo
   - Thêm hoặc thay đổi script trong ./scripts
-title: "Scripts"
+title: "Hướng Dẫn Sử Dụng Scripts Trong Repository"
 ---
 
 # Scripts

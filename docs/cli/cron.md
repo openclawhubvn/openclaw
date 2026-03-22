@@ -1,9 +1,9 @@
 ---
-summary: "Tham khảo CLI cho `openclaw cron` (lên lịch và chạy các công việc nền)"
+summary: "Tìm hiểu cách lên lịch và chạy công việc nền với OpenClaw Cron CLI. Hướng dẫn chi tiết giúp bạn tối ưu hóa quy trình tự động."
 read_when:
   - Bạn muốn lên lịch công việc và đánh thức
   - Bạn đang gỡ lỗi thực thi cron và nhật ký
-title: "cron"
+title: "Hướng Dẫn Cấu Hình OpenClaw Cron CLI"
 ---
 
 # `openclaw cron`
