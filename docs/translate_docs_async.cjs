@@ -16,6 +16,7 @@ if (!apiKey) {
 // ================= CẤU HÌNH SCRIPT =================
 const CONCURRENCY_LIMIT = 25; // Số lượng file dịch song song cùng lúc (Tăng giảm tùy Rate Limit của API)
 const MAX_FILES = 0;          // Số file tối đa cần dịch (0 = không giới hạn, đổi thành số nhỏ khi test)
+const MAX_CHUNK_SIZE = 40000; // Kích thước tối đa mỗi chunk (ký tự) trước khi cắt nhỏ file để dịch
 
 const docsDir = __dirname;
 const targetDir = path.join(docsDir, 'vi'); // Thư mục nguồn cần quét
@@ -190,6 +191,49 @@ function getFiles(dir, fileList = []) {
   return fileList;
 }
 
+// ================= CẮT NHIỀU CHUNK =================
+// Cắp nhỏ nội dung theo ranh giới heading/paragraph để dịch từng phần
+function splitIntoChunks(content, maxSize) {
+  if (content.length <= maxSize) return [content];
+
+  const chunks = [];
+  // Ưu tiên cắt theo heading (## hoặc # ở đầu dòng)
+  const sections = content.split(/(?=^#{1,3} )/m);
+
+  let current = '';
+  for (const section of sections) {
+    if ((current + section).length > maxSize && current.length > 0) {
+      chunks.push(current);
+      current = section;
+    } else {
+      current += section;
+    }
+  }
+  if (current.length > 0) chunks.push(current);
+
+  // Nếu vẫn còn chunk quá lớn, cắt tiếp theo paragraph (dòng trống đôi)
+  const result = [];
+  for (const chunk of chunks) {
+    if (chunk.length <= maxSize) {
+      result.push(chunk);
+      continue;
+    }
+    const paragraphs = chunk.split(/\n{2,}/);
+    let cur = '';
+    for (const para of paragraphs) {
+      const sep = cur.length > 0 ? '\n\n' : '';
+      if ((cur + sep + para).length > maxSize && cur.length > 0) {
+        result.push(cur);
+        cur = para;
+      } else {
+        cur += sep + para;
+      }
+    }
+    if (cur.length > 0) result.push(cur);
+  }
+  return result;
+}
+
 let processed = 0, skipped = 0, errors = 0;
 
 // ================= WORKER MULTI-THREADING (CONCURRENCY) =================
@@ -213,8 +257,7 @@ async function processFile(file, workerId) {
     return;
   }
 
-  if (content.length > 500000) {
-    console.log(`[W${workerId}] ⚠️ Bỏ qua ${relPath} (quá lớn)`);
+  if (content.length === 0) {
     skipped++;
     return;
   }
@@ -223,23 +266,40 @@ async function processFile(file, workerId) {
   fs.copyFileSync(file, backupFile);
   console.log(`[W${workerId}] 💾 Đã backup: ${path.relative(targetDir, backupFile)}`);
 
-  console.log(`[W${workerId}] ⏳ Đang dịch: ${relPath} ...`);
-  try {
-    let resultStr = await translate(content);
+  // Cắt nhỏ nếu file quá dài
+  const chunks = splitIntoChunks(content, MAX_CHUNK_SIZE);
+  if (chunks.length > 1) {
+    console.log(`[W${workerId}] ✂️  File lớn, chia thành ${chunks.length} chunk: ${relPath}`);
+  } else {
+    console.log(`[W${workerId}] ⏳ Đang dịch: ${relPath} ...`);
+  }
 
-    // Xử lý dọn markdown code block nếu API trả về dư
-    if (resultStr.startsWith("```markdown\n")) {
-       resultStr = resultStr.substring(12, resultStr.length - 3);
-    } else if (resultStr.startsWith("```\n")) {
-       resultStr = resultStr.substring(4, resultStr.length - 3);
+  try {
+    const translatedChunks = [];
+    for (let i = 0; i < chunks.length; i++) {
+      if (chunks.length > 1) {
+        console.log(`[W${workerId}] 🔄 Chunk ${i + 1}/${chunks.length}: ${relPath}`);
+      }
+      let resultStr = await translate(chunks[i]);
+
+      // Xử lý dọn markdown code block nếu API trả về dư
+      if (resultStr.startsWith("```markdown\n")) {
+         resultStr = resultStr.substring(12, resultStr.length - 3);
+      } else if (resultStr.startsWith("```\n")) {
+         resultStr = resultStr.substring(4, resultStr.length - 3);
+      }
+      translatedChunks.push(resultStr.trim());
+
+      // Delay giữa các chunk
+      if (i < chunks.length - 1) await new Promise(r => setTimeout(r, 200));
     }
 
-    // Ghi bản dịch tiếng Việt đè lên file .md gốc
-    fs.writeFileSync(file, resultStr.trim() + '\n', 'utf8');
+    // Ghép các chunk lại và ghi ra file
+    const finalResult = translatedChunks.join('\n\n');
+    fs.writeFileSync(file, finalResult + '\n', 'utf8');
     console.log(`[W${workerId}] ✅ Dịch xong: ${relPath}`);
     processed++;
 
-    // Thêm delay nhẹ tránh spam API quá gắt
     await new Promise(r => setTimeout(r, 100));
   } catch (err) {
     console.error(`[W${workerId}] ❌ Lỗi ${relPath}: ${err.message}`);
@@ -251,7 +311,7 @@ async function processFile(file, workerId) {
     console.warn(`[W${workerId}] ↩️ Đã khôi phục file gốc, xóa backup: ${path.relative(targetDir, backupFile)}`);
 
     if (err.message.includes("401") || err.message.includes("403") || err.message.includes("quota") || err.message.includes("rate") || err.message.includes("429")) {
-       throw err; // Ném thẳng ra ngoài để dừng toàn bộ chương trình
+       throw err;
     }
   }
 }
