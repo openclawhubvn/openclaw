@@ -191,7 +191,7 @@ Bạn có thể chỉnh sửa `HEARTBEAT.md` với một danh sách kiểm tra n
 - Đêm muộn (23:00-08:00) trừ khi khẩn cấp
 - Người dùng rõ ràng đang bận
 - Không có gì mới kể từ lần kiểm tra cuối
-- Bạn vừa kiểm tra <30 phút trước
+- Bạn vừa kiểm tra &lt;30 phút trước
 
 **Công việc chủ động bạn có thể làm mà không cần hỏi:**
 
