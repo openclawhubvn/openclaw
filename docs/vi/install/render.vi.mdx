@@ -1,0 +1,166 @@
+---
+summary: Triển khai OpenClaw trên Render với Infrastructure-as-Code
+read_when:
+  - Triển khai OpenClaw lên Render
+  - Muốn deploy cloud kiểu khai báo với Render Blueprints
+title: "Render"
+---
+
+Triển khai OpenClaw trên Render dùng Infrastructure as Code. File `render.yaml` Blueprint định nghĩa toàn bộ stack, dịch vụ, disk, biến môi trường, giúp deploy chỉ với một click và quản lý version hạ tầng cùng với code.
+
+## Yêu cầu
+
+- Tài khoản [Render](https://render.com) (có free tier)
+- API key từ [model provider](/providers) ưa thích
+
+## Deploy với Render Blueprint
+
+[Deploy lên Render](https://render.com/deploy?repo=https://github.com/openclaw/openclaw)
+
+Click link này sẽ:
+
+1. Tạo dịch vụ Render mới từ `render.yaml` Blueprint ở root repo.
+2. Yêu cầu đặt `SETUP_PASSWORD`
+3. Build Docker image và deploy
+
+Sau khi deploy, URL dịch vụ sẽ có dạng `https://<service-name>.onrender.com`.
+
+## Hiểu về Blueprint
+
+Render Blueprints là file YAML định nghĩa hạ tầng. File `render.yaml` trong repo này cấu hình mọi thứ cần để chạy OpenClaw:
+
+```yaml
+services:
+  - type: web
+    name: openclaw
+    runtime: docker
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "8080"
+      - key: SETUP_PASSWORD
+        sync: false # yêu cầu nhập khi deploy
+      - key: OPENCLAW_STATE_DIR
+        value: /data/.openclaw
+      - key: OPENCLAW_WORKSPACE_DIR
+        value: /data/workspace
+      - key: OPENCLAW_GATEWAY_TOKEN
+        generateValue: true # tự động tạo token bảo mật
+    disk:
+      name: openclaw-data
+      mountPath: /data
+      sizeGB: 1
+```
+
+Các tính năng chính của Blueprint:
+
+| Tính năng             | Mục đích                                                   |
+| --------------------- | ---------------------------------------------------------- |
+| `runtime: docker`     | Build từ Dockerfile của repo                               |
+| `healthCheckPath`     | Render giám sát `/health` và restart instance không khỏe   |
+| `sync: false`         | Yêu cầu nhập giá trị khi deploy (secrets)                  |
+| `generateValue: true` | Tự động tạo giá trị bảo mật                                |
+| `disk`                | Lưu trữ dữ liệu tồn tại qua các lần redeploy               |
+
+## Chọn gói
+
+| Gói       | Spin-down         | Disk          | Phù hợp cho                   |
+| --------- | ----------------- | ------------- | ----------------------------- |
+| Free      | Sau 15 phút idle  | Không có      | Testing, demos                |
+| Starter   | Không bao giờ     | 1GB+          | Sử dụng cá nhân, nhóm nhỏ     |
+| Standard+ | Không bao giờ     | 1GB+          | Sản xuất, nhiều kênh          |
+
+Blueprint mặc định là `starter`. Để dùng free tier, đổi `plan: free` trong `render.yaml` của fork (lưu ý: không có disk persistent nghĩa là config reset mỗi lần deploy).
+
+## Sau khi triển khai
+
+### Hoàn tất thiết lập web
+
+1. Truy cập `https://<your-service>.onrender.com/setup`
+2. Nhập `SETUP_PASSWORD`
+3. Chọn model provider và dán API key
+4. Tuỳ chọn cấu hình kênh nhắn tin (Telegram, Discord, Slack)
+5. Click **Run setup**
+
+### Truy cập Control UI
+
+Dashboard web có tại `https://<your-service>.onrender.com/openclaw`.
+
+## Tính năng Dashboard của Render
+
+### Logs
+
+Xem logs thời gian thực tại **Dashboard → your service → Logs**. Lọc theo:
+
+- Build logs (tạo Docker image)
+- Deploy logs (khởi động dịch vụ)
+- Runtime logs (output ứng dụng)
+
+### Shell access
+
+Để debug, mở shell session qua **Dashboard → your service → Shell**. Disk persistent được mount tại `/data`.
+
+### Environment variables
+
+Thay đổi biến trong **Dashboard → your service → Environment**. Thay đổi sẽ tự động redeploy.
+
+### Auto-deploy
+
+Nếu dùng repo OpenClaw gốc, Render sẽ không auto-deploy OpenClaw. Để cập nhật, chạy manual Blueprint sync từ dashboard.
+
+## Custom domain
+
+1. Vào **Dashboard → your service → Settings → Custom Domains**
+2. Thêm domain
+3. Cấu hình DNS theo hướng dẫn (CNAME tới `*.onrender.com`)
+4. Render tự động cấp chứng chỉ TLS
+
+## Scaling
+
+Render hỗ trợ scaling ngang và dọc:
+
+- **Dọc**: Đổi gói để có thêm CPU/RAM
+- **Ngang**: Tăng số lượng instance (gói Standard trở lên)
+
+Với OpenClaw, scaling dọc thường đủ. Scaling ngang cần sticky sessions hoặc quản lý state bên ngoài.
+
+## Backups và migration
+
+Xuất cấu hình và workspace bất kỳ lúc nào:
+
+```
+https://<your-service>.onrender.com/setup/export
+```
+
+Tải về backup có thể khôi phục trên bất kỳ host OpenClaw nào.
+
+## Troubleshooting
+
+### Dịch vụ không khởi động
+
+Kiểm tra deploy logs trong Render Dashboard. Các vấn đề thường gặp:
+
+- Thiếu `SETUP_PASSWORD` — Blueprint yêu cầu nhập, nhưng cần kiểm tra đã set
+- Port không khớp — đảm bảo `PORT=8080` khớp với port Dockerfile expose
+
+### Khởi động chậm (free tier)
+
+Dịch vụ free tier spin down sau 15 phút không hoạt động. Yêu cầu đầu tiên sau spin-down mất vài giây để container khởi động. Nâng cấp lên gói Starter để luôn bật.
+
+### Mất dữ liệu sau redeploy
+
+Xảy ra trên free tier (không có disk persistent). Nâng cấp lên gói trả phí, hoặc thường xuyên xuất config qua `/setup/export`.
+
+### Health check failures
+
+Render yêu cầu phản hồi 200 từ `/health` trong 30 giây. Nếu build thành công nhưng deploy thất bại, dịch vụ có thể khởi động quá lâu. Kiểm tra:
+
+- Build logs xem có lỗi không
+- Container có chạy local với `docker build && docker run` không
+
+## Bước tiếp theo
+
+- Thiết lập kênh nhắn tin: [Channels](/channels)
+- Cấu hình Gateway: [Gateway configuration](/gateway/configuration)
+- Giữ OpenClaw luôn cập nhật: [Updating](/install/updating)\n
