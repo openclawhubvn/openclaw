@@ -881,7 +881,7 @@
               {
                 "group": "Hướng dẫn chi tiết",
                 "pages": [
-                  "start/openclaw",
+                  "start/openclaw", 
                   "start/wizard-cli-reference",
                   "start/wizard-cli-automation"
                 ]
