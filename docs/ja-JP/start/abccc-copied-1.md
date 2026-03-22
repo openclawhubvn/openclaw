@@ -2,7 +2,7 @@
 summary: "OpenClaw はあらゆる OS で動作する AI エージェント向けマルチチャネルゲートウェイです。"
 read_when:
   - Introducing OpenClaw to newcomers
-title: "test"
+title: "ducpanda test"
 ---
 
 # OpenClaw 🦞
