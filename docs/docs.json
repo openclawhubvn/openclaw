@@ -867,7 +867,8 @@
                   "index",
                   "start/showcase",
                   "concepts/features",
-                  "start/abccc"
+                  "start/abccc",
+                  "start/abccc-copied-1"
                 ]
               },
               {
@@ -2193,9 +2194,6 @@
             ]
           }
         ]
-      },
-      {
-        "language": "vi"
       }
     ]
   }
