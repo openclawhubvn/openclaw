@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/docs.json",
   "name": "Cộng đồng OpenClaw Việt Nam",
   "description": "Cộng đồng OpenClaw Việt Nam — Tài liệu tiếng Việt về gateway tự triển khai kết nối WhatsApp, Telegram, Discord, iMessage và nhiều kênh khác với AI assistant. Chạy một Gateway duy nhất trên máy chủ của bạn, nhắn tin với AI từ mọi nơi.",
-  "theme": "aspen",
+  "theme": "sequoia",
   "icons": {
     "library": "lucide"
   },
