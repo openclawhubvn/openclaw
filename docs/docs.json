@@ -867,7 +867,8 @@
                   "index",
                   "start/showcase",
                   "concepts/features",
-                  "start/abccc"
+                  "start/abccc",
+                  "start/abccc-copied-1"
                 ]
               },
               {
@@ -1547,7 +1548,7 @@
         ]
       },
       {
-        "language": "zh-Hans",
+        "language": "vi",
         "default": true,
         "tabs": [
           {
@@ -2193,9 +2194,6 @@
             ]
           }
         ]
-      },
-      {
-        "language": "vi"
       }
     ]
   }
