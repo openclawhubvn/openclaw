@@ -1,98 +1,83 @@
----
-summary: "Web search + fetch tools (Brave, Firecrawl, Gemini, Grok, Kimi, Perplexity, and Tavily providers)"
-read_when:
-  - You want to enable web_search or web_fetch
-  - You need provider API key setup
-  - You want to use Gemini with Google Search grounding
-title: "Web Tools"
----
+# Công cụ web
 
-# Web tools
+OpenClaw cung cấp hai công cụ web nhẹ:
 
-OpenClaw ships two lightweight web tools:
+- `web_search` — Tìm kiếm trên web bằng Brave Search API, Firecrawl Search, Gemini với Google Search grounding, Grok, Kimi, Perplexity Search API, hoặc Tavily Search API.
+- `web_fetch` — Thực hiện HTTP fetch và trích xuất nội dung dễ đọc (HTML → markdown/text).
 
-- `web_search` — Search the web using Brave Search API, Firecrawl Search, Gemini with Google Search grounding, Grok, Kimi, Perplexity Search API, or Tavily Search API.
-- `web_fetch` — HTTP fetch + readable extraction (HTML → markdown/text).
+Đây **không phải** là tự động hóa trình duyệt. Đối với các trang web nặng JavaScript hoặc cần đăng nhập, hãy sử dụng [Công cụ trình duyệt](/tools/browser).
 
-These are **not** browser automation. For JS-heavy sites or logins, use the
-[Browser tool](/tools/browser).
+## Cách hoạt động
 
-## How it works
+- `web_search` gọi nhà cung cấp đã cấu hình và trả về kết quả.
+- Kết quả được lưu trong bộ nhớ cache theo truy vấn trong 15 phút (có thể cấu hình).
+- `web_fetch` thực hiện một HTTP GET đơn giản và trích xuất nội dung dễ đọc (HTML → markdown/text). Nó **không** thực thi JavaScript.
+- `web_fetch` được bật mặc định (trừ khi bị tắt rõ ràng).
+- Plugin Firecrawl đi kèm cũng thêm `firecrawl_search` và `firecrawl_scrape` khi được bật.
+- Plugin Tavily đi kèm cũng thêm `tavily_search` và `tavily_extract` khi được bật.
 
-- `web_search` calls your configured provider and returns results.
-- Results are cached by query for 15 minutes (configurable).
-- `web_fetch` does a plain HTTP GET and extracts readable content
-  (HTML → markdown/text). It does **not** execute JavaScript.
-- `web_fetch` is enabled by default (unless explicitly disabled).
-- The bundled Firecrawl plugin also adds `firecrawl_search` and `firecrawl_scrape` when enabled.
-- The bundled Tavily plugin also adds `tavily_search` and `tavily_extract` when enabled.
+Xem [Cài đặt Brave Search](/tools/brave-search), [Cài đặt Perplexity Search](/tools/perplexity-search), và [Cài đặt Tavily Search](/tools/tavily) để biết chi tiết cụ thể của từng nhà cung cấp.
 
-See [Brave Search setup](/tools/brave-search), [Perplexity Search setup](/tools/perplexity-search), and [Tavily Search setup](/tools/tavily) for provider-specific details.
+## Chọn nhà cung cấp tìm kiếm
 
-## Choosing a search provider
+| Nhà cung cấp             | Dạng kết quả                          | Bộ lọc cụ thể của nhà cung cấp                                | Ghi chú                                                                         | API key                                     |
+| ------------------------ | ------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------- | ------------------------------------------- |
+| **Brave Search API**     | Kết quả có cấu trúc với đoạn trích    | `country`, `language`, `ui_lang`, thời gian                   | Hỗ trợ chế độ Brave `llm-context`                                              | `BRAVE_API_KEY`                             |
+| **Firecrawl Search**     | Kết quả có cấu trúc với đoạn trích    | Sử dụng `firecrawl_search` cho các tùy chọn tìm kiếm cụ thể của Firecrawl | Tốt nhất khi kết hợp tìm kiếm với trích xuất Firecrawl                          | `FIRECRAWL_API_KEY`                         |
+| **Gemini**               | Câu trả lời tổng hợp AI + trích dẫn   | —                                                             | Sử dụng Google Search grounding                                                | `GEMINI_API_KEY`                            |
+| **Grok**                 | Câu trả lời tổng hợp AI + trích dẫn   | —                                                             | Sử dụng phản hồi web-grounded của xAI                                          | `XAI_API_KEY`                               |
+| **Kimi**                 | Câu trả lời tổng hợp AI + trích dẫn   | —                                                             | Sử dụng tìm kiếm web Moonshot                                                  | `KIMI_API_KEY` / `MOONSHOT_API_KEY`         |
+| **Perplexity Search API**| Kết quả có cấu trúc với đoạn trích    | `country`, `language`, thời gian, `domain_filter`             | Hỗ trợ kiểm soát trích xuất nội dung; OpenRouter sử dụng đường dẫn tương thích Sonar | `PERPLEXITY_API_KEY` / `OPENROUTER_API_KEY` |
+| **Tavily Search API**    | Kết quả có cấu trúc với đoạn trích    | Sử dụng `tavily_search` cho các tùy chọn tìm kiếm cụ thể của Tavily | Độ sâu tìm kiếm, lọc chủ đề, câu trả lời AI, trích xuất URL qua `tavily_extract` | `TAVILY_API_KEY`                            |
 
-| Provider                  | Result shape                       | Provider-specific filters                                    | Notes                                                                          | API key                                     |
-| ------------------------- | ---------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------- |
-| **Brave Search API**      | Structured results with snippets   | `country`, `language`, `ui_lang`, time                       | Supports Brave `llm-context` mode                                              | `BRAVE_API_KEY`                             |
-| **Firecrawl Search**      | Structured results with snippets   | Use `firecrawl_search` for Firecrawl-specific search options | Best for pairing search with Firecrawl scraping/extraction                     | `FIRECRAWL_API_KEY`                         |
-| **Gemini**                | AI-synthesized answers + citations | —                                                            | Uses Google Search grounding                                                   | `GEMINI_API_KEY`                            |
-| **Grok**                  | AI-synthesized answers + citations | —                                                            | Uses xAI web-grounded responses                                                | `XAI_API_KEY`                               |
-| **Kimi**                  | AI-synthesized answers + citations | —                                                            | Uses Moonshot web search                                                       | `KIMI_API_KEY` / `MOONSHOT_API_KEY`         |
-| **Perplexity Search API** | Structured results with snippets   | `country`, `language`, time, `domain_filter`                 | Supports content extraction controls; OpenRouter uses Sonar compatibility path | `PERPLEXITY_API_KEY` / `OPENROUTER_API_KEY` |
-| **Tavily Search API**     | Structured results with snippets   | Use `tavily_search` for Tavily-specific search options       | Search depth, topic filtering, AI answers, URL extraction via `tavily_extract` | `TAVILY_API_KEY`                            |
+### Tự động phát hiện
 
-### Auto-detection
+Bảng trên được sắp xếp theo thứ tự chữ cái. Nếu không có `provider` nào được thiết lập rõ ràng, chế độ tự động phát hiện sẽ kiểm tra các nhà cung cấp theo thứ tự sau:
 
-The table above is alphabetical. If no `provider` is explicitly set, runtime auto-detection checks providers in this order:
+1. **Brave** — biến môi trường `BRAVE_API_KEY` hoặc `plugins.entries.brave.config.webSearch.apiKey`
+2. **Gemini** — biến môi trường `GEMINI_API_KEY` hoặc `plugins.entries.google.config.webSearch.apiKey`
+3. **Grok** — biến môi trường `XAI_API_KEY` hoặc `plugins.entries.xai.config.webSearch.apiKey`
+4. **Kimi** — biến môi trường `KIMI_API_KEY` / `MOONSHOT_API_KEY` hoặc `plugins.entries.moonshot.config.webSearch.apiKey`
+5. **Perplexity** — biến môi trường `PERPLEXITY_API_KEY`, `OPENROUTER_API_KEY`, hoặc `plugins.entries.perplexity.config.webSearch.apiKey`
+6. **Firecrawl** — biến môi trường `FIRECRAWL_API_KEY` hoặc `plugins.entries.firecrawl.config.webSearch.apiKey`
+7. **Tavily** — biến môi trường `TAVILY_API_KEY` hoặc `plugins.entries.tavily.config.webSearch.apiKey`
 
-1. **Brave** — `BRAVE_API_KEY` env var or `plugins.entries.brave.config.webSearch.apiKey`
-2. **Gemini** — `GEMINI_API_KEY` env var or `plugins.entries.google.config.webSearch.apiKey`
-3. **Grok** — `XAI_API_KEY` env var or `plugins.entries.xai.config.webSearch.apiKey`
-4. **Kimi** — `KIMI_API_KEY` / `MOONSHOT_API_KEY` env var or `plugins.entries.moonshot.config.webSearch.apiKey`
-5. **Perplexity** — `PERPLEXITY_API_KEY`, `OPENROUTER_API_KEY`, or `plugins.entries.perplexity.config.webSearch.apiKey`
-6. **Firecrawl** — `FIRECRAWL_API_KEY` env var or `plugins.entries.firecrawl.config.webSearch.apiKey`
-7. **Tavily** — `TAVILY_API_KEY` env var or `plugins.entries.tavily.config.webSearch.apiKey`
+Nếu không tìm thấy khóa nào, hệ thống sẽ quay lại Brave (bạn sẽ nhận được thông báo lỗi thiếu khóa yêu cầu cấu hình).
 
-If no keys are found, it falls back to Brave (you'll get a missing-key error prompting you to configure one).
+Hành vi Runtime SecretRef:
 
-Runtime SecretRef behavior:
+- SecretRefs của công cụ web được giải quyết đồng thời khi khởi động/tải lại gateway.
+- Trong chế độ tự động phát hiện, OpenClaw chỉ giải quyết khóa của nhà cung cấp đã chọn. SecretRefs của nhà cung cấp không được chọn vẫn không hoạt động cho đến khi được chọn.
+- Nếu SecretRef của nhà cung cấp đã chọn không được giải quyết và không có fallback env của nhà cung cấp, khởi động/tải lại sẽ thất bại nhanh chóng.
 
-- Web tool SecretRefs are resolved atomically at gateway startup/reload.
-- In auto-detect mode, OpenClaw resolves only the selected provider key. Non-selected provider SecretRefs stay inactive until selected.
-- If the selected provider SecretRef is unresolved and no provider env fallback exists, startup/reload fails fast.
+## Cài đặt tìm kiếm web
 
-## Setting up web search
-
-Use `openclaw configure --section web` to set up your API key and choose a provider.
+Sử dụng `openclaw configure --section web` để thiết lập API key và chọn nhà cung cấp.
 
 ### Brave Search
 
-1. Create a Brave Search API account at [brave.com/search/api](https://brave.com/search/api/)
-2. In the dashboard, choose the **Search** plan and generate an API key.
-3. Run `openclaw configure --section web` to store the key in config, or set `BRAVE_API_KEY` in your environment.
+1. Tạo tài khoản Brave Search API tại [brave.com/search/api](https://brave.com/search/api/)
+2. Trong dashboard, chọn gói **Search** và tạo một API key.
+3. Chạy `openclaw configure --section web` để lưu khóa vào cấu hình, hoặc đặt `BRAVE_API_KEY` trong môi trường của bạn.
 
-Each Brave plan includes **\$5/month in free credit** (renewing). The Search
-plan costs \$5 per 1,000 requests, so the credit covers 1,000 queries/month. Set
-your usage limit in the Brave dashboard to avoid unexpected charges. See the
-[Brave API portal](https://brave.com/search/api/) for current plans and
-pricing.
+Mỗi gói Brave bao gồm **5 USD/tháng tín dụng miễn phí** (tự động gia hạn). Gói Search có giá 5 USD cho mỗi 1.000 yêu cầu, vì vậy tín dụng bao gồm 1.000 truy vấn/tháng. Đặt giới hạn sử dụng trong dashboard Brave để tránh các khoản phí không mong muốn. Xem [cổng API Brave](https://brave.com/search/api/) để biết các gói và giá hiện tại.
 
 ### Perplexity Search
 
-1. Create a Perplexity account at [perplexity.ai/settings/api](https://www.perplexity.ai/settings/api)
-2. Generate an API key in the dashboard
-3. Run `openclaw configure --section web` to store the key in config, or set `PERPLEXITY_API_KEY` in your environment.
+1. Tạo tài khoản Perplexity tại [perplexity.ai/settings/api](https://www.perplexity.ai/settings/api)
+2. Tạo một API key trong dashboard
+3. Chạy `openclaw configure --section web` để lưu khóa vào cấu hình, hoặc đặt `PERPLEXITY_API_KEY` trong môi trường của bạn.
 
-For legacy Sonar/OpenRouter compatibility, set `OPENROUTER_API_KEY` instead, or configure `plugins.entries.perplexity.config.webSearch.apiKey` with an `sk-or-...` key. Setting `plugins.entries.perplexity.config.webSearch.baseUrl` or `model` also opts Perplexity back into the chat-completions compatibility path.
+Để tương thích với Sonar/OpenRouter cũ, đặt `OPENROUTER_API_KEY` thay thế, hoặc cấu hình `plugins.entries.perplexity.config.webSearch.apiKey` với khóa `sk-or-...`. Đặt `plugins.entries.perplexity.config.webSearch.baseUrl` hoặc `model` cũng sẽ đưa Perplexity trở lại đường dẫn tương thích chat-completions.
 
-Provider-specific web search config now lives under `plugins.entries.<plugin>.config.webSearch.*`.
-Legacy `tools.web.search.*` provider paths still load through a compatibility shim for one release, but they should not be used in new configs.
+Cấu hình tìm kiếm web cụ thể của nhà cung cấp hiện nằm dưới `plugins.entries.<plugin>.config.webSearch.*`.
+Đường dẫn nhà cung cấp `tools.web.search.*` cũ vẫn tải qua một lớp tương thích trong một phiên bản, nhưng không nên sử dụng trong các cấu hình mới.
 
-See [Perplexity Search API Docs](https://docs.perplexity.ai/guides/search-quickstart) for more details.
+Xem [Tài liệu API Perplexity Search](https://docs.perplexity.ai/guides/search-quickstart) để biết thêm chi tiết.
 
-### Where to store the key
+### Nơi lưu trữ khóa
 
-**Via config:** run `openclaw configure --section web`. It stores the key under the provider-specific config path:
+**Qua cấu hình:** chạy `openclaw configure --section web`. Nó lưu khóa dưới đường dẫn cấu hình cụ thể của nhà cung cấp:
 
 - Brave: `plugins.entries.brave.config.webSearch.apiKey`
 - Firecrawl: `plugins.entries.firecrawl.config.webSearch.apiKey`
@@ -102,21 +87,21 @@ See [Perplexity Search API Docs](https://docs.perplexity.ai/guides/search-quicks
 - Perplexity: `plugins.entries.perplexity.config.webSearch.apiKey`
 - Tavily: `plugins.entries.tavily.config.webSearch.apiKey`
 
-All of these fields also support SecretRef objects.
+Tất cả các trường này cũng hỗ trợ đối tượng SecretRef.
 
-**Via environment:** set provider env vars in the Gateway process environment:
+**Qua môi trường:** đặt biến môi trường của nhà cung cấp trong môi trường của quá trình Gateway:
 
 - Brave: `BRAVE_API_KEY`
 - Firecrawl: `FIRECRAWL_API_KEY`
 - Gemini: `GEMINI_API_KEY`
 - Grok: `XAI_API_KEY`
-- Kimi: `KIMI_API_KEY` or `MOONSHOT_API_KEY`
-- Perplexity: `PERPLEXITY_API_KEY` or `OPENROUTER_API_KEY`
+- Kimi: `KIMI_API_KEY` hoặc `MOONSHOT_API_KEY`
+- Perplexity: `PERPLEXITY_API_KEY` hoặc `OPENROUTER_API_KEY`
 - Tavily: `TAVILY_API_KEY`
 
-For a gateway install, put these in `~/.openclaw/.env` (or your service environment). See [Env vars](/help/faq#how-does-openclaw-load-environment-variables).
+Đối với cài đặt gateway, đặt chúng trong `~/.openclaw/.env` (hoặc môi trường dịch vụ của bạn). Xem [Biến môi trường](/help/faq#how-does-openclaw-load-environment-variables).
 
-### Config examples
+### Ví dụ cấu hình
 
 **Brave Search:**
 
@@ -127,7 +112,7 @@ For a gateway install, put these in `~/.openclaw/.env` (or your service environm
       brave: {
         config: {
           webSearch: {
-            apiKey: "YOUR_BRAVE_API_KEY", // optional if BRAVE_API_KEY is set // pragma: allowlist secret
+            apiKey: "YOUR_BRAVE_API_KEY", // tùy chọn nếu BRAVE_API_KEY đã được đặt // pragma: allowlist secret
           },
         },
       },
@@ -169,7 +154,7 @@ For a gateway install, put these in `~/.openclaw/.env` (or your service environm
         enabled: true,
         config: {
           webSearch: {
-            apiKey: "fc-...", // optional if FIRECRAWL_API_KEY is set
+            apiKey: "fc-...", // tùy chọn nếu FIRECRAWL_API_KEY đã được đặt
             baseUrl: "https://api.firecrawl.dev",
           },
         },
@@ -179,7 +164,7 @@ For a gateway install, put these in `~/.openclaw/.env` (or your service environm
 }
 ```
 
-When you choose Firecrawl in onboarding or `openclaw configure --section web`, OpenClaw enables the bundled Firecrawl plugin automatically so `web_search`, `firecrawl_search`, and `firecrawl_scrape` are all available.
+Khi bạn chọn Firecrawl trong quá trình onboarding hoặc `openclaw configure --section web`, OpenClaw tự động kích hoạt plugin Firecrawl đi kèm để `web_search`, `firecrawl_search`, và `firecrawl_scrape` đều có sẵn.
 
 **Tavily Search:**
 
@@ -191,7 +176,7 @@ When you choose Firecrawl in onboarding or `openclaw configure --section web`, O
         enabled: true,
         config: {
           webSearch: {
-            apiKey: "tvly-...", // optional if TAVILY_API_KEY is set
+            apiKey: "tvly-...", // tùy chọn nếu TAVILY_API_KEY đã được đặt
             baseUrl: "https://api.tavily.com",
           },
         },
@@ -209,9 +194,9 @@ When you choose Firecrawl in onboarding or `openclaw configure --section web`, O
 }
 ```
 
-When you choose Tavily in onboarding or `openclaw configure --section web`, OpenClaw enables the bundled Tavily plugin automatically so `web_search`, `tavily_search`, and `tavily_extract` are all available.
+Khi bạn chọn Tavily trong quá trình onboarding hoặc `openclaw configure --section web`, OpenClaw tự động kích hoạt plugin Tavily đi kèm để `web_search`, `tavily_search`, và `tavily_extract` đều có sẵn.
 
-**Brave LLM Context mode:**
+**Chế độ Brave LLM Context:**
 
 ```json5
 {
@@ -220,7 +205,7 @@ When you choose Tavily in onboarding or `openclaw configure --section web`, Open
       brave: {
         config: {
           webSearch: {
-            apiKey: "YOUR_BRAVE_API_KEY", // optional if BRAVE_API_KEY is set // pragma: allowlist secret
+            apiKey: "YOUR_BRAVE_API_KEY", // tùy chọn nếu BRAVE_API_KEY đã được đặt // pragma: allowlist secret
             mode: "llm-context",
           },
         },
@@ -238,9 +223,9 @@ When you choose Tavily in onboarding or `openclaw configure --section web`, Open
 }
 ```
 
-`llm-context` returns extracted page chunks for grounding instead of standard Brave snippets.
-In this mode, `country` and `language` / `search_lang` still work, but `ui_lang`,
-`freshness`, `date_after`, and `date_before` are rejected.
+`llm-context` trả về các đoạn trang được trích xuất để làm nền tảng thay vì các đoạn trích tiêu chuẩn của Brave.
+Trong chế độ này, `country` và `language` / `search_lang` vẫn hoạt động, nhưng `ui_lang`,
+`freshness`, `date_after`, và `date_before` bị từ chối.
 
 **Perplexity Search:**
 
@@ -251,7 +236,7 @@ In this mode, `country` and `language` / `search_lang` still work, but `ui_lang`
       perplexity: {
         config: {
           webSearch: {
-            apiKey: "pplx-...", // optional if PERPLEXITY_API_KEY is set
+            apiKey: "pplx-...", // tùy chọn nếu PERPLEXITY_API_KEY đã được đặt
           },
         },
       },
@@ -268,7 +253,7 @@ In this mode, `country` and `language` / `search_lang` still work, but `ui_lang`
 }
 ```
 
-**Perplexity via OpenRouter / Sonar compatibility:**
+**Perplexity qua OpenRouter / Tương thích Sonar:**
 
 ```json5
 {
@@ -277,7 +262,7 @@ In this mode, `country` and `language` / `search_lang` still work, but `ui_lang`
       perplexity: {
         config: {
           webSearch: {
-            apiKey: "<openrouter-api-key>", // optional if OPENROUTER_API_KEY is set
+            apiKey: "<openrouter-api-key>", // tùy chọn nếu OPENROUTER_API_KEY đã được đặt
             baseUrl: "https://openrouter.ai/api/v1",
             model: "perplexity/sonar-pro",
           },
@@ -296,18 +281,18 @@ In this mode, `country` and `language` / `search_lang` still work, but `ui_lang`
 }
 ```
 
-## Using Gemini (Google Search grounding)
+## Sử dụng Gemini (Google Search grounding)
 
-Gemini models support built-in [Google Search grounding](https://ai.google.dev/gemini-api/docs/grounding),
-which returns AI-synthesized answers backed by live Google Search results with citations.
+Các mô hình Gemini hỗ trợ [Google Search grounding](https://ai.google.dev/gemini-api/docs/grounding) tích hợp sẵn,
+trả về các câu trả lời tổng hợp AI được hỗ trợ bởi kết quả tìm kiếm Google trực tiếp với trích dẫn.
 
-### Getting a Gemini API key
+### Lấy API key Gemini
 
-1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
-2. Create an API key
-3. Set `GEMINI_API_KEY` in the Gateway environment, or configure `plugins.entries.google.config.webSearch.apiKey`
+1. Truy cập [Google AI Studio](https://aistudio.google.com/apikey)
+2. Tạo một API key
+3. Đặt `GEMINI_API_KEY` trong môi trường Gateway, hoặc cấu hình `plugins.entries.google.config.webSearch.apiKey`
 
-### Setting up Gemini search
+### Cài đặt tìm kiếm Gemini
 
 ```json5
 {
@@ -316,9 +301,9 @@ which returns AI-synthesized answers backed by live Google Search results with c
       google: {
         config: {
           webSearch: {
-            // API key (optional if GEMINI_API_KEY is set)
+            // API key (tùy chọn nếu GEMINI_API_KEY đã được đặt)
             apiKey: "AIza...",
-            // Model (defaults to "gemini-2.5-flash")
+            // Model (mặc định là "gemini-2.5-flash")
             model: "gemini-2.5-flash",
           },
         },
@@ -335,36 +320,36 @@ which returns AI-synthesized answers backed by live Google Search results with c
 }
 ```
 
-**Environment alternative:** set `GEMINI_API_KEY` in the Gateway environment.
-For a gateway install, put it in `~/.openclaw/.env`.
+**Thay thế qua môi trường:** đặt `GEMINI_API_KEY` trong môi trường Gateway.
+Đối với cài đặt gateway, đặt nó trong `~/.openclaw/.env`.
 
-### Notes
+### Ghi chú
 
-- Citation URLs from Gemini grounding are automatically resolved from Google's
-  redirect URLs to direct URLs.
-- Redirect resolution uses the SSRF guard path (HEAD + redirect checks + http/https validation) before returning the final citation URL.
-- Redirect resolution uses strict SSRF defaults, so redirects to private/internal targets are blocked.
-- The default model (`gemini-2.5-flash`) is fast and cost-effective.
-  Any Gemini model that supports grounding can be used.
+- URL trích dẫn từ Gemini grounding được tự động giải quyết từ URL chuyển hướng của Google
+  sang URL trực tiếp.
+- Giải quyết chuyển hướng sử dụng đường dẫn bảo vệ SSRF (HEAD + kiểm tra chuyển hướng + xác thực http/https) trước khi trả về URL trích dẫn cuối cùng.
+- Giải quyết chuyển hướng sử dụng các mặc định SSRF nghiêm ngặt, vì vậy các chuyển hướng đến các mục tiêu riêng tư/nội bộ bị chặn.
+- Mô hình mặc định (`gemini-2.5-flash`) nhanh và tiết kiệm chi phí.
+  Bất kỳ mô hình Gemini nào hỗ trợ grounding đều có thể được sử dụng.
 
 ## web_search
 
-Search the web using your configured provider.
+Tìm kiếm trên web bằng nhà cung cấp đã cấu hình.
 
-### Requirements
+### Yêu cầu
 
-- `tools.web.search.enabled` must not be `false` (default: enabled)
-- API key for your chosen provider:
-  - **Brave**: `BRAVE_API_KEY` or `plugins.entries.brave.config.webSearch.apiKey`
-  - **Firecrawl**: `FIRECRAWL_API_KEY` or `plugins.entries.firecrawl.config.webSearch.apiKey`
-  - **Gemini**: `GEMINI_API_KEY` or `plugins.entries.google.config.webSearch.apiKey`
-  - **Grok**: `XAI_API_KEY` or `plugins.entries.xai.config.webSearch.apiKey`
-  - **Kimi**: `KIMI_API_KEY`, `MOONSHOT_API_KEY`, or `plugins.entries.moonshot.config.webSearch.apiKey`
-  - **Perplexity**: `PERPLEXITY_API_KEY`, `OPENROUTER_API_KEY`, or `plugins.entries.perplexity.config.webSearch.apiKey`
-  - **Tavily**: `TAVILY_API_KEY` or `plugins.entries.tavily.config.webSearch.apiKey`
-- All provider key fields above support SecretRef objects.
+- `tools.web.search.enabled` không được là `false` (mặc định: bật)
+- API key cho nhà cung cấp đã chọn:
+  - **Brave**: `BRAVE_API_KEY` hoặc `plugins.entries.brave.config.webSearch.apiKey`
+  - **Firecrawl**: `FIRECRAWL_API_KEY` hoặc `plugins.entries.firecrawl.config.webSearch.apiKey`
+  - **Gemini**: `GEMINI_API_KEY` hoặc `plugins.entries.google.config.webSearch.apiKey`
+  - **Grok**: `XAI_API_KEY` hoặc `plugins.entries.xai.config.webSearch.apiKey`
+  - **Kimi**: `KIMI_API_KEY`, `MOONSHOT_API_KEY`, hoặc `plugins.entries.moonshot.config.webSearch.apiKey`
+  - **Perplexity**: `PERPLEXITY_API_KEY`, `OPENROUTER_API_KEY`, hoặc `plugins.entries.perplexity.config.webSearch.apiKey`
+  - **Tavily**: `TAVILY_API_KEY` hoặc `plugins.entries.tavily.config.webSearch.apiKey`
+- Tất cả các trường khóa nhà cung cấp trên đều hỗ trợ đối tượng SecretRef.
 
-### Config
+### Cấu hình
 
 ```json5
 {
@@ -372,7 +357,7 @@ Search the web using your configured provider.
     web: {
       search: {
         enabled: true,
-        apiKey: "BRAVE_API_KEY_HERE", // optional if BRAVE_API_KEY is set
+        apiKey: "BRAVE_API_KEY_HERE", // tùy chọn nếu BRAVE_API_KEY đã được đặt
         maxResults: 5,
         timeoutSeconds: 30,
         cacheTtlMinutes: 15,
@@ -382,67 +367,67 @@ Search the web using your configured provider.
 }
 ```
 
-### Tool parameters
+### Tham số công cụ
 
-Parameters depend on the selected provider.
+Các tham số phụ thuộc vào nhà cung cấp đã chọn.
 
-Perplexity's OpenRouter / Sonar compatibility path supports only `query` and `freshness`.
-If you set `plugins.entries.perplexity.config.webSearch.baseUrl` / `model`, use `OPENROUTER_API_KEY`, or configure an `sk-or-...` key under `plugins.entries.perplexity.config.webSearch.apiKey`, Search API-only filters return explicit errors.
+Đường dẫn tương thích OpenRouter / Sonar của Perplexity chỉ hỗ trợ `query` và `freshness`.
+Nếu bạn đặt `plugins.entries.perplexity.config.webSearch.baseUrl` / `model`, sử dụng `OPENROUTER_API_KEY`, hoặc cấu hình một khóa `sk-or-...` dưới `plugins.entries.perplexity.config.webSearch.apiKey`, các bộ lọc chỉ dành cho API Tìm kiếm sẽ trả về lỗi rõ ràng.
 
-| Parameter             | Description                                           |
-| --------------------- | ----------------------------------------------------- |
-| `query`               | Search query (required)                               |
-| `count`               | Results to return (1-10, default: 5)                  |
-| `country`             | 2-letter ISO country code (e.g., "US", "DE")          |
-| `language`            | ISO 639-1 language code (e.g., "en", "de")            |
-| `freshness`           | Time filter: `day`, `week`, `month`, or `year`        |
-| `date_after`          | Results after this date (YYYY-MM-DD)                  |
-| `date_before`         | Results before this date (YYYY-MM-DD)                 |
-| `ui_lang`             | UI language code (Brave only)                         |
-| `domain_filter`       | Domain allowlist/denylist array (Perplexity only)     |
-| `max_tokens`          | Total content budget, default 25000 (Perplexity only) |
-| `max_tokens_per_page` | Per-page token limit, default 2048 (Perplexity only)  |
+| Tham số                | Mô tả                                                |
+| ---------------------- | ---------------------------------------------------- |
+| `query`                | Truy vấn tìm kiếm (bắt buộc)                         |
+| `count`                | Số kết quả trả về (1-10, mặc định: 5)                |
+| `country`              | Mã quốc gia ISO 2 chữ cái (ví dụ: "US", "DE")        |
+| `language`             | Mã ngôn ngữ ISO 639-1 (ví dụ: "en", "de")            |
+| `freshness`            | Bộ lọc thời gian: `day`, `week`, `month`, hoặc `year`|
+| `date_after`           | Kết quả sau ngày này (YYYY-MM-DD)                    |
+| `date_before`          | Kết quả trước ngày này (YYYY-MM-DD)                  |
+| `ui_lang`              | Mã ngôn ngữ giao diện (chỉ Brave)                    |
+| `domain_filter`        | Mảng danh sách cho phép/chặn tên miền (chỉ Perplexity)|
+| `max_tokens`           | Ngân sách nội dung tổng, mặc định 25000 (chỉ Perplexity)|
+| `max_tokens_per_page`  | Giới hạn token mỗi trang, mặc định 2048 (chỉ Perplexity)|
 
-Firecrawl `web_search` supports `query` and `count`. For Firecrawl-specific controls like `sources`, `categories`, result scraping, or scrape timeout, use `firecrawl_search` from the bundled Firecrawl plugin.
+Firecrawl `web_search` hỗ trợ `query` và `count`. Đối với các điều khiển cụ thể của Firecrawl như `sources`, `categories`, trích xuất kết quả, hoặc thời gian chờ trích xuất, sử dụng `firecrawl_search` từ plugin Firecrawl đi kèm.
 
-Tavily `web_search` supports `query` and `count` (up to 20 results). For Tavily-specific controls like `search_depth`, `topic`, `include_answer`, or domain filters, use `tavily_search` from the bundled Tavily plugin. For URL content extraction, use `tavily_extract`. See [Tavily](/tools/tavily) for details.
+Tavily `web_search` hỗ trợ `query` và `count` (tối đa 20 kết quả). Đối với các điều khiển cụ thể của Tavily như `search_depth`, `topic`, `include_answer`, hoặc bộ lọc tên miền, sử dụng `tavily_search` từ plugin Tavily đi kèm. Để trích xuất nội dung URL, sử dụng `tavily_extract`. Xem [Tavily](/tools/tavily) để biết chi tiết.
 
-**Examples:**
+**Ví dụ:**
 
 ```javascript
-// German-specific search
+// Tìm kiếm cụ thể cho Đức
 await web_search({
   query: "TV online schauen",
   country: "DE",
   language: "de",
 });
 
-// Recent results (past week)
+// Kết quả gần đây (trong tuần qua)
 await web_search({
   query: "TMBG interview",
   freshness: "week",
 });
 
-// Date range search
+// Tìm kiếm theo khoảng thời gian
 await web_search({
   query: "AI developments",
   date_after: "2024-01-01",
   date_before: "2024-06-30",
 });
 
-// Domain filtering (Perplexity only)
+// Lọc tên miền (chỉ Perplexity)
 await web_search({
   query: "climate research",
   domain_filter: ["nature.com", "science.org", ".edu"],
 });
 
-// Exclude domains (Perplexity only)
+// Loại trừ tên miền (chỉ Perplexity)
 await web_search({
   query: "product reviews",
   domain_filter: ["-reddit.com", "-pinterest.com"],
 });
 
-// More content extraction (Perplexity only)
+// Trích xuất nội dung nhiều hơn (chỉ Perplexity)
 await web_search({
   query: "detailed AI research",
   max_tokens: 50000,
@@ -450,20 +435,20 @@ await web_search({
 });
 ```
 
-When Brave `llm-context` mode is enabled, `ui_lang`, `freshness`, `date_after`, and
-`date_before` are not supported. Use Brave `web` mode for those filters.
+Khi chế độ Brave `llm-context` được bật, `ui_lang`, `freshness`, `date_after`, và
+`date_before` không được hỗ trợ. Sử dụng chế độ Brave `web` cho các bộ lọc đó.
 
 ## web_fetch
 
-Fetch a URL and extract readable content.
+Lấy một URL và trích xuất nội dung dễ đọc.
 
-### web_fetch requirements
+### Yêu cầu web_fetch
 
-- `tools.web.fetch.enabled` must not be `false` (default: enabled)
-- Optional Firecrawl fallback: set `tools.web.fetch.firecrawl.apiKey` or `FIRECRAWL_API_KEY`.
-- `tools.web.fetch.firecrawl.apiKey` supports SecretRef objects.
+- `tools.web.fetch.enabled` không được là `false` (mặc định: bật)
+- Tùy chọn Firecrawl fallback: đặt `tools.web.fetch.firecrawl.apiKey` hoặc `FIRECRAWL_API_KEY`.
+- `tools.web.fetch.firecrawl.apiKey` hỗ trợ đối tượng SecretRef.
 
-### web_fetch config
+### Cấu hình web_fetch
 
 ```json5
 {
@@ -477,14 +462,14 @@ Fetch a URL and extract readable content.
         timeoutSeconds: 30,
         cacheTtlMinutes: 15,
         maxRedirects: 3,
-        userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_2) AppleWebKit/537.36 (KHTML, như Gecko) Chrome/122.0.0.0 Safari/537.36",
         readability: true,
         firecrawl: {
           enabled: true,
-          apiKey: "FIRECRAWL_API_KEY_HERE", // optional if FIRECRAWL_API_KEY is set
+          apiKey: "FIRECRAWL_API_KEY_HERE", // tùy chọn nếu FIRECRAWL_API_KEY đã được đặt
           baseUrl: "https://api.firecrawl.dev",
           onlyMainContent: true,
-          maxAgeMs: 86400000, // ms (1 day)
+          maxAgeMs: 86400000, // ms (1 ngày)
           timeoutSeconds: 60,
         },
       },
@@ -493,24 +478,24 @@ Fetch a URL and extract readable content.
 }
 ```
 
-### web_fetch tool parameters
+### Tham số công cụ web_fetch
 
-- `url` (required, http/https only)
+- `url` (bắt buộc, chỉ http/https)
 - `extractMode` (`markdown` | `text`)
-- `maxChars` (truncate long pages)
+- `maxChars` (cắt ngắn các trang dài)
 
-Notes:
+Ghi chú:
 
-- `web_fetch` uses Readability (main-content extraction) first, then Firecrawl (if configured). If both fail, the tool returns an error.
-- Firecrawl requests use bot-circumvention mode and cache results by default.
-- Firecrawl SecretRefs are resolved only when Firecrawl is active (`tools.web.fetch.enabled !== false` and `tools.web.fetch.firecrawl.enabled !== false`).
-- If Firecrawl is active and its SecretRef is unresolved with no `FIRECRAWL_API_KEY` fallback, startup/reload fails fast.
-- `web_fetch` sends a Chrome-like User-Agent and `Accept-Language` by default; override `userAgent` if needed.
-- `web_fetch` blocks private/internal hostnames and re-checks redirects (limit with `maxRedirects`).
-- `maxChars` is clamped to `tools.web.fetch.maxCharsCap`.
-- `web_fetch` caps the downloaded response body size to `tools.web.fetch.maxResponseBytes` before parsing; oversized responses are truncated and include a warning.
-- `web_fetch` is best-effort extraction; some sites will need the browser tool.
-- See [Firecrawl](/tools/firecrawl) for key setup and service details.
-- Responses are cached (default 15 minutes) to reduce repeated fetches.
-- If you use tool profiles/allowlists, add `web_search`/`web_fetch` or `group:web`.
-- If the API key is missing, `web_search` returns a short setup hint with a docs link.
+- `web_fetch` sử dụng Readability (trích xuất nội dung chính) trước, sau đó là Firecrawl (nếu được cấu hình). Nếu cả hai đều thất bại, công cụ sẽ trả về lỗi.
+- Yêu cầu Firecrawl sử dụng chế độ tránh bot và lưu trữ kết quả trong bộ nhớ cache theo mặc định.
+- SecretRefs của Firecrawl chỉ được giải quyết khi Firecrawl hoạt động (`tools.web.fetch.enabled !== false` và `tools.web.fetch.firecrawl.enabled !== false`).
+- Nếu Firecrawl hoạt động và SecretRef của nó không được giải quyết với không có fallback `FIRECRAWL_API_KEY`, khởi động/tải lại sẽ thất bại nhanh chóng.
+- `web_fetch` gửi một User-Agent giống Chrome và `Accept-Language` theo mặc định; ghi đè `userAgent` nếu cần.
+- `web_fetch` chặn các tên miền riêng tư/nội bộ và kiểm tra lại các chuyển hướng (giới hạn với `maxRedirects`).
+- `maxChars` bị giới hạn bởi `tools.web.fetch.maxCharsCap`.
+- `web_fetch` giới hạn kích thước thân phản hồi tải xuống đến `tools.web.fetch.maxResponseBytes` trước khi phân tích; các phản hồi quá lớn bị cắt ngắn và bao gồm một cảnh báo.
+- `web_fetch` là trích xuất nỗ lực tốt nhất; một số trang web sẽ cần công cụ trình duyệt.
+- Xem [Firecrawl](/tools/firecrawl) để biết cài đặt khóa và chi tiết dịch vụ.
+- Các phản hồi được lưu trữ trong bộ nhớ cache (mặc định 15 phút) để giảm các lần fetch lặp lại.
+- Nếu bạn sử dụng hồ sơ công cụ/danh sách cho phép, thêm `web_search`/`web_fetch` hoặc `group:web`.
+- Nếu thiếu API key, `web_search` trả về một gợi ý thiết lập ngắn với liên kết tài liệu.

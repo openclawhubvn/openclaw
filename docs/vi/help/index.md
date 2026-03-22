@@ -1,28 +1,28 @@
 ---
-summary: "Help hub: common fixes, install sanity, and where to look when something breaks"
+summary: "Trung tâm trợ giúp: các cách khắc phục phổ biến, kiểm tra cài đặt, và nơi cần tìm khi có sự cố"
 read_when:
-  - You’re new and want the “what do I click/run” guide
-  - Something broke and you want the fastest path to a fix
-title: "Help"
+  - Bạn mới bắt đầu và cần hướng dẫn "nhấp/chạy cái gì"
+  - Có sự cố và bạn muốn tìm cách khắc phục nhanh nhất
+title: "Trợ giúp"
 ---
 
-# Help
+# Trợ giúp
 
-If you want a quick “get unstuck” flow, start here:
+Nếu bạn cần một quy trình nhanh để "thoát khỏi tình huống khó khăn", hãy bắt đầu từ đây:
 
-- **Troubleshooting:** [Start here](/help/troubleshooting)
-- **Install sanity (Node/npm/PATH):** [Install](/install/node#troubleshooting)
-- **Gateway issues:** [Gateway troubleshooting](/gateway/troubleshooting)
-- **Logs:** [Logging](/logging) and [Gateway logging](/gateway/logging)
-- **Repairs:** [Doctor](/gateway/doctor)
+- **Khắc phục sự cố:** [Bắt đầu từ đây](/help/troubleshooting)
+- **Kiểm tra cài đặt (Node/npm/PATH):** [Cài đặt](/install/node#troubleshooting)
+- **Vấn đề về Gateway:** [Khắc phục sự cố Gateway](/gateway/troubleshooting)
+- **Nhật ký:** [Ghi nhật ký](/logging) và [Ghi nhật ký Gateway](/gateway/logging)
+- **Sửa chữa:** [Doctor](/gateway/doctor)
 
-If you’re looking for conceptual questions (not “something broke”):
+Nếu bạn đang tìm kiếm câu hỏi mang tính khái niệm (không phải "có sự cố"):
 
-- [FAQ (concepts)](/help/faq)
+- [Câu hỏi thường gặp (khái niệm)](/help/faq)
 
-## Environment and debugging
+## Môi trường và gỡ lỗi
 
-- **Environment variables:** [Where OpenClaw loads env vars and precedence](/help/environment)
-- **Debugging:** [Watch mode, raw streams, and dev profile](/help/debugging)
-- **Testing:** [Test suites, live tests, and Docker runners](/help/testing)
-- **Scripts:** [Repository helper scripts](/help/scripts)
+- **Biến môi trường:** [Nơi OpenClaw tải biến môi trường và thứ tự ưu tiên](/help/environment)
+- **Gỡ lỗi:** [Chế độ xem, luồng dữ liệu thô, và hồ sơ phát triển](/help/debugging)
+- **Kiểm thử:** [Bộ kiểm thử, kiểm thử trực tiếp, và Docker runners](/help/testing)
+- **Scripts:** [Scripts hỗ trợ trong kho lưu trữ](/help/scripts)

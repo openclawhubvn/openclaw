@@ -1,33 +1,33 @@
 ---
-summary: "Signal support via signal-cli (JSON-RPC + SSE), setup paths, and number model"
+summary: "Hỗ trợ Signal qua signal-cli (JSON-RPC + SSE), thiết lập đường dẫn và mô hình số"
 read_when:
-  - Setting up Signal support
-  - Debugging Signal send/receive
+  - Thiết lập hỗ trợ Signal
+  - Gỡ lỗi gửi/nhận Signal
 title: "Signal"
 ---
 
 # Signal (signal-cli)
 
-Status: external CLI integration. Gateway talks to `signal-cli` over HTTP JSON-RPC + SSE.
+Trạng thái: tích hợp CLI bên ngoài. Gateway giao tiếp với `signal-cli` qua HTTP JSON-RPC + SSE.
 
-## Prerequisites
+## Yêu cầu trước khi bắt đầu
 
-- OpenClaw installed on your server (Linux flow below tested on Ubuntu 24).
-- `signal-cli` available on the host where the gateway runs.
-- A phone number that can receive one verification SMS (for SMS registration path).
-- Browser access for Signal captcha (`signalcaptchas.org`) during registration.
+- Đã cài đặt OpenClaw trên máy chủ (dòng lệnh Linux dưới đây đã được kiểm tra trên Ubuntu 24).
+- `signal-cli` có sẵn trên máy chủ nơi gateway chạy.
+- Một số điện thoại có thể nhận một tin nhắn xác minh SMS (cho đường dẫn đăng ký SMS).
+- Truy cập trình duyệt để thực hiện captcha của Signal (`signalcaptchas.org`) trong quá trình đăng ký.
 
-## Quick setup (beginner)
+## Thiết lập nhanh (dành cho người mới bắt đầu)
 
-1. Use a **separate Signal number** for the bot (recommended).
-2. Install `signal-cli` (Java required if you use the JVM build).
-3. Choose one setup path:
-   - **Path A (QR link):** `signal-cli link -n "OpenClaw"` and scan with Signal.
-   - **Path B (SMS register):** register a dedicated number with captcha + SMS verification.
-4. Configure OpenClaw and restart the gateway.
-5. Send a first DM and approve pairing (`openclaw pairing approve signal <CODE>`).
+1. Sử dụng **số Signal riêng biệt** cho bot (khuyến nghị).
+2. Cài đặt `signal-cli` (cần Java nếu sử dụng bản JVM).
+3. Chọn một đường dẫn thiết lập:
+   - **Đường dẫn A (QR link):** `signal-cli link -n "OpenClaw"` và quét bằng Signal.
+   - **Đường dẫn B (đăng ký SMS):** đăng ký một số riêng với captcha + xác minh SMS.
+4. Cấu hình OpenClaw và khởi động lại gateway.
+5. Gửi tin nhắn DM đầu tiên và phê duyệt ghép đôi (`openclaw pairing approve signal <CODE>`).
 
-Minimal config:
+Cấu hình tối thiểu:
 
 ```json5
 {
@@ -43,26 +43,26 @@ Minimal config:
 }
 ```
 
-Field reference:
+Tham khảo trường:
 
-| Field       | Description                                       |
-| ----------- | ------------------------------------------------- |
-| `account`   | Bot phone number in E.164 format (`+15551234567`) |
-| `cliPath`   | Path to `signal-cli` (`signal-cli` if on `PATH`)  |
-| `dmPolicy`  | DM access policy (`pairing` recommended)          |
-| `allowFrom` | Phone numbers or `uuid:<id>` values allowed to DM |
+| Trường       | Mô tả                                                |
+| ------------ | ---------------------------------------------------- |
+| `account`    | Số điện thoại bot theo định dạng E.164 (`+15551234567`) |
+| `cliPath`    | Đường dẫn đến `signal-cli` (`signal-cli` nếu có trong `PATH`) |
+| `dmPolicy`   | Chính sách truy cập DM (`pairing` được khuyến nghị) |
+| `allowFrom`  | Các số điện thoại hoặc giá trị `uuid:<id>` được phép DM |
 
-## What it is
+## Nó là gì
 
-- Signal channel via `signal-cli` (not embedded libsignal).
-- Deterministic routing: replies always go back to Signal.
-- DMs share the agent's main session; groups are isolated (`agent:<agentId>:signal:group:<groupId>`).
+- Kênh Signal qua `signal-cli` (không phải thư viện nhúng libsignal).
+- Định tuyến quyết định: phản hồi luôn quay lại Signal.
+- DMs chia sẻ phiên chính của agent; các nhóm được cô lập (`agent:<agentId>:signal:group:<groupId>`).
 
-## Config writes
+## Ghi cấu hình
 
-By default, Signal is allowed to write config updates triggered by `/config set|unset` (requires `commands.config: true`).
+Mặc định, Signal được phép ghi cập nhật cấu hình kích hoạt bởi `/config set|unset` (yêu cầu `commands.config: true`).
 
-Disable with:
+Vô hiệu hóa với:
 
 ```json5
 {
@@ -70,20 +70,20 @@ Disable with:
 }
 ```
 
-## The number model (important)
+## Mô hình số (quan trọng)
 
-- The gateway connects to a **Signal device** (the `signal-cli` account).
-- If you run the bot on **your personal Signal account**, it will ignore your own messages (loop protection).
-- For "I text the bot and it replies," use a **separate bot number**.
+- Gateway kết nối với một **thiết bị Signal** (tài khoản `signal-cli`).
+- Nếu chạy bot trên **tài khoản Signal cá nhân**, nó sẽ bỏ qua tin nhắn của bạn (bảo vệ vòng lặp).
+- Để "Tôi nhắn tin cho bot và nó trả lời," hãy sử dụng một **số bot riêng biệt**.
 
-## Setup path A: link existing Signal account (QR)
+## Đường dẫn thiết lập A: liên kết tài khoản Signal hiện có (QR)
 
-1. Install `signal-cli` (JVM or native build).
-2. Link a bot account:
-   - `signal-cli link -n "OpenClaw"` then scan the QR in Signal.
-3. Configure Signal and start the gateway.
+1. Cài đặt `signal-cli` (bản JVM hoặc bản native).
+2. Liên kết tài khoản bot:
+   - `signal-cli link -n "OpenClaw"` sau đó quét mã QR trong Signal.
+3. Cấu hình Signal và khởi động gateway.
 
-Example:
+Ví dụ:
 
 ```json5
 {
@@ -99,15 +99,15 @@ Example:
 }
 ```
 
-Multi-account support: use `channels.signal.accounts` with per-account config and optional `name`. See [`gateway/configuration`](/gateway/configuration-reference#multi-account-all-channels) for the shared pattern.
+Hỗ trợ nhiều tài khoản: sử dụng `channels.signal.accounts` với cấu hình từng tài khoản và tùy chọn `name`. Xem [cấu hình gateway](/gateway/configuration-reference#multi-account-all-channels) cho mẫu chia sẻ.
 
-## Setup path B: register dedicated bot number (SMS, Linux)
+## Đường dẫn thiết lập B: đăng ký số bot riêng (SMS, Linux)
 
-Use this when you want a dedicated bot number instead of linking an existing Signal app account.
+Sử dụng khi bạn muốn một số bot riêng thay vì liên kết tài khoản ứng dụng Signal hiện có.
 
-1. Get a number that can receive SMS (or voice verification for landlines).
-   - Use a dedicated bot number to avoid account/session conflicts.
-2. Install `signal-cli` on the gateway host:
+1. Lấy một số có thể nhận SMS (hoặc xác minh giọng nói cho điện thoại bàn).
+   - Sử dụng số bot riêng để tránh xung đột tài khoản/phiên.
+2. Cài đặt `signal-cli` trên máy chủ gateway:
 
 ```bash
 VERSION=$(curl -Ls -o /dev/null -w %{url_effective} https://github.com/AsamK/signal-cli/releases/latest | sed -e 's/^.*\/v//')
@@ -117,54 +117,54 @@ sudo ln -sf /opt/signal-cli /usr/local/bin/
 signal-cli --version
 ```
 
-If you use the JVM build (`signal-cli-${VERSION}.tar.gz`), install JRE 25+ first.
-Keep `signal-cli` updated; upstream notes that old releases can break as Signal server APIs change.
+Nếu sử dụng bản JVM (`signal-cli-${VERSION}.tar.gz`), cài đặt JRE 25+ trước.
+Giữ `signal-cli` được cập nhật; lưu ý rằng các bản phát hành cũ có thể bị lỗi khi API máy chủ Signal thay đổi.
 
-3. Register and verify the number:
+3. Đăng ký và xác minh số:
 
 ```bash
 signal-cli -a +<BOT_PHONE_NUMBER> register
 ```
 
-If captcha is required:
+Nếu cần captcha:
 
-1. Open `https://signalcaptchas.org/registration/generate.html`.
-2. Complete captcha, copy the `signalcaptcha://...` link target from "Open Signal".
-3. Run from the same external IP as the browser session when possible.
-4. Run registration again immediately (captcha tokens expire quickly):
+1. Mở `https://signalcaptchas.org/registration/generate.html`.
+2. Hoàn thành captcha, sao chép liên kết `signalcaptcha://...` từ "Open Signal".
+3. Chạy từ cùng một IP bên ngoài như phiên trình duyệt khi có thể.
+4. Chạy lại đăng ký ngay lập tức (token captcha hết hạn nhanh chóng):
 
 ```bash
 signal-cli -a +<BOT_PHONE_NUMBER> register --captcha '<SIGNALCAPTCHA_URL>'
 signal-cli -a +<BOT_PHONE_NUMBER> verify <VERIFICATION_CODE>
 ```
 
-4. Configure OpenClaw, restart gateway, verify channel:
+4. Cấu hình OpenClaw, khởi động lại gateway, xác minh kênh:
 
 ```bash
-# If you run the gateway as a user systemd service:
+# Nếu chạy gateway như một dịch vụ systemd người dùng:
 systemctl --user restart openclaw-gateway
 
-# Then verify:
+# Sau đó xác minh:
 openclaw doctor
 openclaw channels status --probe
 ```
 
-5. Pair your DM sender:
-   - Send any message to the bot number.
-   - Approve code on the server: `openclaw pairing approve signal <PAIRING_CODE>`.
-   - Save the bot number as a contact on your phone to avoid "Unknown contact".
+5. Ghép đôi người gửi DM của bạn:
+   - Gửi bất kỳ tin nhắn nào đến số bot.
+   - Phê duyệt mã trên máy chủ: `openclaw pairing approve signal <PAIRING_CODE>`.
+   - Lưu số bot như một liên hệ trên điện thoại để tránh "Liên hệ không xác định".
 
-Important: registering a phone number account with `signal-cli` can de-authenticate the main Signal app session for that number. Prefer a dedicated bot number, or use QR link mode if you need to keep your existing phone app setup.
+Quan trọng: đăng ký tài khoản số điện thoại với `signal-cli` có thể hủy xác thực phiên ứng dụng Signal chính cho số đó. Ưu tiên một số bot riêng, hoặc sử dụng chế độ liên kết QR nếu cần giữ thiết lập ứng dụng điện thoại hiện có.
 
-Upstream references:
+Tham khảo từ upstream:
 
-- `signal-cli` README: `https://github.com/AsamK/signal-cli`
-- Captcha flow: `https://github.com/AsamK/signal-cli/wiki/Registration-with-captcha`
-- Linking flow: `https://github.com/AsamK/signal-cli/wiki/Linking-other-devices-(Provisioning)`
+- README `signal-cli`: `https://github.com/AsamK/signal-cli`
+- Quy trình captcha: `https://github.com/AsamK/signal-cli/wiki/Registration-with-captcha`
+- Quy trình liên kết: `https://github.com/AsamK/signal-cli/wiki/Linking-other-devices-(Provisioning)`
 
-## External daemon mode (httpUrl)
+## Chế độ daemon bên ngoài (httpUrl)
 
-If you want to manage `signal-cli` yourself (slow JVM cold starts, container init, or shared CPUs), run the daemon separately and point OpenClaw at it:
+Nếu muốn tự quản lý `signal-cli` (khởi động JVM chậm, khởi tạo container, hoặc chia sẻ CPU), chạy daemon riêng và chỉ định OpenClaw đến nó:
 
 ```json5
 {
@@ -177,57 +177,57 @@ If you want to manage `signal-cli` yourself (slow JVM cold starts, container ini
 }
 ```
 
-This skips auto-spawn and the startup wait inside OpenClaw. For slow starts when auto-spawning, set `channels.signal.startupTimeoutMs`.
+Điều này bỏ qua tự động khởi động và thời gian chờ khởi động bên trong OpenClaw. Đối với khởi động chậm khi tự động khởi động, đặt `channels.signal.startupTimeoutMs`.
 
-## Access control (DMs + groups)
+## Kiểm soát truy cập (DMs + nhóm)
 
 DMs:
 
-- Default: `channels.signal.dmPolicy = "pairing"`.
-- Unknown senders receive a pairing code; messages are ignored until approved (codes expire after 1 hour).
-- Approve via:
+- Mặc định: `channels.signal.dmPolicy = "pairing"`.
+- Người gửi không xác định nhận mã ghép đôi; tin nhắn bị bỏ qua cho đến khi được phê duyệt (mã hết hạn sau 1 giờ).
+- Phê duyệt qua:
   - `openclaw pairing list signal`
   - `openclaw pairing approve signal <CODE>`
-- Pairing is the default token exchange for Signal DMs. Details: [Pairing](/channels/pairing)
-- UUID-only senders (from `sourceUuid`) are stored as `uuid:<id>` in `channels.signal.allowFrom`.
+- Ghép đôi là trao đổi token mặc định cho DMs Signal. Chi tiết: [Ghép đôi](/channels/pairing)
+- Người gửi chỉ có UUID (từ `sourceUuid`) được lưu trữ dưới dạng `uuid:<id>` trong `channels.signal.allowFrom`.
 
-Groups:
+Nhóm:
 
 - `channels.signal.groupPolicy = open | allowlist | disabled`.
-- `channels.signal.groupAllowFrom` controls who can trigger in groups when `allowlist` is set.
-- `channels.signal.groups["<group-id>" | "*"]` can override group behavior with `requireMention`, `tools`, and `toolsBySender`.
-- Use `channels.signal.accounts.<id>.groups` for per-account overrides in multi-account setups.
-- Runtime note: if `channels.signal` is completely missing, runtime falls back to `groupPolicy="allowlist"` for group checks (even if `channels.defaults.groupPolicy` is set).
+- `channels.signal.groupAllowFrom` kiểm soát ai có thể kích hoạt trong nhóm khi `allowlist` được đặt.
+- `channels.signal.groups["<group-id>" | "*"]` có thể ghi đè hành vi nhóm với `requireMention`, `tools`, và `toolsBySender`.
+- Sử dụng `channels.signal.accounts.<id>.groups` cho ghi đè từng tài khoản trong thiết lập nhiều tài khoản.
+- Lưu ý khi chạy: nếu `channels.signal` hoàn toàn thiếu, runtime sẽ quay lại `groupPolicy="allowlist"` cho kiểm tra nhóm (ngay cả khi `channels.defaults.groupPolicy` được đặt).
 
-## How it works (behavior)
+## Cách hoạt động (hành vi)
 
-- `signal-cli` runs as a daemon; the gateway reads events via SSE.
-- Inbound messages are normalized into the shared channel envelope.
-- Replies always route back to the same number or group.
+- `signal-cli` chạy như một daemon; gateway đọc sự kiện qua SSE.
+- Tin nhắn đến được chuẩn hóa vào phong bì kênh chia sẻ.
+- Phản hồi luôn định tuyến trở lại cùng số hoặc nhóm.
 
-## Media + limits
+## Media + giới hạn
 
-- Outbound text is chunked to `channels.signal.textChunkLimit` (default 4000).
-- Optional newline chunking: set `channels.signal.chunkMode="newline"` to split on blank lines (paragraph boundaries) before length chunking.
-- Attachments supported (base64 fetched from `signal-cli`).
-- Default media cap: `channels.signal.mediaMaxMb` (default 8).
-- Use `channels.signal.ignoreAttachments` to skip downloading media.
-- Group history context uses `channels.signal.historyLimit` (or `channels.signal.accounts.*.historyLimit`), falling back to `messages.groupChat.historyLimit`. Set `0` to disable (default 50).
+- Văn bản gửi đi được chia thành `channels.signal.textChunkLimit` (mặc định 4000).
+- Chia đoạn tùy chọn theo dòng mới: đặt `channels.signal.chunkMode="newline"` để chia theo dòng trống (ranh giới đoạn) trước khi chia theo độ dài.
+- Hỗ trợ đính kèm (base64 lấy từ `signal-cli`).
+- Giới hạn media mặc định: `channels.signal.mediaMaxMb` (mặc định 8).
+- Sử dụng `channels.signal.ignoreAttachments` để bỏ qua tải xuống media.
+- Ngữ cảnh lịch sử nhóm sử dụng `channels.signal.historyLimit` (hoặc `channels.signal.accounts.*.historyLimit`), quay lại `messages.groupChat.historyLimit`. Đặt `0` để vô hiệu hóa (mặc định 50).
 
-## Typing + read receipts
+## Chỉ báo gõ + biên nhận đọc
 
-- **Typing indicators**: OpenClaw sends typing signals via `signal-cli sendTyping` and refreshes them while a reply is running.
-- **Read receipts**: when `channels.signal.sendReadReceipts` is true, OpenClaw forwards read receipts for allowed DMs.
-- Signal-cli does not expose read receipts for groups.
+- **Chỉ báo gõ**: OpenClaw gửi tín hiệu gõ qua `signal-cli sendTyping` và làm mới chúng trong khi phản hồi đang chạy.
+- **Biên nhận đọc**: khi `channels.signal.sendReadReceipts` là true, OpenClaw chuyển tiếp biên nhận đọc cho DMs được phép.
+- Signal-cli không cung cấp biên nhận đọc cho nhóm.
 
-## Reactions (message tool)
+## Phản ứng (công cụ tin nhắn)
 
-- Use `message action=react` with `channel=signal`.
-- Targets: sender E.164 or UUID (use `uuid:<id>` from pairing output; bare UUID works too).
-- `messageId` is the Signal timestamp for the message you’re reacting to.
-- Group reactions require `targetAuthor` or `targetAuthorUuid`.
+- Sử dụng `message action=react` với `channel=signal`.
+- Mục tiêu: người gửi E.164 hoặc UUID (sử dụng `uuid:<id>` từ đầu ra ghép đôi; UUID trần cũng hoạt động).
+- `messageId` là dấu thời gian Signal cho tin nhắn bạn đang phản ứng.
+- Phản ứng nhóm yêu cầu `targetAuthor` hoặc `targetAuthorUuid`.
 
-Examples:
+Ví dụ:
 
 ```
 message action=react channel=signal target=uuid:123e4567-e89b-12d3-a456-426614174000 messageId=1737630212345 emoji=🔥
@@ -235,24 +235,24 @@ message action=react channel=signal target=+15551234567 messageId=1737630212345 
 message action=react channel=signal target=signal:group:<groupId> targetAuthor=uuid:<sender-uuid> messageId=1737630212345 emoji=✅
 ```
 
-Config:
+Cấu hình:
 
-- `channels.signal.actions.reactions`: enable/disable reaction actions (default true).
+- `channels.signal.actions.reactions`: bật/tắt hành động phản ứng (mặc định true).
 - `channels.signal.reactionLevel`: `off | ack | minimal | extensive`.
-  - `off`/`ack` disables agent reactions (message tool `react` will error).
-  - `minimal`/`extensive` enables agent reactions and sets the guidance level.
-- Per-account overrides: `channels.signal.accounts.<id>.actions.reactions`, `channels.signal.accounts.<id>.reactionLevel`.
+  - `off`/`ack` vô hiệu hóa phản ứng của agent (công cụ tin nhắn `react` sẽ báo lỗi).
+  - `minimal`/`extensive` bật phản ứng của agent và đặt mức hướng dẫn.
+- Ghi đè từng tài khoản: `channels.signal.accounts.<id>.actions.reactions`, `channels.signal.accounts.<id>.reactionLevel`.
 
-## Delivery targets (CLI/cron)
+## Mục tiêu giao hàng (CLI/cron)
 
-- DMs: `signal:+15551234567` (or plain E.164).
-- UUID DMs: `uuid:<id>` (or bare UUID).
-- Groups: `signal:group:<groupId>`.
-- Usernames: `username:<name>` (if supported by your Signal account).
+- DMs: `signal:+15551234567` (hoặc E.164 trần).
+- UUID DMs: `uuid:<id>` (hoặc UUID trần).
+- Nhóm: `signal:group:<groupId>`.
+- Tên người dùng: `username:<name>` (nếu được tài khoản Signal của bạn hỗ trợ).
 
-## Troubleshooting
+## Gỡ lỗi
 
-Run this ladder first:
+Chạy trình tự này trước:
 
 ```bash
 openclaw status
@@ -262,21 +262,21 @@ openclaw doctor
 openclaw channels status --probe
 ```
 
-Then confirm DM pairing state if needed:
+Sau đó xác nhận trạng thái ghép đôi DM nếu cần:
 
 ```bash
 openclaw pairing list signal
 ```
 
-Common failures:
+Các lỗi phổ biến:
 
-- Daemon reachable but no replies: verify account/daemon settings (`httpUrl`, `account`) and receive mode.
-- DMs ignored: sender is pending pairing approval.
-- Group messages ignored: group sender/mention gating blocks delivery.
-- Config validation errors after edits: run `openclaw doctor --fix`.
-- Signal missing from diagnostics: confirm `channels.signal.enabled: true`.
+- Daemon có thể truy cập nhưng không có phản hồi: xác minh cài đặt tài khoản/daemon (`httpUrl`, `account`) và chế độ nhận.
+- DMs bị bỏ qua: người gửi đang chờ phê duyệt ghép đôi.
+- Tin nhắn nhóm bị bỏ qua: chặn gửi/đề cập nhóm ngăn chặn giao hàng.
+- Lỗi xác thực cấu hình sau khi chỉnh sửa: chạy `openclaw doctor --fix`.
+- Signal thiếu trong chẩn đoán: xác nhận `channels.signal.enabled: true`.
 
-Extra checks:
+Kiểm tra bổ sung:
 
 ```bash
 openclaw pairing list signal
@@ -284,46 +284,46 @@ pgrep -af signal-cli
 grep -i "signal" "/tmp/openclaw/openclaw-$(date +%Y-%m-%d).log" | tail -20
 ```
 
-For triage flow: [/channels/troubleshooting](/channels/troubleshooting).
+Đối với quy trình phân loại: [/channels/troubleshooting](/channels/troubleshooting).
 
-## Security notes
+## Ghi chú bảo mật
 
-- `signal-cli` stores account keys locally (typically `~/.local/share/signal-cli/data/`).
-- Back up Signal account state before server migration or rebuild.
-- Keep `channels.signal.dmPolicy: "pairing"` unless you explicitly want broader DM access.
-- SMS verification is only needed for registration or recovery flows, but losing control of the number/account can complicate re-registration.
+- `signal-cli` lưu trữ khóa tài khoản cục bộ (thường là `~/.local/share/signal-cli/data/`).
+- Sao lưu trạng thái tài khoản Signal trước khi di chuyển hoặc xây dựng lại máy chủ.
+- Giữ `channels.signal.dmPolicy: "pairing"` trừ khi bạn muốn truy cập DM rộng hơn.
+- Xác minh SMS chỉ cần thiết cho quy trình đăng ký hoặc khôi phục, nhưng mất quyền kiểm soát số/tài khoản có thể làm phức tạp việc đăng ký lại.
 
-## Configuration reference (Signal)
+## Tham khảo cấu hình (Signal)
 
-Full configuration: [Configuration](/gateway/configuration)
+Cấu hình đầy đủ: [Cấu hình](/gateway/configuration)
 
-Provider options:
+Tùy chọn nhà cung cấp:
 
-- `channels.signal.enabled`: enable/disable channel startup.
-- `channels.signal.account`: E.164 for the bot account.
-- `channels.signal.cliPath`: path to `signal-cli`.
-- `channels.signal.httpUrl`: full daemon URL (overrides host/port).
-- `channels.signal.httpHost`, `channels.signal.httpPort`: daemon bind (default 127.0.0.1:8080).
-- `channels.signal.autoStart`: auto-spawn daemon (default true if `httpUrl` unset).
-- `channels.signal.startupTimeoutMs`: startup wait timeout in ms (cap 120000).
+- `channels.signal.enabled`: bật/tắt khởi động kênh.
+- `channels.signal.account`: E.164 cho tài khoản bot.
+- `channels.signal.cliPath`: đường dẫn đến `signal-cli`.
+- `channels.signal.httpUrl`: URL daemon đầy đủ (ghi đè host/port).
+- `channels.signal.httpHost`, `channels.signal.httpPort`: bind daemon (mặc định 127.0.0.1:8080).
+- `channels.signal.autoStart`: tự động khởi động daemon (mặc định true nếu `httpUrl` không được đặt).
+- `channels.signal.startupTimeoutMs`: thời gian chờ khởi động trong ms (giới hạn 120000).
 - `channels.signal.receiveMode`: `on-start | manual`.
-- `channels.signal.ignoreAttachments`: skip attachment downloads.
-- `channels.signal.ignoreStories`: ignore stories from the daemon.
-- `channels.signal.sendReadReceipts`: forward read receipts.
-- `channels.signal.dmPolicy`: `pairing | allowlist | open | disabled` (default: pairing).
-- `channels.signal.allowFrom`: DM allowlist (E.164 or `uuid:<id>`). `open` requires `"*"`. Signal has no usernames; use phone/UUID ids.
-- `channels.signal.groupPolicy`: `open | allowlist | disabled` (default: allowlist).
-- `channels.signal.groupAllowFrom`: group sender allowlist.
-- `channels.signal.groups`: per-group overrides keyed by Signal group id (or `"*"`). Supported fields: `requireMention`, `tools`, `toolsBySender`.
-- `channels.signal.accounts.<id>.groups`: per-account version of `channels.signal.groups` for multi-account setups.
-- `channels.signal.historyLimit`: max group messages to include as context (0 disables).
-- `channels.signal.dmHistoryLimit`: DM history limit in user turns. Per-user overrides: `channels.signal.dms["<phone_or_uuid>"].historyLimit`.
-- `channels.signal.textChunkLimit`: outbound chunk size (chars).
-- `channels.signal.chunkMode`: `length` (default) or `newline` to split on blank lines (paragraph boundaries) before length chunking.
-- `channels.signal.mediaMaxMb`: inbound/outbound media cap (MB).
+- `channels.signal.ignoreAttachments`: bỏ qua tải xuống đính kèm.
+- `channels.signal.ignoreStories`: bỏ qua câu chuyện từ daemon.
+- `channels.signal.sendReadReceipts`: chuyển tiếp biên nhận đọc.
+- `channels.signal.dmPolicy`: `pairing | allowlist | open | disabled` (mặc định: pairing).
+- `channels.signal.allowFrom`: danh sách cho phép DM (E.164 hoặc `uuid:<id>`). `open` yêu cầu `"*"`. Signal không có tên người dùng; sử dụng id điện thoại/UUID.
+- `channels.signal.groupPolicy`: `open | allowlist | disabled` (mặc định: allowlist).
+- `channels.signal.groupAllowFrom`: danh sách cho phép người gửi nhóm.
+- `channels.signal.groups`: ghi đè từng nhóm được khóa bởi id nhóm Signal (hoặc `"*"`). Các trường được hỗ trợ: `requireMention`, `tools`, `toolsBySender`.
+- `channels.signal.accounts.<id>.groups`: phiên bản từng tài khoản của `channels.signal.groups` cho thiết lập nhiều tài khoản.
+- `channels.signal.historyLimit`: số tin nhắn nhóm tối đa để bao gồm làm ngữ cảnh (0 vô hiệu hóa).
+- `channels.signal.dmHistoryLimit`: giới hạn lịch sử DM trong lượt người dùng. Ghi đè từng người dùng: `channels.signal.dms["<phone_or_uuid>"].historyLimit`.
+- `channels.signal.textChunkLimit`: kích thước đoạn văn bản gửi đi (ký tự).
+- `channels.signal.chunkMode`: `length` (mặc định) hoặc `newline` để chia theo dòng trống (ranh giới đoạn) trước khi chia theo độ dài.
+- `channels.signal.mediaMaxMb`: giới hạn media vào/ra (MB).
 
-Related global options:
+Tùy chọn toàn cầu liên quan:
 
-- `agents.list[].groupChat.mentionPatterns` (Signal does not support native mentions).
-- `messages.groupChat.mentionPatterns` (global fallback).
+- `agents.list[].groupChat.mentionPatterns` (Signal không hỗ trợ đề cập gốc).
+- `messages.groupChat.mentionPatterns` (dự phòng toàn cầu).
 - `messages.responsePrefix`.

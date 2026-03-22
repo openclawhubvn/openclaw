@@ -1,20 +1,20 @@
 ---
-summary: "CLI reference for `openclaw logs` (tail gateway logs via RPC)"
+summary: "Tham khảo CLI cho `openclaw logs` (theo dõi log Gateway qua RPC)"
 read_when:
-  - You need to tail Gateway logs remotely (without SSH)
-  - You want JSON log lines for tooling
+  - Cần theo dõi log Gateway từ xa (không cần SSH)
+  - Muốn dòng log dạng JSON cho công cụ
 title: "logs"
 ---
 
 # `openclaw logs`
 
-Tail Gateway file logs over RPC (works in remote mode).
+Theo dõi log file của Gateway qua RPC (hoạt động ở chế độ từ xa).
 
-Related:
+Liên quan:
 
-- Logging overview: [Logging](/logging)
+- Tổng quan về Logging: [Logging](/logging)
 
-## Examples
+## Ví dụ
 
 ```bash
 openclaw logs
@@ -25,4 +25,4 @@ openclaw logs --local-time
 openclaw logs --follow --local-time
 ```
 
-Use `--local-time` to render timestamps in your local timezone.
+Sử dụng `--local-time` để hiển thị dấu thời gian theo múi giờ địa phương.

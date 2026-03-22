@@ -1,52 +1,52 @@
 ---
-summary: "CLI reference for `openclaw directory` (self, peers, groups)"
+summary: "Tham khảo CLI cho `openclaw directory` (self, peers, groups)"
 read_when:
-  - You want to look up contacts/groups/self ids for a channel
-  - You are developing a channel directory adapter
+  - Bạn muốn tra cứu id của liên hệ/nhóm/bản thân cho một kênh
+  - Bạn đang phát triển một adapter thư mục kênh
 title: "directory"
 ---
 
 # `openclaw directory`
 
-Directory lookups for channels that support it (contacts/peers, groups, and “me”).
+Tra cứu thư mục cho các kênh hỗ trợ (liên hệ/người dùng, nhóm, và "bản thân").
 
-## Common flags
+## Các cờ thông dụng
 
-- `--channel <name>`: channel id/alias (required when multiple channels are configured; auto when only one is configured)
-- `--account <id>`: account id (default: channel default)
-- `--json`: output JSON
+- `--channel <name>`: id/alias của kênh (bắt buộc khi có nhiều kênh được cấu hình; tự động khi chỉ có một kênh)
+- `--account <id>`: id tài khoản (mặc định: mặc định của kênh)
+- `--json`: xuất ra JSON
 
-## Notes
+## Ghi chú
 
-- `directory` is meant to help you find IDs you can paste into other commands (especially `openclaw message send --target ...`).
-- For many channels, results are config-backed (allowlists / configured groups) rather than a live provider directory.
-- Default output is `id` (and sometimes `name`) separated by a tab; use `--json` for scripting.
+- `directory` giúp tìm các ID để dán vào các lệnh khác (đặc biệt là `openclaw message send --target ...`).
+- Với nhiều kênh, kết quả dựa trên cấu hình (danh sách cho phép/nhóm cấu hình) hơn là thư mục nhà cung cấp trực tiếp.
+- Kết quả mặc định là `id` (và đôi khi `name`) được phân tách bằng tab; dùng `--json` cho scripting.
 
-## Using results with `message send`
+## Sử dụng kết quả với `message send`
 
 ```bash
 openclaw directory peers list --channel slack --query "U0"
 openclaw message send --channel slack --target user:U012ABCDEF --message "hello"
 ```
 
-## ID formats (by channel)
+## Định dạng ID (theo kênh)
 
-- WhatsApp: `+15551234567` (DM), `1234567890-1234567890@g.us` (group)
-- Telegram: `@username` or numeric chat id; groups are numeric ids
-- Slack: `user:U…` and `channel:C…`
-- Discord: `user:<id>` and `channel:<id>`
-- Matrix (plugin): `user:@user:server`, `room:!roomId:server`, or `#alias:server`
-- Microsoft Teams (plugin): `user:<id>` and `conversation:<id>`
-- Zalo (plugin): user id (Bot API)
-- Zalo Personal / `zalouser` (plugin): thread id (DM/group) from `zca` (`me`, `friend list`, `group list`)
+- WhatsApp: `+15551234567` (DM), `1234567890-1234567890@g.us` (nhóm)
+- Telegram: `@username` hoặc id chat số; nhóm là id số
+- Slack: `user:U…` và `channel:C…`
+- Discord: `user:<id>` và `channel:<id>`
+- Matrix (plugin): `user:@user:server`, `room:!roomId:server`, hoặc `#alias:server`
+- Microsoft Teams (plugin): `user:<id>` và `conversation:<id>`
+- Zalo (plugin): id người dùng (Bot API)
+- Zalo Personal / `zalouser` (plugin): id cuộc trò chuyện (DM/nhóm) từ `zca` (`me`, `friend list`, `group list`)
 
-## Self ("me")
+## Bản thân ("me")
 
 ```bash
 openclaw directory self --channel zalouser
 ```
 
-## Peers (contacts/users)
+## Liên hệ (người dùng)
 
 ```bash
 openclaw directory peers list --channel zalouser
@@ -54,7 +54,7 @@ openclaw directory peers list --channel zalouser --query "name"
 openclaw directory peers list --channel zalouser --limit 50
 ```
 
-## Groups
+## Nhóm
 
 ```bash
 openclaw directory groups list --channel zalouser

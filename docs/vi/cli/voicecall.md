@@ -1,20 +1,20 @@
 ---
-summary: "CLI reference for `openclaw voicecall` (voice-call plugin command surface)"
+summary: "Tham khảo CLI cho `openclaw voicecall` (bề mặt lệnh plugin voice-call)"
 read_when:
-  - You use the voice-call plugin and want the CLI entry points
-  - You want quick examples for `voicecall call|continue|status|tail|expose`
+  - Bạn sử dụng plugin voice-call và muốn biết các điểm vào CLI
+  - Bạn cần ví dụ nhanh cho `voicecall call|continue|status|tail|expose`
 title: "voicecall"
 ---
 
 # `openclaw voicecall`
 
-`voicecall` is a plugin-provided command. It only appears if the voice-call plugin is installed and enabled.
+`voicecall` là một lệnh do plugin cung cấp. Nó chỉ xuất hiện khi plugin voice-call được cài đặt và kích hoạt.
 
-Primary doc:
+Tài liệu chính:
 
-- Voice-call plugin: [Voice Call](/plugins/voice-call)
+- Plugin voice-call: [Voice Call](/plugins/voice-call)
 
-## Common commands
+## Các lệnh thông dụng
 
 ```bash
 openclaw voicecall status --call-id <id>
@@ -23,7 +23,7 @@ openclaw voicecall continue --call-id <id> --message "Any questions?"
 openclaw voicecall end --call-id <id>
 ```
 
-## Exposing webhooks (Tailscale)
+## Mở webhook (Tailscale)
 
 ```bash
 openclaw voicecall expose --mode serve
@@ -31,4 +31,4 @@ openclaw voicecall expose --mode funnel
 openclaw voicecall expose --mode off
 ```
 
-Security note: only expose the webhook endpoint to networks you trust. Prefer Tailscale Serve over Funnel when possible.
+Lưu ý bảo mật: chỉ mở endpoint webhook cho các mạng mà bạn tin tưởng. Ưu tiên sử dụng Tailscale Serve thay vì Funnel khi có thể.

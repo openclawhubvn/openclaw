@@ -1,142 +1,127 @@
 ---
-summary: "Ephemeral side questions with /btw"
+summary: "Câu hỏi phụ tạm thời với /btw"
 read_when:
-  - You want to ask a quick side question about the current session
-  - You are implementing or debugging BTW behavior across clients
-title: "BTW Side Questions"
+  - Bạn muốn hỏi một câu hỏi phụ nhanh về phiên hiện tại
+  - Bạn đang triển khai hoặc gỡ lỗi hành vi BTW trên các client
+title: "Câu hỏi phụ BTW"
 ---
 
-# BTW Side Questions
+# Câu hỏi phụ BTW
 
-`/btw` lets you ask a quick side question about the **current session** without
-turning that question into normal conversation history.
+`/btw` cho phép bạn đặt một câu hỏi phụ nhanh về **phiên hiện tại** mà không biến câu hỏi đó thành lịch sử hội thoại thông thường.
 
-It is modeled after Claude Code's `/btw` behavior, but adapted to OpenClaw's
-Gateway and multi-channel architecture.
+Nó được mô phỏng theo hành vi `/btw` của Claude Code, nhưng đã được điều chỉnh để phù hợp với Gateway và kiến trúc đa kênh của OpenClaw.
 
-## What it does
+## Chức năng
 
-When you send:
+Khi bạn gửi:
 
 ```text
 /btw what changed?
 ```
 
-OpenClaw:
+OpenClaw sẽ:
 
-1. snapshots the current session context,
-2. runs a separate **tool-less** model call,
-3. answers only the side question,
-4. leaves the main run alone,
-5. does **not** write the BTW question or answer to session history,
-6. emits the answer as a **live side result** rather than a normal assistant message.
+1. chụp nhanh ngữ cảnh phiên hiện tại,
+2. thực hiện một cuộc gọi mô hình riêng **không dùng công cụ**,
+3. chỉ trả lời câu hỏi phụ,
+4. giữ nguyên tiến trình chính,
+5. **không** ghi câu hỏi hoặc câu trả lời BTW vào lịch sử phiên,
+6. phát ra câu trả lời như một **kết quả phụ trực tiếp** thay vì một tin nhắn trợ lý thông thường.
 
-The important mental model is:
+Mô hình tư duy quan trọng là:
 
-- same session context
-- separate one-shot side query
-- no tool calls
-- no future context pollution
-- no transcript persistence
+- cùng ngữ cảnh phiên
+- truy vấn phụ một lần riêng biệt
+- không gọi công cụ
+- không làm ô nhiễm ngữ cảnh tương lai
+- không lưu trữ bản ghi
 
-## What it does not do
+## Những gì nó không làm
 
-`/btw` does **not**:
+`/btw` **không**:
 
-- create a new durable session,
-- continue the unfinished main task,
-- run tools or agent tool loops,
-- write BTW question/answer data to transcript history,
-- appear in `chat.history`,
-- survive a reload.
+- tạo một phiên bền vững mới,
+- tiếp tục nhiệm vụ chính chưa hoàn thành,
+- chạy công cụ hoặc vòng lặp công cụ đại lý,
+- ghi dữ liệu câu hỏi/đáp BTW vào lịch sử bản ghi,
+- xuất hiện trong `chat.history`,
+- tồn tại sau khi tải lại.
 
-It is intentionally **ephemeral**.
+Nó được thiết kế để **tạm thời**.
 
-## How context works
+## Cách hoạt động của ngữ cảnh
 
-BTW uses the current session as **background context only**.
+BTW sử dụng phiên hiện tại như **ngữ cảnh nền**.
 
-If the main run is currently active, OpenClaw snapshots the current message
-state and includes the in-flight main prompt as background context, while
-explicitly telling the model:
+Nếu tiến trình chính đang hoạt động, OpenClaw chụp nhanh trạng thái tin nhắn hiện tại và bao gồm lời nhắc chính đang xử lý như ngữ cảnh nền, đồng thời nói rõ với mô hình:
 
-- answer only the side question,
-- do not resume or complete the unfinished main task,
-- do not emit tool calls or pseudo-tool calls.
+- chỉ trả lời câu hỏi phụ,
+- không tiếp tục hoặc hoàn thành nhiệm vụ chính chưa hoàn thành,
+- không phát ra các cuộc gọi công cụ hoặc các cuộc gọi công cụ giả.
 
-That keeps BTW isolated from the main run while still making it aware of what
-the session is about.
+Điều đó giữ cho BTW tách biệt khỏi tiến trình chính trong khi vẫn nhận thức được nội dung của phiên.
 
-## Delivery model
+## Mô hình phân phối
 
-BTW is **not** delivered as a normal assistant transcript message.
+BTW **không** được phân phối như một tin nhắn bản ghi trợ lý thông thường.
 
-At the Gateway protocol level:
+Ở cấp độ giao thức Gateway:
 
-- normal assistant chat uses the `chat` event
-- BTW uses the `chat.side_result` event
+- chat trợ lý thông thường sử dụng sự kiện `chat`
+- BTW sử dụng sự kiện `chat.side_result`
 
-This separation is intentional. If BTW reused the normal `chat` event path,
-clients would treat it like regular conversation history.
+Sự tách biệt này là có chủ ý. Nếu BTW sử dụng lại đường dẫn sự kiện `chat` thông thường, các client sẽ coi nó như lịch sử hội thoại thông thường.
 
-Because BTW uses a separate live event and is not replayed from
-`chat.history`, it disappears after reload.
+Vì BTW sử dụng một sự kiện trực tiếp riêng biệt và không được phát lại từ `chat.history`, nó sẽ biến mất sau khi tải lại.
 
-## Surface behavior
+## Hành vi bề mặt
 
 ### TUI
 
-In TUI, BTW is rendered inline in the current session view, but it remains
-ephemeral:
+Trong TUI, BTW được hiển thị trực tiếp trong chế độ xem phiên hiện tại, nhưng vẫn tạm thời:
 
-- visibly distinct from a normal assistant reply
-- dismissible with `Enter` or `Esc`
-- not replayed on reload
+- khác biệt rõ ràng với phản hồi trợ lý thông thường
+- có thể loại bỏ bằng `Enter` hoặc `Esc`
+- không được phát lại khi tải lại
 
-### External channels
+### Kênh bên ngoài
 
-On channels like Telegram, WhatsApp, and Discord, BTW is delivered as a
-clearly labeled one-off reply because those surfaces do not have a local
-ephemeral overlay concept.
+Trên các kênh như Telegram, WhatsApp và Discord, BTW được gửi dưới dạng một phản hồi rõ ràng vì các bề mặt đó không có khái niệm lớp phủ tạm thời cục bộ.
 
-The answer is still treated as a side result, not normal session history.
+Câu trả lời vẫn được coi là kết quả phụ, không phải lịch sử phiên thông thường.
 
-### Control UI / web
+### Giao diện điều khiển / web
 
-The Gateway emits BTW correctly as `chat.side_result`, and BTW is not included
-in `chat.history`, so the persistence contract is already correct for web.
+Gateway phát ra BTW chính xác dưới dạng `chat.side_result`, và BTW không được bao gồm trong `chat.history`, vì vậy hợp đồng lưu trữ đã đúng cho web.
 
-The current Control UI still needs a dedicated `chat.side_result` consumer to
-render BTW live in the browser. Until that client-side support lands, BTW is a
-Gateway-level feature with full TUI and external-channel behavior, but not yet
-a complete browser UX.
+Giao diện điều khiển hiện tại vẫn cần một bộ tiêu thụ `chat.side_result` chuyên dụng để hiển thị BTW trực tiếp trong trình duyệt. Cho đến khi hỗ trợ phía client đó được triển khai, BTW là một tính năng ở cấp độ Gateway với đầy đủ hành vi TUI và kênh bên ngoài, nhưng chưa phải là một trải nghiệm người dùng trình duyệt hoàn chỉnh.
 
-## When to use BTW
+## Khi nào nên sử dụng BTW
 
-Use `/btw` when you want:
+Sử dụng `/btw` khi bạn muốn:
 
-- a quick clarification about the current work,
-- a factual side answer while a long run is still in progress,
-- a temporary answer that should not become part of future session context.
+- một sự làm rõ nhanh chóng về công việc hiện tại,
+- một câu trả lời phụ thực tế trong khi một tiến trình dài vẫn đang diễn ra,
+- một câu trả lời tạm thời không nên trở thành một phần của ngữ cảnh phiên trong tương lai.
 
-Examples:
+Ví dụ:
 
 ```text
-/btw what file are we editing?
-/btw what does this error mean?
-/btw summarize the current task in one sentence
-/btw what is 17 * 19?
+/btw chúng ta đang chỉnh sửa tệp nào?
+/btw lỗi này có ý nghĩa gì?
+/btw tóm tắt nhiệm vụ hiện tại trong một câu
+/btw 17 * 19 là bao nhiêu?
 ```
 
-## When not to use BTW
+## Khi nào không nên sử dụng BTW
 
-Do not use `/btw` when you want the answer to become part of the session's
-future working context.
+Không sử dụng `/btw` khi bạn muốn câu trả lời trở thành một phần của ngữ cảnh làm việc trong tương lai của phiên.
 
-In that case, ask normally in the main session instead of using BTW.
+Trong trường hợp đó, hãy hỏi bình thường trong phiên chính thay vì sử dụng BTW.
 
-## Related
+## Liên quan
 
-- [Slash commands](/tools/slash-commands)
-- [Thinking Levels](/tools/thinking)
-- [Session](/concepts/session)
+- [Lệnh gạch chéo](/tools/slash-commands)
+- [Cấp độ tư duy](/tools/thinking)
+- [Phiên](/concepts/session)

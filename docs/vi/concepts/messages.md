@@ -1,48 +1,43 @@
 ---
-summary: "Message flow, sessions, queueing, and reasoning visibility"
+summary: "Luồng tin nhắn, phiên làm việc, hàng đợi và khả năng hiển thị lý do"
 read_when:
-  - Explaining how inbound messages become replies
-  - Clarifying sessions, queueing modes, or streaming behavior
-  - Documenting reasoning visibility and usage implications
-title: "Messages"
+  - Giải thích cách tin nhắn đến trở thành phản hồi
+  - Làm rõ về phiên làm việc, chế độ hàng đợi hoặc hành vi streaming
+  - Tài liệu về khả năng hiển thị lý do và tác động sử dụng
+title: "Tin nhắn"
 ---
 
-# Messages
+# Tin nhắn
 
-This page ties together how OpenClaw handles inbound messages, sessions, queueing,
-streaming, and reasoning visibility.
+Trang này giải thích cách OpenClaw xử lý tin nhắn đến, phiên làm việc, hàng đợi, streaming và khả năng hiển thị lý do.
 
-## Message flow (high level)
+## Luồng tin nhắn (cấp cao)
 
 ```
-Inbound message
-  -> routing/bindings -> session key
-  -> queue (if a run is active)
-  -> agent run (streaming + tools)
-  -> outbound replies (channel limits + chunking)
+Tin nhắn đến
+  -> định tuyến/ràng buộc -> khóa phiên
+  -> hàng đợi (nếu một phiên đang hoạt động)
+  -> chạy tác nhân (streaming + công cụ)
+  -> phản hồi ra ngoài (giới hạn kênh + chia nhỏ)
 ```
 
-Key knobs live in configuration:
+Các thiết lập quan trọng nằm trong cấu hình:
 
-- `messages.*` for prefixes, queueing, and group behavior.
-- `agents.defaults.*` for block streaming and chunking defaults.
-- Channel overrides (`channels.whatsapp.*`, `channels.telegram.*`, etc.) for caps and streaming toggles.
+- `messages.*` cho tiền tố, hàng đợi và hành vi nhóm.
+- `agents.defaults.*` cho mặc định streaming và chia nhỏ.
+- Ghi đè kênh (`channels.whatsapp.*`, `channels.telegram.*`, v.v.) cho giới hạn và chuyển đổi streaming.
 
-See [Configuration](/gateway/configuration) for full schema.
+Xem [Cấu hình](/gateway/configuration) để biết đầy đủ cấu trúc.
 
-## Inbound dedupe
+## Loại bỏ trùng lặp tin nhắn đến
 
-Channels can redeliver the same message after reconnects. OpenClaw keeps a
-short-lived cache keyed by channel/account/peer/session/message id so duplicate
-deliveries do not trigger another agent run.
+Các kênh có thể gửi lại cùng một tin nhắn sau khi kết nối lại. OpenClaw giữ một bộ nhớ đệm ngắn hạn dựa trên khóa kênh/tài khoản/người gửi/phiên/tin nhắn để tránh kích hoạt lại phiên tác nhân.
 
-## Inbound debouncing
+## Giảm nhiễu tin nhắn đến
 
-Rapid consecutive messages from the **same sender** can be batched into a single
-agent turn via `messages.inbound`. Debouncing is scoped per channel + conversation
-and uses the most recent message for reply threading/IDs.
+Các tin nhắn liên tiếp nhanh từ **cùng một người gửi** có thể được gộp thành một lượt tác nhân thông qua `messages.inbound`. Giảm nhiễu được áp dụng theo từng kênh + cuộc trò chuyện và sử dụng tin nhắn gần nhất để luồng phản hồi/ID.
 
-Config (global default + per-channel overrides):
+Cấu hình (mặc định toàn cầu + ghi đè theo kênh):
 
 ```json5
 {
@@ -59,96 +54,81 @@ Config (global default + per-channel overrides):
 }
 ```
 
-Notes:
+Lưu ý:
 
-- Debounce applies to **text-only** messages; media/attachments flush immediately.
-- Control commands bypass debouncing so they remain standalone.
+- Giảm nhiễu chỉ áp dụng cho tin nhắn **chỉ văn bản**; phương tiện/tệp đính kèm sẽ được xử lý ngay lập tức.
+- Các lệnh điều khiển bỏ qua giảm nhiễu để giữ nguyên độc lập.
 
-## Sessions and devices
+## Phiên làm việc và thiết bị
 
-Sessions are owned by the gateway, not by clients.
+Phiên làm việc được quản lý bởi gateway, không phải bởi khách hàng.
 
-- Direct chats collapse into the agent main session key.
-- Groups/channels get their own session keys.
-- The session store and transcripts live on the gateway host.
+- Các cuộc trò chuyện trực tiếp gộp vào khóa phiên chính của tác nhân.
+- Nhóm/kênh có khóa phiên riêng.
+- Lưu trữ phiên và bản ghi nằm trên máy chủ gateway.
 
-Multiple devices/channels can map to the same session, but history is not fully
-synced back to every client. Recommendation: use one primary device for long
-conversations to avoid divergent context. The Control UI and TUI always show the
-gateway-backed session transcript, so they are the source of truth.
+Nhiều thiết bị/kênh có thể ánh xạ đến cùng một phiên, nhưng lịch sử không được đồng bộ hoàn toàn trở lại mọi khách hàng. Khuyến nghị: sử dụng một thiết bị chính cho các cuộc trò chuyện dài để tránh ngữ cảnh bị phân tán. Giao diện điều khiển và TUI luôn hiển thị bản ghi phiên từ gateway, vì vậy chúng là nguồn thông tin chính xác.
 
-Details: [Session management](/concepts/session).
+Chi tiết: [Quản lý phiên](/concepts/session).
 
-## Inbound bodies and history context
+## Nội dung tin nhắn đến và ngữ cảnh lịch sử
 
-OpenClaw separates the **prompt body** from the **command body**:
+OpenClaw tách biệt **nội dung nhắc nhở** khỏi **nội dung lệnh**:
 
-- `Body`: prompt text sent to the agent. This may include channel envelopes and
-  optional history wrappers.
-- `CommandBody`: raw user text for directive/command parsing.
-- `RawBody`: legacy alias for `CommandBody` (kept for compatibility).
+- `Body`: văn bản nhắc nhở gửi đến tác nhân. Có thể bao gồm phong bì kênh và các gói lịch sử tùy chọn.
+- `CommandBody`: văn bản người dùng thô để phân tích chỉ thị/lệnh.
+- `RawBody`: bí danh cũ cho `CommandBody` (giữ để tương thích).
 
-When a channel supplies history, it uses a shared wrapper:
+Khi một kênh cung cấp lịch sử, nó sử dụng một gói chung:
 
-- `[Chat messages since your last reply - for context]`
-- `[Current message - respond to this]`
+- `[Tin nhắn trò chuyện từ lần trả lời cuối của bạn - để tham khảo]`
+- `[Tin nhắn hiện tại - trả lời tin này]`
 
-For **non-direct chats** (groups/channels/rooms), the **current message body** is prefixed with the
-sender label (same style used for history entries). This keeps real-time and queued/history
-messages consistent in the agent prompt.
+Đối với **trò chuyện không trực tiếp** (nhóm/kênh/phòng), **nội dung tin nhắn hiện tại** được thêm tiền tố nhãn người gửi (cùng kiểu với các mục lịch sử). Điều này giữ cho tin nhắn thời gian thực và hàng đợi/lịch sử nhất quán trong nhắc nhở tác nhân.
 
-History buffers are **pending-only**: they include group messages that did _not_
-trigger a run (for example, mention-gated messages) and **exclude** messages
-already in the session transcript.
+Bộ đệm lịch sử chỉ bao gồm các tin nhắn nhóm không kích hoạt một phiên (ví dụ, tin nhắn bị chặn bởi điều kiện nhắc nhở) và **không bao gồm** các tin nhắn đã có trong bản ghi phiên.
 
-Directive stripping only applies to the **current message** section so history
-remains intact. Channels that wrap history should set `CommandBody` (or
-`RawBody`) to the original message text and keep `Body` as the combined prompt.
-History buffers are configurable via `messages.groupChat.historyLimit` (global
-default) and per-channel overrides like `channels.slack.historyLimit` or
-`channels.telegram.accounts.<id>.historyLimit` (set `0` to disable).
+Chỉ việc loại bỏ chỉ thị chỉ áp dụng cho phần **tin nhắn hiện tại** để lịch sử vẫn nguyên vẹn. Các kênh gói lịch sử nên đặt `CommandBody` (hoặc `RawBody`) thành văn bản tin nhắn gốc và giữ `Body` là nhắc nhở kết hợp. Bộ đệm lịch sử có thể cấu hình qua `messages.groupChat.historyLimit` (mặc định toàn cầu) và ghi đè theo kênh như `channels.slack.historyLimit` hoặc `channels.telegram.accounts.<id>.historyLimit` (đặt `0` để vô hiệu hóa).
 
-## Queueing and followups
+## Hàng đợi và theo dõi
 
-If a run is already active, inbound messages can be queued, steered into the
-current run, or collected for a followup turn.
+Nếu một phiên đã hoạt động, tin nhắn đến có thể được xếp hàng, điều hướng vào phiên hiện tại hoặc thu thập cho một lượt theo dõi.
 
-- Configure via `messages.queue` (and `messages.queue.byChannel`).
-- Modes: `interrupt`, `steer`, `followup`, `collect`, plus backlog variants.
+- Cấu hình qua `messages.queue` (và `messages.queue.byChannel`).
+- Các chế độ: `interrupt`, `steer`, `followup`, `collect`, cùng các biến thể tồn đọng.
 
-Details: [Queueing](/concepts/queue).
+Chi tiết: [Hàng đợi](/concepts/queue).
 
-## Streaming, chunking, and batching
+## Streaming, chia nhỏ và gộp
 
-Block streaming sends partial replies as the model produces text blocks.
-Chunking respects channel text limits and avoids splitting fenced code.
+Streaming khối gửi các phản hồi từng phần khi mô hình tạo ra các khối văn bản. Chia nhỏ tôn trọng giới hạn văn bản của kênh và tránh chia nhỏ mã được bao quanh.
 
-Key settings:
+Các thiết lập chính:
 
-- `agents.defaults.blockStreamingDefault` (`on|off`, default off)
+- `agents.defaults.blockStreamingDefault` (`on|off`, mặc định tắt)
 - `agents.defaults.blockStreamingBreak` (`text_end|message_end`)
 - `agents.defaults.blockStreamingChunk` (`minChars|maxChars|breakPreference`)
-- `agents.defaults.blockStreamingCoalesce` (idle-based batching)
-- `agents.defaults.humanDelay` (human-like pause between block replies)
-- Channel overrides: `*.blockStreaming` and `*.blockStreamingCoalesce` (non-Telegram channels require explicit `*.blockStreaming: true`)
+- `agents.defaults.blockStreamingCoalesce` (gộp dựa trên thời gian nhàn rỗi)
+- `agents.defaults.humanDelay` (tạm dừng giống con người giữa các phản hồi khối)
+- Ghi đè kênh: `*.blockStreaming` và `*.blockStreamingCoalesce` (các kênh không phải Telegram yêu cầu `*.blockStreaming: true` rõ ràng)
 
-Details: [Streaming + chunking](/concepts/streaming).
+Chi tiết: [Streaming + chia nhỏ](/concepts/streaming).
 
-## Reasoning visibility and tokens
+## Khả năng hiển thị lý do và token
 
-OpenClaw can expose or hide model reasoning:
+OpenClaw có thể hiển thị hoặc ẩn lý do của mô hình:
 
-- `/reasoning on|off|stream` controls visibility.
-- Reasoning content still counts toward token usage when produced by the model.
-- Telegram supports reasoning stream into the draft bubble.
+- `/reasoning on|off|stream` kiểm soát khả năng hiển thị.
+- Nội dung lý do vẫn tính vào việc sử dụng token khi được mô hình tạo ra.
+- Telegram hỗ trợ luồng lý do vào bong bóng nháp.
 
-Details: [Thinking + reasoning directives](/tools/thinking) and [Token use](/reference/token-use).
+Chi tiết: [Chỉ thị suy nghĩ + lý do](/tools/thinking) và [Sử dụng token](/reference/token-use).
 
-## Prefixes, threading, and replies
+## Tiền tố, luồng và phản hồi
 
-Outbound message formatting is centralized in `messages`:
+Định dạng tin nhắn ra ngoài được tập trung trong `messages`:
 
-- `messages.responsePrefix`, `channels.<channel>.responsePrefix`, and `channels.<channel>.accounts.<id>.responsePrefix` (outbound prefix cascade), plus `channels.whatsapp.messagePrefix` (WhatsApp inbound prefix)
-- Reply threading via `replyToMode` and per-channel defaults
+- `messages.responsePrefix`, `channels.<channel>.responsePrefix`, và `channels.<channel>.accounts.<id>.responsePrefix` (chuỗi tiền tố ra ngoài), cùng với `channels.whatsapp.messagePrefix` (tiền tố vào WhatsApp)
+- Luồng phản hồi qua `replyToMode` và mặc định theo kênh
 
-Details: [Configuration](/gateway/configuration-reference#messages) and channel docs.
+Chi tiết: [Cấu hình](/gateway/configuration-reference#messages) và tài liệu kênh.

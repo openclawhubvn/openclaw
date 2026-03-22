@@ -1,16 +1,16 @@
 ---
-summary: "Troubleshoot node pairing, foreground requirements, permissions, and tool failures"
+summary: "Khắc phục sự cố ghép nối node, yêu cầu foreground, quyền truy cập và lỗi công cụ"
 read_when:
-  - Node is connected but camera/canvas/screen/exec tools fail
-  - You need the node pairing versus approvals mental model
-title: "Node Troubleshooting"
+  - Node đã kết nối nhưng công cụ camera/canvas/screen/exec không hoạt động
+  - Cần mô hình tư duy về ghép nối node và phê duyệt
+title: "Khắc phục sự cố Node"
 ---
 
-# Node troubleshooting
+# Khắc phục sự cố Node
 
-Use this page when a node is visible in status but node tools fail.
+Sử dụng trang này khi một node hiển thị trong trạng thái nhưng công cụ node không hoạt động.
 
-## Command ladder
+## Thứ tự lệnh
 
 ```bash
 openclaw status
@@ -20,7 +20,7 @@ openclaw doctor
 openclaw channels status --probe
 ```
 
-Then run node specific checks:
+Sau đó chạy các kiểm tra cụ thể cho node:
 
 ```bash
 openclaw nodes status
@@ -28,17 +28,17 @@ openclaw nodes describe --node <idOrNameOrIp>
 openclaw approvals get --node <idOrNameOrIp>
 ```
 
-Healthy signals:
+Dấu hiệu hoạt động tốt:
 
-- Node is connected and paired for role `node`.
-- `nodes describe` includes the capability you are calling.
-- Exec approvals show expected mode/allowlist.
+- Node đã kết nối và ghép nối cho vai trò `node`.
+- `nodes describe` bao gồm khả năng bạn đang gọi.
+- Phê duyệt exec hiển thị chế độ/danh sách cho phép mong đợi.
 
-## Foreground requirements
+## Yêu cầu foreground
 
-`canvas.*`, `camera.*`, and `screen.*` are foreground only on iOS/Android nodes.
+`canvas.*`, `camera.*`, và `screen.*` chỉ hoạt động foreground trên các node iOS/Android.
 
-Quick check and fix:
+Kiểm tra và khắc phục nhanh:
 
 ```bash
 openclaw nodes describe --node <idOrNameOrIp>
@@ -46,25 +46,25 @@ openclaw nodes canvas snapshot --node <idOrNameOrIp>
 openclaw logs --follow
 ```
 
-If you see `NODE_BACKGROUND_UNAVAILABLE`, bring the node app to the foreground and retry.
+Nếu thấy `NODE_BACKGROUND_UNAVAILABLE`, đưa ứng dụng node lên foreground và thử lại.
 
-## Permissions matrix
+## Ma trận quyền truy cập
 
-| Capability                   | iOS                                     | Android                                      | macOS node app                | Typical failure code           |
-| ---------------------------- | --------------------------------------- | -------------------------------------------- | ----------------------------- | ------------------------------ |
-| `camera.snap`, `camera.clip` | Camera (+ mic for clip audio)           | Camera (+ mic for clip audio)                | Camera (+ mic for clip audio) | `*_PERMISSION_REQUIRED`        |
-| `screen.record`              | Screen Recording (+ mic optional)       | Screen capture prompt (+ mic optional)       | Screen Recording              | `*_PERMISSION_REQUIRED`        |
-| `location.get`               | While Using or Always (depends on mode) | Foreground/Background location based on mode | Location permission           | `LOCATION_PERMISSION_REQUIRED` |
-| `system.run`                 | n/a (node host path)                    | n/a (node host path)                         | Exec approvals required       | `SYSTEM_RUN_DENIED`            |
+| Khả năng                      | iOS                                     | Android                                      | Ứng dụng node trên macOS      | Mã lỗi thường gặp              |
+| ----------------------------- | --------------------------------------- | -------------------------------------------- | ----------------------------- | ------------------------------ |
+| `camera.snap`, `camera.clip`  | Camera (+ mic cho âm thanh clip)        | Camera (+ mic cho âm thanh clip)             | Camera (+ mic cho âm thanh clip) | `*_PERMISSION_REQUIRED`        |
+| `screen.record`               | Ghi màn hình (+ mic tùy chọn)           | Nhắc chụp màn hình (+ mic tùy chọn)          | Ghi màn hình                  | `*_PERMISSION_REQUIRED`        |
+| `location.get`                | Khi sử dụng hoặc luôn (tùy thuộc vào chế độ) | Vị trí foreground/background dựa trên chế độ | Quyền truy cập vị trí         | `LOCATION_PERMISSION_REQUIRED` |
+| `system.run`                  | n/a (đường dẫn host node)               | n/a (đường dẫn host node)                    | Cần phê duyệt exec            | `SYSTEM_RUN_DENIED`            |
 
-## Pairing versus approvals
+## Ghép nối và phê duyệt
 
-These are different gates:
+Đây là các cổng khác nhau:
 
-1. **Device pairing**: can this node connect to the gateway?
-2. **Exec approvals**: can this node run a specific shell command?
+1. **Ghép nối thiết bị**: node này có thể kết nối với gateway không?
+2. **Phê duyệt exec**: node này có thể chạy một lệnh shell cụ thể không?
 
-Quick checks:
+Kiểm tra nhanh:
 
 ```bash
 openclaw devices list
@@ -73,23 +73,23 @@ openclaw approvals get --node <idOrNameOrIp>
 openclaw approvals allowlist add --node <idOrNameOrIp> "/usr/bin/uname"
 ```
 
-If pairing is missing, approve the node device first.
-If pairing is fine but `system.run` fails, fix exec approvals/allowlist.
+Nếu thiếu ghép nối, phê duyệt thiết bị node trước.
+Nếu ghép nối ổn nhưng `system.run` thất bại, sửa phê duyệt exec/danh sách cho phép.
 
-## Common node error codes
+## Mã lỗi thường gặp của node
 
-- `NODE_BACKGROUND_UNAVAILABLE` → app is backgrounded; bring it foreground.
-- `CAMERA_DISABLED` → camera toggle disabled in node settings.
-- `*_PERMISSION_REQUIRED` → OS permission missing/denied.
-- `LOCATION_DISABLED` → location mode is off.
-- `LOCATION_PERMISSION_REQUIRED` → requested location mode not granted.
-- `LOCATION_BACKGROUND_UNAVAILABLE` → app is backgrounded but only While Using permission exists.
-- `SYSTEM_RUN_DENIED: approval required` → exec request needs explicit approval.
-- `SYSTEM_RUN_DENIED: allowlist miss` → command blocked by allowlist mode.
-  On Windows node hosts, shell-wrapper forms like `cmd.exe /c ...` are treated as allowlist misses in
-  allowlist mode unless approved via ask flow.
+- `NODE_BACKGROUND_UNAVAILABLE` → ứng dụng đang ở chế độ nền; đưa lên foreground.
+- `CAMERA_DISABLED` → camera bị tắt trong cài đặt node.
+- `*_PERMISSION_REQUIRED` → thiếu/quyền OS bị từ chối.
+- `LOCATION_DISABLED` → chế độ vị trí tắt.
+- `LOCATION_PERMISSION_REQUIRED` → chế độ vị trí yêu cầu không được cấp.
+- `LOCATION_BACKGROUND_UNAVAILABLE` → ứng dụng ở chế độ nền nhưng chỉ có quyền Khi Sử Dụng.
+- `SYSTEM_RUN_DENIED: approval required` → yêu cầu exec cần phê duyệt rõ ràng.
+- `SYSTEM_RUN_DENIED: allowlist miss` → lệnh bị chặn bởi chế độ danh sách cho phép.
+  Trên các host node Windows, các dạng shell-wrapper như `cmd.exe /c ...` được coi là thiếu danh sách cho phép trong
+  chế độ danh sách cho phép trừ khi được phê duyệt qua luồng hỏi.
 
-## Fast recovery loop
+## Vòng lặp khôi phục nhanh
 
 ```bash
 openclaw nodes status
@@ -98,14 +98,14 @@ openclaw approvals get --node <idOrNameOrIp>
 openclaw logs --follow
 ```
 
-If still stuck:
+Nếu vẫn gặp sự cố:
 
-- Re-approve device pairing.
-- Re-open node app (foreground).
-- Re-grant OS permissions.
-- Recreate/adjust exec approval policy.
+- Phê duyệt lại ghép nối thiết bị.
+- Mở lại ứng dụng node (foreground).
+- Cấp lại quyền OS.
+- Tạo lại/điều chỉnh chính sách phê duyệt exec.
 
-Related:
+Liên quan:
 
 - [/nodes/index](/nodes/index)
 - [/nodes/camera](/nodes/camera)

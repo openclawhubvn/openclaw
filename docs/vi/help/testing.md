@@ -1,270 +1,270 @@
 ---
-summary: "Testing kit: unit/e2e/live suites, Docker runners, and what each test covers"
+summary: "Bộ công cụ kiểm thử: bộ unit/e2e/live, Docker runners và phạm vi của từng loại kiểm thử"
 read_when:
-  - Running tests locally or in CI
-  - Adding regressions for model/provider bugs
-  - Debugging gateway + agent behavior
-title: "Testing"
+  - Chạy kiểm thử cục bộ hoặc trong CI
+  - Thêm các hồi quy cho lỗi mô hình/nhà cung cấp
+  - Gỡ lỗi hành vi gateway + agent
+title: "Kiểm thử"
 ---
 
-# Testing
+# Kiểm thử
 
-OpenClaw has three Vitest suites (unit/integration, e2e, live) and a small set of Docker runners.
+OpenClaw có ba bộ Vitest (unit/integration, e2e, live) và một số Docker runners nhỏ.
 
-This doc is a “how we test” guide:
+Tài liệu này là hướng dẫn "cách chúng tôi kiểm thử":
 
-- What each suite covers (and what it deliberately does _not_ cover)
-- Which commands to run for common workflows (local, pre-push, debugging)
-- How live tests discover credentials and select models/providers
-- How to add regressions for real-world model/provider issues
+- Phạm vi của từng bộ kiểm thử (và những gì nó cố ý không bao gồm)
+- Các lệnh cần chạy cho các quy trình làm việc phổ biến (cục bộ, trước khi đẩy, gỡ lỗi)
+- Cách các kiểm thử live phát hiện thông tin xác thực và chọn mô hình/nhà cung cấp
+- Cách thêm các hồi quy cho các vấn đề thực tế của mô hình/nhà cung cấp
 
-## Quick start
+## Bắt đầu nhanh
 
-Most days:
+Hầu hết các ngày:
 
-- Full gate (expected before push): `pnpm build && pnpm check && pnpm test`
+- Kiểm tra đầy đủ (dự kiến trước khi đẩy): `pnpm build && pnpm check && pnpm test`
 
-When you touch tests or want extra confidence:
+Khi bạn chỉnh sửa kiểm thử hoặc muốn tự tin hơn:
 
-- Coverage gate: `pnpm test:coverage`
-- E2E suite: `pnpm test:e2e`
+- Kiểm tra độ bao phủ: `pnpm test:coverage`
+- Bộ E2E: `pnpm test:e2e`
 
-When debugging real providers/models (requires real creds):
+Khi gỡ lỗi các nhà cung cấp/mô hình thực (yêu cầu thông tin xác thực thực):
 
-- Live suite (models + gateway tool/image probes): `pnpm test:live`
+- Bộ live (mô hình + công cụ/hình ảnh gateway): `pnpm test:live`
 
-Tip: when you only need one failing case, prefer narrowing live tests via the allowlist env vars described below.
+Mẹo: khi chỉ cần một trường hợp thất bại, hãy thu hẹp kiểm thử live thông qua các biến môi trường allowlist được mô tả dưới đây.
 
-## Test suites (what runs where)
+## Bộ kiểm thử (chạy ở đâu)
 
-Think of the suites as “increasing realism” (and increasing flakiness/cost):
+Hãy nghĩ về các bộ kiểm thử như "tăng tính thực tế" (và tăng độ không ổn định/chi phí):
 
-### Unit / integration (default)
+### Unit / integration (mặc định)
 
-- Command: `pnpm test`
-- Config: `scripts/test-parallel.mjs` (runs `vitest.unit.config.ts`, `vitest.extensions.config.ts`, `vitest.gateway.config.ts`)
-- Files: `src/**/*.test.ts`, `extensions/**/*.test.ts`
-- Scope:
-  - Pure unit tests
-  - In-process integration tests (gateway auth, routing, tooling, parsing, config)
-  - Deterministic regressions for known bugs
-- Expectations:
-  - Runs in CI
-  - No real keys required
-  - Should be fast and stable
-- Scheduler note:
-  - `pnpm test` now keeps a small checked-in behavioral manifest for true pool/isolation overrides and a separate timing snapshot for the slowest unit files.
-  - Shared unit coverage stays on, but the wrapper peels the heaviest measured files into dedicated lanes instead of relying on a growing hand-maintained exclusion list.
-  - Refresh the timing snapshot with `pnpm test:perf:update-timings` after major suite shape changes.
-- Embedded runner note:
-  - When you change message-tool discovery inputs or compaction runtime context,
-    keep both levels of coverage.
-  - Add focused helper regressions for pure routing/normalization boundaries.
-  - Also keep the embedded runner integration suites healthy:
+- Lệnh: `pnpm test`
+- Cấu hình: `scripts/test-parallel.mjs` (chạy `vitest.unit.config.ts`, `vitest.extensions.config.ts`, `vitest.gateway.config.ts`)
+- Tệp: `src/**/*.test.ts`, `extensions/**/*.test.ts`
+- Phạm vi:
+  - Kiểm thử đơn vị thuần túy
+  - Kiểm thử tích hợp trong quá trình (xác thực gateway, định tuyến, công cụ, phân tích cú pháp, cấu hình)
+  - Hồi quy xác định cho các lỗi đã biết
+- Kỳ vọng:
+  - Chạy trong CI
+  - Không yêu cầu khóa thực
+  - Nên nhanh và ổn định
+- Ghi chú về bộ lập lịch:
+  - `pnpm test` hiện giữ một manifest hành vi nhỏ đã được kiểm tra để ghi đè pool/isolations thực sự và một snapshot thời gian riêng cho các tệp đơn vị chậm nhất.
+  - Độ bao phủ đơn vị chia sẻ vẫn được bật, nhưng wrapper tách các tệp đo nặng nhất vào các làn riêng biệt thay vì dựa vào danh sách loại trừ được duy trì bằng tay ngày càng tăng.
+  - Làm mới snapshot thời gian với `pnpm test:perf:update-timings` sau khi thay đổi hình dạng bộ chính.
+- Ghi chú về runner nhúng:
+  - Khi bạn thay đổi đầu vào phát hiện công cụ tin nhắn hoặc ngữ cảnh runtime nén,
+    hãy giữ cả hai mức độ bao phủ.
+  - Thêm các hồi quy trợ giúp tập trung cho các ranh giới định tuyến/chuẩn hóa thuần túy.
+  - Cũng giữ cho các bộ tích hợp runner nhúng khỏe mạnh:
     `src/agents/pi-embedded-runner/compact.hooks.test.ts`,
-    `src/agents/pi-embedded-runner/run.overflow-compaction.test.ts`, and
+    `src/agents/pi-embedded-runner/run.overflow-compaction.test.ts`, và
     `src/agents/pi-embedded-runner/run.overflow-compaction.loop.test.ts`.
-  - Those suites verify that scoped ids and compaction behavior still flow
-    through the real `run.ts` / `compact.ts` paths; helper-only tests are not a
-    sufficient substitute for those integration paths.
-- Pool note:
-  - OpenClaw uses Vitest `vmForks` on Node 22, 23, and 24 for faster unit shards.
-  - On Node 25+, OpenClaw automatically falls back to regular `forks` until the repo is re-validated there.
-  - Override manually with `OPENCLAW_TEST_VM_FORKS=0` (force `forks`) or `OPENCLAW_TEST_VM_FORKS=1` (force `vmForks`).
+  - Các bộ này xác minh rằng các id được giới hạn và hành vi nén vẫn chảy
+    qua các đường dẫn `run.ts` / `compact.ts` thực; các kiểm thử chỉ có trợ giúp không phải là
+    một sự thay thế đủ cho các đường dẫn tích hợp đó.
+- Ghi chú về pool:
+  - OpenClaw sử dụng Vitest `vmForks` trên Node 22, 23 và 24 cho các mảnh đơn vị nhanh hơn.
+  - Trên Node 25+, OpenClaw tự động quay lại `forks` thông thường cho đến khi repo được xác thực lại ở đó.
+  - Ghi đè thủ công với `OPENCLAW_TEST_VM_FORKS=0` (buộc `forks`) hoặc `OPENCLAW_TEST_VM_FORKS=1` (buộc `vmForks`).
 
 ### E2E (gateway smoke)
 
-- Command: `pnpm test:e2e`
-- Config: `vitest.e2e.config.ts`
-- Files: `src/**/*.e2e.test.ts`, `test/**/*.e2e.test.ts`
-- Runtime defaults:
-  - Uses Vitest `vmForks` for faster file startup.
-  - Uses adaptive workers (CI: 2-4, local: 4-8).
-  - Runs in silent mode by default to reduce console I/O overhead.
-- Useful overrides:
-  - `OPENCLAW_E2E_WORKERS=<n>` to force worker count (capped at 16).
-  - `OPENCLAW_E2E_VERBOSE=1` to re-enable verbose console output.
-- Scope:
-  - Multi-instance gateway end-to-end behavior
-  - WebSocket/HTTP surfaces, node pairing, and heavier networking
-- Expectations:
-  - Runs in CI (when enabled in the pipeline)
-  - No real keys required
-  - More moving parts than unit tests (can be slower)
+- Lệnh: `pnpm test:e2e`
+- Cấu hình: `vitest.e2e.config.ts`
+- Tệp: `src/**/*.e2e.test.ts`, `test/**/*.e2e.test.ts`
+- Mặc định runtime:
+  - Sử dụng Vitest `vmForks` để khởi động tệp nhanh hơn.
+  - Sử dụng các worker thích ứng (CI: 2-4, cục bộ: 4-8).
+  - Chạy ở chế độ im lặng theo mặc định để giảm chi phí I/O console.
+- Ghi đè hữu ích:
+  - `OPENCLAW_E2E_WORKERS=<n>` để buộc số lượng worker (giới hạn ở 16).
+  - `OPENCLAW_E2E_VERBOSE=1` để bật lại đầu ra console chi tiết.
+- Phạm vi:
+  - Hành vi end-to-end của gateway đa phiên bản
+  - Bề mặt WebSocket/HTTP, ghép nối node và mạng nặng hơn
+- Kỳ vọng:
+  - Chạy trong CI (khi được bật trong pipeline)
+  - Không yêu cầu khóa thực
+  - Nhiều phần chuyển động hơn so với kiểm thử đơn vị (có thể chậm hơn)
 
 ### E2E: OpenShell backend smoke
 
-- Command: `pnpm test:e2e:openshell`
-- File: `test/openshell-sandbox.e2e.test.ts`
-- Scope:
-  - Starts an isolated OpenShell gateway on the host via Docker
-  - Creates a sandbox from a temporary local Dockerfile
-  - Exercises OpenClaw's OpenShell backend over real `sandbox ssh-config` + SSH exec
-  - Verifies remote-canonical filesystem behavior through the sandbox fs bridge
-- Expectations:
-  - Opt-in only; not part of the default `pnpm test:e2e` run
-  - Requires a local `openshell` CLI plus a working Docker daemon
-  - Uses isolated `HOME` / `XDG_CONFIG_HOME`, then destroys the test gateway and sandbox
-- Useful overrides:
-  - `OPENCLAW_E2E_OPENSHELL=1` to enable the test when running the broader e2e suite manually
-  - `OPENCLAW_E2E_OPENSHELL_COMMAND=/path/to/openshell` to point at a non-default CLI binary or wrapper script
+- Lệnh: `pnpm test:e2e:openshell`
+- Tệp: `test/openshell-sandbox.e2e.test.ts`
+- Phạm vi:
+  - Khởi động một gateway OpenShell cô lập trên máy chủ thông qua Docker
+  - Tạo một sandbox từ một Dockerfile cục bộ tạm thời
+  - Thực hiện backend OpenShell của OpenClaw qua `sandbox ssh-config` thực + SSH exec
+  - Xác minh hành vi hệ thống tệp từ xa-canonical thông qua cầu nối fs sandbox
+- Kỳ vọng:
+  - Chỉ có thể chọn tham gia; không phải là một phần của chạy mặc định `pnpm test:e2e`
+  - Yêu cầu một CLI `openshell` cục bộ cộng với một daemon Docker hoạt động
+  - Sử dụng `HOME` / `XDG_CONFIG_HOME` cô lập, sau đó phá hủy gateway và sandbox kiểm thử
+- Ghi đè hữu ích:
+  - `OPENCLAW_E2E_OPENSHELL=1` để bật kiểm thử khi chạy bộ e2e rộng hơn thủ công
+  - `OPENCLAW_E2E_OPENSHELL_COMMAND=/path/to/openshell` để chỉ đến một nhị phân CLI không mặc định hoặc script wrapper
 
-### Live (real providers + real models)
+### Live (nhà cung cấp thực + mô hình thực)
 
-- Command: `pnpm test:live`
-- Config: `vitest.live.config.ts`
-- Files: `src/**/*.live.test.ts`
-- Default: **enabled** by `pnpm test:live` (sets `OPENCLAW_LIVE_TEST=1`)
-- Scope:
-  - “Does this provider/model actually work _today_ with real creds?”
-  - Catch provider format changes, tool-calling quirks, auth issues, and rate limit behavior
-- Expectations:
-  - Not CI-stable by design (real networks, real provider policies, quotas, outages)
-  - Costs money / uses rate limits
-  - Prefer running narrowed subsets instead of “everything”
-  - Live runs will source `~/.profile` to pick up missing API keys
-- API key rotation (provider-specific): set `*_API_KEYS` with comma/semicolon format or `*_API_KEY_1`, `*_API_KEY_2` (for example `OPENAI_API_KEYS`, `ANTHROPIC_API_KEYS`, `GEMINI_API_KEYS`) or per-live override via `OPENCLAW_LIVE_*_KEY`; tests retry on rate limit responses.
+- Lệnh: `pnpm test:live`
+- Cấu hình: `vitest.live.config.ts`
+- Tệp: `src/**/*.live.test.ts`
+- Mặc định: **đã bật** bởi `pnpm test:live` (đặt `OPENCLAW_LIVE_TEST=1`)
+- Phạm vi:
+  - "Nhà cung cấp/mô hình này thực sự hoạt động _hôm nay_ với thông tin xác thực thực không?"
+  - Bắt các thay đổi định dạng nhà cung cấp, các quirks gọi công cụ, vấn đề xác thực và hành vi giới hạn tốc độ
+- Kỳ vọng:
+  - Không ổn định trong CI theo thiết kế (mạng thực, chính sách nhà cung cấp thực, hạn ngạch, sự cố)
+  - Tốn tiền / sử dụng giới hạn tốc độ
+  - Ưu tiên chạy các tập hợp thu hẹp thay vì "mọi thứ"
+  - Các lần chạy live sẽ lấy `~/.profile` để chọn các khóa API bị thiếu
+- Xoay vòng khóa API (cụ thể cho nhà cung cấp): đặt `*_API_KEYS` với định dạng dấu phẩy/dấu chấm phẩy hoặc `*_API_KEY_1`, `*_API_KEY_2` (ví dụ `OPENAI_API_KEYS`, `ANTHROPIC_API_KEYS`, `GEMINI_API_KEYS`) hoặc ghi đè từng live qua `OPENCLAW_LIVE_*_KEY`; các kiểm thử thử lại khi nhận được phản hồi giới hạn tốc độ.
 
-## Which suite should I run?
+## Nên chạy bộ kiểm thử nào?
 
-Use this decision table:
+Sử dụng bảng quyết định này:
 
-- Editing logic/tests: run `pnpm test` (and `pnpm test:coverage` if you changed a lot)
-- Touching gateway networking / WS protocol / pairing: add `pnpm test:e2e`
-- Debugging “my bot is down” / provider-specific failures / tool calling: run a narrowed `pnpm test:live`
+- Chỉnh sửa logic/kiểm thử: chạy `pnpm test` (và `pnpm test:coverage` nếu bạn thay đổi nhiều)
+- Chạm vào mạng gateway / giao thức WS / ghép nối: thêm `pnpm test:e2e`
+- Gỡ lỗi "bot của tôi bị hỏng" / lỗi cụ thể của nhà cung cấp / gọi công cụ: chạy một `pnpm test:live` thu hẹp
 
-## Live: Android node capability sweep
+## Live: Quét khả năng node Android
 
-- Test: `src/gateway/android-node.capabilities.live.test.ts`
+- Kiểm thử: `src/gateway/android-node.capabilities.live.test.ts`
 - Script: `pnpm android:test:integration`
-- Goal: invoke **every command currently advertised** by a connected Android node and assert command contract behavior.
-- Scope:
-  - Preconditioned/manual setup (the suite does not install/run/pair the app).
-  - Command-by-command gateway `node.invoke` validation for the selected Android node.
-- Required pre-setup:
-  - Android app already connected + paired to the gateway.
-  - App kept in foreground.
-  - Permissions/capture consent granted for capabilities you expect to pass.
-- Optional target overrides:
-  - `OPENCLAW_ANDROID_NODE_ID` or `OPENCLAW_ANDROID_NODE_NAME`.
+- Mục tiêu: gọi **mọi lệnh hiện đang được quảng cáo** bởi một node Android đã kết nối và xác nhận hành vi hợp đồng lệnh.
+- Phạm vi:
+  - Thiết lập điều kiện trước/thủ công (bộ không cài đặt/chạy/ghép nối ứng dụng).
+  - Xác nhận `node.invoke` gateway lệnh theo lệnh cho node Android đã chọn.
+- Thiết lập trước cần thiết:
+  - Ứng dụng Android đã được kết nối + ghép nối với gateway.
+  - Ứng dụng được giữ ở nền trước.
+  - Quyền/đồng ý chụp được cấp cho các khả năng bạn mong đợi vượt qua.
+- Ghi đè mục tiêu tùy chọn:
+  - `OPENCLAW_ANDROID_NODE_ID` hoặc `OPENCLAW_ANDROID_NODE_NAME`.
   - `OPENCLAW_ANDROID_GATEWAY_URL` / `OPENCLAW_ANDROID_GATEWAY_TOKEN` / `OPENCLAW_ANDROID_GATEWAY_PASSWORD`.
-- Full Android setup details: [Android App](/platforms/android)
+- Chi tiết thiết lập Android đầy đủ: [Ứng dụng Android](/platforms/android)
 
-## Live: model smoke (profile keys)
+## Live: Kiểm thử mô hình (khóa hồ sơ)
 
-Live tests are split into two layers so we can isolate failures:
+Các kiểm thử live được chia thành hai lớp để chúng tôi có thể cô lập các lỗi:
 
-- “Direct model” tells us the provider/model can answer at all with the given key.
-- “Gateway smoke” tells us the full gateway+agent pipeline works for that model (sessions, history, tools, sandbox policy, etc.).
+- "Mô hình trực tiếp" cho chúng tôi biết nhà cung cấp/mô hình có thể trả lời với khóa đã cho.
+- "Gateway smoke" cho chúng tôi biết toàn bộ pipeline gateway+agent hoạt động cho mô hình đó (phiên, lịch sử, công cụ, chính sách sandbox, v.v.).
 
-### Layer 1: Direct model completion (no gateway)
+### Lớp 1: Hoàn thành mô hình trực tiếp (không có gateway)
 
-- Test: `src/agents/models.profiles.live.test.ts`
-- Goal:
-  - Enumerate discovered models
-  - Use `getApiKeyForModel` to select models you have creds for
-  - Run a small completion per model (and targeted regressions where needed)
-- How to enable:
-  - `pnpm test:live` (or `OPENCLAW_LIVE_TEST=1` if invoking Vitest directly)
-- Set `OPENCLAW_LIVE_MODELS=modern` (or `all`, alias for modern) to actually run this suite; otherwise it skips to keep `pnpm test:live` focused on gateway smoke
-- How to select models:
-  - `OPENCLAW_LIVE_MODELS=modern` to run the modern allowlist (Opus/Sonnet/Haiku 4.5, GPT-5.x + Codex, Gemini 3, GLM 4.7, MiniMax M2.5, Grok 4)
-  - `OPENCLAW_LIVE_MODELS=all` is an alias for the modern allowlist
-  - or `OPENCLAW_LIVE_MODELS="openai/gpt-5.2,anthropic/claude-opus-4-6,..."` (comma allowlist)
-- How to select providers:
-  - `OPENCLAW_LIVE_PROVIDERS="google,google-antigravity,google-gemini-cli"` (comma allowlist)
-- Where keys come from:
-  - By default: profile store and env fallbacks
-  - Set `OPENCLAW_LIVE_REQUIRE_PROFILE_KEYS=1` to enforce **profile store** only
-- Why this exists:
-  - Separates “provider API is broken / key is invalid” from “gateway agent pipeline is broken”
-  - Contains small, isolated regressions (example: OpenAI Responses/Codex Responses reasoning replay + tool-call flows)
+- Kiểm thử: `src/agents/models.profiles.live.test.ts`
+- Mục tiêu:
+  - Liệt kê các mô hình đã phát hiện
+  - Sử dụng `getApiKeyForModel` để chọn các mô hình bạn có thông tin xác thực
+  - Chạy một hoàn thành nhỏ cho mỗi mô hình (và các hồi quy mục tiêu khi cần)
+- Cách bật:
+  - `pnpm test:live` (hoặc `OPENCLAW_LIVE_TEST=1` nếu gọi Vitest trực tiếp)
+- Đặt `OPENCLAW_LIVE_MODELS=modern` (hoặc `all`, bí danh cho modern) để thực sự chạy bộ này; nếu không, nó sẽ bỏ qua để giữ `pnpm test:live` tập trung vào gateway smoke
+- Cách chọn mô hình:
+  - `OPENCLAW_LIVE_MODELS=modern` để chạy danh sách cho phép hiện đại (Opus/Sonnet/Haiku 4.5, GPT-5.x + Codex, Gemini 3, GLM 4.7, MiniMax M2.5, Grok 4)
+  - `OPENCLAW_LIVE_MODELS=all` là bí danh cho danh sách cho phép hiện đại
+  - hoặc `OPENCLAW_LIVE_MODELS="openai/gpt-5.2,anthropic/claude-opus-4-6,..."` (danh sách cho phép dấu phẩy)
+- Cách chọn nhà cung cấp:
+  - `OPENCLAW_LIVE_PROVIDERS="google,google-antigravity,google-gemini-cli"` (danh sách cho phép dấu phẩy)
+- Nguồn gốc khóa:
+  - Theo mặc định: cửa hàng hồ sơ và các biến môi trường dự phòng
+  - Đặt `OPENCLAW_LIVE_REQUIRE_PROFILE_KEYS=1` để chỉ thực thi **cửa hàng hồ sơ**
+- Tại sao điều này tồn tại:
+  - Tách biệt "API nhà cung cấp bị hỏng / khóa không hợp lệ" khỏi "pipeline agent gateway bị hỏng"
+  - Chứa các hồi quy nhỏ, cô lập (ví dụ: OpenAI Responses/Codex Responses lý luận phát lại + luồng gọi công cụ)
 
-### Layer 2: Gateway + dev agent smoke (what "@openclaw" actually does)
+### Lớp 2: Gateway + dev agent smoke (những gì "@openclaw" thực sự làm)
 
-- Test: `src/gateway/gateway-models.profiles.live.test.ts`
-- Goal:
-  - Spin up an in-process gateway
-  - Create/patch a `agent:dev:*` session (model override per run)
-  - Iterate models-with-keys and assert:
-    - “meaningful” response (no tools)
-    - a real tool invocation works (read probe)
-    - optional extra tool probes (exec+read probe)
-    - OpenAI regression paths (tool-call-only → follow-up) keep working
-- Probe details (so you can explain failures quickly):
-  - `read` probe: the test writes a nonce file in the workspace and asks the agent to `read` it and echo the nonce back.
-  - `exec+read` probe: the test asks the agent to `exec`-write a nonce into a temp file, then `read` it back.
-  - image probe: the test attaches a generated PNG (cat + randomized code) and expects the model to return `cat <CODE>`.
-  - Implementation reference: `src/gateway/gateway-models.profiles.live.test.ts` and `src/gateway/live-image-probe.ts`.
-- How to enable:
-  - `pnpm test:live` (or `OPENCLAW_LIVE_TEST=1` if invoking Vitest directly)
-- How to select models:
-  - Default: modern allowlist (Opus/Sonnet/Haiku 4.5, GPT-5.x + Codex, Gemini 3, GLM 4.7, MiniMax M2.5, Grok 4)
-  - `OPENCLAW_LIVE_GATEWAY_MODELS=all` is an alias for the modern allowlist
-  - Or set `OPENCLAW_LIVE_GATEWAY_MODELS="provider/model"` (or comma list) to narrow
-- How to select providers (avoid “OpenRouter everything”):
-  - `OPENCLAW_LIVE_GATEWAY_PROVIDERS="google,google-antigravity,google-gemini-cli,openai,anthropic,zai,minimax"` (comma allowlist)
-- Tool + image probes are always on in this live test:
-  - `read` probe + `exec+read` probe (tool stress)
-  - image probe runs when the model advertises image input support
-  - Flow (high level):
-    - Test generates a tiny PNG with “CAT” + random code (`src/gateway/live-image-probe.ts`)
-    - Sends it via `agent` `attachments: [{ mimeType: "image/png", content: "<base64>" }]`
-    - Gateway parses attachments into `images[]` (`src/gateway/server-methods/agent.ts` + `src/gateway/chat-attachments.ts`)
-    - Embedded agent forwards a multimodal user message to the model
-    - Assertion: reply contains `cat` + the code (OCR tolerance: minor mistakes allowed)
+- Kiểm thử: `src/gateway/gateway-models.profiles.live.test.ts`
+- Mục tiêu:
+  - Khởi động một gateway trong quá trình
+  - Tạo/sửa một phiên `agent:dev:*` (ghi đè mô hình cho mỗi lần chạy)
+  - Lặp lại các mô hình có khóa và xác nhận:
+    - Phản hồi "có ý nghĩa" (không có công cụ)
+    - Một cuộc gọi công cụ thực sự hoạt động (đọc probe)
+    - Các probe công cụ bổ sung tùy chọn (exec+read probe)
+    - Các đường dẫn hồi quy OpenAI (chỉ gọi công cụ → theo dõi) tiếp tục hoạt động
+- Chi tiết probe (để bạn có thể giải thích các lỗi nhanh chóng):
+  - `read` probe: kiểm thử ghi một tệp nonce trong workspace và yêu cầu agent `read` nó và echo lại nonce.
+  - `exec+read` probe: kiểm thử yêu cầu agent `exec`-ghi một nonce vào một tệp tạm thời, sau đó `read` lại.
+  - probe hình ảnh: kiểm thử đính kèm một PNG được tạo (mèo + mã ngẫu nhiên) và mong đợi mô hình trả về `cat <CODE>`.
+  - Tham khảo triển khai: `src/gateway/gateway-models.profiles.live.test.ts` và `src/gateway/live-image-probe.ts`.
+- Cách bật:
+  - `pnpm test:live` (hoặc `OPENCLAW_LIVE_TEST=1` nếu gọi Vitest trực tiếp)
+- Cách chọn mô hình:
+  - Mặc định: danh sách cho phép hiện đại (Opus/Sonnet/Haiku 4.5, GPT-5.x + Codex, Gemini 3, GLM 4.7, MiniMax M2.5, Grok 4)
+  - `OPENCLAW_LIVE_GATEWAY_MODELS=all` là bí danh cho danh sách cho phép hiện đại
+  - Hoặc đặt `OPENCLAW_LIVE_GATEWAY_MODELS="provider/model"` (hoặc danh sách dấu phẩy) để thu hẹp
+- Cách chọn nhà cung cấp (tránh "OpenRouter everything"):
+  - `OPENCLAW_LIVE_GATEWAY_PROVIDERS="google,google-antigravity,google-gemini-cli,openai,anthropic,zai,minimax"` (danh sách cho phép dấu phẩy)
+- Các probe công cụ + hình ảnh luôn bật trong kiểm thử live này:
+  - `read` probe + `exec+read` probe (căng thẳng công cụ)
+  - probe hình ảnh chạy khi mô hình quảng cáo hỗ trợ đầu vào hình ảnh
+  - Luồng (cấp cao):
+    - Kiểm thử tạo một PNG nhỏ với "CAT" + mã ngẫu nhiên (`src/gateway/live-image-probe.ts`)
+    - Gửi nó qua `agent` `attachments: [{ mimeType: "image/png", content: "<base64>" }]`
+    - Gateway phân tích các tệp đính kèm thành `images[]` (`src/gateway/server-methods/agent.ts` + `src/gateway/chat-attachments.ts`)
+    - Agent nhúng chuyển tiếp một thông điệp người dùng đa phương tiện đến mô hình
+    - Xác nhận: phản hồi chứa `cat` + mã (dung sai OCR: cho phép sai sót nhỏ)
 
-Tip: to see what you can test on your machine (and the exact `provider/model` ids), run:
+Mẹo: để xem những gì bạn có thể kiểm thử trên máy của mình (và các id `provider/model` chính xác), chạy:
 
 ```bash
 openclaw models list
 openclaw models list --json
 ```
 
-## Live: Anthropic setup-token smoke
+## Live: Thiết lập token Anthropic smoke
 
-- Test: `src/agents/anthropic.setup-token.live.test.ts`
-- Goal: verify Claude Code CLI setup-token (or a pasted setup-token profile) can complete an Anthropic prompt.
-- Enable:
-  - `pnpm test:live` (or `OPENCLAW_LIVE_TEST=1` if invoking Vitest directly)
+- Kiểm thử: `src/agents/anthropic.setup-token.live.test.ts`
+- Mục tiêu: xác minh Claude Code CLI thiết lập token (hoặc một hồ sơ thiết lập token đã dán) có thể hoàn thành một prompt Anthropic.
+- Bật:
+  - `pnpm test:live` (hoặc `OPENCLAW_LIVE_TEST=1` nếu gọi Vitest trực tiếp)
   - `OPENCLAW_LIVE_SETUP_TOKEN=1`
-- Token sources (pick one):
-  - Profile: `OPENCLAW_LIVE_SETUP_TOKEN_PROFILE=anthropic:setup-token-test`
-  - Raw token: `OPENCLAW_LIVE_SETUP_TOKEN_VALUE=sk-ant-oat01-...`
-- Model override (optional):
+- Nguồn token (chọn một):
+  - Hồ sơ: `OPENCLAW_LIVE_SETUP_TOKEN_PROFILE=anthropic:setup-token-test`
+  - Token thô: `OPENCLAW_LIVE_SETUP_TOKEN_VALUE=sk-ant-oat01-...`
+- Ghi đè mô hình (tùy chọn):
   - `OPENCLAW_LIVE_SETUP_TOKEN_MODEL=anthropic/claude-opus-4-6`
 
-Setup example:
+Ví dụ thiết lập:
 
 ```bash
 openclaw models auth paste-token --provider anthropic --profile-id anthropic:setup-token-test
 OPENCLAW_LIVE_SETUP_TOKEN=1 OPENCLAW_LIVE_SETUP_TOKEN_PROFILE=anthropic:setup-token-test pnpm test:live src/agents/anthropic.setup-token.live.test.ts
 ```
 
-## Live: CLI backend smoke (Claude Code CLI or other local CLIs)
+## Live: CLI backend smoke (Claude Code CLI hoặc các CLI cục bộ khác)
 
-- Test: `src/gateway/gateway-cli-backend.live.test.ts`
-- Goal: validate the Gateway + agent pipeline using a local CLI backend, without touching your default config.
-- Enable:
-  - `pnpm test:live` (or `OPENCLAW_LIVE_TEST=1` if invoking Vitest directly)
+- Kiểm thử: `src/gateway/gateway-cli-backend.live.test.ts`
+- Mục tiêu: xác nhận pipeline Gateway + agent sử dụng một backend CLI cục bộ, mà không chạm vào cấu hình mặc định của bạn.
+- Bật:
+  - `pnpm test:live` (hoặc `OPENCLAW_LIVE_TEST=1` nếu gọi Vitest trực tiếp)
   - `OPENCLAW_LIVE_CLI_BACKEND=1`
-- Defaults:
-  - Model: `claude-cli/claude-sonnet-4-6`
-  - Command: `claude`
-  - Args: `["-p","--output-format","json","--permission-mode","bypassPermissions"]`
-- Overrides (optional):
+- Mặc định:
+  - Mô hình: `claude-cli/claude-sonnet-4-6`
+  - Lệnh: `claude`
+  - Tham số: `["-p","--output-format","json","--permission-mode","bypassPermissions"]`
+- Ghi đè (tùy chọn):
   - `OPENCLAW_LIVE_CLI_BACKEND_MODEL="claude-cli/claude-opus-4-6"`
   - `OPENCLAW_LIVE_CLI_BACKEND_MODEL="codex-cli/gpt-5.4"`
   - `OPENCLAW_LIVE_CLI_BACKEND_COMMAND="/full/path/to/claude"`
   - `OPENCLAW_LIVE_CLI_BACKEND_ARGS='["-p","--output-format","json","--permission-mode","bypassPermissions"]'`
   - `OPENCLAW_LIVE_CLI_BACKEND_CLEAR_ENV='["ANTHROPIC_API_KEY","ANTHROPIC_API_KEY_OLD"]'`
-  - `OPENCLAW_LIVE_CLI_BACKEND_IMAGE_PROBE=1` to send a real image attachment (paths are injected into the prompt).
-  - `OPENCLAW_LIVE_CLI_BACKEND_IMAGE_ARG="--image"` to pass image file paths as CLI args instead of prompt injection.
-  - `OPENCLAW_LIVE_CLI_BACKEND_IMAGE_MODE="repeat"` (or `"list"`) to control how image args are passed when `IMAGE_ARG` is set.
-  - `OPENCLAW_LIVE_CLI_BACKEND_RESUME_PROBE=1` to send a second turn and validate resume flow.
-- `OPENCLAW_LIVE_CLI_BACKEND_DISABLE_MCP_CONFIG=0` to keep Claude Code CLI MCP config enabled (default disables MCP config with a temporary empty file).
+  - `OPENCLAW_LIVE_CLI_BACKEND_IMAGE_PROBE=1` để gửi một tệp đính kèm hình ảnh thực (các đường dẫn được chèn vào prompt).
+  - `OPENCLAW_LIVE_CLI_BACKEND_IMAGE_ARG="--image"` để truyền các đường dẫn tệp hình ảnh dưới dạng tham số CLI thay vì chèn prompt.
+  - `OPENCLAW_LIVE_CLI_BACKEND_IMAGE_MODE="repeat"` (hoặc `"list"`) để kiểm soát cách các tham số hình ảnh được truyền khi `IMAGE_ARG` được đặt.
+  - `OPENCLAW_LIVE_CLI_BACKEND_RESUME_PROBE=1` để gửi một lượt thứ hai và xác nhận luồng tiếp tục.
+- `OPENCLAW_LIVE_CLI_BACKEND_DISABLE_MCP_CONFIG=0` để giữ cấu hình MCP Claude Code CLI được bật (mặc định vô hiệu hóa cấu hình MCP với một tệp trống tạm thời).
 
-Example:
+Ví dụ:
 
 ```bash
 OPENCLAW_LIVE_CLI_BACKEND=1 \
@@ -272,253 +272,251 @@ OPENCLAW_LIVE_CLI_BACKEND=1 \
   pnpm test:live src/gateway/gateway-cli-backend.live.test.ts
 ```
 
-### Recommended live recipes
+### Công thức live được khuyến nghị
 
-Narrow, explicit allowlists are fastest and least flaky:
+Danh sách cho phép hẹp, rõ ràng là nhanh nhất và ít không ổn định nhất:
 
-- Single model, direct (no gateway):
+- Mô hình đơn, trực tiếp (không có gateway):
   - `OPENCLAW_LIVE_MODELS="openai/gpt-5.2" pnpm test:live src/agents/models.profiles.live.test.ts`
 
-- Single model, gateway smoke:
+- Mô hình đơn, gateway smoke:
   - `OPENCLAW_LIVE_GATEWAY_MODELS="openai/gpt-5.2" pnpm test:live src/gateway/gateway-models.profiles.live.test.ts`
 
-- Tool calling across several providers:
+- Gọi công cụ trên nhiều nhà cung cấp:
   - `OPENCLAW_LIVE_GATEWAY_MODELS="openai/gpt-5.2,anthropic/claude-opus-4-6,google/gemini-3-flash-preview,zai/glm-4.7,minimax/minimax-m2.5" pnpm test:live src/gateway/gateway-models.profiles.live.test.ts`
 
-- Google focus (Gemini API key + Antigravity):
-  - Gemini (API key): `OPENCLAW_LIVE_GATEWAY_MODELS="google/gemini-3-flash-preview" pnpm test:live src/gateway/gateway-models.profiles.live.test.ts`
+- Tập trung vào Google (khóa API Gemini + Antigravity):
+  - Gemini (khóa API): `OPENCLAW_LIVE_GATEWAY_MODELS="google/gemini-3-flash-preview" pnpm test:live src/gateway/gateway-models.profiles.live.test.ts`
   - Antigravity (OAuth): `OPENCLAW_LIVE_GATEWAY_MODELS="google-antigravity/claude-opus-4-6-thinking,google-antigravity/gemini-3-pro-high" pnpm test:live src/gateway/gateway-models.profiles.live.test.ts`
 
-Notes:
+Ghi chú:
 
-- `google/...` uses the Gemini API (API key).
-- `google-antigravity/...` uses the Antigravity OAuth bridge (Cloud Code Assist-style agent endpoint).
-- `google-gemini-cli/...` uses the local Gemini CLI on your machine (separate auth + tooling quirks).
-- Gemini API vs Gemini CLI:
-  - API: OpenClaw calls Google’s hosted Gemini API over HTTP (API key / profile auth); this is what most users mean by “Gemini”.
-  - CLI: OpenClaw shells out to a local `gemini` binary; it has its own auth and can behave differently (streaming/tool support/version skew).
+- `google/...` sử dụng API Gemini (khóa API).
+- `google-antigravity/...` sử dụng cầu nối OAuth Antigravity (điểm cuối agent kiểu Cloud Code Assist).
+- `google-gemini-cli/...` sử dụng CLI Gemini cục bộ trên máy của bạn (xác thực + quirks công cụ riêng biệt).
+- API Gemini vs CLI Gemini:
+  - API: OpenClaw gọi API Gemini được lưu trữ của Google qua HTTP (khóa API / xác thực hồ sơ); đây là những gì hầu hết người dùng nghĩ đến khi nói "Gemini".
+  - CLI: OpenClaw gọi một nhị phân `gemini` cục bộ; nó có xác thực riêng và có thể hoạt động khác (hỗ trợ streaming/công cụ/phiên bản lệch).
 
-## Live: model matrix (what we cover)
+## Live: ma trận mô hình (những gì chúng tôi bao phủ)
 
-There is no fixed “CI model list” (live is opt-in), but these are the **recommended** models to cover regularly on a dev machine with keys.
+Không có "danh sách mô hình CI" cố định (live là tùy chọn), nhưng đây là các mô hình **được khuyến nghị** để bao phủ thường xuyên trên máy phát triển với các khóa.
 
-### Modern smoke set (tool calling + image)
+### Bộ smoke hiện đại (gọi công cụ + hình ảnh)
 
-This is the “common models” run we expect to keep working:
+Đây là "các mô hình phổ biến" mà chúng tôi mong đợi sẽ tiếp tục hoạt động:
 
-- OpenAI (non-Codex): `openai/gpt-5.2` (optional: `openai/gpt-5.1`)
+- OpenAI (không phải Codex): `openai/gpt-5.2` (tùy chọn: `openai/gpt-5.1`)
 - OpenAI Codex: `openai-codex/gpt-5.4`
-- Anthropic: `anthropic/claude-opus-4-6` (or `anthropic/claude-sonnet-4-6`)
-- Google (Gemini API): `google/gemini-3.1-pro-preview` and `google/gemini-3-flash-preview` (avoid older Gemini 2.x models)
-- Google (Antigravity): `google-antigravity/claude-opus-4-6-thinking` and `google-antigravity/gemini-3-flash`
+- Anthropic: `anthropic/claude-opus-4-6` (hoặc `anthropic/claude-sonnet-4-6`)
+- Google (API Gemini): `google/gemini-3.1-pro-preview` và `google/gemini-3-flash-preview` (tránh các mô hình Gemini 2.x cũ hơn)
+- Google (Antigravity): `google-antigravity/claude-opus-4-6-thinking` và `google-antigravity/gemini-3-flash`
 - Z.AI (GLM): `zai/glm-4.7`
 - MiniMax: `minimax/minimax-m2.5`
 
-Run gateway smoke with tools + image:
+Chạy gateway smoke với công cụ + hình ảnh:
 `OPENCLAW_LIVE_GATEWAY_MODELS="openai/gpt-5.2,openai-codex/gpt-5.4,anthropic/claude-opus-4-6,google/gemini-3.1-pro-preview,google/gemini-3-flash-preview,google-antigravity/claude-opus-4-6-thinking,google-antigravity/gemini-3-flash,zai/glm-4.7,minimax/minimax-m2.5" pnpm test:live src/gateway/gateway-models.profiles.live.test.ts`
 
-### Baseline: tool calling (Read + optional Exec)
+### Cơ bản: gọi công cụ (Đọc + Exec tùy chọn)
 
-Pick at least one per provider family:
+Chọn ít nhất một mô hình cho mỗi gia đình nhà cung cấp:
 
-- OpenAI: `openai/gpt-5.2` (or `openai/gpt-5-mini`)
-- Anthropic: `anthropic/claude-opus-4-6` (or `anthropic/claude-sonnet-4-6`)
-- Google: `google/gemini-3-flash-preview` (or `google/gemini-3.1-pro-preview`)
+- OpenAI: `openai/gpt-5.2` (hoặc `openai/gpt-5-mini`)
+- Anthropic: `anthropic/claude-opus-4-6` (hoặc `anthropic/claude-sonnet-4-6`)
+- Google: `google/gemini-3-flash-preview` (hoặc `google/gemini-3.1-pro-preview`)
 - Z.AI (GLM): `zai/glm-4.7`
 - MiniMax: `minimax/minimax-m2.5`
 
-Optional additional coverage (nice to have):
+Phạm vi bổ sung tùy chọn (nên có):
 
-- xAI: `xai/grok-4` (or latest available)
-- Mistral: `mistral/`… (pick one “tools” capable model you have enabled)
-- Cerebras: `cerebras/`… (if you have access)
-- LM Studio: `lmstudio/`… (local; tool calling depends on API mode)
+- xAI: `xai/grok-4` (hoặc phiên bản mới nhất có sẵn)
+- Mistral: `mistral/`… (chọn một mô hình có khả năng "công cụ" mà bạn đã bật)
+- Cerebras: `cerebras/`… (nếu bạn có quyền truy cập)
+- LM Studio: `lmstudio/`… (cục bộ; gọi công cụ phụ thuộc vào chế độ API)
 
-### Vision: image send (attachment → multimodal message)
+### Tầm nhìn: gửi hình ảnh (tệp đính kèm → thông điệp đa phương tiện)
 
-Include at least one image-capable model in `OPENCLAW_LIVE_GATEWAY_MODELS` (Claude/Gemini/OpenAI vision-capable variants, etc.) to exercise the image probe.
+Bao gồm ít nhất một mô hình có khả năng hình ảnh trong `OPENCLAW_LIVE_GATEWAY_MODELS` (Claude/Gemini/OpenAI các biến thể có khả năng nhìn, v.v.) để thực hiện probe hình ảnh.
 
-### Aggregators / alternate gateways
+### Bộ tổng hợp / gateway thay thế
 
-If you have keys enabled, we also support testing via:
+Nếu bạn có các khóa đã bật, chúng tôi cũng hỗ trợ kiểm thử qua:
 
-- OpenRouter: `openrouter/...` (hundreds of models; use `openclaw models scan` to find tool+image capable candidates)
-- OpenCode: `opencode/...` for Zen and `opencode-go/...` for Go (auth via `OPENCODE_API_KEY` / `OPENCODE_ZEN_API_KEY`)
+- OpenRouter: `openrouter/...` (hàng trăm mô hình; sử dụng `openclaw models scan` để tìm các ứng viên có khả năng công cụ + hình ảnh)
+- OpenCode: `opencode/...` cho Zen và `opencode-go/...` cho Go (xác thực qua `OPENCODE_API_KEY` / `OPENCODE_ZEN_API_KEY`)
 
-More providers you can include in the live matrix (if you have creds/config):
+Nhiều nhà cung cấp hơn bạn có thể bao gồm trong ma trận live (nếu bạn có thông tin xác thực/cấu hình):
 
-- Built-in: `openai`, `openai-codex`, `anthropic`, `google`, `google-vertex`, `google-antigravity`, `google-gemini-cli`, `zai`, `openrouter`, `opencode`, `opencode-go`, `xai`, `groq`, `cerebras`, `mistral`, `github-copilot`
-- Via `models.providers` (custom endpoints): `minimax` (cloud/API), plus any OpenAI/Anthropic-compatible proxy (LM Studio, vLLM, LiteLLM, etc.)
+- Tích hợp sẵn: `openai`, `openai-codex`, `anthropic`, `google`, `google-vertex`, `google-antigravity`, `google-gemini-cli`, `zai`, `openrouter`, `opencode`, `opencode-go`, `xai`, `groq`, `cerebras`, `mistral`, `github-copilot`
+- Qua `models.providers` (điểm cuối tùy chỉnh): `minimax` (cloud/API), cộng với bất kỳ proxy tương thích OpenAI/Anthropic nào (LM Studio, vLLM, LiteLLM, v.v.)
 
-Tip: don’t try to hardcode “all models” in docs. The authoritative list is whatever `discoverModels(...)` returns on your machine + whatever keys are available.
+Mẹo: đừng cố gắng mã hóa cứng "tất cả các mô hình" trong tài liệu. Danh sách chính thức là bất kỳ thứ gì `discoverModels(...)` trả về trên máy của bạn + bất kỳ khóa nào có sẵn.
 
-## Credentials (never commit)
+## Thông tin xác thực (không bao giờ commit)
 
-Live tests discover credentials the same way the CLI does. Practical implications:
+Các kiểm thử live phát hiện thông tin xác thực theo cách mà CLI thực hiện. Ý nghĩa thực tế:
 
-- If the CLI works, live tests should find the same keys.
-- If a live test says “no creds”, debug the same way you’d debug `openclaw models list` / model selection.
+- Nếu CLI hoạt động, các kiểm thử live sẽ tìm thấy cùng các khóa.
+- Nếu một kiểm thử live nói "không có thông tin xác thực", hãy gỡ lỗi theo cách bạn sẽ gỡ lỗi `openclaw models list` / lựa chọn mô hình.
 
-- Profile store: `~/.openclaw/credentials/` (preferred; what “profile keys” means in the tests)
-- Config: `~/.openclaw/openclaw.json` (or `OPENCLAW_CONFIG_PATH`)
+- Cửa hàng hồ sơ: `~/.openclaw/credentials/` (ưu tiên; ý nghĩa của "khóa hồ sơ" trong các kiểm thử)
+- Cấu hình: `~/.openclaw/openclaw.json` (hoặc `OPENCLAW_CONFIG_PATH`)
 
-If you want to rely on env keys (e.g. exported in your `~/.profile`), run local tests after `source ~/.profile`, or use the Docker runners below (they can mount `~/.profile` into the container).
+Nếu bạn muốn dựa vào các khóa môi trường (ví dụ: được xuất trong `~/.profile` của bạn), hãy chạy các kiểm thử cục bộ sau `source ~/.profile`, hoặc sử dụng các Docker runners dưới đây (chúng có thể gắn kết `~/.profile` vào container).
 
-## Deepgram live (audio transcription)
+## Deepgram live (chuyển đổi âm thanh)
 
-- Test: `src/media-understanding/providers/deepgram/audio.live.test.ts`
-- Enable: `DEEPGRAM_API_KEY=... DEEPGRAM_LIVE_TEST=1 pnpm test:live src/media-understanding/providers/deepgram/audio.live.test.ts`
+- Kiểm thử: `src/media-understanding/providers/deepgram/audio.live.test.ts`
+- Bật: `DEEPGRAM_API_KEY=... DEEPGRAM_LIVE_TEST=1 pnpm test:live src/media-understanding/providers/deepgram/audio.live.test.ts`
 
 ## BytePlus coding plan live
 
-- Test: `src/agents/byteplus.live.test.ts`
-- Enable: `BYTEPLUS_API_KEY=... BYTEPLUS_LIVE_TEST=1 pnpm test:live src/agents/byteplus.live.test.ts`
-- Optional model override: `BYTEPLUS_CODING_MODEL=ark-code-latest`
+- Kiểm thử: `src/agents/byteplus.live.test.ts`
+- Bật: `BYTEPLUS_API_KEY=... BYTEPLUS_LIVE_TEST=1 pnpm test:live src/agents/byteplus.live.test.ts`
+- Ghi đè mô hình tùy chọn: `BYTEPLUS_CODING_MODEL=ark-code-latest`
 
-## Image generation live
+## Tạo hình ảnh live
 
-- Test: `src/image-generation/runtime.live.test.ts`
-- Command: `pnpm test:live src/image-generation/runtime.live.test.ts`
-- Scope:
-  - Enumerates every registered image-generation provider plugin
-  - Loads missing provider env vars from your login shell (`~/.profile`) before probing
-  - Uses live/env API keys ahead of stored auth profiles by default, so stale test keys in `auth-profiles.json` do not mask real shell credentials
-  - Skips providers with no usable auth/profile/model
-  - Runs the stock image-generation variants through the shared runtime capability:
+- Kiểm thử: `src/image-generation/runtime.live.test.ts`
+- Lệnh: `pnpm test:live src/image-generation/runtime.live.test.ts`
+- Phạm vi:
+  - Liệt kê mọi plugin nhà cung cấp tạo hình ảnh đã đăng ký
+  - Tải các biến môi trường nhà cung cấp bị thiếu từ shell đăng nhập của bạn (`~/.profile`) trước khi thăm dò
+  - Sử dụng các khóa API live/env trước các hồ sơ xác thực đã lưu theo mặc định, vì vậy các khóa kiểm thử cũ trong `auth-profiles.json` không che giấu thông tin xác thực shell thực
+  - Bỏ qua các nhà cung cấp không có xác thực/hồ sơ/mô hình có thể sử dụng
+  - Chạy các biến thể tạo hình ảnh gốc thông qua khả năng runtime chia sẻ:
     - `google:flash-generate`
     - `google:pro-generate`
     - `google:pro-edit`
     - `openai:default-generate`
-- Current bundled providers covered:
+- Các nhà cung cấp hiện tại được bao phủ:
   - `openai`
   - `google`
-- Optional narrowing:
+- Thu hẹp tùy chọn:
   - `OPENCLAW_LIVE_IMAGE_GENERATION_PROVIDERS="openai,google"`
   - `OPENCLAW_LIVE_IMAGE_GENERATION_MODELS="openai/gpt-image-1,google/gemini-3.1-flash-image-preview"`
   - `OPENCLAW_LIVE_IMAGE_GENERATION_CASES="google:flash-generate,google:pro-edit"`
-- Optional auth behavior:
-  - `OPENCLAW_LIVE_REQUIRE_PROFILE_KEYS=1` to force profile-store auth and ignore env-only overrides
+- Hành vi xác thực tùy chọn:
+  - `OPENCLAW_LIVE_REQUIRE_PROFILE_KEYS=1` để buộc xác thực cửa hàng hồ sơ và bỏ qua các ghi đè chỉ môi trường
 
-## Docker runners (optional "works in Linux" checks)
+## Docker runners (kiểm tra tùy chọn "hoạt động trong Linux")
 
-These run `pnpm test:live` inside the repo Docker image, mounting your local config dir and workspace (and sourcing `~/.profile` if mounted). They also bind-mount CLI auth homes like `~/.codex`, `~/.claude`, `~/.qwen`, and `~/.minimax` when present, then copy them into the container home before the run so external-CLI OAuth can refresh tokens without mutating the host auth store:
+Những cái này chạy `pnpm test:live` bên trong hình ảnh Docker repo, gắn kết thư mục cấu hình cục bộ và workspace của bạn (và lấy `~/.profile` nếu được gắn kết). Chúng cũng gắn kết các thư mục xác thực CLI như `~/.codex`, `~/.claude`, `~/.qwen`, và `~/.minimax` khi có, sau đó sao chép chúng vào thư mục home container trước khi chạy để OAuth CLI bên ngoài có thể làm mới token mà không làm thay đổi cửa hàng xác thực host:
 
-- Direct models: `pnpm test:docker:live-models` (script: `scripts/test-live-models-docker.sh`)
+- Mô hình trực tiếp: `pnpm test:docker:live-models` (script: `scripts/test-live-models-docker.sh`)
 - Gateway + dev agent: `pnpm test:docker:live-gateway` (script: `scripts/test-live-gateway-models-docker.sh`)
-- Onboarding wizard (TTY, full scaffolding): `pnpm test:docker:onboard` (script: `scripts/e2e/onboard-docker.sh`)
-- Gateway networking (two containers, WS auth + health): `pnpm test:docker:gateway-network` (script: `scripts/e2e/gateway-network-docker.sh`)
-- Plugins (custom extension load + registry smoke): `pnpm test:docker:plugins` (script: `scripts/e2e/plugins-docker.sh`)
+- Wizard onboarding (TTY, scaffolding đầy đủ): `pnpm test:docker:onboard` (script: `scripts/e2e/onboard-docker.sh`)
+- Mạng gateway (hai container, xác thực WS + sức khỏe): `pnpm test:docker:gateway-network` (script: `scripts/e2e/gateway-network-docker.sh`)
+- Plugins (tải mở rộng tùy chỉnh + kiểm tra registry): `pnpm test:docker:plugins` (script: `scripts/e2e/plugins-docker.sh`)
 
-The live-model Docker runners also bind-mount the current checkout read-only and
-stage it into a temporary workdir inside the container. This keeps the runtime
-image slim while still running Vitest against your exact local source/config.
-`test:docker:live-models` still runs `pnpm test:live`, so pass through
-`OPENCLAW_LIVE_GATEWAY_*` as well when you need to narrow or exclude gateway
-live coverage from that Docker lane.
+Các Docker runners live-model cũng gắn kết bản checkout hiện tại chỉ đọc và
+dàn dựng nó vào một thư mục làm việc tạm thời bên trong container. Điều này giữ cho hình ảnh runtime
+mỏng trong khi vẫn chạy Vitest chống lại nguồn/cấu hình cục bộ chính xác của bạn.
+`test:docker:live-models` vẫn chạy `pnpm test:live`, vì vậy hãy truyền qua
+`OPENCLAW_LIVE_GATEWAY_*` khi bạn cần thu hẹp hoặc loại trừ phạm vi live gateway
+từ làn Docker đó.
 
-Manual ACP plain-language thread smoke (not CI):
+Kiểm thử smoke ngôn ngữ tự nhiên ACP thủ công (không phải CI):
 
 - `bun scripts/dev/discord-acp-plain-language-smoke.ts --channel <discord-channel-id> ...`
-- Keep this script for regression/debug workflows. It may be needed again for ACP thread routing validation, so do not delete it.
+- Giữ script này cho các quy trình hồi quy/gỡ lỗi. Nó có thể cần thiết lại cho xác nhận định tuyến luồng ACP, vì vậy đừng xóa nó.
 
-Useful env vars:
+Các biến môi trường hữu ích:
 
-- `OPENCLAW_CONFIG_DIR=...` (default: `~/.openclaw`) mounted to `/home/node/.openclaw`
-- `OPENCLAW_WORKSPACE_DIR=...` (default: `~/.openclaw/workspace`) mounted to `/home/node/.openclaw/workspace`
-- `OPENCLAW_PROFILE_FILE=...` (default: `~/.profile`) mounted to `/home/node/.profile` and sourced before running tests
-- External CLI auth dirs under `$HOME` (`.codex`, `.claude`, `.qwen`, `.minimax`) are mounted read-only under `/host-auth/...`, then copied into `/home/node/...` before tests start
-- `OPENCLAW_LIVE_GATEWAY_MODELS=...` / `OPENCLAW_LIVE_MODELS=...` to narrow the run
-- `OPENCLAW_LIVE_GATEWAY_PROVIDERS=...` / `OPENCLAW_LIVE_PROVIDERS=...` to filter providers in-container
-- `OPENCLAW_LIVE_REQUIRE_PROFILE_KEYS=1` to ensure creds come from the profile store (not env)
+- `OPENCLAW_CONFIG_DIR=...` (mặc định: `~/.openclaw`) được gắn kết vào `/home/node/.openclaw`
+- `OPENCLAW_WORKSPACE_DIR=...` (mặc định: `~/.openclaw/workspace`) được gắn kết vào `/home/node/.openclaw/workspace`
+- `OPENCLAW_PROFILE_FILE=...` (mặc định: `~/.profile`) được gắn kết vào `/home/node/.profile` và được lấy trước khi chạy kiểm thử
+- Các thư mục xác thực CLI bên ngoài dưới `$HOME` (`.codex`, `.claude`, `.qwen`, `.minimax`) được gắn kết chỉ đọc dưới `/host-auth/...`, sau đó sao chép vào `/home/node/...` trước khi kiểm thử bắt đầu
+- `OPENCLAW_LIVE_GATEWAY_MODELS=...` / `OPENCLAW_LIVE_MODELS=...` để thu hẹp chạy
+- `OPENCLAW_LIVE_GATEWAY_PROVIDERS=...` / `OPENCLAW_LIVE_PROVIDERS=...` để lọc các nhà cung cấp trong container
+- `OPENCLAW_LIVE_REQUIRE_PROFILE_KEYS=1` để đảm bảo thông tin xác thực đến từ cửa hàng hồ sơ (không phải môi trường)
 
-## Docs sanity
+## Kiểm tra tài liệu
 
-Run docs checks after doc edits: `pnpm docs:list`.
+Chạy kiểm tra tài liệu sau khi chỉnh sửa tài liệu: `pnpm docs:list`.
 
-## Offline regression (CI-safe)
+## Hồi quy ngoại tuyến (an toàn CI)
 
-These are “real pipeline” regressions without real providers:
+Đây là các hồi quy "pipeline thực" mà không có nhà cung cấp thực:
 
-- Gateway tool calling (mock OpenAI, real gateway + agent loop): `src/gateway/gateway.test.ts` (case: "runs a mock OpenAI tool call end-to-end via gateway agent loop")
-- Gateway wizard (WS `wizard.start`/`wizard.next`, writes config + auth enforced): `src/gateway/gateway.test.ts` (case: "runs wizard over ws and writes auth token config")
+- Gọi công cụ gateway (mock OpenAI, vòng lặp gateway + agent thực): `src/gateway/gateway.test.ts` (trường hợp: "chạy một cuộc gọi công cụ mock OpenAI end-to-end qua vòng lặp agent gateway")
+- Wizard gateway (WS `wizard.start`/`wizard.next`, ghi cấu hình + xác thực được thực thi): `src/gateway/gateway.test.ts` (trường hợp: "chạy wizard qua ws và ghi cấu hình token xác thực")
 
-## Agent reliability evals (skills)
+## Đánh giá độ tin cậy của agent (kỹ năng)
 
-We already have a few CI-safe tests that behave like “agent reliability evals”:
+Chúng tôi đã có một số kiểm thử an toàn CI hoạt động như "đánh giá độ tin cậy của agent":
 
-- Mock tool-calling through the real gateway + agent loop (`src/gateway/gateway.test.ts`).
-- End-to-end wizard flows that validate session wiring and config effects (`src/gateway/gateway.test.ts`).
+- Gọi công cụ mock qua vòng lặp gateway + agent thực (`src/gateway/gateway.test.ts`).
+- Các luồng wizard end-to-end xác nhận dây phiên và hiệu ứng cấu hình (`src/gateway/gateway.test.ts`).
 
-What’s still missing for skills (see [Skills](/tools/skills)):
+Những gì vẫn còn thiếu cho kỹ năng (xem [Kỹ năng](/tools/skills)):
 
-- **Decisioning:** when skills are listed in the prompt, does the agent pick the right skill (or avoid irrelevant ones)?
-- **Compliance:** does the agent read `SKILL.md` before use and follow required steps/args?
-- **Workflow contracts:** multi-turn scenarios that assert tool order, session history carryover, and sandbox boundaries.
+- **Quyết định:** khi các kỹ năng được liệt kê trong prompt, agent có chọn đúng kỹ năng (hoặc tránh những kỹ năng không liên quan)?
+- **Tuân thủ:** agent có đọc `SKILL.md` trước khi sử dụng và tuân theo các bước/tham số yêu cầu không?
+- **Hợp đồng quy trình làm việc:** các kịch bản nhiều lượt xác nhận thứ tự công cụ, mang theo lịch sử phiên và ranh giới sandbox.
 
-Future evals should stay deterministic first:
+Các đánh giá trong tương lai nên giữ tính xác định trước:
 
-- A scenario runner using mock providers to assert tool calls + order, skill file reads, and session wiring.
-- A small suite of skill-focused scenarios (use vs avoid, gating, prompt injection).
-- Optional live evals (opt-in, env-gated) only after the CI-safe suite is in place.
+- Một runner kịch bản sử dụng các nhà cung cấp mock để xác nhận các cuộc gọi công cụ + thứ tự, đọc tệp kỹ năng và dây phiên.
+- Một bộ nhỏ các kịch bản tập trung vào kỹ năng (sử dụng so với tránh, cổng, chèn prompt).
+- Các đánh giá live tùy chọn (tùy chọn, được bảo vệ bằng môi trường) chỉ sau khi bộ an toàn CI đã được thiết lập.
 
-## Contract tests (plugin and channel shape)
+## Kiểm thử hợp đồng (hình dạng plugin và kênh)
 
-Contract tests verify that every registered plugin and channel conforms to its
-interface contract. They iterate over all discovered plugins and run a suite of
-shape and behavior assertions.
+Kiểm thử hợp đồng xác minh rằng mọi plugin và kênh đã đăng ký đều tuân thủ hợp đồng giao diện của nó. Chúng lặp lại tất cả các plugin đã phát hiện và chạy một bộ các xác nhận hình dạng và hành vi.
 
-### Commands
+### Lệnh
 
-- All contracts: `pnpm test:contracts`
-- Channel contracts only: `pnpm test:contracts:channels`
-- Provider contracts only: `pnpm test:contracts:plugins`
+- Tất cả các hợp đồng: `pnpm test:contracts`
+- Chỉ hợp đồng kênh: `pnpm test:contracts:channels`
+- Chỉ hợp đồng nhà cung cấp: `pnpm test:contracts:plugins`
 
-### Channel contracts
+### Hợp đồng kênh
 
-Located in `src/channels/plugins/contracts/*.contract.test.ts`:
+Nằm trong `src/channels/plugins/contracts/*.contract.test.ts`:
 
-- **plugin** - Basic plugin shape (id, name, capabilities)
-- **setup** - Setup wizard contract
-- **session-binding** - Session binding behavior
-- **outbound-payload** - Message payload structure
-- **inbound** - Inbound message handling
-- **actions** - Channel action handlers
-- **threading** - Thread ID handling
-- **directory** - Directory/roster API
-- **group-policy** - Group policy enforcement
-- **status** - Channel status probes
-- **registry** - Plugin registry shape
+- **plugin** - Hình dạng plugin cơ bản (id, tên, khả năng)
+- **setup** - Hợp đồng wizard thiết lập
+- **session-binding** - Hành vi ràng buộc phiên
+- **outbound-payload** - Cấu trúc tải trọng tin nhắn
+- **inbound** - Xử lý tin nhắn đến
+- **actions** - Trình xử lý hành động kênh
+- **threading** - Xử lý ID luồng
+- **directory** - API thư mục/danh sách
+- **group-policy** - Thực thi chính sách nhóm
+- **status** - Kiểm tra trạng thái kênh
+- **registry** - Hình dạng registry plugin
 
-### Provider contracts
+### Hợp đồng nhà cung cấp
 
-Located in `src/plugins/contracts/*.contract.test.ts`:
+Nằm trong `src/plugins/contracts/*.contract.test.ts`:
 
-- **auth** - Auth flow contract
-- **auth-choice** - Auth choice/selection
-- **catalog** - Model catalog API
-- **discovery** - Plugin discovery
-- **loader** - Plugin loading
-- **runtime** - Provider runtime
-- **shape** - Plugin shape/interface
-- **wizard** - Setup wizard
+- **auth** - Hợp đồng luồng xác thực
+- **auth-choice** - Lựa chọn/xác thực xác thực
+- **catalog** - API danh mục mô hình
+- **discovery** - Phát hiện plugin
+- **loader** - Tải plugin
+- **runtime** - Runtime nhà cung cấp
+- **shape** - Hình dạng/giao diện plugin
+- **wizard** - Wizard thiết lập
 
-### When to run
+### Khi nào nên chạy
 
-- After changing plugin-sdk exports or subpaths
-- After adding or modifying a channel or provider plugin
-- After refactoring plugin registration or discovery
+- Sau khi thay đổi xuất khẩu plugin-sdk hoặc các đường dẫn phụ
+- Sau khi thêm hoặc sửa đổi một plugin kênh hoặc nhà cung cấp
+- Sau khi tái cấu trúc đăng ký hoặc phát hiện plugin
 
-Contract tests run in CI and do not require real API keys.
+Kiểm thử hợp đồng chạy trong CI và không yêu cầu khóa API thực.
 
-## Adding regressions (guidance)
+## Thêm hồi quy (hướng dẫn)
 
-When you fix a provider/model issue discovered in live:
+Khi bạn sửa một vấn đề nhà cung cấp/mô hình được phát hiện trong live:
 
-- Add a CI-safe regression if possible (mock/stub provider, or capture the exact request-shape transformation)
-- If it’s inherently live-only (rate limits, auth policies), keep the live test narrow and opt-in via env vars
-- Prefer targeting the smallest layer that catches the bug:
-  - provider request conversion/replay bug → direct models test
-  - gateway session/history/tool pipeline bug → gateway live smoke or CI-safe gateway mock test
-- SecretRef traversal guardrail:
-  - `src/secrets/exec-secret-ref-id-parity.test.ts` derives one sampled target per SecretRef class from registry metadata (`listSecretTargetRegistryEntries()`), then asserts traversal-segment exec ids are rejected.
-  - If you add a new `includeInPlan` SecretRef target family in `src/secrets/target-registry-data.ts`, update `classifyTargetClass` in that test. The test intentionally fails on unclassified target ids so new classes cannot be skipped silently.
+- Thêm một hồi quy an toàn CI nếu có thể (nhà cung cấp mock/stub, hoặc ghi lại sự biến đổi hình dạng yêu cầu chính xác)
+- Nếu nó vốn dĩ chỉ có live (giới hạn tốc độ, chính sách xác thực), giữ kiểm thử live hẹp và tùy chọn qua các biến môi trường
+- Ưu tiên nhắm mục tiêu lớp nhỏ nhất bắt lỗi:
+  - lỗi chuyển đổi/phát lại yêu cầu nhà cung cấp → kiểm thử mô hình trực tiếp
+  - lỗi pipeline phiên/lịch sử/công cụ gateway → gateway live smoke hoặc kiểm thử mock gateway an toàn CI
+- Guardrail duyệt SecretRef:
+  - `src/secrets/exec-secret-ref-id-parity.test.ts` dẫn xuất một mục tiêu mẫu cho mỗi lớp SecretRef từ siêu dữ liệu registry (`listSecretTargetRegistryEntries()`), sau đó xác nhận các id thực thi đoạn duyệt bị từ chối.
+  - Nếu bạn thêm một gia đình mục tiêu SecretRef `includeInPlan` mới trong `src/secrets/target-registry-data.ts`, cập nhật `classifyTargetClass` trong kiểm thử đó. Kiểm thử cố ý thất bại trên các id mục tiêu chưa được phân loại để các lớp mới không thể bị bỏ qua một cách âm thầm.

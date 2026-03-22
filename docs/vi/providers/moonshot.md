@@ -1,19 +1,17 @@
 ---
-summary: "Configure Moonshot K2 vs Kimi Coding (separate providers + keys)"
+summary: "Cấu hình Moonshot K2 và Kimi Coding (nhà cung cấp và khóa riêng biệt)"
 read_when:
-  - You want Moonshot K2 (Moonshot Open Platform) vs Kimi Coding setup
-  - You need to understand separate endpoints, keys, and model refs
-  - You want copy/paste config for either provider
+  - Bạn muốn thiết lập Moonshot K2 (Moonshot Open Platform) và Kimi Coding
+  - Bạn cần hiểu về các endpoint, khóa và tham chiếu mô hình riêng biệt
+  - Bạn muốn có cấu hình copy/paste cho từng nhà cung cấp
 title: "Moonshot AI"
 ---
 
 # Moonshot AI (Kimi)
 
-Moonshot provides the Kimi API with OpenAI-compatible endpoints. Configure the
-provider and set the default model to `moonshot/kimi-k2.5`, or use
-Kimi Coding with `kimi-coding/k2p5`.
+Moonshot cung cấp API Kimi với các endpoint tương thích OpenAI. Cấu hình nhà cung cấp và đặt mô hình mặc định là `moonshot/kimi-k2.5`, hoặc sử dụng Kimi Coding với `kimi-coding/k2p5`.
 
-Current Kimi K2 model IDs:
+Các ID mô hình Kimi K2 hiện tại:
 
 [//]: # "moonshot-kimi-k2-ids:start"
 
@@ -35,9 +33,9 @@ Kimi Coding:
 openclaw onboard --auth-choice kimi-code-api-key
 ```
 
-Note: Moonshot and Kimi Coding are separate providers. Keys are not interchangeable, endpoints differ, and model refs differ (Moonshot uses `moonshot/...`, Kimi Coding uses `kimi-coding/...`).
+Lưu ý: Moonshot và Kimi Coding là các nhà cung cấp riêng biệt. Khóa không thể thay thế cho nhau, các endpoint khác nhau, và tham chiếu mô hình cũng khác nhau (Moonshot sử dụng `moonshot/...`, Kimi Coding sử dụng `kimi-coding/...`).
 
-## Config snippet (Moonshot API)
+## Đoạn cấu hình (Moonshot API)
 
 ```json5
 {
@@ -134,22 +132,21 @@ Note: Moonshot and Kimi Coding are separate providers. Keys are not interchangea
 }
 ```
 
-## Notes
+## Ghi chú
 
-- Moonshot model refs use `moonshot/<modelId>`. Kimi Coding model refs use `kimi-coding/<modelId>`.
-- Override pricing and context metadata in `models.providers` if needed.
-- If Moonshot publishes different context limits for a model, adjust
-  `contextWindow` accordingly.
-- Use `https://api.moonshot.ai/v1` for the international endpoint, and `https://api.moonshot.cn/v1` for the China endpoint.
+- Tham chiếu mô hình Moonshot sử dụng `moonshot/<modelId>`. Tham chiếu mô hình Kimi Coding sử dụng `kimi-coding/<modelId>`.
+- Ghi đè giá cả và metadata ngữ cảnh trong `models.providers` nếu cần.
+- Nếu Moonshot công bố giới hạn ngữ cảnh khác cho một mô hình, điều chỉnh `contextWindow` tương ứng.
+- Sử dụng `https://api.moonshot.ai/v1` cho endpoint quốc tế, và `https://api.moonshot.cn/v1` cho endpoint Trung Quốc.
 
-## Native thinking mode (Moonshot)
+## Chế độ tư duy tự nhiên (Moonshot)
 
-Moonshot Kimi supports binary native thinking:
+Moonshot Kimi hỗ trợ chế độ tư duy tự nhiên nhị phân:
 
 - `thinking: { type: "enabled" }`
 - `thinking: { type: "disabled" }`
 
-Configure it per model via `agents.defaults.models.<provider/model>.params`:
+Cấu hình theo mô hình qua `agents.defaults.models.<provider/model>.params`:
 
 ```json5
 {
@@ -167,9 +164,9 @@ Configure it per model via `agents.defaults.models.<provider/model>.params`:
 }
 ```
 
-OpenClaw also maps runtime `/think` levels for Moonshot:
+OpenClaw cũng ánh xạ các mức `/think` runtime cho Moonshot:
 
 - `/think off` -> `thinking.type=disabled`
-- any non-off thinking level -> `thinking.type=enabled`
+- bất kỳ mức tư duy nào không phải off -> `thinking.type=enabled`
 
-When Moonshot thinking is enabled, `tool_choice` must be `auto` or `none`. OpenClaw normalizes incompatible `tool_choice` values to `auto` for compatibility.
+Khi chế độ tư duy của Moonshot được kích hoạt, `tool_choice` phải là `auto` hoặc `none`. OpenClaw sẽ chuẩn hóa các giá trị `tool_choice` không tương thích thành `auto` để đảm bảo tương thích.

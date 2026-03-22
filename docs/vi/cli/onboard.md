@@ -1,23 +1,23 @@
 ---
-summary: "CLI reference for `openclaw onboard` (interactive onboarding)"
+summary: "Tham khảo CLI cho `openclaw onboard` (hướng dẫn thiết lập tương tác)"
 read_when:
-  - You want guided setup for gateway, workspace, auth, channels, and skills
+  - Bạn muốn thiết lập có hướng dẫn cho gateway, workspace, xác thực, kênh và kỹ năng
 title: "onboard"
 ---
 
 # `openclaw onboard`
 
-Interactive onboarding for local or remote Gateway setup.
+Hướng dẫn thiết lập tương tác cho Gateway cục bộ hoặc từ xa.
 
-## Related guides
+## Hướng dẫn liên quan
 
-- CLI onboarding hub: [Onboarding (CLI)](/start/wizard)
-- Onboarding overview: [Onboarding Overview](/start/onboarding-overview)
-- CLI onboarding reference: [CLI Setup Reference](/start/wizard-cli-reference)
-- CLI automation: [CLI Automation](/start/wizard-cli-automation)
-- macOS onboarding: [Onboarding (macOS App)](/start/onboarding)
+- Trung tâm hướng dẫn CLI: [Onboarding (CLI)](/start/wizard)
+- Tổng quan về onboarding: [Tổng quan Onboarding](/start/onboarding-overview)
+- Tham khảo thiết lập CLI: [Tham khảo Thiết lập CLI](/start/wizard-cli-reference)
+- Tự động hóa CLI: [Tự động hóa CLI](/start/wizard-cli-automation)
+- Onboarding trên macOS: [Onboarding (Ứng dụng macOS)](/start/onboarding)
 
-## Examples
+## Ví dụ
 
 ```bash
 openclaw onboard
@@ -26,10 +26,10 @@ openclaw onboard --flow manual
 openclaw onboard --mode remote --remote-url wss://gateway-host:18789
 ```
 
-For plaintext private-network `ws://` targets (trusted networks only), set
-`OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1` in the onboarding process environment.
+Đối với mục tiêu mạng riêng `ws://` dạng văn bản (chỉ mạng tin cậy), đặt
+`OPENCLAW_ALLOW_INSECURE_PRIVATE_WS=1` trong môi trường quá trình onboarding.
 
-Non-interactive custom provider:
+Nhà cung cấp tùy chỉnh không tương tác:
 
 ```bash
 openclaw onboard --non-interactive \
@@ -41,9 +41,9 @@ openclaw onboard --non-interactive \
   --custom-compatibility openai
 ```
 
-`--custom-api-key` is optional in non-interactive mode. If omitted, onboarding checks `CUSTOM_API_KEY`.
+`--custom-api-key` là tùy chọn trong chế độ không tương tác. Nếu bỏ qua, quá trình onboarding sẽ kiểm tra `CUSTOM_API_KEY`.
 
-Non-interactive Ollama:
+Ollama không tương tác:
 
 ```bash
 openclaw onboard --non-interactive \
@@ -53,9 +53,9 @@ openclaw onboard --non-interactive \
   --accept-risk
 ```
 
-`--custom-base-url` defaults to `http://127.0.0.1:11434`. `--custom-model-id` is optional; if omitted, onboarding uses Ollama's suggested defaults. Cloud model IDs such as `kimi-k2.5:cloud` also work here.
+`--custom-base-url` mặc định là `http://127.0.0.1:11434`. `--custom-model-id` là tùy chọn; nếu bỏ qua, quá trình onboarding sẽ sử dụng mặc định được đề xuất của Ollama. Các ID mô hình đám mây như `kimi-k2.5:cloud` cũng hoạt động ở đây.
 
-Store provider keys as refs instead of plaintext:
+Lưu khóa nhà cung cấp dưới dạng tham chiếu thay vì văn bản:
 
 ```bash
 openclaw onboard --non-interactive \
@@ -64,26 +64,26 @@ openclaw onboard --non-interactive \
   --accept-risk
 ```
 
-With `--secret-input-mode ref`, onboarding writes env-backed refs instead of plaintext key values.
-For auth-profile backed providers this writes `keyRef` entries; for custom providers this writes `models.providers.<id>.apiKey` as an env ref (for example `{ source: "env", provider: "default", id: "CUSTOM_API_KEY" }`).
+Với `--secret-input-mode ref`, quá trình onboarding ghi các tham chiếu dựa trên môi trường thay vì các giá trị khóa dạng văn bản.
+Đối với các nhà cung cấp dựa trên hồ sơ xác thực, điều này ghi các mục `keyRef`; đối với các nhà cung cấp tùy chỉnh, điều này ghi `models.providers.<id>.apiKey` dưới dạng tham chiếu môi trường (ví dụ `{ source: "env", provider: "default", id: "CUSTOM_API_KEY" }`).
 
-Non-interactive `ref` mode contract:
+Hợp đồng chế độ `ref` không tương tác:
 
-- Set the provider env var in the onboarding process environment (for example `OPENAI_API_KEY`).
-- Do not pass inline key flags (for example `--openai-api-key`) unless that env var is also set.
-- If an inline key flag is passed without the required env var, onboarding fails fast with guidance.
+- Đặt biến môi trường nhà cung cấp trong môi trường quá trình onboarding (ví dụ `OPENAI_API_KEY`).
+- Không truyền các cờ khóa nội tuyến (ví dụ `--openai-api-key`) trừ khi biến môi trường đó cũng được đặt.
+- Nếu một cờ khóa nội tuyến được truyền mà không có biến môi trường cần thiết, quá trình onboarding sẽ thất bại nhanh chóng với hướng dẫn.
 
-Gateway token options in non-interactive mode:
+Tùy chọn token Gateway trong chế độ không tương tác:
 
-- `--gateway-auth token --gateway-token <token>` stores a plaintext token.
-- `--gateway-auth token --gateway-token-ref-env <name>` stores `gateway.auth.token` as an env SecretRef.
-- `--gateway-token` and `--gateway-token-ref-env` are mutually exclusive.
-- `--gateway-token-ref-env` requires a non-empty env var in the onboarding process environment.
-- With `--install-daemon`, when token auth requires a token, SecretRef-managed gateway tokens are validated but not persisted as resolved plaintext in supervisor service environment metadata.
-- With `--install-daemon`, if token mode requires a token and the configured token SecretRef is unresolved, onboarding fails closed with remediation guidance.
-- With `--install-daemon`, if both `gateway.auth.token` and `gateway.auth.password` are configured and `gateway.auth.mode` is unset, onboarding blocks install until mode is set explicitly.
+- `--gateway-auth token --gateway-token <token>` lưu trữ một token dạng văn bản.
+- `--gateway-auth token --gateway-token-ref-env <name>` lưu trữ `gateway.auth.token` dưới dạng SecretRef môi trường.
+- `--gateway-token` và `--gateway-token-ref-env` loại trừ lẫn nhau.
+- `--gateway-token-ref-env` yêu cầu một biến môi trường không rỗng trong môi trường quá trình onboarding.
+- Với `--install-daemon`, khi xác thực token yêu cầu một token, các token Gateway được quản lý bởi SecretRef được xác thực nhưng không được lưu trữ dưới dạng văn bản đã giải quyết trong siêu dữ liệu môi trường dịch vụ giám sát.
+- Với `--install-daemon`, nếu chế độ token yêu cầu một token và SecretRef token được cấu hình không được giải quyết, quá trình onboarding sẽ thất bại với hướng dẫn khắc phục.
+- Với `--install-daemon`, nếu cả `gateway.auth.token` và `gateway.auth.password` đều được cấu hình và `gateway.auth.mode` chưa được đặt, quá trình onboarding sẽ chặn cài đặt cho đến khi chế độ được đặt rõ ràng.
 
-Example:
+Ví dụ:
 
 ```bash
 export OPENCLAW_GATEWAY_TOKEN="your-token"
@@ -95,40 +95,40 @@ openclaw onboard --non-interactive \
   --accept-risk
 ```
 
-Non-interactive local gateway health:
+Sức khỏe gateway cục bộ không tương tác:
 
-- Unless you pass `--skip-health`, onboarding waits for a reachable local gateway before it exits successfully.
-- `--install-daemon` starts the managed gateway install path first. Without it, you must already have a local gateway running, for example `openclaw gateway run`.
-- If you only want config/workspace/bootstrap writes in automation, use `--skip-health`.
-- On native Windows, `--install-daemon` tries Scheduled Tasks first and falls back to a per-user Startup-folder login item if task creation is denied.
+- Trừ khi bạn truyền `--skip-health`, quá trình onboarding sẽ chờ một gateway cục bộ có thể truy cập trước khi thoát thành công.
+- `--install-daemon` bắt đầu đường dẫn cài đặt gateway được quản lý trước. Nếu không có nó, bạn phải có một gateway cục bộ đang chạy, ví dụ `openclaw gateway run`.
+- Nếu bạn chỉ muốn ghi cấu hình/workspace/bootstrap trong tự động hóa, sử dụng `--skip-health`.
+- Trên Windows gốc, `--install-daemon` thử Scheduled Tasks trước và quay lại một mục đăng nhập thư mục Startup cho từng người dùng nếu việc tạo tác vụ bị từ chối.
 
-Interactive onboarding behavior with reference mode:
+Hành vi onboarding tương tác với chế độ tham chiếu:
 
-- Choose **Use secret reference** when prompted.
-- Then choose either:
-  - Environment variable
-  - Configured secret provider (`file` or `exec`)
-- Onboarding performs a fast preflight validation before saving the ref.
-  - If validation fails, onboarding shows the error and lets you retry.
+- Chọn **Sử dụng tham chiếu bí mật** khi được nhắc.
+- Sau đó chọn một trong hai:
+  - Biến môi trường
+  - Nhà cung cấp bí mật đã cấu hình (`file` hoặc `exec`)
+- Quá trình onboarding thực hiện xác thực nhanh trước khi lưu tham chiếu.
+  - Nếu xác thực thất bại, quá trình onboarding sẽ hiển thị lỗi và cho phép bạn thử lại.
 
-Non-interactive Z.AI endpoint choices:
+Lựa chọn điểm cuối Z.AI không tương tác:
 
-Note: `--auth-choice zai-api-key` now auto-detects the best Z.AI endpoint for your key (prefers the general API with `zai/glm-5`).
-If you specifically want the GLM Coding Plan endpoints, pick `zai-coding-global` or `zai-coding-cn`.
+Lưu ý: `--auth-choice zai-api-key` hiện tự động phát hiện điểm cuối Z.AI tốt nhất cho khóa của bạn (ưu tiên API chung với `zai/glm-5`).
+Nếu bạn muốn cụ thể các điểm cuối GLM Coding Plan, chọn `zai-coding-global` hoặc `zai-coding-cn`.
 
 ```bash
-# Promptless endpoint selection
+# Lựa chọn điểm cuối không cần nhắc
 openclaw onboard --non-interactive \
   --auth-choice zai-coding-global \
   --zai-api-key "$ZAI_API_KEY"
 
-# Other Z.AI endpoint choices:
+# Các lựa chọn điểm cuối Z.AI khác:
 # --auth-choice zai-coding-cn
 # --auth-choice zai-global
 # --auth-choice zai-cn
 ```
 
-Non-interactive Mistral example:
+Ví dụ Mistral không tương tác:
 
 ```bash
 openclaw onboard --non-interactive \
@@ -136,16 +136,16 @@ openclaw onboard --non-interactive \
   --mistral-api-key "$MISTRAL_API_KEY"
 ```
 
-Flow notes:
+Ghi chú về luồng:
 
-- `quickstart`: minimal prompts, auto-generates a gateway token.
-- `manual`: full prompts for port/bind/auth (alias of `advanced`).
-- Local onboarding DM scope behavior: [CLI Setup Reference](/start/wizard-cli-reference#outputs-and-internals).
-- Fastest first chat: `openclaw dashboard` (Control UI, no channel setup).
-- Custom Provider: connect any OpenAI or Anthropic compatible endpoint,
-  including hosted providers not listed. Use Unknown to auto-detect.
+- `quickstart`: ít nhắc nhở, tự động tạo token gateway.
+- `manual`: nhắc nhở đầy đủ cho port/bind/auth (tên khác của `advanced`).
+- Hành vi phạm vi DM onboarding cục bộ: [Tham khảo Thiết lập CLI](/start/wizard-cli-reference#outputs-and-internals).
+- Chat đầu tiên nhanh nhất: `openclaw dashboard` (Giao diện điều khiển, không cần thiết lập kênh).
+- Nhà cung cấp tùy chỉnh: kết nối bất kỳ điểm cuối tương thích OpenAI hoặc Anthropic nào,
+  bao gồm các nhà cung cấp được lưu trữ không được liệt kê. Sử dụng Unknown để tự động phát hiện.
 
-## Common follow-up commands
+## Các lệnh tiếp theo phổ biến
 
 ```bash
 openclaw configure
@@ -153,5 +153,5 @@ openclaw agents add <name>
 ```
 
 <Note>
-`--json` does not imply non-interactive mode. Use `--non-interactive` for scripts.
+`--json` không ngụ ý chế độ không tương tác. Sử dụng `--non-interactive` cho các script.
 </Note>

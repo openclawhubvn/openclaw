@@ -1,30 +1,28 @@
 ---
 title: "Volcengine (Doubao)"
-summary: "Volcano Engine setup (Doubao models, general + coding endpoints)"
+summary: "Thiết lập Volcano Engine (mô hình Doubao, endpoint tổng quát + mã hóa)"
 read_when:
-  - You want to use Volcano Engine or Doubao models with OpenClaw
-  - You need the Volcengine API key setup
+  - Bạn muốn sử dụng Volcano Engine hoặc mô hình Doubao với OpenClaw
+  - Bạn cần thiết lập khóa API của Volcengine
 ---
 
 # Volcengine (Doubao)
 
-The Volcengine provider gives access to Doubao models and third-party models
-hosted on Volcano Engine, with separate endpoints for general and coding
-workloads.
+Nhà cung cấp Volcengine cho phép truy cập vào các mô hình Doubao và mô hình bên thứ ba được lưu trữ trên Volcano Engine, với các endpoint riêng biệt cho công việc tổng quát và mã hóa.
 
-- Providers: `volcengine` (general) + `volcengine-plan` (coding)
-- Auth: `VOLCANO_ENGINE_API_KEY`
-- API: OpenAI-compatible
+- Nhà cung cấp: `volcengine` (tổng quát) + `volcengine-plan` (mã hóa)
+- Xác thực: `VOLCANO_ENGINE_API_KEY`
+- API: Tương thích với OpenAI
 
-## Quick start
+## Bắt đầu nhanh
 
-1. Set the API key:
+1. Thiết lập khóa API:
 
 ```bash
 openclaw onboard --auth-choice volcengine-api-key
 ```
 
-2. Set a default model:
+2. Thiết lập mô hình mặc định:
 
 ```json5
 {
@@ -36,7 +34,7 @@ openclaw onboard --auth-choice volcengine-api-key
 }
 ```
 
-## Non-interactive example
+## Ví dụ không tương tác
 
 ```bash
 openclaw onboard --non-interactive \
@@ -45,30 +43,26 @@ openclaw onboard --non-interactive \
   --volcengine-api-key "$VOLCANO_ENGINE_API_KEY"
 ```
 
-## Providers and endpoints
+## Nhà cung cấp và endpoint
 
-| Provider          | Endpoint                                  | Use case       |
-| ----------------- | ----------------------------------------- | -------------- |
-| `volcengine`      | `ark.cn-beijing.volces.com/api/v3`        | General models |
-| `volcengine-plan` | `ark.cn-beijing.volces.com/api/coding/v3` | Coding models  |
+| Nhà cung cấp      | Endpoint                                  | Trường hợp sử dụng |
+| ----------------- | ----------------------------------------- | ------------------ |
+| `volcengine`      | `ark.cn-beijing.volces.com/api/v3`        | Mô hình tổng quát  |
+| `volcengine-plan` | `ark.cn-beijing.volces.com/api/coding/v3` | Mô hình mã hóa     |
 
-Both providers are configured from a single API key. Setup registers both
-automatically.
+Cả hai nhà cung cấp đều được cấu hình từ một khóa API duy nhất. Thiết lập sẽ tự động đăng ký cả hai.
 
-## Available models
+## Các mô hình có sẵn
 
-- **doubao-seed-1-8** - Doubao Seed 1.8 (general, default)
-- **doubao-seed-code-preview** - Doubao coding model
-- **ark-code-latest** - Coding plan default
-- **Kimi K2.5** - Moonshot AI via Volcano Engine
-- **GLM-4.7** - GLM via Volcano Engine
-- **DeepSeek V3.2** - DeepSeek via Volcano Engine
+- **doubao-seed-1-8** - Doubao Seed 1.8 (tổng quát, mặc định)
+- **doubao-seed-code-preview** - Mô hình mã hóa Doubao
+- **ark-code-latest** - Mặc định cho kế hoạch mã hóa
+- **Kimi K2.5** - Moonshot AI qua Volcano Engine
+- **GLM-4.7** - GLM qua Volcano Engine
+- **DeepSeek V3.2** - DeepSeek qua Volcano Engine
 
-Most models support text + image input. Context windows range from 128K to 256K
-tokens.
+Hầu hết các mô hình hỗ trợ đầu vào văn bản + hình ảnh. Cửa sổ ngữ cảnh dao động từ 128K đến 256K token.
 
-## Environment note
+## Lưu ý về môi trường
 
-If the Gateway runs as a daemon (launchd/systemd), make sure
-`VOLCANO_ENGINE_API_KEY` is available to that process (for example, in
-`~/.openclaw/.env` or via `env.shellEnv`).
+Nếu Gateway chạy dưới dạng daemon (launchd/systemd), đảm bảo rằng `VOLCANO_ENGINE_API_KEY` có sẵn cho tiến trình đó (ví dụ, trong `~/.openclaw/.env` hoặc thông qua `env.shellEnv`).

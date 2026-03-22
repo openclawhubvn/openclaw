@@ -1,21 +1,21 @@
 ---
-summary: "CLI reference for `openclaw clawbot` (legacy alias namespace)"
+summary: "Tham khảo CLI cho `openclaw clawbot` (không gian tên alias cũ)"
 read_when:
-  - You maintain older scripts using `openclaw clawbot ...`
-  - You need migration guidance to current commands
+  - Bạn duy trì các script cũ sử dụng `openclaw clawbot ...`
+  - Bạn cần hướng dẫn chuyển đổi sang lệnh hiện tại
 title: "clawbot"
 ---
 
 # `openclaw clawbot`
 
-Legacy alias namespace kept for backwards compatibility.
+Không gian tên alias cũ được giữ lại để tương thích ngược.
 
-Current supported alias:
+Alias hiện tại được hỗ trợ:
 
-- `openclaw clawbot qr` (same behavior as [`openclaw qr`](/cli/qr))
+- `openclaw clawbot qr` (có hành vi tương tự như [`openclaw qr`](/cli/qr))
 
-## Migration
+## Chuyển đổi
 
-Prefer modern top-level commands directly:
+Ưu tiên sử dụng các lệnh cấp cao hiện đại trực tiếp:
 
 - `openclaw clawbot qr` -> `openclaw qr`

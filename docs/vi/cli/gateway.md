@@ -1,86 +1,85 @@
 ---
-summary: "OpenClaw Gateway CLI (`openclaw gateway`) — run, query, and discover gateways"
+summary: "OpenClaw Gateway CLI (`openclaw gateway`) — chạy, truy vấn và khám phá các gateway"
 read_when:
-  - Running the Gateway from the CLI (dev or servers)
-  - Debugging Gateway auth, bind modes, and connectivity
-  - Discovering gateways via Bonjour (LAN + tailnet)
+  - Chạy Gateway từ CLI (dev hoặc server)
+  - Gỡ lỗi xác thực Gateway, chế độ bind và kết nối
+  - Khám phá gateway qua Bonjour (LAN + tailnet)
 title: "gateway"
 ---
 
 # Gateway CLI
 
-The Gateway is OpenClaw’s WebSocket server (channels, nodes, sessions, hooks).
+Gateway là máy chủ WebSocket của OpenClaw (channels, nodes, sessions, hooks).
 
-Subcommands in this page live under `openclaw gateway …`.
+Các lệnh con trong trang này nằm dưới `openclaw gateway …`.
 
-Related docs:
+Tài liệu liên quan:
 
 - [/gateway/bonjour](/gateway/bonjour)
 - [/gateway/discovery](/gateway/discovery)
 - [/gateway/configuration](/gateway/configuration)
 
-## Run the Gateway
+## Chạy Gateway
 
-Run a local Gateway process:
+Chạy một tiến trình Gateway cục bộ:
 
 ```bash
 openclaw gateway
 ```
 
-Foreground alias:
+Alias chạy nền trước:
 
 ```bash
 openclaw gateway run
 ```
 
-Notes:
+Lưu ý:
 
-- By default, the Gateway refuses to start unless `gateway.mode=local` is set in `~/.openclaw/openclaw.json`. Use `--allow-unconfigured` for ad-hoc/dev runs.
-- Binding beyond loopback without auth is blocked (safety guardrail).
-- `SIGUSR1` triggers an in-process restart when authorized (`commands.restart` is enabled by default; set `commands.restart: false` to block manual restart, while gateway tool/config apply/update remain allowed).
-- `SIGINT`/`SIGTERM` handlers stop the gateway process, but they don’t restore any custom terminal state. If you wrap the CLI with a TUI or raw-mode input, restore the terminal before exit.
+- Mặc định, Gateway sẽ từ chối khởi động trừ khi `gateway.mode=local` được thiết lập trong `~/.openclaw/openclaw.json`. Sử dụng `--allow-unconfigured` cho các lần chạy ad-hoc/dev.
+- Việc bind ngoài loopback mà không có xác thực sẽ bị chặn (để đảm bảo an toàn).
+- `SIGUSR1` kích hoạt khởi động lại trong tiến trình khi được ủy quyền (`commands.restart` được bật mặc định; đặt `commands.restart: false` để chặn khởi động lại thủ công, trong khi công cụ/config gateway vẫn được phép áp dụng/cập nhật).
+- Các handler `SIGINT`/`SIGTERM` dừng tiến trình gateway, nhưng không khôi phục bất kỳ trạng thái terminal tùy chỉnh nào. Nếu bạn bọc CLI với TUI hoặc đầu vào chế độ thô, hãy khôi phục terminal trước khi thoát.
 
-### Options
+### Tùy chọn
 
-- `--port <port>`: WebSocket port (default comes from config/env; usually `18789`).
-- `--bind <loopback|lan|tailnet|auto|custom>`: listener bind mode.
-- `--auth <token|password>`: auth mode override.
-- `--token <token>`: token override (also sets `OPENCLAW_GATEWAY_TOKEN` for the process).
-- `--password <password>`: password override. Warning: inline passwords can be exposed in local process listings.
-- `--password-file <path>`: read the gateway password from a file.
-- `--tailscale <off|serve|funnel>`: expose the Gateway via Tailscale.
-- `--tailscale-reset-on-exit`: reset Tailscale serve/funnel config on shutdown.
-- `--allow-unconfigured`: allow gateway start without `gateway.mode=local` in config.
-- `--dev`: create a dev config + workspace if missing (skips BOOTSTRAP.md).
-- `--reset`: reset dev config + credentials + sessions + workspace (requires `--dev`).
-- `--force`: kill any existing listener on the selected port before starting.
-- `--verbose`: verbose logs.
-- `--claude-cli-logs`: only show claude-cli logs in the console (and enable its stdout/stderr).
-- `--ws-log <auto|full|compact>`: websocket log style (default `auto`).
-- `--compact`: alias for `--ws-log compact`.
-- `--raw-stream`: log raw model stream events to jsonl.
-- `--raw-stream-path <path>`: raw stream jsonl path.
+- `--port <port>`: cổng WebSocket (mặc định lấy từ config/env; thường là `18789`).
+- `--bind <loopback|lan|tailnet|auto|custom>`: chế độ bind listener.
+- `--auth <token|password>`: ghi đè chế độ xác thực.
+- `--token <token>`: ghi đè token (cũng thiết lập `OPENCLAW_GATEWAY_TOKEN` cho tiến trình).
+- `--password <password>`: ghi đè mật khẩu. Cảnh báo: mật khẩu inline có thể bị lộ trong danh sách tiến trình cục bộ.
+- `--password-file <path>`: đọc mật khẩu gateway từ một file.
+- `--tailscale <off|serve|funnel>`: mở Gateway qua Tailscale.
+- `--tailscale-reset-on-exit`: đặt lại cấu hình serve/funnel Tailscale khi tắt.
+- `--allow-unconfigured`: cho phép khởi động gateway mà không cần `gateway.mode=local` trong config.
+- `--dev`: tạo một config dev + workspace nếu thiếu (bỏ qua BOOTSTRAP.md).
+- `--reset`: đặt lại config dev + thông tin xác thực + sessions + workspace (yêu cầu `--dev`).
+- `--force`: giết bất kỳ listener nào đang tồn tại trên cổng đã chọn trước khi bắt đầu.
+- `--verbose`: log chi tiết.
+- `--claude-cli-logs`: chỉ hiển thị log claude-cli trong console (và bật stdout/stderr của nó).
+- `--ws-log <auto|full|compact>`: kiểu log websocket (mặc định `auto`).
+- `--compact`: alias cho `--ws-log compact`.
+- `--raw-stream`: log sự kiện stream model thô vào jsonl.
+- `--raw-stream-path <path>`: đường dẫn jsonl stream thô.
 
-## Query a running Gateway
+## Truy vấn Gateway đang chạy
 
-All query commands use WebSocket RPC.
+Tất cả các lệnh truy vấn sử dụng WebSocket RPC.
 
-Output modes:
+Chế độ đầu ra:
 
-- Default: human-readable (colored in TTY).
-- `--json`: machine-readable JSON (no styling/spinner).
-- `--no-color` (or `NO_COLOR=1`): disable ANSI while keeping human layout.
+- Mặc định: dễ đọc cho con người (có màu trong TTY).
+- `--json`: JSON dễ đọc cho máy (không có kiểu dáng/spinner).
+- `--no-color` (hoặc `NO_COLOR=1`): tắt ANSI nhưng vẫn giữ bố cục dễ đọc cho con người.
 
-Shared options (where supported):
+Tùy chọn chung (nếu được hỗ trợ):
 
-- `--url <url>`: Gateway WebSocket URL.
-- `--token <token>`: Gateway token.
-- `--password <password>`: Gateway password.
-- `--timeout <ms>`: timeout/budget (varies per command).
-- `--expect-final`: wait for a “final” response (agent calls).
+- `--url <url>`: URL WebSocket của Gateway.
+- `--token <token>`: token của Gateway.
+- `--password <password>`: mật khẩu của Gateway.
+- `--timeout <ms>`: thời gian chờ/ngân sách (thay đổi theo lệnh).
+- `--expect-final`: chờ phản hồi “cuối cùng” (gọi agent).
 
-Note: when you set `--url`, the CLI does not fall back to config or environment credentials.
-Pass `--token` or `--password` explicitly. Missing explicit credentials is an error.
+Lưu ý: khi bạn thiết lập `--url`, CLI không sử dụng dự phòng từ config hoặc thông tin xác thực môi trường. Phải truyền `--token` hoặc `--password` rõ ràng. Thiếu thông tin xác thực rõ ràng là một lỗi.
 
 ### `gateway health`
 
@@ -90,7 +89,7 @@ openclaw gateway health --url ws://127.0.0.1:18789
 
 ### `gateway status`
 
-`gateway status` shows the Gateway service (launchd/systemd/schtasks) plus an optional RPC probe.
+`gateway status` hiển thị dịch vụ Gateway (launchd/systemd/schtasks) cùng với một tùy chọn kiểm tra RPC.
 
 ```bash
 openclaw gateway status
@@ -98,86 +97,86 @@ openclaw gateway status --json
 openclaw gateway status --require-rpc
 ```
 
-Options:
+Tùy chọn:
 
-- `--url <url>`: override the probe URL.
-- `--token <token>`: token auth for the probe.
-- `--password <password>`: password auth for the probe.
-- `--timeout <ms>`: probe timeout (default `10000`).
-- `--no-probe`: skip the RPC probe (service-only view).
-- `--deep`: scan system-level services too.
-- `--require-rpc`: exit non-zero when the RPC probe fails. Cannot be combined with `--no-probe`.
+- `--url <url>`: ghi đè URL kiểm tra.
+- `--token <token>`: xác thực token cho kiểm tra.
+- `--password <password>`: xác thực mật khẩu cho kiểm tra.
+- `--timeout <ms>`: thời gian chờ kiểm tra (mặc định `10000`).
+- `--no-probe`: bỏ qua kiểm tra RPC (chỉ xem dịch vụ).
+- `--deep`: quét cả các dịch vụ cấp hệ thống.
+- `--require-rpc`: thoát với mã khác không khi kiểm tra RPC thất bại. Không thể kết hợp với `--no-probe`.
 
-Notes:
+Lưu ý:
 
-- `gateway status` resolves configured auth SecretRefs for probe auth when possible.
-- If a required auth SecretRef is unresolved in this command path, `gateway status --json` reports `rpc.authWarning` when probe connectivity/auth fails; pass `--token`/`--password` explicitly or resolve the secret source first.
-- If the probe succeeds, unresolved auth-ref warnings are suppressed to avoid false positives.
-- Use `--require-rpc` in scripts and automation when a listening service is not enough and you need the Gateway RPC itself to be healthy.
-- On Linux systemd installs, service auth drift checks read both `Environment=` and `EnvironmentFile=` values from the unit (including `%h`, quoted paths, multiple files, and optional `-` files).
+- `gateway status` giải quyết các SecretRefs xác thực được cấu hình cho kiểm tra xác thực khi có thể.
+- Nếu một SecretRef xác thực cần thiết không được giải quyết trong đường dẫn lệnh này, `gateway status --json` báo cáo `rpc.authWarning` khi kết nối/xác thực kiểm tra thất bại; truyền `--token`/`--password` rõ ràng hoặc giải quyết nguồn bí mật trước.
+- Nếu kiểm tra thành công, cảnh báo auth-ref chưa giải quyết sẽ bị ẩn để tránh dương tính giả.
+- Sử dụng `--require-rpc` trong các script và tự động hóa khi một dịch vụ đang lắng nghe là không đủ và bạn cần Gateway RPC tự nó phải khỏe mạnh.
+- Trên các cài đặt Linux systemd, kiểm tra drift xác thực dịch vụ đọc cả giá trị `Environment=` và `EnvironmentFile=` từ đơn vị (bao gồm `%h`, đường dẫn được trích dẫn, nhiều file và các file `-` tùy chọn).
 
 ### `gateway probe`
 
-`gateway probe` is the “debug everything” command. It always probes:
+`gateway probe` là lệnh “debug mọi thứ”. Nó luôn kiểm tra:
 
-- your configured remote gateway (if set), and
-- localhost (loopback) **even if remote is configured**.
+- gateway từ xa được cấu hình của bạn (nếu có), và
+- localhost (loopback) **ngay cả khi từ xa đã được cấu hình**.
 
-If multiple gateways are reachable, it prints all of them. Multiple gateways are supported when you use isolated profiles/ports (e.g., a rescue bot), but most installs still run a single gateway.
+Nếu nhiều gateway có thể truy cập, nó sẽ in tất cả. Nhiều gateway được hỗ trợ khi bạn sử dụng các profile/cổng cách ly (ví dụ: một rescue bot), nhưng hầu hết các cài đặt vẫn chỉ chạy một gateway.
 
 ```bash
 openclaw gateway probe
 openclaw gateway probe --json
 ```
 
-Interpretation:
+Diễn giải:
 
-- `Reachable: yes` means at least one target accepted a WebSocket connect.
-- `RPC: ok` means detail RPC calls (`health`/`status`/`system-presence`/`config.get`) also succeeded.
-- `RPC: limited - missing scope: operator.read` means connect succeeded but detail RPC is scope-limited. This is reported as **degraded** reachability, not full failure.
-- Exit code is non-zero only when no probed target is reachable.
+- `Reachable: yes` nghĩa là ít nhất một mục tiêu đã chấp nhận kết nối WebSocket.
+- `RPC: ok` nghĩa là các cuộc gọi RPC chi tiết (`health`/`status`/`system-presence`/`config.get`) cũng thành công.
+- `RPC: limited - missing scope: operator.read` nghĩa là kết nối thành công nhưng RPC chi tiết bị giới hạn phạm vi. Điều này được báo cáo là khả năng truy cập **suy giảm**, không phải thất bại hoàn toàn.
+- Mã thoát là khác không chỉ khi không có mục tiêu nào được kiểm tra có thể truy cập.
 
-JSON notes (`--json`):
+Ghi chú JSON (`--json`):
 
-- Top level:
-  - `ok`: at least one target is reachable.
-  - `degraded`: at least one target had scope-limited detail RPC.
-- Per target (`targets[].connect`):
-  - `ok`: reachability after connect + degraded classification.
-  - `rpcOk`: full detail RPC success.
-  - `scopeLimited`: detail RPC failed due to missing operator scope.
+- Cấp cao nhất:
+  - `ok`: ít nhất một mục tiêu có thể truy cập.
+  - `degraded`: ít nhất một mục tiêu có RPC chi tiết bị giới hạn phạm vi.
+- Mỗi mục tiêu (`targets[].connect`):
+  - `ok`: khả năng truy cập sau khi kết nối + phân loại suy giảm.
+  - `rpcOk`: thành công RPC chi tiết đầy đủ.
+  - `scopeLimited`: RPC chi tiết thất bại do thiếu phạm vi operator.
 
-#### Remote over SSH (Mac app parity)
+#### Remote over SSH (tương đương ứng dụng Mac)
 
-The macOS app “Remote over SSH” mode uses a local port-forward so the remote gateway (which may be bound to loopback only) becomes reachable at `ws://127.0.0.1:<port>`.
+Chế độ “Remote over SSH” của ứng dụng macOS sử dụng một port-forward cục bộ để gateway từ xa (có thể chỉ được bind đến loopback) trở nên có thể truy cập tại `ws://127.0.0.1:<port>`.
 
-CLI equivalent:
+Tương đương CLI:
 
 ```bash
 openclaw gateway probe --ssh user@gateway-host
 ```
 
-Options:
+Tùy chọn:
 
-- `--ssh <target>`: `user@host` or `user@host:port` (port defaults to `22`).
-- `--ssh-identity <path>`: identity file.
-- `--ssh-auto`: pick the first discovered gateway host as SSH target (LAN/WAB only).
+- `--ssh <target>`: `user@host` hoặc `user@host:port` (cổng mặc định là `22`).
+- `--ssh-identity <path>`: file danh tính.
+- `--ssh-auto`: chọn host gateway đầu tiên được phát hiện làm mục tiêu SSH (chỉ LAN/WAB).
 
-Config (optional, used as defaults):
+Cấu hình (tùy chọn, dùng làm mặc định):
 
 - `gateway.remote.sshTarget`
 - `gateway.remote.sshIdentity`
 
 ### `gateway call <method>`
 
-Low-level RPC helper.
+Trợ giúp RPC cấp thấp.
 
 ```bash
 openclaw gateway call status
 openclaw gateway call logs.tail --params '{"sinceMs": 60000}'
 ```
 
-## Manage the Gateway service
+## Quản lý dịch vụ Gateway
 
 ```bash
 openclaw gateway install
@@ -187,34 +186,34 @@ openclaw gateway restart
 openclaw gateway uninstall
 ```
 
-Notes:
+Lưu ý:
 
-- `gateway install` supports `--port`, `--runtime`, `--token`, `--force`, `--json`.
-- When token auth requires a token and `gateway.auth.token` is SecretRef-managed, `gateway install` validates that the SecretRef is resolvable but does not persist the resolved token into service environment metadata.
-- If token auth requires a token and the configured token SecretRef is unresolved, install fails closed instead of persisting fallback plaintext.
-- For password auth on `gateway run`, prefer `OPENCLAW_GATEWAY_PASSWORD`, `--password-file`, or a SecretRef-backed `gateway.auth.password` over inline `--password`.
-- In inferred auth mode, shell-only `OPENCLAW_GATEWAY_PASSWORD`/`CLAWDBOT_GATEWAY_PASSWORD` does not relax install token requirements; use durable config (`gateway.auth.password` or config `env`) when installing a managed service.
-- If both `gateway.auth.token` and `gateway.auth.password` are configured and `gateway.auth.mode` is unset, install is blocked until mode is set explicitly.
-- Lifecycle commands accept `--json` for scripting.
+- `gateway install` hỗ trợ `--port`, `--runtime`, `--token`, `--force`, `--json`.
+- Khi xác thực token yêu cầu một token và `gateway.auth.token` được quản lý bởi SecretRef, `gateway install` xác nhận rằng SecretRef có thể giải quyết nhưng không lưu trữ token đã giải quyết vào metadata môi trường dịch vụ.
+- Nếu xác thực token yêu cầu một token và SecretRef token được cấu hình không được giải quyết, cài đặt sẽ thất bại thay vì lưu trữ dự phòng plaintext.
+- Đối với xác thực mật khẩu trên `gateway run`, ưu tiên `OPENCLAW_GATEWAY_PASSWORD`, `--password-file`, hoặc `gateway.auth.password` được hỗ trợ bởi SecretRef hơn là `--password` inline.
+- Trong chế độ xác thực suy luận, chỉ shell `OPENCLAW_GATEWAY_PASSWORD`/`CLAWDBOT_GATEWAY_PASSWORD` không nới lỏng yêu cầu token cài đặt; sử dụng cấu hình bền vững (`gateway.auth.password` hoặc config `env`) khi cài đặt một dịch vụ được quản lý.
+- Nếu cả `gateway.auth.token` và `gateway.auth.password` đều được cấu hình và `gateway.auth.mode` chưa được thiết lập, cài đặt sẽ bị chặn cho đến khi chế độ được thiết lập rõ ràng.
+- Các lệnh vòng đời chấp nhận `--json` cho scripting.
 
-## Discover gateways (Bonjour)
+## Khám phá gateway (Bonjour)
 
-`gateway discover` scans for Gateway beacons (`_openclaw-gw._tcp`).
+`gateway discover` quét các beacon Gateway (`_openclaw-gw._tcp`).
 
 - Multicast DNS-SD: `local.`
-- Unicast DNS-SD (Wide-Area Bonjour): choose a domain (example: `openclaw.internal.`) and set up split DNS + a DNS server; see [/gateway/bonjour](/gateway/bonjour)
+- Unicast DNS-SD (Wide-Area Bonjour): chọn một domain (ví dụ: `openclaw.internal.`) và thiết lập DNS phân chia + một máy chủ DNS; xem [/gateway/bonjour](/gateway/bonjour)
 
-Only gateways with Bonjour discovery enabled (default) advertise the beacon.
+Chỉ các gateway có khám phá Bonjour được bật (mặc định) mới quảng bá beacon.
 
-Wide-Area discovery records include (TXT):
+Các bản ghi khám phá Wide-Area bao gồm (TXT):
 
-- `role` (gateway role hint)
-- `transport` (transport hint, e.g. `gateway`)
-- `gatewayPort` (WebSocket port, usually `18789`)
-- `sshPort` (SSH port; defaults to `22` if not present)
-- `tailnetDns` (MagicDNS hostname, when available)
-- `gatewayTls` / `gatewayTlsSha256` (TLS enabled + cert fingerprint)
-- `cliPath` (optional hint for remote installs)
+- `role` (gợi ý vai trò gateway)
+- `transport` (gợi ý transport, ví dụ: `gateway`)
+- `gatewayPort` (cổng WebSocket, thường là `18789`)
+- `sshPort` (cổng SSH; mặc định là `22` nếu không có)
+- `tailnetDns` (hostname MagicDNS, khi có)
+- `gatewayTls` / `gatewayTlsSha256` (TLS được bật + dấu vân tay chứng chỉ)
+- `cliPath` (gợi ý tùy chọn cho cài đặt từ xa)
 
 ### `gateway discover`
 
@@ -222,12 +221,12 @@ Wide-Area discovery records include (TXT):
 openclaw gateway discover
 ```
 
-Options:
+Tùy chọn:
 
-- `--timeout <ms>`: per-command timeout (browse/resolve); default `2000`.
-- `--json`: machine-readable output (also disables styling/spinner).
+- `--timeout <ms>`: thời gian chờ mỗi lệnh (duyệt/giải quyết); mặc định `2000`.
+- `--json`: đầu ra dễ đọc cho máy (cũng tắt kiểu dáng/spinner).
 
-Examples:
+Ví dụ:
 
 ```bash
 openclaw gateway discover --timeout 4000

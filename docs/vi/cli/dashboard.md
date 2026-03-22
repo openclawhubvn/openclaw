@@ -1,22 +1,22 @@
 ---
-summary: "CLI reference for `openclaw dashboard` (open the Control UI)"
+summary: "Tham khảo CLI cho `openclaw dashboard` (mở Giao diện Điều khiển)"
 read_when:
-  - You want to open the Control UI with your current token
-  - You want to print the URL without launching a browser
+  - Bạn muốn mở Giao diện Điều khiển với token hiện tại
+  - Bạn muốn in URL mà không cần mở trình duyệt
 title: "dashboard"
 ---
 
 # `openclaw dashboard`
 
-Open the Control UI using your current auth.
+Mở Giao diện Điều khiển bằng cách sử dụng xác thực hiện tại.
 
 ```bash
 openclaw dashboard
 openclaw dashboard --no-open
 ```
 
-Notes:
+Ghi chú:
 
-- `dashboard` resolves configured `gateway.auth.token` SecretRefs when possible.
-- For SecretRef-managed tokens (resolved or unresolved), `dashboard` prints/copies/opens a non-tokenized URL to avoid exposing external secrets in terminal output, clipboard history, or browser-launch arguments.
-- If `gateway.auth.token` is SecretRef-managed but unresolved in this command path, the command prints a non-tokenized URL and explicit remediation guidance instead of embedding an invalid token placeholder.
+- `dashboard` sẽ giải quyết các SecretRefs của `gateway.auth.token` đã được cấu hình khi có thể.
+- Đối với các token được quản lý bởi SecretRef (đã giải quyết hoặc chưa), `dashboard` sẽ in/sao chép/mở một URL không chứa token để tránh lộ thông tin bí mật ra ngoài qua đầu ra terminal, lịch sử clipboard, hoặc các tham số mở trình duyệt.
+- Nếu `gateway.auth.token` được quản lý bởi SecretRef nhưng chưa được giải quyết trong đường dẫn lệnh này, lệnh sẽ in một URL không chứa token và cung cấp hướng dẫn khắc phục rõ ràng thay vì nhúng một placeholder token không hợp lệ.

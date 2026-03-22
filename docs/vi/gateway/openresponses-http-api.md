@@ -1,54 +1,52 @@
 ---
-summary: "Expose an OpenResponses-compatible /v1/responses HTTP endpoint from the Gateway"
+summary: "Cung cấp endpoint HTTP /v1/responses tương thích với OpenResponses từ Gateway"
 read_when:
-  - Integrating clients that speak the OpenResponses API
-  - You want item-based inputs, client tool calls, or SSE events
-title: "OpenResponses API"
+  - Tích hợp các client sử dụng API OpenResponses
+  - Cần đầu vào theo từng mục, gọi công cụ client, hoặc sự kiện SSE
+title: "API OpenResponses"
 ---
 
-# OpenResponses API (HTTP)
+# API OpenResponses (HTTP)
 
-OpenClaw’s Gateway can serve an OpenResponses-compatible `POST /v1/responses` endpoint.
+Gateway của OpenClaw có thể cung cấp endpoint `POST /v1/responses` tương thích với OpenResponses.
 
-This endpoint is **disabled by default**. Enable it in config first.
+Endpoint này **mặc định bị vô hiệu hóa**. Cần kích hoạt trong cấu hình trước.
 
 - `POST /v1/responses`
-- Same port as the Gateway (WS + HTTP multiplex): `http://<gateway-host>:<port>/v1/responses`
+- Cùng cổng với Gateway (WS + HTTP multiplex): `http://<gateway-host>:<port>/v1/responses`
 
-Under the hood, requests are executed as a normal Gateway agent run (same codepath as
-`openclaw agent`), so routing/permissions/config match your Gateway.
+Về mặt kỹ thuật, các yêu cầu được thực thi như một lần chạy agent thông thường của Gateway (cùng đường dẫn mã với `openclaw agent`), do đó việc định tuyến/quyền hạn/cấu hình sẽ khớp với Gateway của bạn.
 
-## Authentication, security, and routing
+## Xác thực, bảo mật và định tuyến
 
-Operational behavior matches [OpenAI Chat Completions](/gateway/openai-http-api):
+Hành vi hoạt động tương tự [OpenAI Chat Completions](/gateway/openai-http-api):
 
-- use `Authorization: Bearer <token>` with the normal Gateway auth config
-- treat the endpoint as full operator access for the gateway instance
-- select agents with `model: "openclaw:<agentId>"`, `model: "agent:<agentId>"`, or `x-openclaw-agent-id`
-- use `x-openclaw-session-key` for explicit session routing
+- sử dụng `Authorization: Bearer <token>` với cấu hình xác thực Gateway thông thường
+- coi endpoint này như quyền truy cập đầy đủ cho instance gateway
+- chọn agent với `model: "openclaw:<agentId>"`, `model: "agent:<agentId>"`, hoặc `x-openclaw-agent-id`
+- sử dụng `x-openclaw-session-key` để định tuyến phiên rõ ràng
 
-Enable or disable this endpoint with `gateway.http.endpoints.responses.enabled`.
+Kích hoạt hoặc vô hiệu hóa endpoint này với `gateway.http.endpoints.responses.enabled`.
 
-## Session behavior
+## Hành vi phiên
 
-By default the endpoint is **stateless per request** (a new session key is generated each call).
+Mặc định, endpoint này là **không trạng thái cho mỗi yêu cầu** (một khóa phiên mới được tạo mỗi lần gọi).
 
-If the request includes an OpenResponses `user` string, the Gateway derives a stable session key
-from it, so repeated calls can share an agent session.
+Nếu yêu cầu bao gồm chuỗi `user` của OpenResponses, Gateway sẽ tạo ra một khóa phiên ổn định từ đó, cho phép các lần gọi lặp lại có thể chia sẻ một phiên agent.
 
-## Request shape (supported)
+## Định dạng yêu cầu (hỗ trợ)
 
-The request follows the OpenResponses API with item-based input. Current support:
+Yêu cầu tuân theo API OpenResponses với đầu vào theo từng mục. Hỗ trợ hiện tại:
 
-- `input`: string or array of item objects.
-- `instructions`: merged into the system prompt.
-- `tools`: client tool definitions (function tools).
-- `tool_choice`: filter or require client tools.
-- `stream`: enables SSE streaming.
-- `max_output_tokens`: best-effort output limit (provider dependent).
-- `user`: stable session routing.
+- `input`: chuỗi hoặc mảng các đối tượng mục.
+- `instructions`: được gộp vào lời nhắc hệ thống.
+- `tools`: định nghĩa công cụ client (công cụ chức năng).
+- `tool_choice`: lọc hoặc yêu cầu công cụ client.
+- `stream`: kích hoạt streaming SSE.
+- `max_output_tokens`: giới hạn đầu ra tối đa (phụ thuộc vào nhà cung cấp).
+- `user`: định tuyến phiên ổn định.
 
-Accepted but **currently ignored**:
+Chấp nhận nhưng **hiện tại bị bỏ qua**:
 
 - `max_tool_calls`
 - `reasoning`
@@ -57,19 +55,19 @@ Accepted but **currently ignored**:
 - `previous_response_id`
 - `truncation`
 
-## Items (input)
+## Mục (đầu vào)
 
 ### `message`
 
-Roles: `system`, `developer`, `user`, `assistant`.
+Vai trò: `system`, `developer`, `user`, `assistant`.
 
-- `system` and `developer` are appended to the system prompt.
-- The most recent `user` or `function_call_output` item becomes the “current message.”
-- Earlier user/assistant messages are included as history for context.
+- `system` và `developer` được thêm vào lời nhắc hệ thống.
+- Mục `user` hoặc `function_call_output` gần nhất trở thành "tin nhắn hiện tại."
+- Các tin nhắn user/assistant trước đó được bao gồm như lịch sử để làm ngữ cảnh.
 
-### `function_call_output` (turn-based tools)
+### `function_call_output` (công cụ theo lượt)
 
-Send tool results back to the model:
+Gửi kết quả công cụ trở lại mô hình:
 
 ```json
 {
@@ -79,20 +77,20 @@ Send tool results back to the model:
 }
 ```
 
-### `reasoning` and `item_reference`
+### `reasoning` và `item_reference`
 
-Accepted for schema compatibility but ignored when building the prompt.
+Chấp nhận để tương thích với schema nhưng bị bỏ qua khi xây dựng lời nhắc.
 
-## Tools (client-side function tools)
+## Công cụ (công cụ chức năng phía client)
 
-Provide tools with `tools: [{ type: "function", function: { name, description?, parameters? } }]`.
+Cung cấp công cụ với `tools: [{ type: "function", function: { name, description?, parameters? } }]`.
 
-If the agent decides to call a tool, the response returns a `function_call` output item.
-You then send a follow-up request with `function_call_output` to continue the turn.
+Nếu agent quyết định gọi một công cụ, phản hồi sẽ trả về một mục đầu ra `function_call`.
+Sau đó, bạn gửi một yêu cầu tiếp theo với `function_call_output` để tiếp tục lượt.
 
-## Images (`input_image`)
+## Hình ảnh (`input_image`)
 
-Supports base64 or URL sources:
+Hỗ trợ nguồn base64 hoặc URL:
 
 ```json
 {
@@ -101,12 +99,12 @@ Supports base64 or URL sources:
 }
 ```
 
-Allowed MIME types (current): `image/jpeg`, `image/png`, `image/gif`, `image/webp`, `image/heic`, `image/heif`.
-Max size (current): 10MB.
+Các loại MIME được phép (hiện tại): `image/jpeg`, `image/png`, `image/gif`, `image/webp`, `image/heic`, `image/heif`.
+Kích thước tối đa (hiện tại): 10MB.
 
-## Files (`input_file`)
+## Tệp tin (`input_file`)
 
-Supports base64 or URL sources:
+Hỗ trợ nguồn base64 hoặc URL:
 
 ```json
 {
@@ -120,36 +118,35 @@ Supports base64 or URL sources:
 }
 ```
 
-Allowed MIME types (current): `text/plain`, `text/markdown`, `text/html`, `text/csv`,
+Các loại MIME được phép (hiện tại): `text/plain`, `text/markdown`, `text/html`, `text/csv`,
 `application/json`, `application/pdf`.
 
-Max size (current): 5MB.
+Kích thước tối đa (hiện tại): 5MB.
 
-Current behavior:
+Hành vi hiện tại:
 
-- File content is decoded and added to the **system prompt**, not the user message,
-  so it stays ephemeral (not persisted in session history).
-- PDFs are parsed for text. If little text is found, the first pages are rasterized
-  into images and passed to the model.
+- Nội dung tệp được giải mã và thêm vào **lời nhắc hệ thống**, không phải tin nhắn user,
+  do đó nó không được lưu trữ trong lịch sử phiên.
+- PDF được phân tích để lấy văn bản. Nếu tìm thấy ít văn bản, các trang đầu tiên sẽ được chuyển thành hình ảnh
+  và gửi đến mô hình.
 
-PDF parsing uses the Node-friendly `pdfjs-dist` legacy build (no worker). The modern
-PDF.js build expects browser workers/DOM globals, so it is not used in the Gateway.
+Phân tích PDF sử dụng bản dựng `pdfjs-dist` thân thiện với Node (không có worker). Bản dựng PDF.js hiện đại yêu cầu worker trình duyệt/globals DOM, do đó không được sử dụng trong Gateway.
 
-URL fetch defaults:
+Mặc định khi lấy URL:
 
 - `files.allowUrl`: `true`
 - `images.allowUrl`: `true`
-- `maxUrlParts`: `8` (total URL-based `input_file` + `input_image` parts per request)
-- Requests are guarded (DNS resolution, private IP blocking, redirect caps, timeouts).
-- Optional hostname allowlists are supported per input type (`files.urlAllowlist`, `images.urlAllowlist`).
-  - Exact host: `"cdn.example.com"`
-  - Wildcard subdomains: `"*.assets.example.com"` (does not match apex)
-  - Empty or omitted allowlists mean no hostname allowlist restriction.
-- To disable URL-based fetches entirely, set `files.allowUrl: false` and/or `images.allowUrl: false`.
+- `maxUrlParts`: `8` (tổng số phần `input_file` + `input_image` dựa trên URL cho mỗi yêu cầu)
+- Các yêu cầu được bảo vệ (giải quyết DNS, chặn IP riêng, giới hạn chuyển hướng, timeout).
+- Hỗ trợ danh sách cho phép hostname tùy chọn cho mỗi loại đầu vào (`files.urlAllowlist`, `images.urlAllowlist`).
+  - Host chính xác: `"cdn.example.com"`
+  - Tên miền phụ wildcard: `"*.assets.example.com"` (không khớp với apex)
+  - Danh sách cho phép trống hoặc bị bỏ qua có nghĩa là không có hạn chế danh sách cho phép hostname.
+- Để vô hiệu hóa hoàn toàn việc lấy dựa trên URL, đặt `files.allowUrl: false` và/hoặc `images.allowUrl: false`.
 
-## File + image limits (config)
+## Giới hạn tệp + hình ảnh (cấu hình)
 
-Defaults can be tuned under `gateway.http.endpoints.responses`:
+Mặc định có thể điều chỉnh dưới `gateway.http.endpoints.responses`:
 
 ```json5
 {
@@ -203,7 +200,7 @@ Defaults can be tuned under `gateway.http.endpoints.responses`:
 }
 ```
 
-Defaults when omitted:
+Mặc định khi bị bỏ qua:
 
 - `maxBodyBytes`: 20MB
 - `maxUrlParts`: 8
@@ -217,24 +214,24 @@ Defaults when omitted:
 - `images.maxBytes`: 10MB
 - `images.maxRedirects`: 3
 - `images.timeoutMs`: 10s
-- HEIC/HEIF `input_image` sources are accepted and normalized to JPEG before provider delivery.
+- Nguồn `input_image` HEIC/HEIF được chấp nhận và chuẩn hóa thành JPEG trước khi gửi đến nhà cung cấp.
 
-Security note:
+Lưu ý bảo mật:
 
-- URL allowlists are enforced before fetch and on redirect hops.
-- Allowlisting a hostname does not bypass private/internal IP blocking.
-- For internet-exposed gateways, apply network egress controls in addition to app-level guards.
-  See [Security](/gateway/security).
+- Danh sách cho phép URL được thực thi trước khi lấy và trên các bước chuyển hướng.
+- Cho phép một hostname không bỏ qua việc chặn IP riêng/nội bộ.
+- Đối với các gateway tiếp xúc với internet, áp dụng kiểm soát egress mạng ngoài các biện pháp bảo vệ cấp ứng dụng.
+  Xem [Bảo mật](/gateway/security).
 
 ## Streaming (SSE)
 
-Set `stream: true` to receive Server-Sent Events (SSE):
+Đặt `stream: true` để nhận Server-Sent Events (SSE):
 
 - `Content-Type: text/event-stream`
-- Each event line is `event: <type>` and `data: <json>`
-- Stream ends with `data: [DONE]`
+- Mỗi dòng sự kiện là `event: <type>` và `data: <json>`
+- Stream kết thúc với `data: [DONE]`
 
-Event types currently emitted:
+Các loại sự kiện hiện tại được phát ra:
 
 - `response.created`
 - `response.in_progress`
@@ -245,29 +242,29 @@ Event types currently emitted:
 - `response.content_part.done`
 - `response.output_item.done`
 - `response.completed`
-- `response.failed` (on error)
+- `response.failed` (khi có lỗi)
 
-## Usage
+## Sử dụng
 
-`usage` is populated when the underlying provider reports token counts.
+`usage` được điền khi nhà cung cấp cơ bản báo cáo số lượng token.
 
-## Errors
+## Lỗi
 
-Errors use a JSON object like:
+Lỗi sử dụng một đối tượng JSON như:
 
 ```json
 { "error": { "message": "...", "type": "invalid_request_error" } }
 ```
 
-Common cases:
+Các trường hợp phổ biến:
 
-- `401` missing/invalid auth
-- `400` invalid request body
-- `405` wrong method
+- `401` thiếu/sai xác thực
+- `400` yêu cầu không hợp lệ
+- `405` phương thức sai
 
-## Examples
+## Ví dụ
 
-Non-streaming:
+Không streaming:
 
 ```bash
 curl -sS http://127.0.0.1:18789/v1/responses \

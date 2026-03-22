@@ -1,32 +1,22 @@
----
-summary: "Nodes: pairing, capabilities, permissions, and CLI helpers for canvas/camera/screen/device/notifications/system"
-read_when:
-  - Pairing iOS/Android nodes to a gateway
-  - Using node canvas/camera for agent context
-  - Adding new node commands or CLI helpers
-title: "Nodes"
----
-
 # Nodes
 
-A **node** is a companion device (macOS/iOS/Android/headless) that connects to the Gateway **WebSocket** (same port as operators) with `role: "node"` and exposes a command surface (e.g. `canvas.*`, `camera.*`, `device.*`, `notifications.*`, `system.*`) via `node.invoke`. Protocol details: [Gateway protocol](/gateway/protocol).
+**Node** là một thiết bị phụ trợ (macOS/iOS/Android/headless) kết nối với Gateway qua **WebSocket** (cùng cổng với operators) với `role: "node"` và cung cấp một bề mặt lệnh (ví dụ: `canvas.*`, `camera.*`, `device.*`, `notifications.*`, `system.*`) thông qua `node.invoke`. Chi tiết giao thức: [Gateway protocol](/gateway/protocol).
 
-Legacy transport: [Bridge protocol](/gateway/bridge-protocol) (TCP JSONL; deprecated/removed for current nodes).
+Giao thức cũ: [Bridge protocol](/gateway/bridge-protocol) (TCP JSONL; đã ngừng hỗ trợ cho các node hiện tại).
 
-macOS can also run in **node mode**: the menubar app connects to the Gateway’s WS server and exposes its local canvas/camera commands as a node (so `openclaw nodes …` works against this Mac).
+macOS cũng có thể chạy ở chế độ **node mode**: ứng dụng menubar kết nối với WS server của Gateway và cung cấp các lệnh canvas/camera cục bộ như một node (vì vậy `openclaw nodes …` hoạt động trên máy Mac này).
 
-Notes:
+Lưu ý:
 
-- Nodes are **peripherals**, not gateways. They don’t run the gateway service.
-- Telegram/WhatsApp/etc. messages land on the **gateway**, not on nodes.
-- Troubleshooting runbook: [/nodes/troubleshooting](/nodes/troubleshooting)
+- Nodes là **thiết bị ngoại vi**, không phải gateways. Chúng không chạy dịch vụ gateway.
+- Tin nhắn Telegram/WhatsApp/v.v. đến trên **gateway**, không phải trên nodes.
+- Hướng dẫn khắc phục sự cố: [/nodes/troubleshooting](/nodes/troubleshooting)
 
-## Pairing + status
+## Ghép đôi + trạng thái
 
-**WS nodes use device pairing.** Nodes present a device identity during `connect`; the Gateway
-creates a device pairing request for `role: node`. Approve via the devices CLI (or UI).
+**WS nodes sử dụng ghép đôi thiết bị.** Nodes trình bày một danh tính thiết bị trong quá trình `connect`; Gateway tạo một yêu cầu ghép đôi thiết bị cho `role: node`. Phê duyệt thông qua CLI của thiết bị (hoặc UI).
 
-Quick CLI:
+CLI nhanh:
 
 ```bash
 openclaw devices list
@@ -36,82 +26,71 @@ openclaw nodes status
 openclaw nodes describe --node <idOrNameOrIp>
 ```
 
-If a node retries with changed auth details (role/scopes/public key), the prior
-pending request is superseded and a new `requestId` is created. Re-run
-`openclaw devices list` before approving.
+Nếu một node thử lại với thông tin xác thực đã thay đổi (role/scopes/public key), yêu cầu đang chờ trước đó sẽ bị thay thế và một `requestId` mới được tạo. Chạy lại `openclaw devices list` trước khi phê duyệt.
 
-Notes:
+Lưu ý:
 
-- `nodes status` marks a node as **paired** when its device pairing role includes `node`.
-- `node.pair.*` (CLI: `openclaw nodes pending/approve/reject`) is a separate gateway-owned
-  node pairing store; it does **not** gate the WS `connect` handshake.
+- `nodes status` đánh dấu một node là **paired** khi vai trò ghép đôi thiết bị của nó bao gồm `node`.
+- `node.pair.*` (CLI: `openclaw nodes pending/approve/reject`) là một kho ghép đôi node thuộc sở hữu của gateway riêng biệt; nó **không** kiểm soát quá trình bắt tay WS `connect`.
 
-## Remote node host (system.run)
+## Máy chủ node từ xa (system.run)
 
-Use a **node host** when your Gateway runs on one machine and you want commands
-to execute on another. The model still talks to the **gateway**; the gateway
-forwards `exec` calls to the **node host** when `host=node` is selected.
+Sử dụng **node host** khi Gateway của bạn chạy trên một máy và bạn muốn các lệnh được thực thi trên máy khác. Mô hình vẫn nói chuyện với **gateway**; gateway chuyển tiếp các cuộc gọi `exec` đến **node host** khi `host=node` được chọn.
 
-### What runs where
+### Chạy cái gì ở đâu
 
-- **Gateway host**: receives messages, runs the model, routes tool calls.
-- **Node host**: executes `system.run`/`system.which` on the node machine.
-- **Approvals**: enforced on the node host via `~/.openclaw/exec-approvals.json`.
+- **Gateway host**: nhận tin nhắn, chạy mô hình, định tuyến các cuộc gọi công cụ.
+- **Node host**: thực thi `system.run`/`system.which` trên máy node.
+- **Phê duyệt**: được thực thi trên node host qua `~/.openclaw/exec-approvals.json`.
 
-Approval note:
+Lưu ý phê duyệt:
 
-- Approval-backed node runs bind exact request context.
-- For direct shell/runtime file executions, OpenClaw also best-effort binds one concrete local
-  file operand and denies the run if that file changes before execution.
-- If OpenClaw cannot identify exactly one concrete local file for an interpreter/runtime command,
-  approval-backed execution is denied instead of pretending full runtime coverage. Use sandboxing,
-  separate hosts, or an explicit trusted allowlist/full workflow for broader interpreter semantics.
+- Các lần chạy node dựa trên phê duyệt ràng buộc ngữ cảnh yêu cầu chính xác.
+- Đối với các thực thi file shell/runtime trực tiếp, OpenClaw cũng cố gắng ràng buộc một file cục bộ cụ thể và từ chối chạy nếu file đó thay đổi trước khi thực thi.
+- Nếu OpenClaw không thể xác định chính xác một file cục bộ cụ thể cho một lệnh interpreter/runtime, thực thi dựa trên phê duyệt bị từ chối thay vì giả vờ bao phủ toàn bộ runtime. Sử dụng sandboxing, các host riêng biệt, hoặc một danh sách cho phép tin cậy rõ ràng/toàn bộ quy trình làm việc cho các ngữ nghĩa interpreter rộng hơn.
 
-### Start a node host (foreground)
+### Khởi động một node host (foreground)
 
-On the node machine:
+Trên máy node:
 
 ```bash
 openclaw node run --host <gateway-host> --port 18789 --display-name "Build Node"
 ```
 
-### Remote gateway via SSH tunnel (loopback bind)
+### Gateway từ xa qua SSH tunnel (loopback bind)
 
-If the Gateway binds to loopback (`gateway.bind=loopback`, default in local mode),
-remote node hosts cannot connect directly. Create an SSH tunnel and point the
-node host at the local end of the tunnel.
+Nếu Gateway bind vào loopback (`gateway.bind=loopback`, mặc định trong chế độ local), các node host từ xa không thể kết nối trực tiếp. Tạo một SSH tunnel và chỉ định node host tại đầu cục bộ của tunnel.
 
-Example (node host -> gateway host):
+Ví dụ (node host -> gateway host):
 
 ```bash
-# Terminal A (keep running): forward local 18790 -> gateway 127.0.0.1:18789
+# Terminal A (giữ chạy): chuyển tiếp local 18790 -> gateway 127.0.0.1:18789
 ssh -N -L 18790:127.0.0.1:18789 user@gateway-host
 
-# Terminal B: export the gateway token and connect through the tunnel
+# Terminal B: xuất token gateway và kết nối qua tunnel
 export OPENCLAW_GATEWAY_TOKEN="<gateway-token>"
 openclaw node run --host 127.0.0.1 --port 18790 --display-name "Build Node"
 ```
 
-Notes:
+Lưu ý:
 
-- `openclaw node run` supports token or password auth.
-- Env vars are preferred: `OPENCLAW_GATEWAY_TOKEN` / `OPENCLAW_GATEWAY_PASSWORD`.
-- Config fallback is `gateway.auth.token` / `gateway.auth.password`.
-- In local mode, node host intentionally ignores `gateway.remote.token` / `gateway.remote.password`.
-- In remote mode, `gateway.remote.token` / `gateway.remote.password` are eligible per remote precedence rules.
-- If active local `gateway.auth.*` SecretRefs are configured but unresolved, node-host auth fails closed.
-- Legacy `CLAWDBOT_GATEWAY_*` env vars are intentionally ignored by node-host auth resolution.
+- `openclaw node run` hỗ trợ xác thực bằng token hoặc mật khẩu.
+- Biến môi trường được ưu tiên: `OPENCLAW_GATEWAY_TOKEN` / `OPENCLAW_GATEWAY_PASSWORD`.
+- Cấu hình dự phòng là `gateway.auth.token` / `gateway.auth.password`.
+- Trong chế độ local, node host cố ý bỏ qua `gateway.remote.token` / `gateway.remote.password`.
+- Trong chế độ remote, `gateway.remote.token` / `gateway.remote.password` đủ điều kiện theo quy tắc ưu tiên từ xa.
+- Nếu các SecretRefs `gateway.auth.*` cục bộ đang hoạt động được cấu hình nhưng không được giải quyết, xác thực node-host sẽ thất bại.
 
-### Start a node host (service)
+### Khởi động một node host (service)
 
 ```bash
 openclaw node install --host <gateway-host> --port 18789 --display-name "Build Node"
 openclaw node restart
 ```
 
-### Pair + name
+### Ghép đôi + đặt tên
 
-On the gateway host:
+Trên gateway host:
 
 ```bash
 openclaw devices list
@@ -119,28 +98,27 @@ openclaw devices approve <requestId>
 openclaw nodes status
 ```
 
-If the node retries with changed auth details, re-run `openclaw devices list`
-and approve the current `requestId`.
+Nếu node thử lại với thông tin xác thực đã thay đổi, chạy lại `openclaw devices list` và phê duyệt `requestId` hiện tại.
 
-Naming options:
+Tùy chọn đặt tên:
 
-- `--display-name` on `openclaw node run` / `openclaw node install` (persists in `~/.openclaw/node.json` on the node).
-- `openclaw nodes rename --node <id|name|ip> --name "Build Node"` (gateway override).
+- `--display-name` trên `openclaw node run` / `openclaw node install` (lưu trữ trong `~/.openclaw/node.json` trên node).
+- `openclaw nodes rename --node <id|name|ip> --name "Build Node"` (ghi đè trên gateway).
 
-### Allowlist the commands
+### Danh sách cho phép các lệnh
 
-Exec approvals are **per node host**. Add allowlist entries from the gateway:
+Phê duyệt thực thi là **mỗi node host**. Thêm các mục danh sách cho phép từ gateway:
 
 ```bash
 openclaw approvals allowlist add --node <id|name|ip> "/usr/bin/uname"
 openclaw approvals allowlist add --node <id|name|ip> "/usr/bin/sw_vers"
 ```
 
-Approvals live on the node host at `~/.openclaw/exec-approvals.json`.
+Phê duyệt được lưu trữ trên node host tại `~/.openclaw/exec-approvals.json`.
 
-### Point exec at the node
+### Chỉ định thực thi tại node
 
-Configure defaults (gateway config):
+Cấu hình mặc định (cấu hình gateway):
 
 ```bash
 openclaw config set tools.exec.host node
@@ -148,43 +126,42 @@ openclaw config set tools.exec.security allowlist
 openclaw config set tools.exec.node "<id-or-name>"
 ```
 
-Or per session:
+Hoặc theo phiên:
 
 ```
 /exec host=node security=allowlist node=<id-or-name>
 ```
 
-Once set, any `exec` call with `host=node` runs on the node host (subject to the
-node allowlist/approvals).
+Khi đã thiết lập, bất kỳ cuộc gọi `exec` nào với `host=node` sẽ chạy trên node host (tuân theo danh sách cho phép/phê duyệt của node).
 
-Related:
+Liên quan:
 
 - [Node host CLI](/cli/node)
 - [Exec tool](/tools/exec)
 - [Exec approvals](/tools/exec-approvals)
 
-## Invoking commands
+## Thực thi lệnh
 
-Low-level (raw RPC):
+Cấp thấp (raw RPC):
 
 ```bash
 openclaw nodes invoke --node <idOrNameOrIp> --command canvas.eval --params '{"javaScript":"location.href"}'
 ```
 
-Higher-level helpers exist for the common “give the agent a MEDIA attachment” workflows.
+Có các trợ giúp cấp cao hơn cho các quy trình làm việc phổ biến “cung cấp cho agent một tệp đính kèm MEDIA”.
 
-## Screenshots (canvas snapshots)
+## Ảnh chụp màn hình (canvas snapshots)
 
-If the node is showing the Canvas (WebView), `canvas.snapshot` returns `{ format, base64 }`.
+Nếu node đang hiển thị Canvas (WebView), `canvas.snapshot` trả về `{ format, base64 }`.
 
-CLI helper (writes to a temp file and prints `MEDIA:<path>`):
+Trợ giúp CLI (ghi vào một file tạm và in `MEDIA:<path>`):
 
 ```bash
 openclaw nodes canvas snapshot --node <idOrNameOrIp> --format png
 openclaw nodes canvas snapshot --node <idOrNameOrIp> --format jpg --max-width 1200 --quality 0.9
 ```
 
-### Canvas controls
+### Điều khiển Canvas
 
 ```bash
 openclaw nodes canvas present --node <idOrNameOrIp> --target https://example.com
@@ -193,10 +170,10 @@ openclaw nodes canvas navigate https://example.com --node <idOrNameOrIp>
 openclaw nodes canvas eval --node <idOrNameOrIp> --js "document.title"
 ```
 
-Notes:
+Lưu ý:
 
-- `canvas present` accepts URLs or local file paths (`--target`), plus optional `--x/--y/--width/--height` for positioning.
-- `canvas eval` accepts inline JS (`--js`) or a positional arg.
+- `canvas present` chấp nhận URL hoặc đường dẫn file cục bộ (`--target`), cùng với tùy chọn `--x/--y/--width/--height` để định vị.
+- `canvas eval` chấp nhận JS inline (`--js`) hoặc một đối số vị trí.
 
 ### A2UI (Canvas)
 
@@ -206,86 +183,86 @@ openclaw nodes canvas a2ui push --node <idOrNameOrIp> --jsonl ./payload.jsonl
 openclaw nodes canvas a2ui reset --node <idOrNameOrIp>
 ```
 
-Notes:
+Lưu ý:
 
-- Only A2UI v0.8 JSONL is supported (v0.9/createSurface is rejected).
+- Chỉ hỗ trợ A2UI v0.8 JSONL (v0.9/createSurface bị từ chối).
 
-## Photos + videos (node camera)
+## Ảnh + video (node camera)
 
-Photos (`jpg`):
+Ảnh (`jpg`):
 
 ```bash
 openclaw nodes camera list --node <idOrNameOrIp>
-openclaw nodes camera snap --node <idOrNameOrIp>            # default: both facings (2 MEDIA lines)
+openclaw nodes camera snap --node <idOrNameOrIp>            # mặc định: cả hai mặt (2 dòng MEDIA)
 openclaw nodes camera snap --node <idOrNameOrIp> --facing front
 ```
 
-Video clips (`mp4`):
+Đoạn video (`mp4`):
 
 ```bash
 openclaw nodes camera clip --node <idOrNameOrIp> --duration 10s
 openclaw nodes camera clip --node <idOrNameOrIp> --duration 3000 --no-audio
 ```
 
-Notes:
+Lưu ý:
 
-- The node must be **foregrounded** for `canvas.*` and `camera.*` (background calls return `NODE_BACKGROUND_UNAVAILABLE`).
-- Clip duration is clamped (currently `<= 60s`) to avoid oversized base64 payloads.
-- Android will prompt for `CAMERA`/`RECORD_AUDIO` permissions when possible; denied permissions fail with `*_PERMISSION_REQUIRED`.
+- Node phải được **foregrounded** cho `canvas.*` và `camera.*` (các cuộc gọi nền trả về `NODE_BACKGROUND_UNAVAILABLE`).
+- Thời lượng clip bị giới hạn (hiện tại `<= 60s`) để tránh payload base64 quá lớn.
+- Android sẽ yêu cầu quyền `CAMERA`/`RECORD_AUDIO` khi có thể; quyền bị từ chối sẽ thất bại với `*_PERMISSION_REQUIRED`.
 
-## Screen recordings (nodes)
+## Ghi màn hình (nodes)
 
-Supported nodes expose `screen.record` (mp4). Example:
+Các node được hỗ trợ cung cấp `screen.record` (mp4). Ví dụ:
 
 ```bash
 openclaw nodes screen record --node <idOrNameOrIp> --duration 10s --fps 10
 openclaw nodes screen record --node <idOrNameOrIp> --duration 10s --fps 10 --no-audio
 ```
 
-Notes:
+Lưu ý:
 
-- `screen.record` availability depends on node platform.
-- Screen recordings are clamped to `<= 60s`.
-- `--no-audio` disables microphone capture on supported platforms.
-- Use `--screen <index>` to select a display when multiple screens are available.
+- Khả năng `screen.record` phụ thuộc vào nền tảng node.
+- Ghi màn hình bị giới hạn ở `<= 60s`.
+- `--no-audio` vô hiệu hóa ghi âm micro trên các nền tảng được hỗ trợ.
+- Sử dụng `--screen <index>` để chọn màn hình khi có nhiều màn hình.
 
-## Location (nodes)
+## Vị trí (nodes)
 
-Nodes expose `location.get` when Location is enabled in settings.
+Nodes cung cấp `location.get` khi Vị trí được bật trong cài đặt.
 
-CLI helper:
+Trợ giúp CLI:
 
 ```bash
 openclaw nodes location get --node <idOrNameOrIp>
 openclaw nodes location get --node <idOrNameOrIp> --accuracy precise --max-age 15000 --location-timeout 10000
 ```
 
-Notes:
+Lưu ý:
 
-- Location is **off by default**.
-- “Always” requires system permission; background fetch is best-effort.
-- The response includes lat/lon, accuracy (meters), and timestamp.
+- Vị trí **tắt theo mặc định**.
+- “Luôn luôn” yêu cầu quyền hệ thống; lấy dữ liệu nền là nỗ lực tốt nhất.
+- Phản hồi bao gồm lat/lon, độ chính xác (mét), và dấu thời gian.
 
 ## SMS (Android nodes)
 
-Android nodes can expose `sms.send` when the user grants **SMS** permission and the device supports telephony.
+Các node Android có thể cung cấp `sms.send` khi người dùng cấp quyền **SMS** và thiết bị hỗ trợ điện thoại.
 
-Low-level invoke:
+Thực thi cấp thấp:
 
 ```bash
 openclaw nodes invoke --node <idOrNameOrIp> --command sms.send --params '{"to":"+15555550123","message":"Hello from OpenClaw"}'
 ```
 
-Notes:
+Lưu ý:
 
-- The permission prompt must be accepted on the Android device before the capability is advertised.
-- Wi-Fi-only devices without telephony will not advertise `sms.send`.
+- Lời nhắc quyền phải được chấp nhận trên thiết bị Android trước khi khả năng này được quảng cáo.
+- Các thiết bị chỉ có Wi-Fi không có điện thoại sẽ không quảng cáo `sms.send`.
 
-## Android device + personal data commands
+## Thiết bị Android + lệnh dữ liệu cá nhân
 
-Android nodes can advertise additional command families when the corresponding capabilities are enabled.
+Các node Android có thể quảng cáo các nhóm lệnh bổ sung khi các khả năng tương ứng được bật.
 
-Available families:
+Các nhóm có sẵn:
 
 - `device.status`, `device.info`, `device.permissions`, `device.health`
 - `notifications.list`, `notifications.actions`
@@ -296,7 +273,7 @@ Available families:
 - `sms.search`
 - `motion.activity`, `motion.pedometer`
 
-Example invokes:
+Ví dụ thực thi:
 
 ```bash
 openclaw nodes invoke --node <idOrNameOrIp> --command device.status --params '{}'
@@ -304,90 +281,90 @@ openclaw nodes invoke --node <idOrNameOrIp> --command notifications.list --param
 openclaw nodes invoke --node <idOrNameOrIp> --command photos.latest --params '{"limit":1}'
 ```
 
-Notes:
+Lưu ý:
 
-- Motion commands are capability-gated by available sensors.
+- Các lệnh chuyển động được kiểm soát bởi các cảm biến có sẵn.
 
-## System commands (node host / mac node)
+## Lệnh hệ thống (node host / mac node)
 
-The macOS node exposes `system.run`, `system.notify`, and `system.execApprovals.get/set`.
-The headless node host exposes `system.run`, `system.which`, and `system.execApprovals.get/set`.
+Node macOS cung cấp `system.run`, `system.notify`, và `system.execApprovals.get/set`.
+Node host headless cung cấp `system.run`, `system.which`, và `system.execApprovals.get/set`.
 
-Examples:
+Ví dụ:
 
 ```bash
 openclaw nodes run --node <idOrNameOrIp> -- echo "Hello from mac node"
 openclaw nodes notify --node <idOrNameOrIp> --title "Ping" --body "Gateway ready"
 ```
 
-Notes:
+Lưu ý:
 
-- `system.run` returns stdout/stderr/exit code in the payload.
-- `system.notify` respects notification permission state on the macOS app.
-- Unrecognized node `platform` / `deviceFamily` metadata uses a conservative default allowlist that excludes `system.run` and `system.which`. If you intentionally need those commands for an unknown platform, add them explicitly via `gateway.nodes.allowCommands`.
-- `system.run` supports `--cwd`, `--env KEY=VAL`, `--command-timeout`, and `--needs-screen-recording`.
-- For shell wrappers (`bash|sh|zsh ... -c/-lc`), request-scoped `--env` values are reduced to an explicit allowlist (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`).
-- For allow-always decisions in allowlist mode, known dispatch wrappers (`env`, `nice`, `nohup`, `stdbuf`, `timeout`) persist inner executable paths instead of wrapper paths. If unwrapping is not safe, no allowlist entry is persisted automatically.
-- On Windows node hosts in allowlist mode, shell-wrapper runs via `cmd.exe /c` require approval (allowlist entry alone does not auto-allow the wrapper form).
-- `system.notify` supports `--priority <passive|active|timeSensitive>` and `--delivery <system|overlay|auto>`.
-- Node hosts ignore `PATH` overrides and strip dangerous startup/shell keys (`DYLD_*`, `LD_*`, `NODE_OPTIONS`, `PYTHON*`, `PERL*`, `RUBYOPT`, `SHELLOPTS`, `PS4`). If you need extra PATH entries, configure the node host service environment (or install tools in standard locations) instead of passing `PATH` via `--env`.
-- On macOS node mode, `system.run` is gated by exec approvals in the macOS app (Settings → Exec approvals).
-  Ask/allowlist/full behave the same as the headless node host; denied prompts return `SYSTEM_RUN_DENIED`.
-- On headless node host, `system.run` is gated by exec approvals (`~/.openclaw/exec-approvals.json`).
+- `system.run` trả về stdout/stderr/mã thoát trong payload.
+- `system.notify` tôn trọng trạng thái quyền thông báo trên ứng dụng macOS.
+- Metadata `platform` / `deviceFamily` không được nhận dạng của node sử dụng danh sách cho phép mặc định bảo thủ loại trừ `system.run` và `system.which`. Nếu bạn cần các lệnh đó cho một nền tảng không xác định, thêm chúng rõ ràng qua `gateway.nodes.allowCommands`.
+- `system.run` hỗ trợ `--cwd`, `--env KEY=VAL`, `--command-timeout`, và `--needs-screen-recording`.
+- Đối với các shell wrappers (`bash|sh|zsh ... -c/-lc`), các giá trị `--env` theo yêu cầu được giảm xuống một danh sách cho phép rõ ràng (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`).
+- Đối với các quyết định cho phép luôn trong chế độ danh sách cho phép, các wrapper dispatch đã biết (`env`, `nice`, `nohup`, `stdbuf`, `timeout`) lưu trữ các đường dẫn thực thi bên trong thay vì các đường dẫn wrapper. Nếu không thể mở gói an toàn, không có mục danh sách cho phép nào được lưu trữ tự động.
+- Trên các node host Windows trong chế độ danh sách cho phép, các lần chạy shell-wrapper qua `cmd.exe /c` yêu cầu phê duyệt (mục danh sách cho phép một mình không tự động cho phép dạng wrapper).
+- `system.notify` hỗ trợ `--priority <passive|active|timeSensitive>` và `--delivery <system|overlay|auto>`.
+- Các node host bỏ qua các ghi đè `PATH` và loại bỏ các khóa khởi động/shell nguy hiểm (`DYLD_*`, `LD_*`, `NODE_OPTIONS`, `PYTHON*`, `PERL*`, `RUBYOPT`, `SHELLOPTS`, `PS4`). Nếu bạn cần thêm các mục PATH, cấu hình môi trường dịch vụ node host (hoặc cài đặt công cụ ở các vị trí tiêu chuẩn) thay vì truyền `PATH` qua `--env`.
+- Trên chế độ node macOS, `system.run` được kiểm soát bởi các phê duyệt thực thi trong ứng dụng macOS (Cài đặt → Phê duyệt thực thi).
+  Hỏi/danh sách cho phép/toàn bộ hoạt động giống như node host headless; các lời nhắc bị từ chối trả về `SYSTEM_RUN_DENIED`.
+- Trên node host headless, `system.run` được kiểm soát bởi các phê duyệt thực thi (`~/.openclaw/exec-approvals.json`).
 
-## Exec node binding
+## Ràng buộc node thực thi
 
-When multiple nodes are available, you can bind exec to a specific node.
-This sets the default node for `exec host=node` (and can be overridden per agent).
+Khi có nhiều node, bạn có thể ràng buộc thực thi vào một node cụ thể.
+Điều này đặt node mặc định cho `exec host=node` (và có thể được ghi đè theo agent).
 
-Global default:
+Mặc định toàn cầu:
 
 ```bash
 openclaw config set tools.exec.node "node-id-or-name"
 ```
 
-Per-agent override:
+Ghi đè theo agent:
 
 ```bash
 openclaw config get agents.list
 openclaw config set agents.list[0].tools.exec.node "node-id-or-name"
 ```
 
-Unset to allow any node:
+Bỏ thiết lập để cho phép bất kỳ node nào:
 
 ```bash
 openclaw config unset tools.exec.node
 openclaw config unset agents.list[0].tools.exec.node
 ```
 
-## Permissions map
+## Bản đồ quyền
 
-Nodes may include a `permissions` map in `node.list` / `node.describe`, keyed by permission name (e.g. `screenRecording`, `accessibility`) with boolean values (`true` = granted).
+Nodes có thể bao gồm một bản đồ `permissions` trong `node.list` / `node.describe`, được khóa theo tên quyền (ví dụ: `screenRecording`, `accessibility`) với các giá trị boolean (`true` = được cấp).
 
-## Headless node host (cross-platform)
+## Node host headless (đa nền tảng)
 
-OpenClaw can run a **headless node host** (no UI) that connects to the Gateway
-WebSocket and exposes `system.run` / `system.which`. This is useful on Linux/Windows
-or for running a minimal node alongside a server.
+OpenClaw có thể chạy một **node host headless** (không có UI) kết nối với Gateway
+WebSocket và cung cấp `system.run` / `system.which`. Điều này hữu ích trên Linux/Windows
+hoặc để chạy một node tối thiểu cùng với một server.
 
-Start it:
+Khởi động nó:
 
 ```bash
 openclaw node run --host <gateway-host> --port 18789
 ```
 
-Notes:
+Lưu ý:
 
-- Pairing is still required (the Gateway will show a device pairing prompt).
-- The node host stores its node id, token, display name, and gateway connection info in `~/.openclaw/node.json`.
-- Exec approvals are enforced locally via `~/.openclaw/exec-approvals.json`
-  (see [Exec approvals](/tools/exec-approvals)).
-- On macOS, the headless node host executes `system.run` locally by default. Set
-  `OPENCLAW_NODE_EXEC_HOST=app` to route `system.run` through the companion app exec host; add
-  `OPENCLAW_NODE_EXEC_FALLBACK=0` to require the app host and fail closed if it is unavailable.
-- Add `--tls` / `--tls-fingerprint` when the Gateway WS uses TLS.
+- Ghép đôi vẫn được yêu cầu (Gateway sẽ hiển thị một lời nhắc ghép đôi thiết bị).
+- Node host lưu trữ id node, token, tên hiển thị, và thông tin kết nối gateway trong `~/.openclaw/node.json`.
+- Phê duyệt thực thi được thực thi cục bộ qua `~/.openclaw/exec-approvals.json`
+  (xem [Exec approvals](/tools/exec-approvals)).
+- Trên macOS, node host headless thực thi `system.run` cục bộ theo mặc định. Đặt
+  `OPENCLAW_NODE_EXEC_HOST=app` để định tuyến `system.run` qua host thực thi ứng dụng đồng hành; thêm
+  `OPENCLAW_NODE_EXEC_FALLBACK=0` để yêu cầu host ứng dụng và thất bại nếu nó không khả dụng.
+- Thêm `--tls` / `--tls-fingerprint` khi Gateway WS sử dụng TLS.
 
-## Mac node mode
+## Chế độ node Mac
 
-- The macOS menubar app connects to the Gateway WS server as a node (so `openclaw nodes …` works against this Mac).
-- In remote mode, the app opens an SSH tunnel for the Gateway port and connects to `localhost`.
+- Ứng dụng menubar macOS kết nối với WS server của Gateway như một node (vì vậy `openclaw nodes …` hoạt động trên máy Mac này).
+- Trong chế độ remote, ứng dụng mở một SSH tunnel cho cổng Gateway và kết nối với `localhost`.

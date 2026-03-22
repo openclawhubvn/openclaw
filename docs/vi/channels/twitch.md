@@ -1,93 +1,93 @@
 ---
-summary: "Twitch chat bot configuration and setup"
+summary: "Cấu hình và thiết lập bot chat Twitch"
 read_when:
-  - Setting up Twitch chat integration for OpenClaw
+  - Thiết lập tích hợp chat Twitch cho OpenClaw
 title: "Twitch"
 ---
 
 # Twitch (plugin)
 
-Twitch chat support via IRC connection. OpenClaw connects as a Twitch user (bot account) to receive and send messages in channels.
+Hỗ trợ chat Twitch thông qua kết nối IRC. OpenClaw kết nối như một người dùng Twitch (tài khoản bot) để nhận và gửi tin nhắn trong các kênh.
 
-## Plugin required
+## Yêu cầu plugin
 
-Twitch ships as a plugin and is not bundled with the core install.
+Twitch được cung cấp dưới dạng plugin và không đi kèm với cài đặt gốc.
 
-Install via CLI (npm registry):
+Cài đặt qua CLI (npm registry):
 
 ```bash
 openclaw plugins install @openclaw/twitch
 ```
 
-Local checkout (when running from a git repo):
+Kiểm tra cục bộ (khi chạy từ repo git):
 
 ```bash
 openclaw plugins install ./extensions/twitch
 ```
 
-Details: [Plugins](/tools/plugin)
+Chi tiết: [Plugins](/tools/plugin)
 
-## Quick setup (beginner)
+## Thiết lập nhanh (cho người mới bắt đầu)
 
-1. Create a dedicated Twitch account for the bot (or use an existing account).
-2. Generate credentials: [Twitch Token Generator](https://twitchtokengenerator.com/)
-   - Select **Bot Token**
-   - Verify scopes `chat:read` and `chat:write` are selected
-   - Copy the **Client ID** and **Access Token**
-3. Find your Twitch user ID: [https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/](https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/)
-4. Configure the token:
-   - Env: `OPENCLAW_TWITCH_ACCESS_TOKEN=...` (default account only)
-   - Or config: `channels.twitch.accessToken`
-   - If both are set, config takes precedence (env fallback is default-account only).
-5. Start the gateway.
+1. Tạo một tài khoản Twitch riêng cho bot (hoặc sử dụng tài khoản hiện có).
+2. Tạo thông tin xác thực: [Twitch Token Generator](https://twitchtokengenerator.com/)
+   - Chọn **Bot Token**
+   - Đảm bảo các phạm vi `chat:read` và `chat:write` đã được chọn
+   - Sao chép **Client ID** và **Access Token**
+3. Tìm ID người dùng Twitch của bạn: [https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/](https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/)
+4. Cấu hình token:
+   - Env: `OPENCLAW_TWITCH_ACCESS_TOKEN=...` (chỉ tài khoản mặc định)
+   - Hoặc config: `channels.twitch.accessToken`
+   - Nếu cả hai đều được thiết lập, config sẽ được ưu tiên (env chỉ là tài khoản mặc định).
+5. Khởi động gateway.
 
-**⚠️ Important:** Add access control (`allowFrom` or `allowedRoles`) to prevent unauthorized users from triggering the bot. `requireMention` defaults to `true`.
+**⚠️ Quan trọng:** Thêm kiểm soát truy cập (`allowFrom` hoặc `allowedRoles`) để ngăn người dùng không được phép kích hoạt bot. `requireMention` mặc định là `true`.
 
-Minimal config:
+Cấu hình tối thiểu:
 
 ```json5
 {
   channels: {
     twitch: {
       enabled: true,
-      username: "openclaw", // Bot's Twitch account
-      accessToken: "oauth:abc123...", // OAuth Access Token (or use OPENCLAW_TWITCH_ACCESS_TOKEN env var)
-      clientId: "xyz789...", // Client ID from Token Generator
-      channel: "vevisk", // Which Twitch channel's chat to join (required)
-      allowFrom: ["123456789"], // (recommended) Your Twitch user ID only - get it from https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/
+      username: "openclaw", // Tài khoản Twitch của bot
+      accessToken: "oauth:abc123...", // OAuth Access Token (hoặc sử dụng biến môi trường OPENCLAW_TWITCH_ACCESS_TOKEN)
+      clientId: "xyz789...", // Client ID từ Token Generator
+      channel: "vevisk", // Kênh Twitch nào để tham gia chat (bắt buộc)
+      allowFrom: ["123456789"], // (khuyến nghị) Chỉ ID người dùng Twitch của bạn - lấy từ https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/
     },
   },
 }
 ```
 
-## What it is
+## Nó là gì
 
-- A Twitch channel owned by the Gateway.
-- Deterministic routing: replies always go back to Twitch.
-- Each account maps to an isolated session key `agent:<agentId>:twitch:<accountName>`.
-- `username` is the bot's account (who authenticates), `channel` is which chat room to join.
+- Một kênh Twitch thuộc sở hữu của Gateway.
+- Định tuyến xác định: trả lời luôn quay lại Twitch.
+- Mỗi tài khoản ánh xạ tới một khóa phiên riêng biệt `agent:<agentId>:twitch:<accountName>`.
+- `username` là tài khoản của bot (người xác thực), `channel` là phòng chat nào để tham gia.
 
-## Setup (detailed)
+## Thiết lập (chi tiết)
 
-### Generate credentials
+### Tạo thông tin xác thực
 
-Use [Twitch Token Generator](https://twitchtokengenerator.com/):
+Sử dụng [Twitch Token Generator](https://twitchtokengenerator.com/):
 
-- Select **Bot Token**
-- Verify scopes `chat:read` and `chat:write` are selected
-- Copy the **Client ID** and **Access Token**
+- Chọn **Bot Token**
+- Đảm bảo các phạm vi `chat:read` và `chat:write` đã được chọn
+- Sao chép **Client ID** và **Access Token**
 
-No manual app registration needed. Tokens expire after several hours.
+Không cần đăng ký ứng dụng thủ công. Token hết hạn sau vài giờ.
 
-### Configure the bot
+### Cấu hình bot
 
-**Env var (default account only):**
+**Biến môi trường (chỉ tài khoản mặc định):**
 
 ```bash
 OPENCLAW_TWITCH_ACCESS_TOKEN=oauth:abc123...
 ```
 
-**Or config:**
+**Hoặc config:**
 
 ```json5
 {
@@ -103,33 +103,33 @@ OPENCLAW_TWITCH_ACCESS_TOKEN=oauth:abc123...
 }
 ```
 
-If both env and config are set, config takes precedence.
+Nếu cả biến môi trường và config đều được thiết lập, config sẽ được ưu tiên.
 
-### Access control (recommended)
+### Kiểm soát truy cập (khuyến nghị)
 
 ```json5
 {
   channels: {
     twitch: {
-      allowFrom: ["123456789"], // (recommended) Your Twitch user ID only
+      allowFrom: ["123456789"], // (khuyến nghị) Chỉ ID người dùng Twitch của bạn
     },
   },
 }
 ```
 
-Prefer `allowFrom` for a hard allowlist. Use `allowedRoles` instead if you want role-based access.
+Ưu tiên `allowFrom` cho danh sách cho phép cứng. Sử dụng `allowedRoles` nếu bạn muốn truy cập dựa trên vai trò.
 
-**Available roles:** `"moderator"`, `"owner"`, `"vip"`, `"subscriber"`, `"all"`.
+**Vai trò có sẵn:** `"moderator"`, `"owner"`, `"vip"`, `"subscriber"`, `"all"`.
 
-**Why user IDs?** Usernames can change, allowing impersonation. User IDs are permanent.
+**Tại sao sử dụng ID người dùng?** Tên người dùng có thể thay đổi, cho phép giả mạo. ID người dùng là vĩnh viễn.
 
-Find your Twitch user ID: [https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/](https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/) (Convert your Twitch username to ID)
+Tìm ID người dùng Twitch của bạn: [https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/](https://www.streamweasels.com/tools/convert-twitch-username-to-user-id/) (Chuyển đổi tên người dùng Twitch của bạn thành ID)
 
-## Token refresh (optional)
+## Làm mới token (tùy chọn)
 
-Tokens from [Twitch Token Generator](https://twitchtokengenerator.com/) cannot be automatically refreshed - regenerate when expired.
+Token từ [Twitch Token Generator](https://twitchtokengenerator.com/) không thể tự động làm mới - tạo lại khi hết hạn.
 
-For automatic token refresh, create your own Twitch application at [Twitch Developer Console](https://dev.twitch.tv/console) and add to config:
+Để tự động làm mới token, tạo ứng dụng Twitch của riêng bạn tại [Twitch Developer Console](https://dev.twitch.tv/console) và thêm vào config:
 
 ```json5
 {
@@ -142,13 +142,13 @@ For automatic token refresh, create your own Twitch application at [Twitch Devel
 }
 ```
 
-The bot automatically refreshes tokens before expiration and logs refresh events.
+Bot tự động làm mới token trước khi hết hạn và ghi lại sự kiện làm mới.
 
-## Multi-account support
+## Hỗ trợ nhiều tài khoản
 
-Use `channels.twitch.accounts` with per-account tokens. See [`gateway/configuration`](/gateway/configuration) for the shared pattern.
+Sử dụng `channels.twitch.accounts` với token cho từng tài khoản. Xem [`gateway/configuration`](/gateway/configuration) cho mẫu chia sẻ.
 
-Example (one bot account in two channels):
+Ví dụ (một tài khoản bot trong hai kênh):
 
 ```json5
 {
@@ -173,11 +173,11 @@ Example (one bot account in two channels):
 }
 ```
 
-**Note:** Each account needs its own token (one token per channel).
+**Lưu ý:** Mỗi tài khoản cần token riêng (một token cho mỗi kênh).
 
-## Access control
+## Kiểm soát truy cập
 
-### Role-based restrictions
+### Hạn chế dựa trên vai trò
 
 ```json5
 {
@@ -193,7 +193,7 @@ Example (one bot account in two channels):
 }
 ```
 
-### Allowlist by User ID (most secure)
+### Danh sách cho phép theo ID người dùng (an toàn nhất)
 
 ```json5
 {
@@ -209,10 +209,10 @@ Example (one bot account in two channels):
 }
 ```
 
-### Role-based access (alternative)
+### Truy cập dựa trên vai trò (thay thế)
 
-`allowFrom` is a hard allowlist. When set, only those user IDs are allowed.
-If you want role-based access, leave `allowFrom` unset and configure `allowedRoles` instead:
+`allowFrom` là danh sách cho phép cứng. Khi được thiết lập, chỉ những ID người dùng đó được phép.
+Nếu bạn muốn truy cập dựa trên vai trò, để trống `allowFrom` và cấu hình `allowedRoles` thay thế:
 
 ```json5
 {
@@ -228,9 +228,9 @@ If you want role-based access, leave `allowFrom` unset and configure `allowedRol
 }
 ```
 
-### Disable @mention requirement
+### Vô hiệu hóa yêu cầu @mention
 
-By default, `requireMention` is `true`. To disable and respond to all messages:
+Mặc định, `requireMention` là `true`. Để vô hiệu hóa và phản hồi tất cả tin nhắn:
 
 ```json5
 {
@@ -246,71 +246,71 @@ By default, `requireMention` is `true`. To disable and respond to all messages:
 }
 ```
 
-## Troubleshooting
+## Khắc phục sự cố
 
-First, run diagnostic commands:
+Đầu tiên, chạy các lệnh chẩn đoán:
 
 ```bash
 openclaw doctor
 openclaw channels status --probe
 ```
 
-### Bot does not respond to messages
+### Bot không phản hồi tin nhắn
 
-**Check access control:** Ensure your user ID is in `allowFrom`, or temporarily remove
-`allowFrom` and set `allowedRoles: ["all"]` to test.
+**Kiểm tra kiểm soát truy cập:** Đảm bảo ID người dùng của bạn có trong `allowFrom`, hoặc tạm thời xóa
+`allowFrom` và thiết lập `allowedRoles: ["all"]` để kiểm tra.
 
-**Check the bot is in the channel:** The bot must join the channel specified in `channel`.
+**Kiểm tra bot có trong kênh:** Bot phải tham gia kênh được chỉ định trong `channel`.
 
-### Token issues
+### Vấn đề về token
 
-**"Failed to connect" or authentication errors:**
+**"Không thể kết nối" hoặc lỗi xác thực:**
 
-- Verify `accessToken` is the OAuth access token value (typically starts with `oauth:` prefix)
-- Check token has `chat:read` and `chat:write` scopes
-- If using token refresh, verify `clientSecret` and `refreshToken` are set
+- Xác minh `accessToken` là giá trị OAuth access token (thường bắt đầu với tiền tố `oauth:`)
+- Kiểm tra token có các phạm vi `chat:read` và `chat:write`
+- Nếu sử dụng làm mới token, xác minh `clientSecret` và `refreshToken` đã được thiết lập
 
-### Token refresh not working
+### Làm mới token không hoạt động
 
-**Check logs for refresh events:**
+**Kiểm tra nhật ký cho các sự kiện làm mới:**
 
 ```
-Using env token source for mybot
-Access token refreshed for user 123456 (expires in 14400s)
+Sử dụng nguồn token môi trường cho mybot
+Access token đã được làm mới cho người dùng 123456 (hết hạn trong 14400s)
 ```
 
-If you see "token refresh disabled (no refresh token)":
+Nếu bạn thấy "làm mới token bị vô hiệu hóa (không có token làm mới)":
 
-- Ensure `clientSecret` is provided
-- Ensure `refreshToken` is provided
+- Đảm bảo `clientSecret` đã được cung cấp
+- Đảm bảo `refreshToken` đã được cung cấp
 
-## Config
+## Cấu hình
 
-**Account config:**
+**Cấu hình tài khoản:**
 
-- `username` - Bot username
-- `accessToken` - OAuth access token with `chat:read` and `chat:write`
-- `clientId` - Twitch Client ID (from Token Generator or your app)
-- `channel` - Channel to join (required)
-- `enabled` - Enable this account (default: `true`)
-- `clientSecret` - Optional: For automatic token refresh
-- `refreshToken` - Optional: For automatic token refresh
-- `expiresIn` - Token expiry in seconds
-- `obtainmentTimestamp` - Token obtained timestamp
-- `allowFrom` - User ID allowlist
-- `allowedRoles` - Role-based access control (`"moderator" | "owner" | "vip" | "subscriber" | "all"`)
-- `requireMention` - Require @mention (default: `true`)
+- `username` - Tên người dùng bot
+- `accessToken` - OAuth access token với `chat:read` và `chat:write`
+- `clientId` - Twitch Client ID (từ Token Generator hoặc ứng dụng của bạn)
+- `channel` - Kênh để tham gia (bắt buộc)
+- `enabled` - Kích hoạt tài khoản này (mặc định: `true`)
+- `clientSecret` - Tùy chọn: Để tự động làm mới token
+- `refreshToken` - Tùy chọn: Để tự động làm mới token
+- `expiresIn` - Thời gian hết hạn token tính bằng giây
+- `obtainmentTimestamp` - Thời điểm lấy token
+- `allowFrom` - Danh sách cho phép ID người dùng
+- `allowedRoles` - Kiểm soát truy cập dựa trên vai trò (`"moderator" | "owner" | "vip" | "subscriber" | "all"`)
+- `requireMention` - Yêu cầu @mention (mặc định: `true`)
 
-**Provider options:**
+**Tùy chọn nhà cung cấp:**
 
-- `channels.twitch.enabled` - Enable/disable channel startup
-- `channels.twitch.username` - Bot username (simplified single-account config)
-- `channels.twitch.accessToken` - OAuth access token (simplified single-account config)
-- `channels.twitch.clientId` - Twitch Client ID (simplified single-account config)
-- `channels.twitch.channel` - Channel to join (simplified single-account config)
-- `channels.twitch.accounts.<accountName>` - Multi-account config (all account fields above)
+- `channels.twitch.enabled` - Bật/tắt khởi động kênh
+- `channels.twitch.username` - Tên người dùng bot (cấu hình đơn giản cho một tài khoản)
+- `channels.twitch.accessToken` - OAuth access token (cấu hình đơn giản cho một tài khoản)
+- `channels.twitch.clientId` - Twitch Client ID (cấu hình đơn giản cho một tài khoản)
+- `channels.twitch.channel` - Kênh để tham gia (cấu hình đơn giản cho một tài khoản)
+- `channels.twitch.accounts.<accountName>` - Cấu hình nhiều tài khoản (tất cả các trường tài khoản ở trên)
 
-Full example:
+Ví dụ đầy đủ:
 
 ```json5
 {
@@ -345,13 +345,13 @@ Full example:
 }
 ```
 
-## Tool actions
+## Hành động công cụ
 
-The agent can call `twitch` with action:
+Agent có thể gọi `twitch` với hành động:
 
-- `send` - Send a message to a channel
+- `send` - Gửi một tin nhắn đến một kênh
 
-Example:
+Ví dụ:
 
 ```json5
 {
@@ -363,17 +363,17 @@ Example:
 }
 ```
 
-## Safety & ops
+## An toàn & vận hành
 
-- **Treat tokens like passwords** - Never commit tokens to git
-- **Use automatic token refresh** for long-running bots
-- **Use user ID allowlists** instead of usernames for access control
-- **Monitor logs** for token refresh events and connection status
-- **Scope tokens minimally** - Only request `chat:read` and `chat:write`
-- **If stuck**: Restart the gateway after confirming no other process owns the session
+- **Xử lý token như mật khẩu** - Không bao giờ commit token vào git
+- **Sử dụng làm mới token tự động** cho bot chạy lâu dài
+- **Sử dụng danh sách cho phép ID người dùng** thay vì tên người dùng để kiểm soát truy cập
+- **Giám sát nhật ký** cho các sự kiện làm mới token và trạng thái kết nối
+- **Giới hạn phạm vi token tối thiểu** - Chỉ yêu cầu `chat:read` và `chat:write`
+- **Nếu gặp khó khăn**: Khởi động lại gateway sau khi xác nhận không có quá trình nào khác sở hữu phiên
 
-## Limits
+## Giới hạn
 
-- **500 characters** per message (auto-chunked at word boundaries)
-- Markdown is stripped before chunking
-- No rate limiting (uses Twitch's built-in rate limits)
+- **500 ký tự** mỗi tin nhắn (tự động chia nhỏ tại ranh giới từ)
+- Markdown bị loại bỏ trước khi chia nhỏ
+- Không giới hạn tốc độ (sử dụng giới hạn tốc độ tích hợp của Twitch)

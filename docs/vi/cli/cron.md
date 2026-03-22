@@ -1,77 +1,72 @@
 ---
-summary: "CLI reference for `openclaw cron` (schedule and run background jobs)"
+summary: "Tham khảo CLI cho `openclaw cron` (lên lịch và chạy các công việc nền)"
 read_when:
-  - You want scheduled jobs and wakeups
-  - You’re debugging cron execution and logs
+  - Bạn muốn lên lịch công việc và đánh thức
+  - Bạn đang gỡ lỗi thực thi cron và nhật ký
 title: "cron"
 ---
 
 # `openclaw cron`
 
-Manage cron jobs for the Gateway scheduler.
+Quản lý các công việc cron cho bộ lập lịch Gateway.
 
-Related:
+Liên quan:
 
-- Cron jobs: [Cron jobs](/automation/cron-jobs)
+- Công việc cron: [Công việc cron](/automation/cron-jobs)
 
-Tip: run `openclaw cron --help` for the full command surface.
+Mẹo: chạy `openclaw cron --help` để xem toàn bộ lệnh.
 
-Note: isolated `cron add` jobs default to `--announce` delivery. Use `--no-deliver` to keep
-output internal. `--deliver` remains as a deprecated alias for `--announce`.
+Lưu ý: các công việc `cron add` độc lập mặc định sử dụng `--announce` để thông báo. Dùng `--no-deliver` để giữ kết quả nội bộ. `--deliver` vẫn là một alias đã lỗi thời cho `--announce`.
 
-Note: one-shot (`--at`) jobs delete after success by default. Use `--keep-after-run` to keep them.
+Lưu ý: các công việc một lần (`--at`) sẽ tự động xóa sau khi thành công. Dùng `--keep-after-run` để giữ lại.
 
-Note: recurring jobs now use exponential retry backoff after consecutive errors (30s → 1m → 5m → 15m → 60m), then return to normal schedule after the next successful run.
+Lưu ý: các công việc định kỳ hiện sử dụng cơ chế lùi thời gian thử lại theo cấp số nhân sau các lỗi liên tiếp (30s → 1m → 5m → 15m → 60m), sau đó quay lại lịch trình bình thường sau lần chạy thành công tiếp theo.
 
-Note: `openclaw cron run` now returns as soon as the manual run is queued for execution. Successful responses include `{ ok: true, enqueued: true, runId }`; use `openclaw cron runs --id <job-id>` to follow the eventual outcome.
+Lưu ý: `openclaw cron run` hiện trả về ngay khi lần chạy thủ công được xếp hàng để thực thi. Phản hồi thành công bao gồm `{ ok: true, enqueued: true, runId }`; dùng `openclaw cron runs --id <job-id>` để theo dõi kết quả cuối cùng.
 
-Note: retention/pruning is controlled in config:
+Lưu ý: việc giữ lại/xóa bớt được kiểm soát trong cấu hình:
 
-- `cron.sessionRetention` (default `24h`) prunes completed isolated run sessions.
-- `cron.runLog.maxBytes` + `cron.runLog.keepLines` prune `~/.openclaw/cron/runs/<jobId>.jsonl`.
+- `cron.sessionRetention` (mặc định `24h`) xóa các phiên chạy độc lập đã hoàn thành.
+- `cron.runLog.maxBytes` + `cron.runLog.keepLines` xóa bớt `~/.openclaw/cron/runs/<jobId>.jsonl`.
 
-Upgrade note: if you have older cron jobs from before the current delivery/store format, run
-`openclaw doctor --fix`. Doctor now normalizes legacy cron fields (`jobId`, `schedule.cron`,
-top-level delivery fields, payload `provider` delivery aliases) and migrates simple
-`notify: true` webhook fallback jobs to explicit webhook delivery when `cron.webhook` is
-configured.
+Lưu ý nâng cấp: nếu bạn có các công việc cron cũ từ trước định dạng lưu trữ/giao hàng hiện tại, chạy `openclaw doctor --fix`. Doctor hiện chuẩn hóa các trường cron cũ (`jobId`, `schedule.cron`, các trường giao hàng cấp cao nhất, các alias giao hàng `provider` trong payload) và di chuyển các công việc webhook dự phòng đơn giản `notify: true` sang giao hàng webhook rõ ràng khi `cron.webhook` được cấu hình.
 
-## Common edits
+## Chỉnh sửa thông thường
 
-Update delivery settings without changing the message:
+Cập nhật cài đặt giao hàng mà không thay đổi thông điệp:
 
 ```bash
 openclaw cron edit <job-id> --announce --channel telegram --to "123456789"
 ```
 
-Disable delivery for an isolated job:
+Vô hiệu hóa giao hàng cho một công việc độc lập:
 
 ```bash
 openclaw cron edit <job-id> --no-deliver
 ```
 
-Enable lightweight bootstrap context for an isolated job:
+Kích hoạt ngữ cảnh khởi động nhẹ cho một công việc độc lập:
 
 ```bash
 openclaw cron edit <job-id> --light-context
 ```
 
-Announce to a specific channel:
+Thông báo đến một kênh cụ thể:
 
 ```bash
 openclaw cron edit <job-id> --announce --channel slack --to "channel:C1234567890"
 ```
 
-Create an isolated job with lightweight bootstrap context:
+Tạo một công việc độc lập với ngữ cảnh khởi động nhẹ:
 
 ```bash
 openclaw cron add \
-  --name "Lightweight morning brief" \
+  --name "Tóm tắt buổi sáng nhẹ nhàng" \
   --cron "0 7 * * *" \
   --session isolated \
-  --message "Summarize overnight updates." \
+  --message "Tóm tắt các cập nhật qua đêm." \
   --light-context \
   --no-deliver
 ```
 
-`--light-context` applies to isolated agent-turn jobs only. For cron runs, lightweight mode keeps bootstrap context empty instead of injecting the full workspace bootstrap set.
+`--light-context` chỉ áp dụng cho các công việc agent-turn độc lập. Đối với các lần chạy cron, chế độ nhẹ giữ ngữ cảnh khởi động trống thay vì chèn toàn bộ bộ khởi động workspace.

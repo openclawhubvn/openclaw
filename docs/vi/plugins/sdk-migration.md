@@ -1,56 +1,46 @@
 ---
-title: "Plugin SDK Migration"
-sidebarTitle: "SDK Migration"
-summary: "Migrate from the legacy backwards-compatibility layer to the modern plugin SDK"
+title: "Di chuyển Plugin SDK"
+sidebarTitle: "Di chuyển SDK"
+summary: "Chuyển từ lớp tương thích ngược cũ sang SDK plugin hiện đại"
 read_when:
-  - You see the OPENCLAW_PLUGIN_SDK_COMPAT_DEPRECATED warning
-  - You see the OPENCLAW_EXTENSION_API_DEPRECATED warning
-  - You are updating a plugin to the modern plugin architecture
-  - You maintain an external OpenClaw plugin
+  - Bạn thấy cảnh báo OPENCLAW_PLUGIN_SDK_COMPAT_DEPRECATED
+  - Bạn thấy cảnh báo OPENCLAW_EXTENSION_API_DEPRECATED
+  - Bạn đang cập nhật một plugin sang kiến trúc plugin hiện đại
+  - Bạn duy trì một plugin OpenClaw bên ngoài
 ---
 
-# Plugin SDK Migration
+# Di chuyển Plugin SDK
 
-OpenClaw has moved from a broad backwards-compatibility layer to a modern plugin
-architecture with focused, documented imports. If your plugin was built before
-the new architecture, this guide helps you migrate.
+OpenClaw đã chuyển từ lớp tương thích ngược rộng sang kiến trúc plugin hiện đại với các import có mục đích rõ ràng và được tài liệu hóa. Nếu plugin của bạn được xây dựng trước khi có kiến trúc mới, hướng dẫn này sẽ giúp bạn di chuyển.
 
-## What is changing
+## Thay đổi là gì
 
-The old plugin system provided two wide-open surfaces that let plugins import
-anything they needed from a single entry point:
+Hệ thống plugin cũ cung cấp hai bề mặt rộng mở cho phép plugin import bất kỳ thứ gì cần thiết từ một điểm nhập duy nhất:
 
-- **`openclaw/plugin-sdk/compat`** — a single import that re-exported dozens of
-  helpers. It was introduced to keep older hook-based plugins working while the
-  new plugin architecture was being built.
-- **`openclaw/extension-api`** — a bridge that gave plugins direct access to
-  host-side helpers like the embedded agent runner.
+- **`openclaw/plugin-sdk/compat`** — một import duy nhất tái xuất hàng chục helper. Nó được giới thiệu để giữ cho các plugin dựa trên hook cũ hoạt động trong khi kiến trúc plugin mới đang được xây dựng.
+- **`openclaw/extension-api`** — một cầu nối cho phép plugin truy cập trực tiếp vào các helper phía host như trình chạy agent nhúng.
 
-Both surfaces are now **deprecated**. They still work at runtime, but new
-plugins must not use them, and existing plugins should migrate before the next
-major release removes them.
+Cả hai bề mặt này hiện đã **bị ngừng sử dụng**. Chúng vẫn hoạt động trong runtime, nhưng plugin mới không được sử dụng chúng, và các plugin hiện có nên di chuyển trước khi bản phát hành chính tiếp theo loại bỏ chúng.
 
 <Warning>
-  The backwards-compatibility layer will be removed in a future major release.
-  Plugins that still import from these surfaces will break when that happens.
+  Lớp tương thích ngược sẽ bị loại bỏ trong bản phát hành chính tiếp theo. Các plugin vẫn import từ các bề mặt này sẽ bị lỗi khi điều đó xảy ra.
 </Warning>
 
-## Why this changed
+## Tại sao thay đổi này xảy ra
 
-The old approach caused problems:
+Cách tiếp cận cũ gây ra nhiều vấn đề:
 
-- **Slow startup** — importing one helper loaded dozens of unrelated modules
-- **Circular dependencies** — broad re-exports made it easy to create import cycles
-- **Unclear API surface** — no way to tell which exports were stable vs internal
+- **Khởi động chậm** — import một helper tải hàng chục module không liên quan
+- **Phụ thuộc vòng tròn** — tái xuất rộng làm dễ tạo ra vòng lặp import
+- **Bề mặt API không rõ ràng** — không có cách nào để biết export nào là ổn định so với nội bộ
 
-The modern plugin SDK fixes this: each import path (`openclaw/plugin-sdk/\<subpath\>`)
-is a small, self-contained module with a clear purpose and documented contract.
+SDK plugin hiện đại khắc phục điều này: mỗi đường dẫn import (`openclaw/plugin-sdk/\<subpath\>`) là một module nhỏ, tự chứa với mục đích rõ ràng và hợp đồng được tài liệu hóa.
 
-## How to migrate
+## Cách di chuyển
 
 <Steps>
-  <Step title="Find deprecated imports">
-    Search your plugin for imports from either deprecated surface:
+  <Step title="Tìm các import đã ngừng sử dụng">
+    Tìm kiếm trong plugin của bạn các import từ bất kỳ bề mặt nào đã ngừng sử dụng:
 
     ```bash
     grep -r "plugin-sdk/compat" my-plugin/
@@ -59,38 +49,37 @@ is a small, self-contained module with a clear purpose and documented contract.
 
   </Step>
 
-  <Step title="Replace with focused imports">
-    Each export from the old surface maps to a specific modern import path:
+  <Step title="Thay thế bằng các import có mục đích rõ ràng">
+    Mỗi export từ bề mặt cũ ánh xạ tới một đường dẫn import hiện đại cụ thể:
 
     ```typescript
-    // Before (deprecated backwards-compatibility layer)
+    // Trước (lớp tương thích ngược đã ngừng sử dụng)
     import {
       createChannelReplyPipeline,
       createPluginRuntimeStore,
       resolveControlCommandGate,
     } from "openclaw/plugin-sdk/compat";
 
-    // After (modern focused imports)
+    // Sau (import có mục đích rõ ràng hiện đại)
     import { createChannelReplyPipeline } from "openclaw/plugin-sdk/channel-reply-pipeline";
     import { createPluginRuntimeStore } from "openclaw/plugin-sdk/runtime-store";
     import { resolveControlCommandGate } from "openclaw/plugin-sdk/command-auth";
     ```
 
-    For host-side helpers, use the injected plugin runtime instead of importing
-    directly:
+    Đối với các helper phía host, sử dụng runtime plugin được tiêm thay vì import trực tiếp:
 
     ```typescript
-    // Before (deprecated extension-api bridge)
+    // Trước (cầu nối extension-api đã ngừng sử dụng)
     import { runEmbeddedPiAgent } from "openclaw/extension-api";
     const result = await runEmbeddedPiAgent({ sessionId, prompt });
 
-    // After (injected runtime)
+    // Sau (runtime được tiêm)
     const result = await api.runtime.agent.runEmbeddedPiAgent({ sessionId, prompt });
     ```
 
-    The same pattern applies to other legacy bridge helpers:
+    Mẫu tương tự áp dụng cho các helper cầu nối cũ khác:
 
-    | Old import | Modern equivalent |
+    | Import cũ | Tương đương hiện đại |
     | --- | --- |
     | `resolveAgentDir` | `api.runtime.agent.resolveAgentDir` |
     | `resolveAgentWorkspaceDir` | `api.runtime.agent.resolveAgentWorkspaceDir` |
@@ -98,11 +87,11 @@ is a small, self-contained module with a clear purpose and documented contract.
     | `resolveThinkingDefault` | `api.runtime.agent.resolveThinkingDefault` |
     | `resolveAgentTimeoutMs` | `api.runtime.agent.resolveAgentTimeoutMs` |
     | `ensureAgentWorkspace` | `api.runtime.agent.ensureAgentWorkspace` |
-    | session store helpers | `api.runtime.agent.session.*` |
+    | helper lưu trữ session | `api.runtime.agent.session.*` |
 
   </Step>
 
-  <Step title="Build and test">
+  <Step title="Xây dựng và kiểm tra">
     ```bash
     pnpm build
     pnpm test -- my-plugin/
@@ -110,60 +99,58 @@ is a small, self-contained module with a clear purpose and documented contract.
   </Step>
 </Steps>
 
-## Import path reference
+## Tham khảo đường dẫn import
 
-<Accordion title="Full import path table">
-  | Import path | Purpose | Key exports |
+<Accordion title="Bảng đường dẫn import đầy đủ">
+  | Đường dẫn import | Mục đích | Các export chính |
   | --- | --- | --- |
-  | `plugin-sdk/plugin-entry` | Canonical plugin entry helper | `definePluginEntry` |
-  | `plugin-sdk/core` | Channel entry definitions, channel builders, base types | `defineChannelPluginEntry`, `createChatChannelPlugin` |
-  | `plugin-sdk/channel-setup` | Setup wizard adapters | `createOptionalChannelSetupSurface` |
-  | `plugin-sdk/channel-pairing` | DM pairing primitives | `createChannelPairingController` |
-  | `plugin-sdk/channel-reply-pipeline` | Reply prefix + typing wiring | `createChannelReplyPipeline` |
-  | `plugin-sdk/channel-config-helpers` | Config adapter factories | `createHybridChannelConfigAdapter` |
-  | `plugin-sdk/channel-config-schema` | Config schema builders | Channel config schema types |
-  | `plugin-sdk/channel-policy` | Group/DM policy resolution | `resolveChannelGroupRequireMention` |
-  | `plugin-sdk/channel-lifecycle` | Account status tracking | `createAccountStatusSink` |
-  | `plugin-sdk/channel-runtime` | Runtime wiring helpers | Channel runtime utilities |
-  | `plugin-sdk/channel-send-result` | Send result types | Reply result types |
-  | `plugin-sdk/runtime-store` | Persistent plugin storage | `createPluginRuntimeStore` |
-  | `plugin-sdk/allow-from` | Allowlist formatting | `formatAllowFromLowercase` |
-  | `plugin-sdk/allowlist-resolution` | Allowlist input mapping | `mapAllowlistResolutionInputs` |
-  | `plugin-sdk/command-auth` | Command gating | `resolveControlCommandGate` |
-  | `plugin-sdk/secret-input` | Secret input parsing | Secret input helpers |
-  | `plugin-sdk/webhook-ingress` | Webhook request helpers | Webhook target utilities |
-  | `plugin-sdk/reply-payload` | Message reply types | Reply payload types |
-  | `plugin-sdk/provider-onboard` | Provider onboarding patches | Onboarding config helpers |
-  | `plugin-sdk/keyed-async-queue` | Ordered async queue | `KeyedAsyncQueue` |
-  | `plugin-sdk/testing` | Test utilities | Test helpers and mocks |
+  | `plugin-sdk/plugin-entry` | Helper nhập plugin chuẩn | `definePluginEntry` |
+  | `plugin-sdk/core` | Định nghĩa nhập kênh, trình tạo kênh, kiểu cơ bản | `defineChannelPluginEntry`, `createChatChannelPlugin` |
+  | `plugin-sdk/channel-setup` | Bộ điều hợp wizard thiết lập | `createOptionalChannelSetupSurface` |
+  | `plugin-sdk/channel-pairing` | Nguyên thủy ghép đôi DM | `createChannelPairingController` |
+  | `plugin-sdk/channel-reply-pipeline` | Tiền tố trả lời + dây gõ | `createChannelReplyPipeline` |
+  | `plugin-sdk/channel-config-helpers` | Nhà máy điều hợp cấu hình | `createHybridChannelConfigAdapter` |
+  | `plugin-sdk/channel-config-schema` | Trình tạo schema cấu hình | Kiểu schema cấu hình kênh |
+  | `plugin-sdk/channel-policy` | Giải quyết chính sách nhóm/DM | `resolveChannelGroupRequireMention` |
+  | `plugin-sdk/channel-lifecycle` | Theo dõi trạng thái tài khoản | `createAccountStatusSink` |
+  | `plugin-sdk/channel-runtime` | Helper dây runtime | Tiện ích runtime kênh |
+  | `plugin-sdk/channel-send-result` | Kiểu kết quả gửi | Kiểu kết quả trả lời |
+  | `plugin-sdk/runtime-store` | Lưu trữ plugin bền vững | `createPluginRuntimeStore` |
+  | `plugin-sdk/allow-from` | Định dạng danh sách cho phép | `formatAllowFromLowercase` |
+  | `plugin-sdk/allowlist-resolution` | Ánh xạ đầu vào danh sách cho phép | `mapAllowlistResolutionInputs` |
+  | `plugin-sdk/command-auth` | Gating lệnh | `resolveControlCommandGate` |
+  | `plugin-sdk/secret-input` | Phân tích đầu vào bí mật | Helper đầu vào bí mật |
+  | `plugin-sdk/webhook-ingress` | Helper yêu cầu webhook | Tiện ích mục tiêu webhook |
+  | `plugin-sdk/reply-payload` | Kiểu trả lời tin nhắn | Kiểu payload trả lời |
+  | `plugin-sdk/provider-onboard` | Bản vá onboarding nhà cung cấp | Helper cấu hình onboarding |
+  | `plugin-sdk/keyed-async-queue` | Hàng đợi async có thứ tự | `KeyedAsyncQueue` |
+  | `plugin-sdk/testing` | Tiện ích kiểm tra | Helper và mock kiểm tra |
 </Accordion>
 
-Use the narrowest import that matches the job. If you cannot find an export,
-check the source at `src/plugin-sdk/` or ask in Discord.
+Sử dụng import hẹp nhất phù hợp với công việc. Nếu không tìm thấy export, kiểm tra nguồn tại `src/plugin-sdk/` hoặc hỏi trong Discord.
 
-## Removal timeline
+## Lịch trình loại bỏ
 
-| When                   | What happens                                                            |
+| Khi nào                | Điều gì xảy ra                                                            |
 | ---------------------- | ----------------------------------------------------------------------- |
-| **Now**                | Deprecated surfaces emit runtime warnings                               |
-| **Next major release** | Deprecated surfaces will be removed; plugins still using them will fail |
+| **Hiện tại**           | Các bề mặt đã ngừng sử dụng phát ra cảnh báo runtime                    |
+| **Bản phát hành chính tiếp theo** | Các bề mặt đã ngừng sử dụng sẽ bị loại bỏ; các plugin vẫn sử dụng chúng sẽ bị lỗi |
 
-All core plugins have already been migrated. External plugins should migrate
-before the next major release.
+Tất cả các plugin cốt lõi đã được di chuyển. Các plugin bên ngoài nên di chuyển trước bản phát hành chính tiếp theo.
 
-## Suppressing the warnings temporarily
+## Tạm thời tắt cảnh báo
 
-Set these environment variables while you work on migrating:
+Đặt các biến môi trường này trong khi bạn làm việc trên việc di chuyển:
 
 ```bash
 OPENCLAW_SUPPRESS_PLUGIN_SDK_COMPAT_WARNING=1 openclaw gateway run
 OPENCLAW_SUPPRESS_EXTENSION_API_WARNING=1 openclaw gateway run
 ```
 
-This is a temporary escape hatch, not a permanent solution.
+Đây là một giải pháp tạm thời, không phải là giải pháp lâu dài.
 
-## Related
+## Liên quan
 
-- [Building Plugins](/plugins/building-plugins)
-- [Plugin Internals](/plugins/architecture)
-- [Plugin Manifest](/plugins/manifest)
+- [Xây dựng Plugin](/plugins/building-plugins)
+- [Nội bộ Plugin](/plugins/architecture)
+- [Manifest Plugin](/plugins/manifest)

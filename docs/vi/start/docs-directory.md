@@ -1,66 +1,66 @@
 ---
-summary: "Curated links to the most used OpenClaw docs."
+summary: "Liên kết đến các tài liệu OpenClaw được sử dụng nhiều nhất."
 read_when:
-  - You want quick access to key docs pages
-title: "Docs directory"
+  - Bạn muốn truy cập nhanh vào các trang tài liệu chính
+title: "Thư mục tài liệu"
 ---
 
-# Docs Directory
+# Thư mục Tài liệu
 
 <Note>
-This page is a curated index. If you are new, start with [Getting Started](/start/getting-started).
-For a complete map of the docs, see [Docs hubs](/start/hubs).
+Trang này là một chỉ mục được chọn lọc. Nếu bạn mới bắt đầu, hãy xem [Bắt đầu](/start/getting-started).
+Để xem toàn bộ bản đồ tài liệu, hãy xem [Trung tâm tài liệu](/start/hubs).
 </Note>
 
-## Start here
+## Bắt đầu từ đây
 
-- [Docs hubs (all pages linked)](/start/hubs)
-- [Help](/help)
-- [Configuration](/gateway/configuration)
-- [Configuration examples](/gateway/configuration-examples)
-- [Slash commands](/tools/slash-commands)
-- [Multi-agent routing](/concepts/multi-agent)
-- [Updating and rollback](/install/updating)
-- [Pairing (DM and nodes)](/channels/pairing)
-- [Nix mode](/install/nix)
-- [OpenClaw assistant setup](/start/openclaw)
-- [Skills](/tools/skills)
-- [Skills config](/tools/skills-config)
-- [Workspace templates](/reference/templates/AGENTS)
-- [RPC adapters](/reference/rpc)
-- [Gateway runbook](/gateway)
-- [Nodes (iOS and Android)](/nodes)
-- [Web surfaces (Control UI)](/web)
-- [Discovery and transports](/gateway/discovery)
-- [Remote access](/gateway/remote)
+- [Trung tâm tài liệu (liên kết tất cả các trang)](/start/hubs)
+- [Trợ giúp](/help)
+- [Cấu hình](/gateway/configuration)
+- [Ví dụ cấu hình](/gateway/configuration-examples)
+- [Lệnh gạch chéo](/tools/slash-commands)
+- [Định tuyến đa tác nhân](/concepts/multi-agent)
+- [Cập nhật và quay lại phiên bản trước](/install/updating)
+- [Ghép đôi (DM và node)](/channels/pairing)
+- [Chế độ Nix](/install/nix)
+- [Thiết lập trợ lý OpenClaw](/start/openclaw)
+- [Kỹ năng](/tools/skills)
+- [Cấu hình kỹ năng](/tools/skills-config)
+- [Mẫu workspace](/reference/templates/AGENTS)
+- [Bộ chuyển đổi RPC](/reference/rpc)
+- [Sổ tay Gateway](/gateway)
+- [Node (iOS và Android)](/nodes)
+- [Giao diện web (UI điều khiển)](/web)
+- [Khám phá và vận chuyển](/gateway/discovery)
+- [Truy cập từ xa](/gateway/remote)
 
-## Providers and UX
+## Nhà cung cấp và Trải nghiệm người dùng
 
 - [WebChat](/web/webchat)
-- [Control UI (browser)](/web/control-ui)
+- [UI điều khiển (trình duyệt)](/web/control-ui)
 - [Telegram](/channels/telegram)
 - [Discord](/channels/discord)
 - [Mattermost (plugin)](/channels/mattermost)
 - [BlueBubbles (iMessage)](/channels/bluebubbles)
-- [iMessage (legacy)](/channels/imessage)
-- [Groups](/channels/groups)
-- [WhatsApp group messages](/channels/group-messages)
-- [Media images](/nodes/images)
-- [Media audio](/nodes/audio)
+- [iMessage (cũ)](/channels/imessage)
+- [Nhóm](/channels/groups)
+- [Tin nhắn nhóm WhatsApp](/channels/group-messages)
+- [Hình ảnh phương tiện](/nodes/images)
+- [Âm thanh phương tiện](/nodes/audio)
 
-## Companion apps
+## Ứng dụng đi kèm
 
-- [macOS app](/platforms/macos)
-- [iOS app](/platforms/ios)
-- [Android app](/platforms/android)
+- [Ứng dụng macOS](/platforms/macos)
+- [Ứng dụng iOS](/platforms/ios)
+- [Ứng dụng Android](/platforms/android)
 - [Windows (WSL2)](/platforms/windows)
-- [Linux app](/platforms/linux)
+- [Ứng dụng Linux](/platforms/linux)
 
-## Operations and safety
+## Vận hành và an toàn
 
-- [Sessions](/concepts/session)
-- [Cron jobs](/automation/cron-jobs)
+- [Phiên làm việc](/concepts/session)
+- [Công việc định kỳ](/automation/cron-jobs)
 - [Webhooks](/automation/webhook)
 - [Gmail hooks (Pub/Sub)](/automation/gmail-pubsub)
-- [Security](/gateway/security)
-- [Troubleshooting](/gateway/troubleshooting)
+- [Bảo mật](/gateway/security)
+- [Khắc phục sự cố](/gateway/troubleshooting)

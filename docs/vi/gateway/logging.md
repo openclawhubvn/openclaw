@@ -1,113 +1,109 @@
 ---
-summary: "Logging surfaces, file logs, WS log styles, and console formatting"
+summary: "Các bề mặt log, log file, kiểu log WS và định dạng console"
 read_when:
-  - Changing logging output or formats
-  - Debugging CLI or gateway output
+  - Thay đổi đầu ra hoặc định dạng log
+  - Gỡ lỗi CLI hoặc đầu ra gateway
 title: "Logging"
 ---
 
 # Logging
 
-For a user-facing overview (CLI + Control UI + config), see [/logging](/logging).
+Để có cái nhìn tổng quan cho người dùng (CLI + Control UI + cấu hình), xem tại [/logging](/logging).
 
-OpenClaw has two log “surfaces”:
+OpenClaw có hai bề mặt log:
 
-- **Console output** (what you see in the terminal / Debug UI).
-- **File logs** (JSON lines) written by the gateway logger.
+- **Đầu ra console** (những gì bạn thấy trong terminal / Debug UI).
+- **Log file** (dòng JSON) được ghi bởi gateway logger.
 
-## File-based logger
+## Logger dựa trên file
 
-- Default rolling log file is under `/tmp/openclaw/` (one file per day): `openclaw-YYYY-MM-DD.log`
-  - Date uses the gateway host's local timezone.
-- The log file path and level can be configured via `~/.openclaw/openclaw.json`:
+- File log mặc định được lưu tại `/tmp/openclaw/` (một file mỗi ngày): `openclaw-YYYY-MM-DD.log`
+  - Ngày sử dụng múi giờ địa phương của máy chủ gateway.
+- Đường dẫn và mức độ log có thể cấu hình qua `~/.openclaw/openclaw.json`:
   - `logging.file`
   - `logging.level`
 
-The file format is one JSON object per line.
+Định dạng file là một đối tượng JSON trên mỗi dòng.
 
-The Control UI Logs tab tails this file via the gateway (`logs.tail`).
-CLI can do the same:
+Tab Logs trong Control UI theo dõi file này qua gateway (`logs.tail`).
+CLI cũng có thể làm tương tự:
 
 ```bash
 openclaw logs --follow
 ```
 
-**Verbose vs. log levels**
+**Chi tiết và mức độ log**
 
-- **File logs** are controlled exclusively by `logging.level`.
-- `--verbose` only affects **console verbosity** (and WS log style); it does **not**
-  raise the file log level.
-- To capture verbose-only details in file logs, set `logging.level` to `debug` or
-  `trace`.
+- **Log file** được kiểm soát hoàn toàn bởi `logging.level`.
+- `--verbose` chỉ ảnh hưởng đến **độ chi tiết của console** (và kiểu log WS); nó **không** nâng mức độ log file.
+- Để ghi lại chi tiết chỉ có trong chế độ verbose vào log file, đặt `logging.level` thành `debug` hoặc `trace`.
 
-## Console capture
+## Ghi nhận console
 
-The CLI captures `console.log/info/warn/error/debug/trace` and writes them to file logs,
-while still printing to stdout/stderr.
+CLI ghi nhận `console.log/info/warn/error/debug/trace` và ghi chúng vào log file, đồng thời vẫn in ra stdout/stderr.
 
-You can tune console verbosity independently via:
+Có thể điều chỉnh độ chi tiết của console độc lập qua:
 
-- `logging.consoleLevel` (default `info`)
+- `logging.consoleLevel` (mặc định `info`)
 - `logging.consoleStyle` (`pretty` | `compact` | `json`)
 
-## Tool summary redaction
+## Tóm tắt công cụ và che giấu thông tin nhạy cảm
 
-Verbose tool summaries (e.g. `🛠️ Exec: ...`) can mask sensitive tokens before they hit the
-console stream. This is **tools-only** and does not alter file logs.
+Tóm tắt công cụ chi tiết (ví dụ: `🛠️ Exec: ...`) có thể che giấu token nhạy cảm trước khi chúng xuất hiện trên luồng console. Đây là **chỉ dành cho công cụ** và không thay đổi log file.
 
-- `logging.redactSensitive`: `off` | `tools` (default: `tools`)
-- `logging.redactPatterns`: array of regex strings (overrides defaults)
-  - Use raw regex strings (auto `gi`), or `/pattern/flags` if you need custom flags.
-  - Matches are masked by keeping the first 6 + last 4 chars (length >= 18), otherwise `***`.
-  - Defaults cover common key assignments, CLI flags, JSON fields, bearer headers, PEM blocks, and popular token prefixes.
+- `logging.redactSensitive`: `off` | `tools` (mặc định: `tools`)
+- `logging.redactPatterns`: mảng các chuỗi regex (ghi đè mặc định)
+  - Sử dụng chuỗi regex thô (tự động `gi`), hoặc `/pattern/flags` nếu cần cờ tùy chỉnh.
+  - Các kết quả khớp được che giấu bằng cách giữ 6 ký tự đầu + 4 ký tự cuối (độ dài >= 18), nếu không thì `***`.
+  - Mặc định bao gồm các gán khóa phổ biến, cờ CLI, trường JSON, tiêu đề bearer, khối PEM và tiền tố token phổ biến.
 
-## Gateway WebSocket logs
+## Log WebSocket của Gateway
 
-The gateway prints WebSocket protocol logs in two modes:
+Gateway in log giao thức WebSocket ở hai chế độ:
 
-- **Normal mode (no `--verbose`)**: only “interesting” RPC results are printed:
-  - errors (`ok=false`)
-  - slow calls (default threshold: `>= 50ms`)
-  - parse errors
-- **Verbose mode (`--verbose`)**: prints all WS request/response traffic.
+- **Chế độ thường (không `--verbose`)**: chỉ in kết quả RPC “thú vị”:
+  - lỗi (`ok=false`)
+  - cuộc gọi chậm (ngưỡng mặc định: `>= 50ms`)
+  - lỗi phân tích cú pháp
+- **Chế độ chi tiết (`--verbose`)**: in tất cả lưu lượng yêu cầu/đáp ứng WS.
 
-### WS log style
+### Kiểu log WS
 
-`openclaw gateway` supports a per-gateway style switch:
+`openclaw gateway` hỗ trợ chuyển đổi kiểu theo từng gateway:
 
-- `--ws-log auto` (default): normal mode is optimized; verbose mode uses compact output
-- `--ws-log compact`: compact output (paired request/response) when verbose
-- `--ws-log full`: full per-frame output when verbose
-- `--compact`: alias for `--ws-log compact`
+- `--ws-log auto` (mặc định): chế độ thường được tối ưu hóa; chế độ chi tiết sử dụng đầu ra gọn
+- `--ws-log compact`: đầu ra gọn (yêu cầu/đáp ứng ghép đôi) khi chi tiết
+- `--ws-log full`: đầu ra đầy đủ theo từng khung khi chi tiết
+- `--compact`: bí danh cho `--ws-log compact`
 
-Examples:
+Ví dụ:
 
 ```bash
-# optimized (only errors/slow)
+# tối ưu hóa (chỉ lỗi/chậm)
 openclaw gateway
 
-# show all WS traffic (paired)
+# hiển thị tất cả lưu lượng WS (ghép đôi)
 openclaw gateway --verbose --ws-log compact
 
-# show all WS traffic (full meta)
+# hiển thị tất cả lưu lượng WS (đầy đủ meta)
 openclaw gateway --verbose --ws-log full
 ```
 
-## Console formatting (subsystem logging)
+## Định dạng console (logging subsystem)
 
-The console formatter is **TTY-aware** and prints consistent, prefixed lines.
-Subsystem loggers keep output grouped and scannable.
+Trình định dạng console **nhận biết TTY** và in các dòng có tiền tố nhất quán.
+Logger subsystem giữ cho đầu ra được nhóm và dễ quét.
 
-Behavior:
+Hành vi:
 
-- **Subsystem prefixes** on every line (e.g. `[gateway]`, `[canvas]`, `[tailscale]`)
-- **Subsystem colors** (stable per subsystem) plus level coloring
-- **Color when output is a TTY or the environment looks like a rich terminal** (`TERM`/`COLORTERM`/`TERM_PROGRAM`), respects `NO_COLOR`
-- **Shortened subsystem prefixes**: drops leading `gateway/` + `channels/`, keeps last 2 segments (e.g. `whatsapp/outbound`)
-- **Sub-loggers by subsystem** (auto prefix + structured field `{ subsystem }`)
-- **`logRaw()`** for QR/UX output (no prefix, no formatting)
-- **Console styles** (e.g. `pretty | compact | json`)
-- **Console log level** separate from file log level (file keeps full detail when `logging.level` is set to `debug`/`trace`)
-- **WhatsApp message bodies** are logged at `debug` (use `--verbose` to see them)
+- **Tiền tố subsystem** trên mỗi dòng (ví dụ: `[gateway]`, `[canvas]`, `[tailscale]`)
+- **Màu subsystem** (ổn định theo từng subsystem) cộng với màu mức độ
+- **Màu khi đầu ra là TTY hoặc môi trường trông giống như terminal phong phú** (`TERM`/`COLORTERM`/`TERM_PROGRAM`), tôn trọng `NO_COLOR`
+- **Tiền tố subsystem rút gọn**: bỏ `gateway/` + `channels/` dẫn đầu, giữ lại 2 đoạn cuối (ví dụ: `whatsapp/outbound`)
+- **Sub-loggers theo subsystem** (tự động tiền tố + trường cấu trúc `{ subsystem }`)
+- **`logRaw()`** cho đầu ra QR/UX (không tiền tố, không định dạng)
+- **Kiểu console** (ví dụ: `pretty | compact | json`)
+- **Mức độ log console** tách biệt với mức độ log file (file giữ chi tiết đầy đủ khi `logging.level` được đặt thành `debug`/`trace`)
+- **Nội dung tin nhắn WhatsApp** được log ở mức `debug` (sử dụng `--verbose` để xem chúng)
 
-This keeps existing file logs stable while making interactive output scannable.
+Điều này giữ cho log file hiện có ổn định trong khi làm cho đầu ra tương tác dễ quét.

@@ -1,70 +1,69 @@
 ---
-summary: "Matrix support status, setup, and configuration examples"
+summary: "Trạng thái hỗ trợ Matrix, thiết lập và ví dụ cấu hình"
 read_when:
-  - Setting up Matrix in OpenClaw
-  - Configuring Matrix E2EE and verification
+  - Thiết lập Matrix trong OpenClaw
+  - Cấu hình Matrix E2EE và xác minh
 title: "Matrix"
 ---
 
 # Matrix (plugin)
 
-Matrix is the Matrix channel plugin for OpenClaw.
-It uses the official `matrix-js-sdk` and supports DMs, rooms, threads, media, reactions, polls, location, and E2EE.
+Matrix là plugin kênh Matrix cho OpenClaw. Nó sử dụng `matrix-js-sdk` chính thức và hỗ trợ tin nhắn trực tiếp (DM), phòng, luồng, media, phản ứng, thăm dò ý kiến, vị trí và mã hóa đầu cuối (E2EE).
 
-## Plugin required
+## Yêu cầu plugin
 
-Matrix is a plugin and is not bundled with core OpenClaw.
+Matrix là một plugin và không được tích hợp sẵn với OpenClaw.
 
-Install from npm:
+Cài đặt từ npm:
 
 ```bash
 openclaw plugins install @openclaw/matrix
 ```
 
-Install from a local checkout:
+Cài đặt từ bản sao cục bộ:
 
 ```bash
 openclaw plugins install ./extensions/matrix
 ```
 
-See [Plugins](/tools/plugin) for plugin behavior and install rules.
+Xem [Plugins](/tools/plugin) để biết hành vi và quy tắc cài đặt plugin.
 
-## Setup
+## Thiết lập
 
-1. Install the plugin.
-2. Create a Matrix account on your homeserver.
-3. Configure `channels.matrix` with either:
-   - `homeserver` + `accessToken`, or
+1. Cài đặt plugin.
+2. Tạo tài khoản Matrix trên máy chủ của bạn.
+3. Cấu hình `channels.matrix` với:
+   - `homeserver` + `accessToken`, hoặc
    - `homeserver` + `userId` + `password`.
-4. Restart the gateway.
-5. Start a DM with the bot or invite it to a room.
+4. Khởi động lại gateway.
+5. Bắt đầu một DM với bot hoặc mời bot vào phòng.
 
-Interactive setup paths:
+Các bước thiết lập tương tác:
 
 ```bash
 openclaw channels add
 openclaw configure --section channels
 ```
 
-What the Matrix wizard actually asks for:
+Những gì wizard Matrix thực sự yêu cầu:
 
-- homeserver URL
-- auth method: access token or password
-- user ID only when you choose password auth
-- optional device name
-- whether to enable E2EE
-- whether to configure Matrix room access now
+- URL của homeserver
+- Phương thức xác thực: access token hoặc password
+- user ID chỉ khi chọn xác thực bằng password
+- Tên thiết bị tùy chọn
+- Có bật E2EE hay không
+- Có cấu hình truy cập phòng Matrix ngay không
 
-Wizard behavior that matters:
+Hành vi của wizard:
 
-- If Matrix auth env vars already exist for the selected account, and that account does not already have auth saved in config, the wizard offers an env shortcut and only writes `enabled: true` for that account.
-- When you add another Matrix account interactively, the entered account name is normalized into the account ID used in config and env vars. For example, `Ops Bot` becomes `ops-bot`.
-- DM allowlist prompts accept full `@user:server` values immediately. Display names only work when live directory lookup finds one exact match; otherwise the wizard asks you to retry with a full Matrix ID.
-- Room allowlist prompts accept room IDs and aliases directly. They can also resolve joined-room names live, but unresolved names are only kept as typed during setup and are ignored later by runtime allowlist resolution. Prefer `!room:server` or `#alias:server`.
-- Runtime room/session identity uses the stable Matrix room ID. Room-declared aliases are only used as lookup inputs, not as the long-term session key or stable group identity.
-- To resolve room names before saving them, use `openclaw channels resolve --channel matrix "Project Room"`.
+- Nếu biến môi trường xác thực Matrix đã tồn tại cho tài khoản đã chọn và tài khoản đó chưa có xác thực lưu trong cấu hình, wizard sẽ cung cấp một lối tắt qua biến môi trường và chỉ ghi `enabled: true` cho tài khoản đó.
+- Khi thêm tài khoản Matrix khác một cách tương tác, tên tài khoản nhập vào sẽ được chuẩn hóa thành ID tài khoản được sử dụng trong cấu hình và biến môi trường. Ví dụ, `Ops Bot` trở thành `ops-bot`.
+- Các lời nhắc danh sách cho phép DM chấp nhận giá trị đầy đủ `@user:server` ngay lập tức. Tên hiển thị chỉ hoạt động khi tra cứu thư mục trực tiếp tìm thấy một kết quả khớp chính xác; nếu không, wizard sẽ yêu cầu thử lại với ID Matrix đầy đủ.
+- Các lời nhắc danh sách cho phép phòng chấp nhận ID phòng và bí danh trực tiếp. Chúng cũng có thể giải quyết tên phòng đã tham gia trực tiếp, nhưng các tên không được giải quyết chỉ được giữ lại như đã nhập trong quá trình thiết lập và bị bỏ qua sau đó bởi quá trình giải quyết danh sách cho phép khi chạy. Ưu tiên `!room:server` hoặc `#alias:server`.
+- Danh tính phòng/phiên khi chạy sử dụng ID phòng Matrix ổn định. Các bí danh được khai báo trong phòng chỉ được sử dụng làm đầu vào tra cứu, không phải là khóa phiên dài hạn hoặc danh tính nhóm ổn định.
+- Để giải quyết tên phòng trước khi lưu chúng, sử dụng `openclaw channels resolve --channel matrix "Project Room"`.
 
-Minimal token-based setup:
+Thiết lập tối thiểu dựa trên token:
 
 ```json5
 {
@@ -79,7 +78,7 @@ Minimal token-based setup:
 }
 ```
 
-Password-based setup (token is cached after login):
+Thiết lập dựa trên password (token được lưu vào bộ nhớ cache sau khi đăng nhập):
 
 ```json5
 {
@@ -95,10 +94,10 @@ Password-based setup (token is cached after login):
 }
 ```
 
-Matrix stores cached credentials in `~/.openclaw/credentials/matrix/`.
-The default account uses `credentials.json`; named accounts use `credentials-<account>.json`.
+Matrix lưu trữ thông tin xác thực đã lưu vào bộ nhớ cache trong `~/.openclaw/credentials/matrix/`.
+Tài khoản mặc định sử dụng `credentials.json`; các tài khoản có tên sử dụng `credentials-<account>.json`.
 
-Environment variable equivalents (used when the config key is not set):
+Các biến môi trường tương đương (được sử dụng khi khóa cấu hình không được đặt):
 
 - `MATRIX_HOMESERVER`
 - `MATRIX_ACCESS_TOKEN`
@@ -107,7 +106,7 @@ Environment variable equivalents (used when the config key is not set):
 - `MATRIX_DEVICE_ID`
 - `MATRIX_DEVICE_NAME`
 
-For non-default accounts, use account-scoped env vars:
+Đối với các tài khoản không mặc định, sử dụng các biến môi trường theo phạm vi tài khoản:
 
 - `MATRIX_<ACCOUNT_ID>_HOMESERVER`
 - `MATRIX_<ACCOUNT_ID>_ACCESS_TOKEN`
@@ -116,21 +115,21 @@ For non-default accounts, use account-scoped env vars:
 - `MATRIX_<ACCOUNT_ID>_DEVICE_ID`
 - `MATRIX_<ACCOUNT_ID>_DEVICE_NAME`
 
-Example for account `ops`:
+Ví dụ cho tài khoản `ops`:
 
 - `MATRIX_OPS_HOMESERVER`
 - `MATRIX_OPS_ACCESS_TOKEN`
 
-For normalized account ID `ops-bot`, use:
+Đối với ID tài khoản đã chuẩn hóa `ops-bot`, sử dụng:
 
 - `MATRIX_OPS_BOT_HOMESERVER`
 - `MATRIX_OPS_BOT_ACCESS_TOKEN`
 
-The interactive wizard only offers the env-var shortcut when those auth env vars are already present and the selected account does not already have Matrix auth saved in config.
+Wizard tương tác chỉ cung cấp lối tắt qua biến môi trường khi các biến môi trường xác thực đó đã có sẵn và tài khoản đã chọn chưa có xác thực Matrix lưu trong cấu hình.
 
-## Configuration example
+## Ví dụ cấu hình
 
-This is a practical baseline config with DM pairing, room allowlist, and E2EE enabled:
+Đây là cấu hình cơ bản thực tế với ghép đôi DM, danh sách cho phép phòng và E2EE được bật:
 
 ```json5
 {
@@ -162,13 +161,13 @@ This is a practical baseline config with DM pairing, room allowlist, and E2EE en
 }
 ```
 
-## E2EE setup
+## Thiết lập E2EE
 
-## Bot to bot rooms
+## Phòng bot-to-bot
 
-By default, Matrix messages from other configured OpenClaw Matrix accounts are ignored.
+Mặc định, các tin nhắn Matrix từ các tài khoản Matrix OpenClaw khác được cấu hình sẽ bị bỏ qua.
 
-Use `allowBots` when you intentionally want inter-agent Matrix traffic:
+Sử dụng `allowBots` khi bạn muốn có lưu lượng Matrix giữa các agent:
 
 ```json5
 {
@@ -185,15 +184,15 @@ Use `allowBots` when you intentionally want inter-agent Matrix traffic:
 }
 ```
 
-- `allowBots: true` accepts messages from other configured Matrix bot accounts in allowed rooms and DMs.
-- `allowBots: "mentions"` accepts those messages only when they visibly mention this bot in rooms. DMs are still allowed.
-- `groups.<room>.allowBots` overrides the account-level setting for one room.
-- OpenClaw still ignores messages from the same Matrix user ID to avoid self-reply loops.
-- Matrix does not expose a native bot flag here; OpenClaw treats "bot-authored" as "sent by another configured Matrix account on this OpenClaw gateway".
+- `allowBots: true` chấp nhận tin nhắn từ các tài khoản bot Matrix khác trong các phòng và DM được phép.
+- `allowBots: "mentions"` chỉ chấp nhận những tin nhắn đó khi chúng đề cập rõ ràng đến bot này trong phòng. DM vẫn được phép.
+- `groups.<room>.allowBots` ghi đè cài đặt cấp tài khoản cho một phòng.
+- OpenClaw vẫn bỏ qua các tin nhắn từ cùng một ID người dùng Matrix để tránh vòng lặp tự trả lời.
+- Matrix không cung cấp cờ bot gốc ở đây; OpenClaw coi "do bot tạo ra" là "được gửi bởi một tài khoản Matrix khác được cấu hình trên gateway OpenClaw này".
 
-Use strict room allowlists and mention requirements when enabling bot-to-bot traffic in shared rooms.
+Sử dụng danh sách cho phép phòng nghiêm ngặt và yêu cầu đề cập khi bật lưu lượng bot-to-bot trong các phòng chia sẻ.
 
-Enable encryption:
+Bật mã hóa:
 
 ```json5
 {
@@ -209,92 +208,92 @@ Enable encryption:
 }
 ```
 
-Check verification status:
+Kiểm tra trạng thái xác minh:
 
 ```bash
 openclaw matrix verify status
 ```
 
-Verbose status (full diagnostics):
+Trạng thái chi tiết (chẩn đoán đầy đủ):
 
 ```bash
 openclaw matrix verify status --verbose
 ```
 
-Include the stored recovery key in machine-readable output:
+Bao gồm khóa khôi phục đã lưu trong đầu ra có thể đọc được bằng máy:
 
 ```bash
 openclaw matrix verify status --include-recovery-key --json
 ```
 
-Bootstrap cross-signing and verification state:
+Khởi tạo trạng thái ký chéo và xác minh:
 
 ```bash
 openclaw matrix verify bootstrap
 ```
 
-Multi-account support: use `channels.matrix.accounts` with per-account credentials and optional `name`. See [Configuration reference](/gateway/configuration-reference#multi-account-all-channels) for the shared pattern.
+Hỗ trợ nhiều tài khoản: sử dụng `channels.matrix.accounts` với thông tin xác thực cho từng tài khoản và `name` tùy chọn. Xem [Tham chiếu cấu hình](/gateway/configuration-reference#multi-account-all-channels) cho mẫu chia sẻ.
 
-Verbose bootstrap diagnostics:
+Chẩn đoán khởi tạo chi tiết:
 
 ```bash
 openclaw matrix verify bootstrap --verbose
 ```
 
-Force a fresh cross-signing identity reset before bootstrapping:
+Buộc đặt lại danh tính ký chéo mới trước khi khởi tạo:
 
 ```bash
 openclaw matrix verify bootstrap --force-reset-cross-signing
 ```
 
-Verify this device with a recovery key:
+Xác minh thiết bị này bằng khóa khôi phục:
 
 ```bash
 openclaw matrix verify device "<your-recovery-key>"
 ```
 
-Verbose device verification details:
+Chi tiết xác minh thiết bị chi tiết:
 
 ```bash
 openclaw matrix verify device "<your-recovery-key>" --verbose
 ```
 
-Check room-key backup health:
+Kiểm tra sức khỏe sao lưu khóa phòng:
 
 ```bash
 openclaw matrix verify backup status
 ```
 
-Verbose backup health diagnostics:
+Chẩn đoán sức khỏe sao lưu chi tiết:
 
 ```bash
 openclaw matrix verify backup status --verbose
 ```
 
-Restore room keys from server backup:
+Khôi phục khóa phòng từ sao lưu máy chủ:
 
 ```bash
 openclaw matrix verify backup restore
 ```
 
-Verbose restore diagnostics:
+Chẩn đoán khôi phục chi tiết:
 
 ```bash
 openclaw matrix verify backup restore --verbose
 ```
 
-Delete the current server backup and create a fresh backup baseline:
+Xóa sao lưu máy chủ hiện tại và tạo cơ sở sao lưu mới:
 
 ```bash
 openclaw matrix verify backup reset --yes
 ```
 
-All `verify` commands are concise by default (including quiet internal SDK logging) and show detailed diagnostics only with `--verbose`.
-Use `--json` for full machine-readable output when scripting.
+Tất cả các lệnh `verify` đều ngắn gọn theo mặc định (bao gồm cả ghi nhật ký SDK nội bộ yên tĩnh) và chỉ hiển thị chẩn đoán chi tiết với `--verbose`.
+Sử dụng `--json` để có đầu ra đầy đủ có thể đọc được bằng máy khi viết script.
 
-In multi-account setups, Matrix CLI commands use the implicit Matrix default account unless you pass `--account <id>`.
-If you configure multiple named accounts, set `channels.matrix.defaultAccount` first or those implicit CLI operations will stop and ask you to choose an account explicitly.
-Use `--account` whenever you want verification or device operations to target a named account explicitly:
+Trong các thiết lập nhiều tài khoản, các lệnh CLI Matrix sử dụng tài khoản Matrix mặc định ngầm định trừ khi bạn truyền `--account <id>`.
+Nếu bạn cấu hình nhiều tài khoản có tên, hãy đặt `channels.matrix.defaultAccount` trước hoặc các thao tác CLI ngầm định đó sẽ dừng lại và yêu cầu bạn chọn tài khoản rõ ràng.
+Sử dụng `--account` bất cứ khi nào bạn muốn xác minh hoặc các thao tác thiết bị nhắm mục tiêu vào một tài khoản có tên rõ ràng:
 
 ```bash
 openclaw matrix verify status --account assistant
@@ -302,40 +301,40 @@ openclaw matrix verify backup restore --account assistant
 openclaw matrix devices list --account assistant
 ```
 
-When encryption is disabled or unavailable for a named account, Matrix warnings and verification errors point at that account's config key, for example `channels.matrix.accounts.assistant.encryption`.
+Khi mã hóa bị tắt hoặc không khả dụng cho một tài khoản có tên, các cảnh báo Matrix và lỗi xác minh chỉ ra khóa cấu hình của tài khoản đó, ví dụ `channels.matrix.accounts.assistant.encryption`.
 
-### What "verified" means
+### Ý nghĩa của "đã xác minh"
 
-OpenClaw treats this Matrix device as verified only when it is verified by your own cross-signing identity.
-In practice, `openclaw matrix verify status --verbose` exposes three trust signals:
+OpenClaw coi thiết bị Matrix này là đã xác minh chỉ khi nó được xác minh bởi danh tính ký chéo của bạn.
+Trong thực tế, `openclaw matrix verify status --verbose` hiển thị ba tín hiệu tin cậy:
 
-- `Locally trusted`: this device is trusted by the current client only
-- `Cross-signing verified`: the SDK reports the device as verified through cross-signing
-- `Signed by owner`: the device is signed by your own self-signing key
+- `Locally trusted`: thiết bị này chỉ được tin cậy bởi client hiện tại
+- `Cross-signing verified`: SDK báo cáo thiết bị đã được xác minh thông qua ký chéo
+- `Signed by owner`: thiết bị được ký bởi khóa tự ký của bạn
 
-`Verified by owner` becomes `yes` only when cross-signing verification or owner-signing is present.
-Local trust by itself is not enough for OpenClaw to treat the device as fully verified.
+`Verified by owner` trở thành `yes` chỉ khi có xác minh ký chéo hoặc ký bởi chủ sở hữu.
+Tin cậy cục bộ tự nó không đủ để OpenClaw coi thiết bị là đã xác minh hoàn toàn.
 
-### What bootstrap does
+### Những gì khởi tạo làm
 
-`openclaw matrix verify bootstrap` is the repair and setup command for encrypted Matrix accounts.
-It does all of the following in order:
+`openclaw matrix verify bootstrap` là lệnh sửa chữa và thiết lập cho các tài khoản Matrix được mã hóa.
+Nó thực hiện tất cả các bước sau theo thứ tự:
 
-- bootstraps secret storage, reusing an existing recovery key when possible
-- bootstraps cross-signing and uploads missing public cross-signing keys
-- attempts to mark and cross-sign the current device
-- creates a new server-side room-key backup if one does not already exist
+- khởi tạo lưu trữ bí mật, tái sử dụng khóa khôi phục hiện có khi có thể
+- khởi tạo ký chéo và tải lên các khóa ký chéo công khai bị thiếu
+- cố gắng đánh dấu và ký chéo thiết bị hiện tại
+- tạo một bản sao lưu khóa phòng phía máy chủ mới nếu chưa có
 
-If the homeserver requires interactive auth to upload cross-signing keys, OpenClaw tries the upload without auth first, then with `m.login.dummy`, then with `m.login.password` when `channels.matrix.password` is configured.
+Nếu máy chủ yêu cầu xác thực tương tác để tải lên các khóa ký chéo, OpenClaw thử tải lên mà không cần xác thực trước, sau đó với `m.login.dummy`, sau đó với `m.login.password` khi `channels.matrix.password` được cấu hình.
 
-Use `--force-reset-cross-signing` only when you intentionally want to discard the current cross-signing identity and create a new one.
+Sử dụng `--force-reset-cross-signing` chỉ khi bạn muốn loại bỏ danh tính ký chéo hiện tại và tạo một danh tính mới.
 
-If you intentionally want to discard the current room-key backup and start a new backup baseline for future messages, use `openclaw matrix verify backup reset --yes`.
-Do this only when you accept that unrecoverable old encrypted history will stay unavailable.
+Nếu bạn muốn loại bỏ bản sao lưu khóa phòng hiện tại và bắt đầu một cơ sở sao lưu mới cho các tin nhắn trong tương lai, sử dụng `openclaw matrix verify backup reset --yes`.
+Chỉ làm điều này khi bạn chấp nhận rằng lịch sử mã hóa cũ không thể khôi phục sẽ không thể truy cập được.
 
-### Fresh backup baseline
+### Cơ sở sao lưu mới
 
-If you want to keep future encrypted messages working and accept losing unrecoverable old history, run these commands in order:
+Nếu bạn muốn giữ cho các tin nhắn mã hóa trong tương lai hoạt động và chấp nhận mất lịch sử cũ không thể khôi phục, hãy chạy các lệnh này theo thứ tự:
 
 ```bash
 openclaw matrix verify backup reset --yes
@@ -343,136 +342,136 @@ openclaw matrix verify backup status --verbose
 openclaw matrix verify status
 ```
 
-Add `--account <id>` to each command when you want to target a named Matrix account explicitly.
+Thêm `--account <id>` vào mỗi lệnh khi bạn muốn nhắm mục tiêu vào một tài khoản Matrix có tên rõ ràng.
 
-### Startup behavior
+### Hành vi khởi động
 
-When `encryption: true`, Matrix defaults `startupVerification` to `"if-unverified"`.
-On startup, if this device is still unverified, Matrix will request self-verification in another Matrix client,
-skip duplicate requests while one is already pending, and apply a local cooldown before retrying after restarts.
-Failed request attempts retry sooner than successful request creation by default.
-Set `startupVerification: "off"` to disable automatic startup requests, or tune `startupVerificationCooldownHours`
-if you want a shorter or longer retry window.
+Khi `encryption: true`, Matrix mặc định `startupVerification` là `"if-unverified"`.
+Khi khởi động, nếu thiết bị này vẫn chưa được xác minh, Matrix sẽ yêu cầu tự xác minh trong một client Matrix khác,
+bỏ qua các yêu cầu trùng lặp trong khi một yêu cầu đã đang chờ xử lý, và áp dụng một khoảng thời gian chờ trước khi thử lại sau khi khởi động lại.
+Các lần thử yêu cầu thất bại sẽ thử lại sớm hơn so với các lần tạo yêu cầu thành công theo mặc định.
+Đặt `startupVerification: "off"` để tắt các yêu cầu khởi động tự động, hoặc điều chỉnh `startupVerificationCooldownHours`
+nếu bạn muốn một khoảng thời gian thử lại ngắn hơn hoặc dài hơn.
 
-Startup also performs a conservative crypto bootstrap pass automatically.
-That pass tries to reuse the current secret storage and cross-signing identity first, and avoids resetting cross-signing unless you run an explicit bootstrap repair flow.
+Khởi động cũng thực hiện một lần khởi tạo mã hóa bảo thủ tự động.
+Lần khởi tạo đó cố gắng tái sử dụng lưu trữ bí mật hiện tại và danh tính ký chéo trước tiên, và tránh đặt lại ký chéo trừ khi bạn chạy một luồng sửa chữa khởi tạo rõ ràng.
 
-If startup finds broken bootstrap state and `channels.matrix.password` is configured, OpenClaw can attempt a stricter repair path.
-If the current device is already owner-signed, OpenClaw preserves that identity instead of resetting it automatically.
+Nếu khởi động phát hiện trạng thái khởi tạo bị hỏng và `channels.matrix.password` được cấu hình, OpenClaw có thể thử một đường sửa chữa nghiêm ngặt hơn.
+Nếu thiết bị hiện tại đã được ký bởi chủ sở hữu, OpenClaw sẽ giữ lại danh tính đó thay vì tự động đặt lại nó.
 
-Upgrading from the previous public Matrix plugin:
+Nâng cấp từ plugin Matrix công khai trước đó:
 
-- OpenClaw automatically reuses the same Matrix account, access token, and device identity when possible.
-- Before any actionable Matrix migration changes run, OpenClaw creates or reuses a recovery snapshot under `~/Backups/openclaw-migrations/`.
-- If you use multiple Matrix accounts, set `channels.matrix.defaultAccount` before upgrading from the old flat-store layout so OpenClaw knows which account should receive that shared legacy state.
-- If the previous plugin stored a Matrix room-key backup decryption key locally, startup or `openclaw doctor --fix` will import it into the new recovery-key flow automatically.
-- If the Matrix access token changed after migration was prepared, startup now scans sibling token-hash storage roots for pending legacy restore state before giving up on the automatic backup restore.
-- If the Matrix access token changes later for the same account, homeserver, and user, OpenClaw now prefers reusing the most complete existing token-hash storage root instead of starting from an empty Matrix state directory.
-- On the next gateway start, backed-up room keys are restored automatically into the new crypto store.
-- If the old plugin had local-only room keys that were never backed up, OpenClaw will warn clearly. Those keys cannot be exported automatically from the previous rust crypto store, so some old encrypted history may remain unavailable until recovered manually.
-- See [Matrix migration](/install/migrating-matrix) for the full upgrade flow, limits, recovery commands, and common migration messages.
+- OpenClaw tự động tái sử dụng cùng tài khoản Matrix, access token và danh tính thiết bị khi có thể.
+- Trước khi bất kỳ thay đổi di chuyển Matrix nào có thể thực hiện được, OpenClaw tạo hoặc tái sử dụng một bản sao lưu dưới `~/Backups/openclaw-migrations/`.
+- Nếu bạn sử dụng nhiều tài khoản Matrix, hãy đặt `channels.matrix.defaultAccount` trước khi nâng cấp từ bố cục lưu trữ phẳng cũ để OpenClaw biết tài khoản nào nên nhận trạng thái kế thừa chia sẻ đó.
+- Nếu plugin trước đó lưu trữ một khóa giải mã sao lưu khóa phòng Matrix cục bộ, khởi động hoặc `openclaw doctor --fix` sẽ nhập nó vào luồng khóa khôi phục mới tự động.
+- Nếu access token Matrix thay đổi sau khi di chuyển đã được chuẩn bị, khởi động bây giờ quét các gốc lưu trữ hash token anh em cho trạng thái khôi phục kế thừa đang chờ trước khi từ bỏ trạng thái Matrix trống.
+- Nếu access token Matrix thay đổi sau đó cho cùng tài khoản, máy chủ, và người dùng, OpenClaw bây giờ ưu tiên tái sử dụng gốc lưu trữ hiện có hoàn chỉnh nhất thay vì bắt đầu từ một thư mục trạng thái Matrix trống.
+- Vào lần khởi động gateway tiếp theo, các khóa phòng đã sao lưu được khôi phục tự động vào cửa hàng mã hóa mới.
+- Nếu plugin cũ có các khóa phòng chỉ cục bộ chưa bao giờ được sao lưu, OpenClaw sẽ cảnh báo rõ ràng. Những khóa đó không thể được xuất tự động từ cửa hàng mã hóa rust trước đó, vì vậy một số lịch sử mã hóa cũ có thể vẫn không thể truy cập được cho đến khi được khôi phục thủ công.
+- Xem [Di chuyển Matrix](/install/migrating-matrix) để biết luồng nâng cấp đầy đủ, giới hạn, lệnh khôi phục và các thông báo di chuyển phổ biến.
 
-Encrypted runtime state is organized under per-account, per-user token-hash roots in
+Trạng thái runtime mã hóa được tổ chức dưới các gốc hash token theo tài khoản, theo người dùng trong
 `~/.openclaw/matrix/accounts/<account>/<homeserver>__<user>/<token-hash>/`.
-That directory contains the sync store (`bot-storage.json`), crypto store (`crypto/`),
-recovery key file (`recovery-key.json`), IndexedDB snapshot (`crypto-idb-snapshot.json`),
-thread bindings (`thread-bindings.json`), and startup verification state (`startup-verification.json`)
-when those features are in use.
-When the token changes but the account identity stays the same, OpenClaw reuses the best existing
-root for that account/homeserver/user tuple so prior sync state, crypto state, thread bindings,
-and startup verification state remain visible.
+Thư mục đó chứa cửa hàng đồng bộ (`bot-storage.json`), cửa hàng mã hóa (`crypto/`),
+tệp khóa khôi phục (`recovery-key.json`), ảnh chụp nhanh IndexedDB (`crypto-idb-snapshot.json`),
+ràng buộc luồng (`thread-bindings.json`), và trạng thái xác minh khởi động (`startup-verification.json`)
+khi các tính năng đó đang được sử dụng.
+Khi token thay đổi nhưng danh tính tài khoản vẫn giữ nguyên, OpenClaw tái sử dụng gốc tốt nhất hiện có
+cho bộ ba tài khoản/máy chủ/người dùng đó để trạng thái đồng bộ trước đó, trạng thái mã hóa, ràng buộc luồng,
+và trạng thái xác minh khởi động vẫn hiển thị.
 
-### Node crypto store model
+### Mô hình cửa hàng mã hóa Node
 
-Matrix E2EE in this plugin uses the official `matrix-js-sdk` Rust crypto path in Node.
-That path expects IndexedDB-backed persistence when you want crypto state to survive restarts.
+Matrix E2EE trong plugin này sử dụng đường mã hóa Rust `matrix-js-sdk` chính thức trong Node.
+Đường này mong đợi sự tồn tại của IndexedDB khi bạn muốn trạng thái mã hóa tồn tại qua các lần khởi động lại.
 
-OpenClaw currently provides that in Node by:
+Hiện tại OpenClaw cung cấp điều đó trong Node bằng cách:
 
-- using `fake-indexeddb` as the IndexedDB API shim expected by the SDK
-- restoring the Rust crypto IndexedDB contents from `crypto-idb-snapshot.json` before `initRustCrypto`
-- persisting the updated IndexedDB contents back to `crypto-idb-snapshot.json` after init and during runtime
+- sử dụng `fake-indexeddb` làm API IndexedDB giả lập mà SDK mong đợi
+- khôi phục nội dung IndexedDB mã hóa Rust từ `crypto-idb-snapshot.json` trước `initRustCrypto`
+- lưu trữ nội dung IndexedDB đã cập nhật trở lại `crypto-idb-snapshot.json` sau khi khởi tạo và trong runtime
 
-This is compatibility/storage plumbing, not a custom crypto implementation.
-The snapshot file is sensitive runtime state and is stored with restrictive file permissions.
-Under OpenClaw's security model, the gateway host and local OpenClaw state directory are already inside the trusted operator boundary, so this is primarily an operational durability concern rather than a separate remote trust boundary.
+Đây là sự tương thích/ổn định lưu trữ, không phải là một triển khai mã hóa tùy chỉnh.
+Tệp ảnh chụp nhanh là trạng thái runtime nhạy cảm và được lưu trữ với quyền truy cập tệp hạn chế.
+Dưới mô hình bảo mật của OpenClaw, máy chủ gateway và thư mục trạng thái cục bộ OpenClaw đã nằm trong ranh giới nhà điều hành tin cậy, vì vậy đây chủ yếu là một mối quan tâm về độ bền hoạt động hơn là một ranh giới tin cậy từ xa riêng biệt.
 
-Planned improvement:
+Cải tiến dự kiến:
 
-- add SecretRef support for persistent Matrix key material so recovery keys and related store-encryption secrets can be sourced from OpenClaw secrets providers instead of only local files
+- thêm hỗ trợ SecretRef cho vật liệu khóa Matrix bền vững để khóa khôi phục và các bí mật mã hóa cửa hàng liên quan có thể được lấy từ các nhà cung cấp bí mật OpenClaw thay vì chỉ từ các tệp cục bộ
 
-## Automatic verification notices
+## Thông báo xác minh tự động
 
-Matrix now posts verification lifecycle notices directly into the strict DM verification room as `m.notice` messages.
-That includes:
+Matrix hiện đăng các thông báo vòng đời xác minh trực tiếp vào phòng xác minh DM nghiêm ngặt dưới dạng tin nhắn `m.notice`.
+Điều đó bao gồm:
 
-- verification request notices
-- verification ready notices (with explicit "Verify by emoji" guidance)
-- verification start and completion notices
-- SAS details (emoji and decimal) when available
+- thông báo yêu cầu xác minh
+- thông báo sẵn sàng xác minh (với hướng dẫn "Xác minh bằng emoji" rõ ràng)
+- thông báo bắt đầu và hoàn thành xác minh
+- chi tiết SAS (emoji và số thập phân) khi có sẵn
 
-Incoming verification requests from another Matrix client are tracked and auto-accepted by OpenClaw.
-For self-verification flows, OpenClaw also starts the SAS flow automatically when emoji verification becomes available and confirms its own side.
-For verification requests from another Matrix user/device, OpenClaw auto-accepts the request and then waits for the SAS flow to proceed normally.
-You still need to compare the emoji or decimal SAS in your Matrix client and confirm "They match" there to complete the verification.
+Các yêu cầu xác minh đến từ một client Matrix khác được theo dõi và tự động chấp nhận bởi OpenClaw.
+Đối với các luồng tự xác minh, OpenClaw cũng bắt đầu luồng SAS tự động khi xác minh emoji trở nên khả dụng và xác nhận phía của mình.
+Đối với các yêu cầu xác minh từ một người dùng/thiết bị Matrix khác, OpenClaw tự động chấp nhận yêu cầu và sau đó chờ luồng SAS tiếp tục bình thường.
+Bạn vẫn cần so sánh emoji hoặc SAS số thập phân trong client Matrix của mình và xác nhận "Chúng khớp" ở đó để hoàn thành xác minh.
 
-OpenClaw does not auto-accept self-initiated duplicate flows blindly. Startup skips creating a new request when a self-verification request is already pending.
+OpenClaw không tự động chấp nhận các luồng trùng lặp tự khởi tạo một cách mù quáng. Khởi động bỏ qua việc tạo một yêu cầu mới khi một yêu cầu tự xác minh đã đang chờ xử lý.
 
-Verification protocol/system notices are not forwarded to the agent chat pipeline, so they do not produce `NO_REPLY`.
+Các thông báo giao thức/hệ thống xác minh không được chuyển tiếp đến pipeline chat agent, vì vậy chúng không tạo ra `NO_REPLY`.
 
-### Device hygiene
+### Vệ sinh thiết bị
 
-Old OpenClaw-managed Matrix devices can accumulate on the account and make encrypted-room trust harder to reason about.
-List them with:
+Các thiết bị Matrix do OpenClaw quản lý cũ có thể tích tụ trên tài khoản và làm cho việc tin tưởng phòng mã hóa trở nên khó hiểu hơn.
+Liệt kê chúng với:
 
 ```bash
 openclaw matrix devices list
 ```
 
-Remove stale OpenClaw-managed devices with:
+Xóa các thiết bị do OpenClaw quản lý cũ với:
 
 ```bash
 openclaw matrix devices prune-stale
 ```
 
-### Direct Room Repair
+### Sửa chữa phòng trực tiếp
 
-If direct-message state gets out of sync, OpenClaw can end up with stale `m.direct` mappings that point at old solo rooms instead of the live DM. Inspect the current mapping for a peer with:
+Nếu trạng thái tin nhắn trực tiếp bị mất đồng bộ, OpenClaw có thể kết thúc với các ánh xạ `m.direct` cũ chỉ vào các phòng solo cũ thay vì DM trực tiếp. Kiểm tra ánh xạ hiện tại cho một đối tác với:
 
 ```bash
 openclaw matrix direct inspect --user-id @alice:example.org
 ```
 
-Repair it with:
+Sửa chữa nó với:
 
 ```bash
 openclaw matrix direct repair --user-id @alice:example.org
 ```
 
-Repair keeps the Matrix-specific logic inside the plugin:
+Luồng sửa chữa giữ logic cụ thể của Matrix bên trong plugin:
 
-- it prefers a strict 1:1 DM that is already mapped in `m.direct`
-- otherwise it falls back to any currently joined strict 1:1 DM with that user
-- if no healthy DM exists, it creates a fresh direct room and rewrites `m.direct` to point at it
+- nó ưu tiên một DM 1:1 nghiêm ngặt đã được ánh xạ trong `m.direct`
+- nếu không, nó quay lại bất kỳ DM 1:1 nghiêm ngặt nào hiện đang tham gia với người dùng đó
+- nếu không có DM nào khỏe mạnh tồn tại, nó tạo một phòng trực tiếp mới và viết lại `m.direct` để chỉ vào nó
 
-The repair flow does not delete old rooms automatically. It only picks the healthy DM and updates the mapping so new Matrix sends, verification notices, and other direct-message flows target the right room again.
+Luồng sửa chữa không tự động xóa các phòng cũ. Nó chỉ chọn DM khỏe mạnh và cập nhật ánh xạ để các tin nhắn Matrix mới, thông báo xác minh và các luồng tin nhắn trực tiếp khác nhắm mục tiêu lại phòng đúng.
 
-## Threads
+## Luồng
 
-Matrix supports native Matrix threads for both automatic replies and message-tool sends.
+Matrix hỗ trợ các luồng Matrix gốc cho cả trả lời tự động và gửi công cụ tin nhắn.
 
-- `threadReplies: "off"` keeps replies top-level.
-- `threadReplies: "inbound"` replies inside a thread only when the inbound message was already in that thread.
-- `threadReplies: "always"` keeps room replies in a thread rooted at the triggering message.
-- Inbound threaded messages include the thread root message as extra agent context.
-- Message-tool sends now auto-inherit the current Matrix thread when the target is the same room, or the same DM user target, unless an explicit `threadId` is provided.
-- Runtime thread bindings are supported for Matrix. `/focus`, `/unfocus`, `/agents`, `/session idle`, `/session max-age`, and thread-bound `/acp spawn` now work in Matrix rooms and DMs.
-- Top-level Matrix room/DM `/focus` creates a new Matrix thread and binds it to the target session when `threadBindings.spawnSubagentSessions=true`.
-- Running `/focus` or `/acp spawn --thread here` inside an existing Matrix thread binds that current thread instead.
+- `threadReplies: "off"` giữ các trả lời ở cấp cao nhất.
+- `threadReplies: "inbound"` trả lời trong một luồng chỉ khi tin nhắn đến đã ở trong luồng đó.
+- `threadReplies: "always"` giữ các trả lời phòng trong một luồng bắt nguồn từ tin nhắn kích hoạt.
+- Các tin nhắn luồng đến bao gồm tin nhắn gốc của luồng làm ngữ cảnh agent bổ sung.
+- Gửi công cụ tin nhắn bây giờ tự động kế thừa luồng Matrix hiện tại khi mục tiêu là cùng một phòng, hoặc cùng một mục tiêu người dùng DM, trừ khi một `threadId` rõ ràng được cung cấp.
+- Các ràng buộc luồng runtime được hỗ trợ cho Matrix. `/focus`, `/unfocus`, `/agents`, `/session idle`, `/session max-age`, và `/acp spawn` ràng buộc luồng bây giờ hoạt động trong các phòng và DM Matrix.
+- `/focus` phòng/DM Matrix cấp cao nhất tạo một luồng Matrix mới và ràng buộc nó với phiên mục tiêu khi `threadBindings.spawnSubagentSessions=true`.
+- Chạy `/focus` hoặc `/acp spawn --thread here` bên trong một luồng Matrix hiện có ràng buộc luồng hiện tại thay thế.
 
-### Thread Binding Config
+### Cấu hình Ràng buộc Luồng
 
-Matrix inherits global defaults from `session.threadBindings`, and also supports per-channel overrides:
+Matrix kế thừa các mặc định toàn cầu từ `session.threadBindings`, và cũng hỗ trợ ghi đè theo kênh:
 
 - `threadBindings.enabled`
 - `threadBindings.idleHours`
@@ -480,47 +479,47 @@ Matrix inherits global defaults from `session.threadBindings`, and also supports
 - `threadBindings.spawnSubagentSessions`
 - `threadBindings.spawnAcpSessions`
 
-Matrix thread-bound spawn flags are opt-in:
+Các cờ spawn ràng buộc luồng Matrix là tùy chọn:
 
-- Set `threadBindings.spawnSubagentSessions: true` to allow top-level `/focus` to create and bind new Matrix threads.
-- Set `threadBindings.spawnAcpSessions: true` to allow `/acp spawn --thread auto|here` to bind ACP sessions to Matrix threads.
+- Đặt `threadBindings.spawnSubagentSessions: true` để cho phép `/focus` cấp cao nhất tạo và ràng buộc các luồng Matrix mới.
+- Đặt `threadBindings.spawnAcpSessions: true` để cho phép `/acp spawn --thread auto|here` ràng buộc các phiên ACP với các luồng Matrix.
 
-## Reactions
+## Phản ứng
 
-Matrix supports outbound reaction actions, inbound reaction notifications, and inbound ack reactions.
+Matrix hỗ trợ các hành động phản ứng ra ngoài, thông báo phản ứng đến và phản ứng xác nhận đến.
 
-- Outbound reaction tooling is gated by `channels["matrix"].actions.reactions`.
-- `react` adds a reaction to a specific Matrix event.
-- `reactions` lists the current reaction summary for a specific Matrix event.
-- `emoji=""` removes the bot account's own reactions on that event.
-- `remove: true` removes only the specified emoji reaction from the bot account.
+- Công cụ phản ứng ra ngoài được kiểm soát bởi `channels["matrix"].actions.reactions`.
+- `react` thêm một phản ứng vào một sự kiện Matrix cụ thể.
+- `reactions` liệt kê tóm tắt phản ứng hiện tại cho một sự kiện Matrix cụ thể.
+- `emoji=""` xóa các phản ứng của tài khoản bot trên sự kiện đó.
+- `remove: true` chỉ xóa phản ứng emoji được chỉ định từ tài khoản bot.
 
-Ack reactions use the standard OpenClaw resolution order:
+Phản ứng xác nhận sử dụng thứ tự giải quyết OpenClaw tiêu chuẩn:
 
 - `channels["matrix"].accounts.<accountId>.ackReaction`
 - `channels["matrix"].ackReaction`
 - `messages.ackReaction`
-- agent identity emoji fallback
+- dự phòng emoji danh tính agent
 
-Ack reaction scope resolves in this order:
+Phạm vi phản ứng xác nhận được giải quyết theo thứ tự này:
 
 - `channels["matrix"].accounts.<accountId>.ackReactionScope`
 - `channels["matrix"].ackReactionScope`
 - `messages.ackReactionScope`
 
-Reaction notification mode resolves in this order:
+Chế độ thông báo phản ứng được giải quyết theo thứ tự này:
 
 - `channels["matrix"].accounts.<accountId>.reactionNotifications`
 - `channels["matrix"].reactionNotifications`
-- default: `own`
+- mặc định: `own`
 
-Current behavior:
+Hành vi hiện tại:
 
-- `reactionNotifications: "own"` forwards added `m.reaction` events when they target bot-authored Matrix messages.
-- `reactionNotifications: "off"` disables reaction system events.
-- Reaction removals are still not synthesized into system events because Matrix surfaces those as redactions, not as standalone `m.reaction` removals.
+- `reactionNotifications: "own"` chuyển tiếp các sự kiện `m.reaction` được thêm vào khi chúng nhắm mục tiêu các tin nhắn Matrix do bot tạo ra.
+- `reactionNotifications: "off"` tắt các sự kiện hệ thống phản ứng.
+- Việc xóa phản ứng vẫn chưa được tổng hợp thành các sự kiện hệ thống vì Matrix hiển thị chúng dưới dạng các chỉnh sửa, không phải là các xóa `m.reaction` độc lập.
 
-## DM and room policy example
+## Ví dụ về chính sách DM và phòng
 
 ```json5
 {
@@ -542,20 +541,20 @@ Current behavior:
 }
 ```
 
-See [Groups](/channels/groups) for mention-gating and allowlist behavior.
+Xem [Groups](/channels/groups) để biết hành vi danh sách cho phép và yêu cầu đề cập.
 
-Pairing example for Matrix DMs:
+Ví dụ ghép đôi cho DM Matrix:
 
 ```bash
 openclaw pairing list matrix
 openclaw pairing approve matrix <CODE>
 ```
 
-If an unapproved Matrix user keeps messaging you before approval, OpenClaw reuses the same pending pairing code and may send a reminder reply again after a short cooldown instead of minting a new code.
+Nếu một người dùng Matrix chưa được chấp thuận tiếp tục nhắn tin cho bạn trước khi được chấp thuận, OpenClaw sẽ tái sử dụng mã ghép đôi đang chờ xử lý và có thể gửi lại một lời nhắc sau một khoảng thời gian ngắn thay vì tạo mã mới.
 
-See [Pairing](/channels/pairing) for the shared DM pairing flow and storage layout.
+Xem [Pairing](/channels/pairing) để biết luồng ghép đôi DM chia sẻ và bố cục lưu trữ.
 
-## Multi-account example
+## Ví dụ nhiều tài khoản
 
 ```json5
 {
@@ -584,18 +583,18 @@ See [Pairing](/channels/pairing) for the shared DM pairing flow and storage layo
 }
 ```
 
-Top-level `channels.matrix` values act as defaults for named accounts unless an account overrides them.
-Set `defaultAccount` when you want OpenClaw to prefer one named Matrix account for implicit routing, probing, and CLI operations.
-If you configure multiple named accounts, set `defaultAccount` or pass `--account <id>` for CLI commands that rely on implicit account selection.
-Pass `--account <id>` to `openclaw matrix verify ...` and `openclaw matrix devices ...` when you want to override that implicit selection for one command.
+Các giá trị `channels.matrix` cấp cao nhất hoạt động như mặc định cho các tài khoản có tên trừ khi một tài khoản ghi đè chúng.
+Đặt `defaultAccount` khi bạn muốn OpenClaw ưu tiên một tài khoản Matrix có tên cho định tuyến ngầm định, thăm dò và các thao tác CLI.
+Nếu bạn cấu hình nhiều tài khoản có tên, hãy đặt `defaultAccount` hoặc truyền `--account <id>` cho các lệnh CLI dựa vào lựa chọn tài khoản ngầm định.
+Truyền `--account <id>` cho `openclaw matrix verify ...` và `openclaw matrix devices ...` khi bạn muốn ghi đè lựa chọn ngầm định đó cho một lệnh.
 
-## Private/LAN homeservers
+## Máy chủ riêng/LAN
 
-By default, OpenClaw blocks private/internal Matrix homeservers for SSRF protection unless you
-explicitly opt in per account.
+Mặc định, OpenClaw chặn các máy chủ Matrix riêng/nội bộ để bảo vệ SSRF trừ khi bạn
+rõ ràng chọn tham gia cho từng tài khoản.
 
-If your homeserver runs on localhost, a LAN/Tailscale IP, or an internal hostname, enable
-`allowPrivateNetwork` for that Matrix account:
+Nếu máy chủ của bạn chạy trên localhost, một IP LAN/Tailscale, hoặc một tên máy chủ nội bộ, bật
+`allowPrivateNetwork` cho tài khoản Matrix đó:
 
 ```json5
 {
@@ -609,7 +608,7 @@ If your homeserver runs on localhost, a LAN/Tailscale IP, or an internal hostnam
 }
 ```
 
-CLI setup example:
+Ví dụ thiết lập CLI:
 
 ```bash
 openclaw matrix account add \
@@ -619,59 +618,59 @@ openclaw matrix account add \
   --access-token syt_ops_xxx
 ```
 
-This opt-in only allows trusted private/internal targets. Public cleartext homeservers such as
-`http://matrix.example.org:8008` remain blocked. Prefer `https://` whenever possible.
+Tùy chọn tham gia này chỉ cho phép các mục tiêu riêng/nội bộ đáng tin cậy. Các máy chủ công khai không mã hóa như
+`http://matrix.example.org:8008` vẫn bị chặn. Ưu tiên `https://` bất cứ khi nào có thể.
 
-## Target resolution
+## Giải quyết mục tiêu
 
-Matrix accepts these target forms anywhere OpenClaw asks you for a room or user target:
+Matrix chấp nhận các dạng mục tiêu này ở bất kỳ đâu OpenClaw yêu cầu bạn cho một phòng hoặc mục tiêu người dùng:
 
-- Users: `@user:server`, `user:@user:server`, or `matrix:user:@user:server`
-- Rooms: `!room:server`, `room:!room:server`, or `matrix:room:!room:server`
-- Aliases: `#alias:server`, `channel:#alias:server`, or `matrix:channel:#alias:server`
+- Người dùng: `@user:server`, `user:@user:server`, hoặc `matrix:user:@user:server`
+- Phòng: `!room:server`, `room:!room:server`, hoặc `matrix:room:!room:server`
+- Bí danh: `#alias:server`, `channel:#alias:server`, hoặc `matrix:channel:#alias:server`
 
-Live directory lookup uses the logged-in Matrix account:
+Tra cứu thư mục trực tiếp sử dụng tài khoản Matrix đã đăng nhập:
 
-- User lookups query the Matrix user directory on that homeserver.
-- Room lookups accept explicit room IDs and aliases directly, then fall back to searching joined room names for that account.
-- Joined-room name lookup is best-effort. If a room name cannot be resolved to an ID or alias, it is ignored by runtime allowlist resolution.
+- Tra cứu người dùng truy vấn thư mục người dùng Matrix trên máy chủ đó.
+- Tra cứu phòng chấp nhận ID phòng và bí danh rõ ràng trực tiếp, sau đó quay lại tìm kiếm tên phòng đã tham gia cho tài khoản đó.
+- Tra cứu tên phòng đã tham gia là nỗ lực tốt nhất. Nếu một tên phòng không thể được giải quyết thành ID hoặc bí danh, nó sẽ bị bỏ qua bởi quá trình giải quyết danh sách cho phép khi chạy.
 
-## Configuration reference
+## Tham chiếu cấu hình
 
-- `enabled`: enable or disable the channel.
-- `name`: optional label for the account.
-- `defaultAccount`: preferred account ID when multiple Matrix accounts are configured.
-- `homeserver`: homeserver URL, for example `https://matrix.example.org`.
-- `allowPrivateNetwork`: allow this Matrix account to connect to private/internal homeservers. Enable this when the homeserver resolves to `localhost`, a LAN/Tailscale IP, or an internal host such as `matrix-synapse`.
-- `userId`: full Matrix user ID, for example `@bot:example.org`.
-- `accessToken`: access token for token-based auth.
-- `password`: password for password-based login.
-- `deviceId`: explicit Matrix device ID.
-- `deviceName`: device display name for password login.
-- `avatarUrl`: stored self-avatar URL for profile sync and `set-profile` updates.
-- `initialSyncLimit`: startup sync event limit.
-- `encryption`: enable E2EE.
-- `allowlistOnly`: force allowlist-only behavior for DMs and rooms.
-- `groupPolicy`: `open`, `allowlist`, or `disabled`.
-- `groupAllowFrom`: allowlist of user IDs for room traffic.
-- `groupAllowFrom` entries should be full Matrix user IDs. Unresolved names are ignored at runtime.
-- `replyToMode`: `off`, `first`, or `all`.
-- `threadReplies`: `off`, `inbound`, or `always`.
-- `threadBindings`: per-channel overrides for thread-bound session routing and lifecycle.
-- `startupVerification`: automatic self-verification request mode on startup (`if-unverified`, `off`).
-- `startupVerificationCooldownHours`: cooldown before retrying automatic startup verification requests.
-- `textChunkLimit`: outbound message chunk size.
-- `chunkMode`: `length` or `newline`.
-- `responsePrefix`: optional message prefix for outbound replies.
-- `ackReaction`: optional ack reaction override for this channel/account.
-- `ackReactionScope`: optional ack reaction scope override (`group-mentions`, `group-all`, `direct`, `all`, `none`, `off`).
-- `reactionNotifications`: inbound reaction notification mode (`own`, `off`).
-- `mediaMaxMb`: outbound media size cap in MB.
-- `autoJoin`: invite auto-join policy (`always`, `allowlist`, `off`). Default: `off`.
-- `autoJoinAllowlist`: rooms/aliases allowed when `autoJoin` is `allowlist`. Alias entries are resolved to room IDs during invite handling; OpenClaw does not trust alias state claimed by the invited room.
-- `dm`: DM policy block (`enabled`, `policy`, `allowFrom`).
-- `dm.allowFrom` entries should be full Matrix user IDs unless you already resolved them through live directory lookup.
-- `accounts`: named per-account overrides. Top-level `channels.matrix` values act as defaults for these entries.
-- `groups`: per-room policy map. Prefer room IDs or aliases; unresolved room names are ignored at runtime. Session/group identity uses the stable room ID after resolution, while human-readable labels still come from room names.
-- `rooms`: legacy alias for `groups`.
-- `actions`: per-action tool gating (`messages`, `reactions`, `pins`, `profile`, `memberInfo`, `channelInfo`, `verification`).
+- `enabled`: bật hoặc tắt kênh.
+- `name`: nhãn tùy chọn cho tài khoản.
+- `defaultAccount`: ID tài khoản ưu tiên khi nhiều tài khoản Matrix được cấu hình.
+- `homeserver`: URL máy chủ, ví dụ `https://matrix.example.org`.
+- `allowPrivateNetwork`: cho phép tài khoản Matrix này kết nối với các máy chủ riêng/nội bộ. Bật điều này khi máy chủ giải quyết đến `localhost`, một IP LAN/Tailscale, hoặc một máy chủ nội bộ như `matrix-synapse`.
+- `userId`: ID người dùng Matrix đầy đủ, ví dụ `@bot:example.org`.
+- `accessToken`: access token cho xác thực dựa trên token.
+- `password`: mật khẩu cho đăng nhập dựa trên mật khẩu.
+- `deviceId`: ID thiết bị Matrix rõ ràng.
+- `deviceName`: tên hiển thị thiết bị cho đăng nhập bằng mật khẩu.
+- `avatarUrl`: URL avatar tự lưu trữ cho đồng bộ hồ sơ và cập nhật `set-profile`.
+- `initialSyncLimit`: giới hạn sự kiện đồng bộ khởi động.
+- `encryption`: bật E2EE.
+- `allowlistOnly`: buộc hành vi chỉ danh sách cho phép cho DM và phòng.
+- `groupPolicy`: `open`, `allowlist`, hoặc `disabled`.
+- `groupAllowFrom`: danh sách cho phép ID người dùng cho lưu lượng phòng.
+- Các mục `groupAllowFrom` nên là ID người dùng Matrix đầy đủ. Các tên không được giải quyết bị bỏ qua khi chạy.
+- `replyToMode`: `off`, `first`, hoặc `all`.
+- `threadReplies`: `off`, `inbound`, hoặc `always`.
+- `threadBindings`: ghi đè theo kênh cho định tuyến và vòng đời phiên ràng buộc luồng.
+- `startupVerification`: chế độ yêu cầu tự xác minh tự động khi khởi động (`if-unverified`, `off`).
+- `startupVerificationCooldownHours`: thời gian chờ trước khi thử lại các yêu cầu xác minh khởi động tự động.
+- `textChunkLimit`: kích thước đoạn tin nhắn gửi ra.
+- `chunkMode`: `length` hoặc `newline`.
+- `responsePrefix`: tiền tố tin nhắn tùy chọn cho các trả lời gửi ra.
+- `ackReaction`: ghi đè phản ứng xác nhận tùy chọn cho kênh/tài khoản này.
+- `ackReactionScope`: ghi đè phạm vi phản ứng xác nhận tùy chọn (`group-mentions`, `group-all`, `direct`, `all`, `none`, `off`).
+- `reactionNotifications`: chế độ thông báo phản ứng đến (`own`, `off`).
+- `mediaMaxMb`: giới hạn kích thước media gửi ra tính bằng MB.
+- `autoJoin`: chính sách tự động tham gia lời mời (`always`, `allowlist`, `off`). Mặc định: `off`.
+- `autoJoinAllowlist`: các phòng/bí danh được phép khi `autoJoin` là `allowlist`. Các mục bí danh được giải quyết thành ID phòng trong quá trình xử lý lời mời; OpenClaw không tin tưởng trạng thái bí danh được tuyên bố bởi phòng được mời.
+- `dm`: khối chính sách DM (`enabled`, `policy`, `allowFrom`).
+- Các mục `dm.allowFrom` nên là ID người dùng Matrix đầy đủ trừ khi bạn đã giải quyết chúng thông qua tra cứu thư mục trực tiếp.
+- `accounts`: ghi đè theo tài khoản có tên. Các giá trị `channels.matrix` cấp cao nhất hoạt động như mặc định cho các mục này.
+- `groups`: bản đồ chính sách theo phòng. Ưu tiên ID phòng hoặc bí danh; các tên phòng không được giải quyết bị bỏ qua khi chạy. Danh tính phiên/nhóm sử dụng ID phòng ổn định sau khi giải quyết, trong khi các nhãn có thể đọc được vẫn đến từ tên phòng.
+- `rooms`: bí danh cũ cho `groups`.
+- `actions`: kiểm soát công cụ theo hành động (`messages`, `reactions`, `pins`, `profile`, `memberInfo`, `channelInfo`, `verification`).

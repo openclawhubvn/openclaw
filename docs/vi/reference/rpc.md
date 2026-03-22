@@ -1,43 +1,43 @@
 ---
-summary: "RPC adapters for external CLIs (signal-cli, legacy imsg) and gateway patterns"
+summary: "Bộ điều hợp RPC cho các CLI bên ngoài (signal-cli, imsg cũ) và các mẫu gateway"
 read_when:
-  - Adding or changing external CLI integrations
-  - Debugging RPC adapters (signal-cli, imsg)
-title: "RPC Adapters"
+  - Thêm hoặc thay đổi tích hợp CLI bên ngoài
+  - Gỡ lỗi bộ điều hợp RPC (signal-cli, imsg)
+title: "Bộ điều hợp RPC"
 ---
 
-# RPC adapters
+# Bộ điều hợp RPC
 
-OpenClaw integrates external CLIs via JSON-RPC. Two patterns are used today.
+OpenClaw tích hợp các CLI bên ngoài thông qua JSON-RPC. Hiện tại có hai mẫu được sử dụng.
 
-## Pattern A: HTTP daemon (signal-cli)
+## Mẫu A: HTTP daemon (signal-cli)
 
-- `signal-cli` runs as a daemon with JSON-RPC over HTTP.
-- Event stream is SSE (`/api/v1/events`).
-- Health probe: `/api/v1/check`.
-- OpenClaw owns lifecycle when `channels.signal.autoStart=true`.
+- `signal-cli` chạy dưới dạng daemon với JSON-RPC qua HTTP.
+- Dòng sự kiện là SSE (`/api/v1/events`).
+- Kiểm tra sức khỏe: `/api/v1/check`.
+- OpenClaw quản lý vòng đời khi `channels.signal.autoStart=true`.
 
-See [Signal](/channels/signal) for setup and endpoints.
+Xem [Signal](/channels/signal) để biết cách thiết lập và các điểm cuối.
 
-## Pattern B: stdio child process (legacy: imsg)
+## Mẫu B: Tiến trình con stdio (cũ: imsg)
 
-> **Note:** For new iMessage setups, use [BlueBubbles](/channels/bluebubbles) instead.
+> **Lưu ý:** Đối với các thiết lập iMessage mới, sử dụng [BlueBubbles](/channels/bluebubbles) thay thế.
 
-- OpenClaw spawns `imsg rpc` as a child process (legacy iMessage integration).
-- JSON-RPC is line-delimited over stdin/stdout (one JSON object per line).
-- No TCP port, no daemon required.
+- OpenClaw khởi chạy `imsg rpc` dưới dạng tiến trình con (tích hợp iMessage cũ).
+- JSON-RPC được phân tách theo dòng qua stdin/stdout (một đối tượng JSON mỗi dòng).
+- Không cần cổng TCP, không cần daemon.
 
-Core methods used:
+Các phương thức cốt lõi được sử dụng:
 
-- `watch.subscribe` → notifications (`method: "message"`)
+- `watch.subscribe` → thông báo (`method: "message"`)
 - `watch.unsubscribe`
 - `send`
-- `chats.list` (probe/diagnostics)
+- `chats.list` (kiểm tra/chẩn đoán)
 
-See [iMessage](/channels/imessage) for legacy setup and addressing (`chat_id` preferred).
+Xem [iMessage](/channels/imessage) để biết cách thiết lập cũ và địa chỉ (`chat_id` được ưu tiên).
 
-## Adapter guidelines
+## Hướng dẫn sử dụng bộ điều hợp
 
-- Gateway owns the process (start/stop tied to provider lifecycle).
-- Keep RPC clients resilient: timeouts, restart on exit.
-- Prefer stable IDs (e.g., `chat_id`) over display strings.
+- Gateway quản lý tiến trình (bắt đầu/dừng gắn liền với vòng đời của nhà cung cấp).
+- Giữ cho các client RPC bền bỉ: timeout, khởi động lại khi thoát.
+- Ưu tiên sử dụng ID ổn định (ví dụ: `chat_id`) thay vì chuỗi hiển thị.

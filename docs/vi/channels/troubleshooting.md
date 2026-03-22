@@ -1,18 +1,18 @@
 ---
-summary: "Fast channel level troubleshooting with per channel failure signatures and fixes"
+summary: "Khắc phục sự cố kênh nhanh chóng với dấu hiệu lỗi và cách sửa chữa cho từng kênh"
 read_when:
-  - Channel transport says connected but replies fail
-  - You need channel specific checks before deep provider docs
-title: "Channel Troubleshooting"
+  - Kênh truyền tải báo kết nối nhưng phản hồi thất bại
+  - Cần kiểm tra cụ thể từng kênh trước khi xem tài liệu nhà cung cấp chi tiết
+title: "Khắc phục sự cố kênh"
 ---
 
-# Channel troubleshooting
+# Khắc phục sự cố kênh
 
-Use this page when a channel connects but behavior is wrong.
+Sử dụng trang này khi kênh kết nối nhưng hành vi không đúng.
 
-## Command ladder
+## Thứ tự lệnh
 
-Run these in order first:
+Chạy các lệnh này theo thứ tự:
 
 ```bash
 openclaw status
@@ -22,97 +22,97 @@ openclaw doctor
 openclaw channels status --probe
 ```
 
-Healthy baseline:
+Tiêu chuẩn hoạt động bình thường:
 
 - `Runtime: running`
 - `RPC probe: ok`
-- Channel probe shows connected/ready
+- Kênh kiểm tra cho thấy đã kết nối/sẵn sàng
 
 ## WhatsApp
 
-### WhatsApp failure signatures
+### Dấu hiệu lỗi của WhatsApp
 
-| Symptom                         | Fastest check                                       | Fix                                                     |
-| ------------------------------- | --------------------------------------------------- | ------------------------------------------------------- |
-| Connected but no DM replies     | `openclaw pairing list whatsapp`                    | Approve sender or switch DM policy/allowlist.           |
-| Group messages ignored          | Check `requireMention` + mention patterns in config | Mention the bot or relax mention policy for that group. |
-| Random disconnect/relogin loops | `openclaw channels status --probe` + logs           | Re-login and verify credentials directory is healthy.   |
+| Triệu chứng                       | Kiểm tra nhanh nhất                                | Cách sửa chữa                                           |
+| --------------------------------- | -------------------------------------------------- | ------------------------------------------------------- |
+| Kết nối nhưng không có phản hồi DM | `openclaw pairing list whatsapp`                   | Phê duyệt người gửi hoặc thay đổi chính sách DM/danh sách cho phép. |
+| Tin nhắn nhóm bị bỏ qua           | Kiểm tra `requireMention` + mẫu đề cập trong cấu hình | Đề cập bot hoặc nới lỏng chính sách đề cập cho nhóm đó. |
+| Ngắt kết nối/đăng nhập lại ngẫu nhiên | `openclaw channels status --probe` + logs          | Đăng nhập lại và kiểm tra thư mục thông tin xác thực.   |
 
-Full troubleshooting: [/channels/whatsapp#troubleshooting](/channels/whatsapp#troubleshooting)
+Khắc phục sự cố đầy đủ: [/channels/whatsapp#troubleshooting](/channels/whatsapp#troubleshooting)
 
 ## Telegram
 
-### Telegram failure signatures
+### Dấu hiệu lỗi của Telegram
 
-| Symptom                             | Fastest check                                   | Fix                                                                         |
-| ----------------------------------- | ----------------------------------------------- | --------------------------------------------------------------------------- |
-| `/start` but no usable reply flow   | `openclaw pairing list telegram`                | Approve pairing or change DM policy.                                        |
-| Bot online but group stays silent   | Verify mention requirement and bot privacy mode | Disable privacy mode for group visibility or mention bot.                   |
-| Send failures with network errors   | Inspect logs for Telegram API call failures     | Fix DNS/IPv6/proxy routing to `api.telegram.org`.                           |
-| `setMyCommands` rejected at startup | Inspect logs for `BOT_COMMANDS_TOO_MUCH`        | Reduce plugin/skill/custom Telegram commands or disable native menus.       |
-| Upgraded and allowlist blocks you   | `openclaw security audit` and config allowlists | Run `openclaw doctor --fix` or replace `@username` with numeric sender IDs. |
+| Triệu chứng                             | Kiểm tra nhanh nhất                             | Cách sửa chữa                                                             |
+| --------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------- |
+| `/start` nhưng không có luồng phản hồi khả dụng | `openclaw pairing list telegram`                | Phê duyệt ghép đôi hoặc thay đổi chính sách DM.                           |
+| Bot trực tuyến nhưng nhóm không có phản hồi | Kiểm tra yêu cầu đề cập và chế độ riêng tư của bot | Tắt chế độ riêng tư để nhóm có thể thấy hoặc đề cập bot.                  |
+| Gửi thất bại với lỗi mạng               | Kiểm tra logs cho lỗi gọi API Telegram          | Sửa DNS/IPv6/định tuyến proxy tới `api.telegram.org`.                     |
+| `setMyCommands` bị từ chối khi khởi động | Kiểm tra logs cho `BOT_COMMANDS_TOO_MUCH`       | Giảm số lệnh plugin/kỹ năng/Telgram tùy chỉnh hoặc tắt menu gốc.         |
+| Nâng cấp và danh sách cho phép chặn bạn | `openclaw security audit` và cấu hình danh sách cho phép | Chạy `openclaw doctor --fix` hoặc thay `@username` bằng ID người gửi số. |
 
-Full troubleshooting: [/channels/telegram#troubleshooting](/channels/telegram#troubleshooting)
+Khắc phục sự cố đầy đủ: [/channels/telegram#troubleshooting](/channels/telegram#troubleshooting)
 
 ## Discord
 
-### Discord failure signatures
+### Dấu hiệu lỗi của Discord
 
-| Symptom                         | Fastest check                       | Fix                                                       |
-| ------------------------------- | ----------------------------------- | --------------------------------------------------------- |
-| Bot online but no guild replies | `openclaw channels status --probe`  | Allow guild/channel and verify message content intent.    |
-| Group messages ignored          | Check logs for mention gating drops | Mention bot or set guild/channel `requireMention: false`. |
-| DM replies missing              | `openclaw pairing list discord`     | Approve DM pairing or adjust DM policy.                   |
+| Triệu chứng                         | Kiểm tra nhanh nhất                       | Cách sửa chữa                                           |
+| ----------------------------------- | ----------------------------------------- | ------------------------------------------------------- |
+| Bot trực tuyến nhưng không có phản hồi từ guild | `openclaw channels status --probe`        | Cho phép guild/kênh và kiểm tra ý định nội dung tin nhắn. |
+| Tin nhắn nhóm bị bỏ qua             | Kiểm tra logs cho việc bỏ qua đề cập      | Đề cập bot hoặc đặt `requireMention: false` cho guild/kênh. |
+| Phản hồi DM bị thiếu                | `openclaw pairing list discord`           | Phê duyệt ghép đôi DM hoặc điều chỉnh chính sách DM.     |
 
-Full troubleshooting: [/channels/discord#troubleshooting](/channels/discord#troubleshooting)
+Khắc phục sự cố đầy đủ: [/channels/discord#troubleshooting](/channels/discord#troubleshooting)
 
 ## Slack
 
-### Slack failure signatures
+### Dấu hiệu lỗi của Slack
 
-| Symptom                                | Fastest check                             | Fix                                               |
-| -------------------------------------- | ----------------------------------------- | ------------------------------------------------- |
-| Socket mode connected but no responses | `openclaw channels status --probe`        | Verify app token + bot token and required scopes. |
-| DMs blocked                            | `openclaw pairing list slack`             | Approve pairing or relax DM policy.               |
-| Channel message ignored                | Check `groupPolicy` and channel allowlist | Allow the channel or switch policy to `open`.     |
+| Triệu chứng                                | Kiểm tra nhanh nhất                         | Cách sửa chữa                                       |
+| ------------------------------------------ | ------------------------------------------- | --------------------------------------------------- |
+| Kết nối chế độ socket nhưng không có phản hồi | `openclaw channels status --probe`          | Kiểm tra token ứng dụng + token bot và các phạm vi cần thiết. |
+| DM bị chặn                                 | `openclaw pairing list slack`               | Phê duyệt ghép đôi hoặc nới lỏng chính sách DM.     |
+| Tin nhắn kênh bị bỏ qua                    | Kiểm tra `groupPolicy` và danh sách cho phép kênh | Cho phép kênh hoặc chuyển chính sách sang `open`.   |
 
-Full troubleshooting: [/channels/slack#troubleshooting](/channels/slack#troubleshooting)
+Khắc phục sự cố đầy đủ: [/channels/slack#troubleshooting](/channels/slack#troubleshooting)
 
-## iMessage and BlueBubbles
+## iMessage và BlueBubbles
 
-### iMessage and BlueBubbles failure signatures
+### Dấu hiệu lỗi của iMessage và BlueBubbles
 
-| Symptom                          | Fastest check                                                           | Fix                                                   |
-| -------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------- |
-| No inbound events                | Verify webhook/server reachability and app permissions                  | Fix webhook URL or BlueBubbles server state.          |
-| Can send but no receive on macOS | Check macOS privacy permissions for Messages automation                 | Re-grant TCC permissions and restart channel process. |
-| DM sender blocked                | `openclaw pairing list imessage` or `openclaw pairing list bluebubbles` | Approve pairing or update allowlist.                  |
+| Triệu chứng                          | Kiểm tra nhanh nhất                                                           | Cách sửa chữa                                           |
+| ------------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------- |
+| Không có sự kiện đầu vào             | Kiểm tra khả năng truy cập webhook/máy chủ và quyền ứng dụng                  | Sửa URL webhook hoặc trạng thái máy chủ BlueBubbles.    |
+| Có thể gửi nhưng không nhận trên macOS | Kiểm tra quyền riêng tư macOS cho tự động hóa Messages                        | Cấp lại quyền TCC và khởi động lại quá trình kênh.      |
+| Người gửi DM bị chặn                 | `openclaw pairing list imessage` hoặc `openclaw pairing list bluebubbles`     | Phê duyệt ghép đôi hoặc cập nhật danh sách cho phép.    |
 
-Full troubleshooting:
+Khắc phục sự cố đầy đủ:
 
 - [/channels/imessage#troubleshooting](/channels/imessage#troubleshooting)
 - [/channels/bluebubbles#troubleshooting](/channels/bluebubbles#troubleshooting)
 
 ## Signal
 
-### Signal failure signatures
+### Dấu hiệu lỗi của Signal
 
-| Symptom                         | Fastest check                              | Fix                                                      |
-| ------------------------------- | ------------------------------------------ | -------------------------------------------------------- |
-| Daemon reachable but bot silent | `openclaw channels status --probe`         | Verify `signal-cli` daemon URL/account and receive mode. |
-| DM blocked                      | `openclaw pairing list signal`             | Approve sender or adjust DM policy.                      |
-| Group replies do not trigger    | Check group allowlist and mention patterns | Add sender/group or loosen gating.                       |
+| Triệu chứng                         | Kiểm tra nhanh nhất                              | Cách sửa chữa                                           |
+| ----------------------------------- | ------------------------------------------------ | ------------------------------------------------------- |
+| Daemon có thể truy cập nhưng bot im lặng | `openclaw channels status --probe`               | Kiểm tra URL/ tài khoản daemon `signal-cli` và chế độ nhận. |
+| DM bị chặn                          | `openclaw pairing list signal`                   | Phê duyệt người gửi hoặc điều chỉnh chính sách DM.       |
+| Phản hồi nhóm không kích hoạt       | Kiểm tra danh sách cho phép nhóm và mẫu đề cập   | Thêm người gửi/nhóm hoặc nới lỏng điều kiện.            |
 
-Full troubleshooting: [/channels/signal#troubleshooting](/channels/signal#troubleshooting)
+Khắc phục sự cố đầy đủ: [/channels/signal#troubleshooting](/channels/signal#troubleshooting)
 
 ## Matrix
 
-### Matrix failure signatures
+### Dấu hiệu lỗi của Matrix
 
-| Symptom                             | Fastest check                                | Fix                                             |
-| ----------------------------------- | -------------------------------------------- | ----------------------------------------------- |
-| Logged in but ignores room messages | `openclaw channels status --probe`           | Check `groupPolicy` and room allowlist.         |
-| DMs do not process                  | `openclaw pairing list matrix`               | Approve sender or adjust DM policy.             |
-| Encrypted rooms fail                | Verify crypto module and encryption settings | Enable encryption support and rejoin/sync room. |
+| Triệu chứng                             | Kiểm tra nhanh nhất                                | Cách sửa chữa                                       |
+| --------------------------------------- | -------------------------------------------------- | --------------------------------------------------- |
+| Đã đăng nhập nhưng bỏ qua tin nhắn phòng | `openclaw channels status --probe`                 | Kiểm tra `groupPolicy` và danh sách cho phép phòng. |
+| DM không xử lý                          | `openclaw pairing list matrix`                     | Phê duyệt người gửi hoặc điều chỉnh chính sách DM.   |
+| Phòng mã hóa thất bại                   | Kiểm tra mô-đun mã hóa và cài đặt mã hóa           | Bật hỗ trợ mã hóa và tham gia/đồng bộ lại phòng.    |
 
-Full troubleshooting: [/channels/matrix#troubleshooting](/channels/matrix#troubleshooting)
+Khắc phục sự cố đầy đủ: [/channels/matrix#troubleshooting](/channels/matrix#troubleshooting)

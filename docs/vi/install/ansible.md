@@ -1,212 +1,212 @@
 ---
-summary: "Automated, hardened OpenClaw installation with Ansible, Tailscale VPN, and firewall isolation"
+summary: "Cài đặt OpenClaw tự động và bảo mật với Ansible, Tailscale VPN và cách ly tường lửa"
 read_when:
-  - You want automated server deployment with security hardening
-  - You need firewall-isolated setup with VPN access
-  - You're deploying to remote Debian/Ubuntu servers
+  - Bạn muốn triển khai máy chủ tự động với bảo mật cao
+  - Bạn cần thiết lập cách ly tường lửa với truy cập VPN
+  - Bạn đang triển khai trên máy chủ Debian/Ubuntu từ xa
 title: "Ansible"
 ---
 
-# Ansible Installation
+# Cài đặt Ansible
 
-Deploy OpenClaw to production servers with **[openclaw-ansible](https://github.com/openclaw/openclaw-ansible)** -- an automated installer with security-first architecture.
+Triển khai OpenClaw lên máy chủ sản xuất với **[openclaw-ansible](https://github.com/openclaw/openclaw-ansible)** — một trình cài đặt tự động với kiến trúc ưu tiên bảo mật.
 
 <Info>
-The [openclaw-ansible](https://github.com/openclaw/openclaw-ansible) repo is the source of truth for Ansible deployment. This page is a quick overview.
+Kho [openclaw-ansible](https://github.com/openclaw/openclaw-ansible) là nguồn thông tin chính xác cho việc triển khai Ansible. Trang này cung cấp cái nhìn tổng quan nhanh.
 </Info>
 
-## Prerequisites
+## Yêu cầu trước khi cài đặt
 
-| Requirement | Details                                                   |
+| Yêu cầu     | Chi tiết                                                   |
 | ----------- | --------------------------------------------------------- |
-| **OS**      | Debian 11+ or Ubuntu 20.04+                               |
-| **Access**  | Root or sudo privileges                                   |
-| **Network** | Internet connection for package installation              |
-| **Ansible** | 2.14+ (installed automatically by the quick-start script) |
+| **Hệ điều hành** | Debian 11+ hoặc Ubuntu 20.04+                               |
+| **Quyền truy cập**  | Quyền root hoặc sudo                                   |
+| **Mạng** | Kết nối Internet để cài đặt gói                              |
+| **Ansible** | 2.14+ (được cài đặt tự động bởi script khởi động nhanh) |
 
-## What You Get
+## Bạn sẽ nhận được gì
 
-- **Firewall-first security** -- UFW + Docker isolation (only SSH + Tailscale accessible)
-- **Tailscale VPN** -- secure remote access without exposing services publicly
-- **Docker** -- isolated sandbox containers, localhost-only bindings
-- **Defense in depth** -- 4-layer security architecture
-- **Systemd integration** -- auto-start on boot with hardening
-- **One-command setup** -- complete deployment in minutes
+- **Bảo mật ưu tiên tường lửa** — UFW + cách ly Docker (chỉ truy cập SSH + Tailscale)
+- **Tailscale VPN** — truy cập từ xa an toàn mà không cần công khai dịch vụ
+- **Docker** — container sandbox cách ly, chỉ kết nối localhost
+- **Bảo mật nhiều lớp** — kiến trúc bảo mật 4 lớp
+- **Tích hợp Systemd** — tự động khởi động khi boot với bảo mật cao
+- **Cài đặt một lệnh** — triển khai hoàn chỉnh trong vài phút
 
-## Quick Start
+## Bắt đầu nhanh
 
-One-command install:
+Cài đặt bằng một lệnh:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/openclaw/openclaw-ansible/main/install.sh | bash
 ```
 
-## What Gets Installed
+## Những gì được cài đặt
 
-The Ansible playbook installs and configures:
+Playbook Ansible sẽ cài đặt và cấu hình:
 
-1. **Tailscale** -- mesh VPN for secure remote access
-2. **UFW firewall** -- SSH + Tailscale ports only
-3. **Docker CE + Compose V2** -- for agent sandboxes
-4. **Node.js 24 + pnpm** -- runtime dependencies (Node 22 LTS, currently `22.16+`, remains supported)
-5. **OpenClaw** -- host-based, not containerized
-6. **Systemd service** -- auto-start with security hardening
+1. **Tailscale** — VPN mesh cho truy cập từ xa an toàn
+2. **Tường lửa UFW** — chỉ cổng SSH + Tailscale
+3. **Docker CE + Compose V2** — cho sandbox agent
+4. **Node.js 24 + pnpm** — các phụ thuộc runtime (Node 22 LTS, hiện tại `22.16+`, vẫn được hỗ trợ)
+5. **OpenClaw** — chạy trực tiếp trên host, không container hóa
+6. **Dịch vụ Systemd** — tự động khởi động với bảo mật cao
 
 <Note>
-The gateway runs directly on the host (not in Docker), but agent sandboxes use Docker for isolation. See [Sandboxing](/gateway/sandboxing) for details.
+Gateway chạy trực tiếp trên host (không trong Docker), nhưng sandbox agent sử dụng Docker để cách ly. Xem [Sandboxing](/gateway/sandboxing) để biết chi tiết.
 </Note>
 
-## Post-Install Setup
+## Thiết lập sau cài đặt
 
 <Steps>
-  <Step title="Switch to the openclaw user">
+  <Step title="Chuyển sang người dùng openclaw">
     ```bash
     sudo -i -u openclaw
     ```
   </Step>
-  <Step title="Run the onboarding wizard">
-    The post-install script guides you through configuring OpenClaw settings.
+  <Step title="Chạy trình hướng dẫn cấu hình">
+    Script sau cài đặt sẽ hướng dẫn bạn cấu hình các thiết lập OpenClaw.
   </Step>
-  <Step title="Connect messaging providers">
-    Log in to WhatsApp, Telegram, Discord, or Signal:
+  <Step title="Kết nối các nhà cung cấp nhắn tin">
+    Đăng nhập vào WhatsApp, Telegram, Discord, hoặc Signal:
     ```bash
     openclaw channels login
     ```
   </Step>
-  <Step title="Verify the installation">
+  <Step title="Xác minh cài đặt">
     ```bash
     sudo systemctl status openclaw
     sudo journalctl -u openclaw -f
     ```
   </Step>
-  <Step title="Connect to Tailscale">
-    Join your VPN mesh for secure remote access.
+  <Step title="Kết nối với Tailscale">
+    Tham gia vào VPN mesh của bạn để truy cập từ xa an toàn.
   </Step>
 </Steps>
 
-### Quick Commands
+### Lệnh nhanh
 
 ```bash
-# Check service status
+# Kiểm tra trạng thái dịch vụ
 sudo systemctl status openclaw
 
-# View live logs
+# Xem log trực tiếp
 sudo journalctl -u openclaw -f
 
-# Restart gateway
+# Khởi động lại gateway
 sudo systemctl restart openclaw
 
-# Provider login (run as openclaw user)
+# Đăng nhập nhà cung cấp (chạy dưới người dùng openclaw)
 sudo -i -u openclaw
 openclaw channels login
 ```
 
-## Security Architecture
+## Kiến trúc bảo mật
 
-The deployment uses a 4-layer defense model:
+Triển khai sử dụng mô hình bảo mật 4 lớp:
 
-1. **Firewall (UFW)** -- only SSH (22) + Tailscale (41641/udp) exposed publicly
-2. **VPN (Tailscale)** -- gateway accessible only via VPN mesh
-3. **Docker isolation** -- DOCKER-USER iptables chain prevents external port exposure
-4. **Systemd hardening** -- NoNewPrivileges, PrivateTmp, unprivileged user
+1. **Tường lửa (UFW)** — chỉ công khai cổng SSH (22) + Tailscale (41641/udp)
+2. **VPN (Tailscale)** — gateway chỉ truy cập được qua VPN mesh
+3. **Cách ly Docker** — chuỗi iptables DOCKER-USER ngăn chặn công khai cổng ngoài
+4. **Bảo mật Systemd** — NoNewPrivileges, PrivateTmp, người dùng không có quyền
 
-To verify your external attack surface:
+Để kiểm tra bề mặt tấn công bên ngoài của bạn:
 
 ```bash
 nmap -p- YOUR_SERVER_IP
 ```
 
-Only port 22 (SSH) should be open. All other services (gateway, Docker) are locked down.
+Chỉ cổng 22 (SSH) nên mở. Tất cả các dịch vụ khác (gateway, Docker) đều bị khóa.
 
-Docker is installed for agent sandboxes (isolated tool execution), not for running the gateway itself. See [Multi-Agent Sandbox and Tools](/tools/multi-agent-sandbox-tools) for sandbox configuration.
+Docker được cài đặt cho sandbox agent (thực thi công cụ cách ly), không phải để chạy gateway. Xem [Multi-Agent Sandbox and Tools](/tools/multi-agent-sandbox-tools) để cấu hình sandbox.
 
-## Manual Installation
+## Cài đặt thủ công
 
-If you prefer manual control over the automation:
+Nếu bạn muốn kiểm soát thủ công quá trình tự động:
 
 <Steps>
-  <Step title="Install prerequisites">
+  <Step title="Cài đặt các yêu cầu cần thiết">
     ```bash
     sudo apt update && sudo apt install -y ansible git
     ```
   </Step>
-  <Step title="Clone the repository">
+  <Step title="Clone kho lưu trữ">
     ```bash
     git clone https://github.com/openclaw/openclaw-ansible.git
     cd openclaw-ansible
     ```
   </Step>
-  <Step title="Install Ansible collections">
+  <Step title="Cài đặt các bộ sưu tập Ansible">
     ```bash
     ansible-galaxy collection install -r requirements.yml
     ```
   </Step>
-  <Step title="Run the playbook">
+  <Step title="Chạy playbook">
     ```bash
     ./run-playbook.sh
     ```
 
-    Alternatively, run directly and then manually execute the setup script afterward:
+    Hoặc chạy trực tiếp và sau đó thực hiện script thiết lập thủ công:
     ```bash
     ansible-playbook playbook.yml --ask-become-pass
-    # Then run: /tmp/openclaw-setup.sh
+    # Sau đó chạy: /tmp/openclaw-setup.sh
     ```
 
   </Step>
 </Steps>
 
-## Updating
+## Cập nhật
 
-The Ansible installer sets up OpenClaw for manual updates. See [Updating](/install/updating) for the standard update flow.
+Trình cài đặt Ansible thiết lập OpenClaw để cập nhật thủ công. Xem [Cập nhật](/install/updating) để biết quy trình cập nhật tiêu chuẩn.
 
-To re-run the Ansible playbook (for example, for configuration changes):
+Để chạy lại playbook Ansible (ví dụ, cho các thay đổi cấu hình):
 
 ```bash
 cd openclaw-ansible
 ./run-playbook.sh
 ```
 
-This is idempotent and safe to run multiple times.
+Điều này là idempotent và an toàn để chạy nhiều lần.
 
-## Troubleshooting
+## Khắc phục sự cố
 
 <AccordionGroup>
-  <Accordion title="Firewall blocks my connection">
-    - Ensure you can access via Tailscale VPN first
-    - SSH access (port 22) is always allowed
-    - The gateway is only accessible via Tailscale by design
+  <Accordion title="Tường lửa chặn kết nối của tôi">
+    - Đảm bảo bạn có thể truy cập qua Tailscale VPN trước
+    - Truy cập SSH (cổng 22) luôn được cho phép
+    - Gateway chỉ có thể truy cập qua Tailscale theo thiết kế
   </Accordion>
-  <Accordion title="Service will not start">
+  <Accordion title="Dịch vụ không khởi động">
     ```bash
-    # Check logs
+    # Kiểm tra log
     sudo journalctl -u openclaw -n 100
 
-    # Verify permissions
+    # Xác minh quyền
     sudo ls -la /opt/openclaw
 
-    # Test manual start
+    # Thử khởi động thủ công
     sudo -i -u openclaw
     cd ~/openclaw
     openclaw gateway run
     ```
 
   </Accordion>
-  <Accordion title="Docker sandbox issues">
+  <Accordion title="Vấn đề với sandbox Docker">
     ```bash
-    # Verify Docker is running
+    # Xác minh Docker đang chạy
     sudo systemctl status docker
 
-    # Check sandbox image
+    # Kiểm tra hình ảnh sandbox
     sudo docker images | grep openclaw-sandbox
 
-    # Build sandbox image if missing
+    # Xây dựng hình ảnh sandbox nếu thiếu
     cd /opt/openclaw/openclaw
     sudo -u openclaw ./scripts/sandbox-setup.sh
     ```
 
   </Accordion>
-  <Accordion title="Provider login fails">
-    Make sure you are running as the `openclaw` user:
+  <Accordion title="Đăng nhập nhà cung cấp thất bại">
+    Đảm bảo bạn đang chạy dưới người dùng `openclaw`:
     ```bash
     sudo -i -u openclaw
     openclaw channels login
@@ -214,17 +214,17 @@ This is idempotent and safe to run multiple times.
   </Accordion>
 </AccordionGroup>
 
-## Advanced Configuration
+## Cấu hình nâng cao
 
-For detailed security architecture and troubleshooting, see the openclaw-ansible repo:
+Để biết chi tiết về kiến trúc bảo mật và khắc phục sự cố, xem kho openclaw-ansible:
 
-- [Security Architecture](https://github.com/openclaw/openclaw-ansible/blob/main/docs/security.md)
-- [Technical Details](https://github.com/openclaw/openclaw-ansible/blob/main/docs/architecture.md)
-- [Troubleshooting Guide](https://github.com/openclaw/openclaw-ansible/blob/main/docs/troubleshooting.md)
+- [Kiến trúc bảo mật](https://github.com/openclaw/openclaw-ansible/blob/main/docs/security.md)
+- [Chi tiết kỹ thuật](https://github.com/openclaw/openclaw-ansible/blob/main/docs/architecture.md)
+- [Hướng dẫn khắc phục sự cố](https://github.com/openclaw/openclaw-ansible/blob/main/docs/troubleshooting.md)
 
-## Related
+## Liên quan
 
-- [openclaw-ansible](https://github.com/openclaw/openclaw-ansible) -- full deployment guide
-- [Docker](/install/docker) -- containerized gateway setup
-- [Sandboxing](/gateway/sandboxing) -- agent sandbox configuration
-- [Multi-Agent Sandbox and Tools](/tools/multi-agent-sandbox-tools) -- per-agent isolation
+- [openclaw-ansible](https://github.com/openclaw/openclaw-ansible) — hướng dẫn triển khai đầy đủ
+- [Docker](/install/docker) — thiết lập gateway container hóa
+- [Sandboxing](/gateway/sandboxing) — cấu hình sandbox agent
+- [Multi-Agent Sandbox and Tools](/tools/multi-agent-sandbox-tools) — cách ly từng agent

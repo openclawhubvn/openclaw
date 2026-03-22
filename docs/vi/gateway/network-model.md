@@ -1,22 +1,21 @@
 ---
-summary: "How the Gateway, nodes, and canvas host connect."
+summary: "Cách Gateway, các node và canvas host kết nối với nhau."
 read_when:
-  - You want a concise view of the Gateway networking model
-title: "Network model"
+  - Bạn muốn có cái nhìn ngắn gọn về mô hình mạng của Gateway
+title: "Mô hình mạng"
 ---
 
-# Network Model
+# Mô hình mạng
 
-Most operations flow through the Gateway (`openclaw gateway`), a single long-running
-process that owns channel connections and the WebSocket control plane.
+Hầu hết các hoạt động đều thông qua Gateway (`openclaw gateway`), một tiến trình chạy lâu dài duy nhất quản lý các kết nối kênh và mặt phẳng điều khiển WebSocket.
 
-## Core rules
+## Quy tắc cốt lõi
 
-- One Gateway per host is recommended. It is the only process allowed to own the WhatsApp Web session. For rescue bots or strict isolation, run multiple gateways with isolated profiles and ports. See [Multiple gateways](/gateway/multiple-gateways).
-- Loopback first: the Gateway WS defaults to `ws://127.0.0.1:18789`. The wizard generates a gateway token by default, even for loopback. For tailnet access, run `openclaw gateway --bind tailnet --token ...` because tokens are required for non-loopback binds.
-- Nodes connect to the Gateway WS over LAN, tailnet, or SSH as needed. The legacy TCP bridge is deprecated.
-- Canvas host is served by the Gateway HTTP server on the **same port** as the Gateway (default `18789`):
+- Khuyến nghị sử dụng một Gateway cho mỗi máy chủ. Đây là tiến trình duy nhất được phép sở hữu phiên WhatsApp Web. Đối với bot cứu hộ hoặc yêu cầu cách ly nghiêm ngặt, hãy chạy nhiều gateway với hồ sơ và cổng cách ly. Xem [Nhiều gateway](/gateway/multiple-gateways).
+- Ưu tiên loopback: Gateway WS mặc định là `ws://127.0.0.1:18789`. Trình hướng dẫn sẽ tạo token gateway mặc định, ngay cả khi sử dụng loopback. Để truy cập tailnet, chạy `openclaw gateway --bind tailnet --token ...` vì cần token cho các kết nối không phải loopback.
+- Các node kết nối với Gateway WS qua LAN, tailnet hoặc SSH khi cần. Cầu nối TCP cũ đã bị loại bỏ.
+- Canvas host được phục vụ bởi máy chủ HTTP của Gateway trên **cùng cổng** với Gateway (mặc định `18789`):
   - `/__openclaw__/canvas/`
   - `/__openclaw__/a2ui/`
-    When `gateway.auth` is configured and the Gateway binds beyond loopback, these routes are protected by Gateway auth. Node clients use node-scoped capability URLs tied to their active WS session. See [Gateway configuration](/gateway/configuration) (`canvasHost`, `gateway`).
-- Remote use is typically SSH tunnel or tailnet VPN. See [Remote access](/gateway/remote) and [Discovery](/gateway/discovery).
+    Khi `gateway.auth` được cấu hình và Gateway kết nối ngoài loopback, các tuyến này được bảo vệ bởi xác thực Gateway. Các client node sử dụng URL khả năng theo phạm vi node gắn liền với phiên WS đang hoạt động của chúng. Xem [Cấu hình Gateway](/gateway/configuration) (`canvasHost`, `gateway`).
+- Sử dụng từ xa thường là thông qua SSH tunnel hoặc VPN tailnet. Xem [Truy cập từ xa](/gateway/remote) và [Khám phá](/gateway/discovery).

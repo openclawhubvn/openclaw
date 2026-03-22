@@ -1,28 +1,28 @@
 ---
 title: "Together AI"
-summary: "Together AI setup (auth + model selection)"
+summary: "Cài đặt Together AI (xác thực + chọn mô hình)"
 read_when:
-  - You want to use Together AI with OpenClaw
-  - You need the API key env var or CLI auth choice
+  - Bạn muốn sử dụng Together AI với OpenClaw
+  - Bạn cần biến môi trường API key hoặc lựa chọn xác thực CLI
 ---
 
 # Together AI
 
-The [Together AI](https://together.ai) provides access to leading open-source models including Llama, DeepSeek, Kimi, and more through a unified API.
+[Together AI](https://together.ai) cung cấp quyền truy cập vào các mô hình mã nguồn mở hàng đầu như Llama, DeepSeek, Kimi và nhiều mô hình khác thông qua một API thống nhất.
 
-- Provider: `together`
-- Auth: `TOGETHER_API_KEY`
-- API: OpenAI-compatible
+- Nhà cung cấp: `together`
+- Xác thực: `TOGETHER_API_KEY`
+- API: Tương thích với OpenAI
 
-## Quick start
+## Bắt đầu nhanh
 
-1. Set the API key (recommended: store it for the Gateway):
+1. Thiết lập API key (khuyến nghị: lưu trữ cho Gateway):
 
 ```bash
 openclaw onboard --auth-choice together-api-key
 ```
 
-2. Set a default model:
+2. Thiết lập mô hình mặc định:
 
 ```json5
 {
@@ -34,7 +34,7 @@ openclaw onboard --auth-choice together-api-key
 }
 ```
 
-## Non-interactive example
+## Ví dụ không tương tác
 
 ```bash
 openclaw onboard --non-interactive \
@@ -43,24 +43,22 @@ openclaw onboard --non-interactive \
   --together-api-key "$TOGETHER_API_KEY"
 ```
 
-This will set `together/moonshotai/Kimi-K2.5` as the default model.
+Lệnh này sẽ thiết lập `together/moonshotai/Kimi-K2.5` làm mô hình mặc định.
 
-## Environment note
+## Lưu ý về môi trường
 
-If the Gateway runs as a daemon (launchd/systemd), make sure `TOGETHER_API_KEY`
-is available to that process (for example, in `~/.openclaw/.env` or via
-`env.shellEnv`).
+Nếu Gateway chạy dưới dạng daemon (launchd/systemd), hãy đảm bảo `TOGETHER_API_KEY` có sẵn cho tiến trình đó (ví dụ, trong `~/.openclaw/.env` hoặc thông qua `env.shellEnv`).
 
-## Available models
+## Các mô hình có sẵn
 
-Together AI provides access to many popular open-source models:
+Together AI cung cấp quyền truy cập vào nhiều mô hình mã nguồn mở phổ biến:
 
-- **GLM 4.7 Fp8** - Default model with 200K context window
-- **Llama 3.3 70B Instruct Turbo** - Fast, efficient instruction following
-- **Llama 4 Scout** - Vision model with image understanding
-- **Llama 4 Maverick** - Advanced vision and reasoning
-- **DeepSeek V3.1** - Powerful coding and reasoning model
-- **DeepSeek R1** - Advanced reasoning model
-- **Kimi K2 Instruct** - High-performance model with 262K context window
+- **GLM 4.7 Fp8** - Mô hình mặc định với cửa sổ ngữ cảnh 200K
+- **Llama 3.3 70B Instruct Turbo** - Theo dõi hướng dẫn nhanh, hiệu quả
+- **Llama 4 Scout** - Mô hình thị giác với khả năng hiểu hình ảnh
+- **Llama 4 Maverick** - Thị giác và lý luận nâng cao
+- **DeepSeek V3.1** - Mô hình mã hóa và lý luận mạnh mẽ
+- **DeepSeek R1** - Mô hình lý luận nâng cao
+- **Kimi K2 Instruct** - Mô hình hiệu suất cao với cửa sổ ngữ cảnh 262K
 
-All models support standard chat completions and are OpenAI API compatible.
+Tất cả các mô hình đều hỗ trợ hoàn thành chat tiêu chuẩn và tương thích với API OpenAI.

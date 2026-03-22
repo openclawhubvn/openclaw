@@ -1,36 +1,32 @@
 ---
-summary: "Run OpenClaw with SGLang (OpenAI-compatible self-hosted server)"
+summary: "Chạy OpenClaw với SGLang (máy chủ tự lưu trữ tương thích OpenAI)"
 read_when:
-  - You want to run OpenClaw against a local SGLang server
-  - You want OpenAI-compatible /v1 endpoints with your own models
+  - Bạn muốn chạy OpenClaw với máy chủ SGLang cục bộ
+  - Bạn muốn sử dụng các endpoint /v1 tương thích OpenAI với mô hình của riêng mình
 title: "SGLang"
 ---
 
 # SGLang
 
-SGLang can serve open-source models via an **OpenAI-compatible** HTTP API.
-OpenClaw can connect to SGLang using the `openai-completions` API.
+SGLang có thể phục vụ các mô hình mã nguồn mở thông qua API HTTP **tương thích OpenAI**. OpenClaw có thể kết nối với SGLang bằng API `openai-completions`.
 
-OpenClaw can also **auto-discover** available models from SGLang when you opt
-in with `SGLANG_API_KEY` (any value works if your server does not enforce auth)
-and you do not define an explicit `models.providers.sglang` entry.
+OpenClaw cũng có thể **tự động phát hiện** các mô hình có sẵn từ SGLang khi bạn sử dụng `SGLANG_API_KEY` (bất kỳ giá trị nào cũng được nếu máy chủ của bạn không yêu cầu xác thực) và bạn không định nghĩa một mục `models.providers.sglang` rõ ràng.
 
-## Quick start
+## Bắt đầu nhanh
 
-1. Start SGLang with an OpenAI-compatible server.
+1. Khởi động SGLang với máy chủ tương thích OpenAI.
 
-Your base URL should expose `/v1` endpoints (for example `/v1/models`,
-`/v1/chat/completions`). SGLang commonly runs on:
+URL cơ bản của bạn nên cung cấp các endpoint `/v1` (ví dụ `/v1/models`, `/v1/chat/completions`). SGLang thường chạy trên:
 
 - `http://127.0.0.1:30000/v1`
 
-2. Opt in (any value works if no auth is configured):
+2. Đăng ký (bất kỳ giá trị nào cũng được nếu không cấu hình xác thực):
 
 ```bash
 export SGLANG_API_KEY="sglang-local"
 ```
 
-3. Run onboarding and choose `SGLang`, or set a model directly:
+3. Chạy onboarding và chọn `SGLang`, hoặc thiết lập mô hình trực tiếp:
 
 ```bash
 openclaw onboard
@@ -46,25 +42,23 @@ openclaw onboard
 }
 ```
 
-## Model discovery (implicit provider)
+## Phát hiện mô hình (nhà cung cấp ngầm định)
 
-When `SGLANG_API_KEY` is set (or an auth profile exists) and you **do not**
-define `models.providers.sglang`, OpenClaw will query:
+Khi `SGLANG_API_KEY` được thiết lập (hoặc có hồ sơ xác thực) và bạn **không** định nghĩa `models.providers.sglang`, OpenClaw sẽ truy vấn:
 
 - `GET http://127.0.0.1:30000/v1/models`
 
-and convert the returned IDs into model entries.
+và chuyển đổi các ID trả về thành các mục mô hình.
 
-If you set `models.providers.sglang` explicitly, auto-discovery is skipped and
-you must define models manually.
+Nếu bạn thiết lập `models.providers.sglang` rõ ràng, tự động phát hiện sẽ bị bỏ qua và bạn phải định nghĩa mô hình thủ công.
 
-## Explicit configuration (manual models)
+## Cấu hình rõ ràng (mô hình thủ công)
 
-Use explicit config when:
+Sử dụng cấu hình rõ ràng khi:
 
-- SGLang runs on a different host/port.
-- You want to pin `contextWindow`/`maxTokens` values.
-- Your server requires a real API key (or you want to control headers).
+- SGLang chạy trên một host/port khác.
+- Bạn muốn cố định các giá trị `contextWindow`/`maxTokens`.
+- Máy chủ của bạn yêu cầu một API key thực sự (hoặc bạn muốn kiểm soát các header).
 
 ```json5
 {
@@ -91,14 +85,12 @@ Use explicit config when:
 }
 ```
 
-## Troubleshooting
+## Khắc phục sự cố
 
-- Check the server is reachable:
+- Kiểm tra xem máy chủ có thể truy cập được không:
 
 ```bash
 curl http://127.0.0.1:30000/v1/models
 ```
 
-- If requests fail with auth errors, set a real `SGLANG_API_KEY` that matches
-  your server configuration, or configure the provider explicitly under
-  `models.providers.sglang`.
+- Nếu yêu cầu thất bại với lỗi xác thực, hãy thiết lập một `SGLANG_API_KEY` thực sự phù hợp với cấu hình máy chủ của bạn, hoặc cấu hình nhà cung cấp rõ ràng dưới `models.providers.sglang`.

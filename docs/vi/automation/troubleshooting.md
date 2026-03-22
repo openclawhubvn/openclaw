@@ -21,7 +21,7 @@ openclaw doctor
 openclaw channels status --probe
 ```
 
-Sau đó chạy kiểm tra tự động hóa:
+Sau đó, chạy kiểm tra tự động hóa:
 
 ```bash
 openclaw cron status
@@ -38,7 +38,7 @@ openclaw cron runs --id <jobId> --limit 20
 openclaw logs --follow
 ```
 
-Kết quả tốt bao gồm:
+Kết quả tốt sẽ như sau:
 
 - `cron status` báo cáo đã bật và có `nextWakeAtMs` trong tương lai.
 - Công việc được bật và có lịch trình/múi giờ hợp lệ.
@@ -50,7 +50,7 @@ Các dấu hiệu thường gặp:
 - `cron: timer tick failed` → tick của scheduler bị lỗi; kiểm tra ngữ cảnh stack/log xung quanh.
 - `reason: not-due` trong kết quả chạy → chạy thủ công được gọi mà không có `--force` và công việc chưa đến hạn.
 
-## Cron kích hoạt nhưng không có thông điệp
+## Cron kích hoạt nhưng không gửi thông điệp
 
 ```bash
 openclaw cron runs --id <jobId> --limit 20
@@ -59,7 +59,7 @@ openclaw channels status --probe
 openclaw logs --follow
 ```
 
-Kết quả tốt bao gồm:
+Kết quả tốt sẽ như sau:
 
 - Trạng thái chạy là `ok`.
 - Chế độ/đích gửi được thiết lập cho các công việc riêng lẻ.
@@ -69,7 +69,7 @@ Các dấu hiệu thường gặp:
 
 - Chạy thành công nhưng chế độ gửi là `none` → không có thông điệp bên ngoài nào được mong đợi.
 - Đích gửi thiếu/hỏng (`channel`/`to`) → chạy có thể thành công nội bộ nhưng bỏ qua gửi ra ngoài.
-- Lỗi xác thực kênh (`unauthorized`, `missing_scope`, `Forbidden`) → gửi bị chặn bởi thông tin xác thực/ quyền của kênh.
+- Lỗi xác thực kênh (`unauthorized`, `missing_scope`, `Forbidden`) → gửi bị chặn bởi thông tin xác thực/quyền của kênh.
 
 ## Heartbeat bị ngăn hoặc bỏ qua
 
@@ -80,7 +80,7 @@ openclaw config get agents.defaults.heartbeat
 openclaw channels status --probe
 ```
 
-Kết quả tốt bao gồm:
+Kết quả tốt sẽ như sau:
 
 - Heartbeat được bật với khoảng thời gian khác 0.
 - Kết quả heartbeat cuối cùng là `ran` (hoặc lý do bỏ qua được hiểu rõ).
@@ -89,7 +89,7 @@ Các dấu hiệu thường gặp:
 
 - `heartbeat skipped` với `reason=quiet-hours` → ngoài `activeHours`.
 - `requests-in-flight` → làn chính bận; heartbeat bị hoãn.
-- `empty-heartbeat-file` → heartbeat theo khoảng thời gian bị bỏ qua vì `HEARTBEAT.md` không có nội dung hành động và không có sự kiện cron được gắn thẻ nào được xếp hàng.
+- `empty-heartbeat-file` → heartbeat theo khoảng thời gian bị bỏ qua vì `HEARTBEAT.md` không có nội dung hành động và không có sự kiện cron nào được xếp hàng.
 - `alerts-disabled` → cài đặt hiển thị ngăn chặn thông điệp heartbeat ra ngoài.
 
 ## Lưu ý về múi giờ và activeHours
@@ -111,7 +111,7 @@ Quy tắc nhanh:
 
 Các dấu hiệu thường gặp:
 
-- Công việc chạy sai thời gian đồng hồ sau khi thay đổi múi giờ máy chủ.
+- Công việc chạy sai thời gian đồng hồ sau khi múi giờ máy chủ thay đổi.
 - Heartbeat luôn bị bỏ qua trong giờ làm việc của bạn vì `activeHours.timezone` sai.
 
 Liên quan:

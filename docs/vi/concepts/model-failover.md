@@ -1,100 +1,96 @@
 ---
-summary: "How OpenClaw rotates auth profiles and falls back across models"
+summary: "Cách OpenClaw xoay vòng hồ sơ xác thực và chuyển đổi dự phòng giữa các mô hình"
 read_when:
-  - Diagnosing auth profile rotation, cooldowns, or model fallback behavior
-  - Updating failover rules for auth profiles or models
-title: "Model Failover"
+  - Chẩn đoán xoay vòng hồ sơ xác thực, thời gian chờ, hoặc hành vi chuyển đổi dự phòng mô hình
+  - Cập nhật quy tắc chuyển đổi dự phòng cho hồ sơ xác thực hoặc mô hình
+title: "Chuyển đổi dự phòng mô hình"
 ---
 
-# Model failover
+# Chuyển đổi dự phòng mô hình
 
-OpenClaw handles failures in two stages:
+OpenClaw xử lý lỗi qua hai giai đoạn:
 
-1. **Auth profile rotation** within the current provider.
-2. **Model fallback** to the next model in `agents.defaults.model.fallbacks`.
+1. **Xoay vòng hồ sơ xác thực** trong nhà cung cấp hiện tại.
+2. **Chuyển đổi dự phòng mô hình** sang mô hình tiếp theo trong `agents.defaults.model.fallbacks`.
 
-This doc explains the runtime rules and the data that backs them.
+Tài liệu này giải thích các quy tắc thời gian chạy và dữ liệu hỗ trợ chúng.
 
-## Auth storage (keys + OAuth)
+## Lưu trữ xác thực (khóa + OAuth)
 
-OpenClaw uses **auth profiles** for both API keys and OAuth tokens.
+OpenClaw sử dụng **hồ sơ xác thực** cho cả khóa API và token OAuth.
 
-- Secrets live in `~/.openclaw/agents/<agentId>/agent/auth-profiles.json` (legacy: `~/.openclaw/agent/auth-profiles.json`).
-- Config `auth.profiles` / `auth.order` are **metadata + routing only** (no secrets).
-- Legacy import-only OAuth file: `~/.openclaw/credentials/oauth.json` (imported into `auth-profiles.json` on first use).
+- Bí mật được lưu trong `~/.openclaw/agents/<agentId>/agent/auth-profiles.json` (cũ: `~/.openclaw/agent/auth-profiles.json`).
+- Cấu hình `auth.profiles` / `auth.order` chỉ là **metadata + định tuyến** (không có bí mật).
+- File OAuth chỉ nhập cũ: `~/.openclaw/credentials/oauth.json` (được nhập vào `auth-profiles.json` khi sử dụng lần đầu).
 
-More detail: [/concepts/oauth](/concepts/oauth)
+Chi tiết thêm: [/concepts/oauth](/concepts/oauth)
 
-Credential types:
+Các loại thông tin xác thực:
 
 - `type: "api_key"` → `{ provider, key }`
-- `type: "oauth"` → `{ provider, access, refresh, expires, email? }` (+ `projectId`/`enterpriseUrl` for some providers)
+- `type: "oauth"` → `{ provider, access, refresh, expires, email? }` (+ `projectId`/`enterpriseUrl` cho một số nhà cung cấp)
 
-## Profile IDs
+## ID hồ sơ
 
-OAuth logins create distinct profiles so multiple accounts can coexist.
+Đăng nhập OAuth tạo ra các hồ sơ riêng biệt để nhiều tài khoản có thể cùng tồn tại.
 
-- Default: `provider:default` when no email is available.
-- OAuth with email: `provider:<email>` (for example `google-antigravity:user@gmail.com`).
+- Mặc định: `provider:default` khi không có email.
+- OAuth với email: `provider:<email>` (ví dụ `google-antigravity:user@gmail.com`).
 
-Profiles live in `~/.openclaw/agents/<agentId>/agent/auth-profiles.json` under `profiles`.
+Hồ sơ được lưu trong `~/.openclaw/agents/<agentId>/agent/auth-profiles.json` dưới `profiles`.
 
-## Rotation order
+## Thứ tự xoay vòng
 
-When a provider has multiple profiles, OpenClaw chooses an order like this:
+Khi một nhà cung cấp có nhiều hồ sơ, OpenClaw chọn thứ tự như sau:
 
-1. **Explicit config**: `auth.order[provider]` (if set).
-2. **Configured profiles**: `auth.profiles` filtered by provider.
-3. **Stored profiles**: entries in `auth-profiles.json` for the provider.
+1. **Cấu hình rõ ràng**: `auth.order[provider]` (nếu có).
+2. **Hồ sơ đã cấu hình**: `auth.profiles` được lọc theo nhà cung cấp.
+3. **Hồ sơ đã lưu**: các mục trong `auth-profiles.json` cho nhà cung cấp.
 
-If no explicit order is configured, OpenClaw uses a round‑robin order:
+Nếu không có thứ tự rõ ràng, OpenClaw sử dụng thứ tự vòng tròn:
 
-- **Primary key:** profile type (**OAuth before API keys**).
-- **Secondary key:** `usageStats.lastUsed` (oldest first, within each type).
-- **Cooldown/disabled profiles** are moved to the end, ordered by soonest expiry.
+- **Khóa chính:** loại hồ sơ (**OAuth trước khóa API**).
+- **Khóa phụ:** `usageStats.lastUsed` (cũ nhất trước, trong mỗi loại).
+- **Hồ sơ trong thời gian chờ/đã vô hiệu hóa** được chuyển đến cuối, sắp xếp theo thời gian hết hạn sớm nhất.
 
-### Session stickiness (cache-friendly)
+### Tính dính của phiên (thân thiện với bộ nhớ đệm)
 
-OpenClaw **pins the chosen auth profile per session** to keep provider caches warm.
-It does **not** rotate on every request. The pinned profile is reused until:
+OpenClaw **ghim hồ sơ xác thực đã chọn cho mỗi phiên** để giữ cho bộ nhớ đệm của nhà cung cấp luôn sẵn sàng.
+Nó **không** xoay vòng trên mỗi yêu cầu. Hồ sơ được ghim được sử dụng lại cho đến khi:
 
-- the session is reset (`/new` / `/reset`)
-- a compaction completes (compaction count increments)
-- the profile is in cooldown/disabled
+- phiên được đặt lại (`/new` / `/reset`)
+- một lần nén hoàn tất (số lần nén tăng lên)
+- hồ sơ đang trong thời gian chờ/đã vô hiệu hóa
 
-Manual selection via `/model …@<profileId>` sets a **user override** for that session
-and is not auto‑rotated until a new session starts.
+Lựa chọn thủ công qua `/model …@<profileId>` thiết lập một **ghi đè người dùng** cho phiên đó
+và không tự động xoay vòng cho đến khi một phiên mới bắt đầu.
 
-Auto‑pinned profiles (selected by the session router) are treated as a **preference**:
-they are tried first, but OpenClaw may rotate to another profile on rate limits/timeouts.
-User‑pinned profiles stay locked to that profile; if it fails and model fallbacks
-are configured, OpenClaw moves to the next model instead of switching profiles.
+Hồ sơ tự động ghim (được chọn bởi bộ định tuyến phiên) được coi là một **ưu tiên**:
+chúng được thử trước, nhưng OpenClaw có thể xoay vòng sang hồ sơ khác khi gặp giới hạn tốc độ/thời gian chờ.
+Hồ sơ được người dùng ghim vẫn giữ nguyên; nếu nó thất bại và các chuyển đổi dự phòng mô hình
+được cấu hình, OpenClaw chuyển sang mô hình tiếp theo thay vì chuyển đổi hồ sơ.
 
-### Why OAuth can "look lost"
+### Tại sao OAuth có thể "trông như bị mất"
 
-If you have both an OAuth profile and an API key profile for the same provider, round‑robin can switch between them across messages unless pinned. To force a single profile:
+Nếu bạn có cả hồ sơ OAuth và hồ sơ khóa API cho cùng một nhà cung cấp, vòng tròn có thể chuyển đổi giữa chúng qua các tin nhắn trừ khi được ghim. Để buộc sử dụng một hồ sơ duy nhất:
 
-- Pin with `auth.order[provider] = ["provider:profileId"]`, or
-- Use a per-session override via `/model …` with a profile override (when supported by your UI/chat surface).
+- Ghim với `auth.order[provider] = ["provider:profileId"]`, hoặc
+- Sử dụng ghi đè theo phiên qua `/model …` với ghi đè hồ sơ (khi được hỗ trợ bởi giao diện người dùng/bề mặt chat của bạn).
 
-## Cooldowns
+## Thời gian chờ
 
-When a profile fails due to auth/rate‑limit errors (or a timeout that looks
-like rate limiting), OpenClaw marks it in cooldown and moves to the next profile.
-Format/invalid‑request errors (for example Cloud Code Assist tool call ID
-validation failures) are treated as failover‑worthy and use the same cooldowns.
-OpenAI-compatible stop-reason errors such as `Unhandled stop reason: error`,
-`stop reason: error`, and `reason: error` are classified as timeout/failover
-signals.
+Khi một hồ sơ thất bại do lỗi xác thực/giới hạn tốc độ (hoặc thời gian chờ trông giống như giới hạn tốc độ), OpenClaw đánh dấu nó trong thời gian chờ và chuyển sang hồ sơ tiếp theo.
+Lỗi định dạng/yêu cầu không hợp lệ (ví dụ lỗi xác thực ID cuộc gọi công cụ Cloud Code Assist) được coi là đủ điều kiện chuyển đổi dự phòng và sử dụng cùng thời gian chờ.
+Các lỗi lý do dừng tương thích với OpenAI như `Unhandled stop reason: error`, `stop reason: error`, và `reason: error` được phân loại là tín hiệu thời gian chờ/chuyển đổi dự phòng.
 
-Cooldowns use exponential backoff:
+Thời gian chờ sử dụng backoff lũy thừa:
 
-- 1 minute
-- 5 minutes
-- 25 minutes
-- 1 hour (cap)
+- 1 phút
+- 5 phút
+- 25 phút
+- 1 giờ (giới hạn)
 
-State is stored in `auth-profiles.json` under `usageStats`:
+Trạng thái được lưu trong `auth-profiles.json` dưới `usageStats`:
 
 ```json
 {
@@ -108,11 +104,11 @@ State is stored in `auth-profiles.json` under `usageStats`:
 }
 ```
 
-## Billing disables
+## Vô hiệu hóa thanh toán
 
-Billing/credit failures (for example “insufficient credits” / “credit balance too low”) are treated as failover‑worthy, but they’re usually not transient. Instead of a short cooldown, OpenClaw marks the profile as **disabled** (with a longer backoff) and rotates to the next profile/provider.
+Các lỗi thanh toán/tín dụng (ví dụ “không đủ tín dụng” / “số dư tín dụng quá thấp”) được coi là đủ điều kiện chuyển đổi dự phòng, nhưng thường không phải là tạm thời. Thay vì thời gian chờ ngắn, OpenClaw đánh dấu hồ sơ là **đã vô hiệu hóa** (với backoff dài hơn) và xoay vòng sang hồ sơ/nhà cung cấp tiếp theo.
 
-State is stored in `auth-profiles.json`:
+Trạng thái được lưu trong `auth-profiles.json`:
 
 ```json
 {
@@ -125,28 +121,28 @@ State is stored in `auth-profiles.json`:
 }
 ```
 
-Defaults:
+Mặc định:
 
-- Billing backoff starts at **5 hours**, doubles per billing failure, and caps at **24 hours**.
-- Backoff counters reset if the profile hasn’t failed for **24 hours** (configurable).
+- Backoff thanh toán bắt đầu từ **5 giờ**, tăng gấp đôi mỗi lần thất bại thanh toán, và giới hạn ở **24 giờ**.
+- Bộ đếm backoff được đặt lại nếu hồ sơ không thất bại trong **24 giờ** (có thể cấu hình).
 
-## Model fallback
+## Chuyển đổi dự phòng mô hình
 
-If all profiles for a provider fail, OpenClaw moves to the next model in
-`agents.defaults.model.fallbacks`. This applies to auth failures, rate limits, and
-timeouts that exhausted profile rotation (other errors do not advance fallback).
+Nếu tất cả các hồ sơ cho một nhà cung cấp đều thất bại, OpenClaw chuyển sang mô hình tiếp theo trong
+`agents.defaults.model.fallbacks`. Điều này áp dụng cho các lỗi xác thực, giới hạn tốc độ, và
+thời gian chờ đã làm cạn kiệt xoay vòng hồ sơ (các lỗi khác không tiến tới chuyển đổi dự phòng).
 
-When a run starts with a model override (hooks or CLI), fallbacks still end at
-`agents.defaults.model.primary` after trying any configured fallbacks.
+Khi một lần chạy bắt đầu với ghi đè mô hình (hooks hoặc CLI), các chuyển đổi dự phòng vẫn kết thúc tại
+`agents.defaults.model.primary` sau khi thử bất kỳ chuyển đổi dự phòng nào đã cấu hình.
 
-## Related config
+## Cấu hình liên quan
 
-See [Gateway configuration](/gateway/configuration) for:
+Xem [Cấu hình Gateway](/gateway/configuration) cho:
 
 - `auth.profiles` / `auth.order`
 - `auth.cooldowns.billingBackoffHours` / `auth.cooldowns.billingBackoffHoursByProvider`
 - `auth.cooldowns.billingMaxHours` / `auth.cooldowns.failureWindowHours`
 - `agents.defaults.model.primary` / `agents.defaults.model.fallbacks`
-- `agents.defaults.imageModel` routing
+- `agents.defaults.imageModel` định tuyến
 
-See [Models](/concepts/models) for the broader model selection and fallback overview.
+Xem [Mô hình](/concepts/models) để có cái nhìn tổng quan rộng hơn về lựa chọn và chuyển đổi dự phòng mô hình.

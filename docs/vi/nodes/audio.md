@@ -1,42 +1,41 @@
 ---
-summary: "How inbound audio/voice notes are downloaded, transcribed, and injected into replies"
+summary: "Cách tải xuống, chuyển đổi giọng nói thành văn bản và chèn vào phản hồi"
 read_when:
-  - Changing audio transcription or media handling
-title: "Audio and Voice Notes"
+  - Thay đổi chuyển đổi âm thanh hoặc xử lý media
+title: "Âm thanh và Ghi chú Giọng nói"
 ---
 
-# Audio / Voice Notes (2026-01-17)
+# Âm thanh / Ghi chú Giọng nói (2026-01-17)
 
-## What works
+## Hoạt động như thế nào
 
-- **Media understanding (audio)**: If audio understanding is enabled (or auto‑detected), OpenClaw:
-  1. Locates the first audio attachment (local path or URL) and downloads it if needed.
-  2. Enforces `maxBytes` before sending to each model entry.
-  3. Runs the first eligible model entry in order (provider or CLI).
-  4. If it fails or skips (size/timeout), it tries the next entry.
-  5. On success, it replaces `Body` with an `[Audio]` block and sets `{{Transcript}}`.
-- **Command parsing**: When transcription succeeds, `CommandBody`/`RawBody` are set to the transcript so slash commands still work.
-- **Verbose logging**: In `--verbose`, we log when transcription runs and when it replaces the body.
+- **Hiểu media (âm thanh)**: Nếu tính năng hiểu âm thanh được bật (hoặc tự động phát hiện), OpenClaw sẽ:
+  1. Xác định tệp âm thanh đính kèm đầu tiên (đường dẫn cục bộ hoặc URL) và tải xuống nếu cần.
+  2. Kiểm tra `maxBytes` trước khi gửi đến mỗi mô hình.
+  3. Chạy mô hình đầu tiên đủ điều kiện theo thứ tự (nhà cung cấp hoặc CLI).
+  4. Nếu thất bại hoặc bỏ qua (do kích thước/thời gian chờ), thử mô hình tiếp theo.
+  5. Khi thành công, thay thế `Body` bằng khối `[Audio]` và đặt `{{Transcript}}`.
+- **Phân tích lệnh**: Khi chuyển đổi thành công, `CommandBody`/`RawBody` được đặt thành bản chuyển đổi để các lệnh slash vẫn hoạt động.
+- **Ghi nhật ký chi tiết**: Trong chế độ `--verbose`, ghi lại khi chuyển đổi chạy và khi thay thế nội dung.
 
-## Auto-detection (default)
+## Tự động phát hiện (mặc định)
 
-If you **don’t configure models** and `tools.media.audio.enabled` is **not** set to `false`,
-OpenClaw auto-detects in this order and stops at the first working option:
+Nếu **không cấu hình mô hình** và `tools.media.audio.enabled` **không** được đặt thành `false`, OpenClaw tự động phát hiện theo thứ tự sau và dừng lại ở tùy chọn đầu tiên hoạt động:
 
-1. **Local CLIs** (if installed)
-   - `sherpa-onnx-offline` (requires `SHERPA_ONNX_MODEL_DIR` with encoder/decoder/joiner/tokens)
-   - `whisper-cli` (from `whisper-cpp`; uses `WHISPER_CPP_MODEL` or the bundled tiny model)
-   - `whisper` (Python CLI; downloads models automatically)
-2. **Gemini CLI** (`gemini`) using `read_many_files`
-3. **Provider keys** (OpenAI → Groq → Deepgram → Google)
+1. **CLI cục bộ** (nếu đã cài đặt)
+   - `sherpa-onnx-offline` (yêu cầu `SHERPA_ONNX_MODEL_DIR` với encoder/decoder/joiner/tokens)
+   - `whisper-cli` (từ `whisper-cpp`; sử dụng `WHISPER_CPP_MODEL` hoặc mô hình nhỏ đi kèm)
+   - `whisper` (Python CLI; tự động tải xuống mô hình)
+2. **Gemini CLI** (`gemini`) sử dụng `read_many_files`
+3. **Khóa nhà cung cấp** (OpenAI → Groq → Deepgram → Google)
 
-To disable auto-detection, set `tools.media.audio.enabled: false`.
-To customize, set `tools.media.audio.models`.
-Note: Binary detection is best-effort across macOS/Linux/Windows; ensure the CLI is on `PATH` (we expand `~`), or set an explicit CLI model with a full command path.
+Để tắt tự động phát hiện, đặt `tools.media.audio.enabled: false`.
+Để tùy chỉnh, đặt `tools.media.audio.models`.
+Lưu ý: Phát hiện nhị phân là nỗ lực tốt nhất trên macOS/Linux/Windows; đảm bảo CLI có trong `PATH` (mở rộng `~`), hoặc đặt mô hình CLI rõ ràng với đường dẫn lệnh đầy đủ.
 
-## Config examples
+## Ví dụ cấu hình
 
-### Provider + CLI fallback (OpenAI + Whisper CLI)
+### Nhà cung cấp + CLI dự phòng (OpenAI + Whisper CLI)
 
 ```json5
 {
@@ -60,7 +59,7 @@ Note: Binary detection is best-effort across macOS/Linux/Windows; ensure the CLI
 }
 ```
 
-### Provider-only with scope gating
+### Chỉ nhà cung cấp với giới hạn phạm vi
 
 ```json5
 {
@@ -79,7 +78,7 @@ Note: Binary detection is best-effort across macOS/Linux/Windows; ensure the CLI
 }
 ```
 
-### Provider-only (Deepgram)
+### Chỉ nhà cung cấp (Deepgram)
 
 ```json5
 {
@@ -94,7 +93,7 @@ Note: Binary detection is best-effort across macOS/Linux/Windows; ensure the CLI
 }
 ```
 
-### Provider-only (Mistral Voxtral)
+### Chỉ nhà cung cấp (Mistral Voxtral)
 
 ```json5
 {
@@ -109,7 +108,7 @@ Note: Binary detection is best-effort across macOS/Linux/Windows; ensure the CLI
 }
 ```
 
-### Echo transcript to chat (opt-in)
+### Phản hồi bản chuyển đổi vào chat (tùy chọn)
 
 ```json5
 {
@@ -117,8 +116,8 @@ Note: Binary detection is best-effort across macOS/Linux/Windows; ensure the CLI
     media: {
       audio: {
         enabled: true,
-        echoTranscript: true, // default is false
-        echoFormat: '📝 "{transcript}"', // optional, supports {transcript}
+        echoTranscript: true, // mặc định là false
+        echoFormat: '📝 "{transcript}"', // tùy chọn, hỗ trợ {transcript}
         models: [{ provider: "openai", model: "gpt-4o-mini-transcribe" }],
       },
     },
@@ -126,62 +125,62 @@ Note: Binary detection is best-effort across macOS/Linux/Windows; ensure the CLI
 }
 ```
 
-## Notes & limits
+## Ghi chú & giới hạn
 
-- Provider auth follows the standard model auth order (auth profiles, env vars, `models.providers.*.apiKey`).
-- Deepgram picks up `DEEPGRAM_API_KEY` when `provider: "deepgram"` is used.
-- Deepgram setup details: [Deepgram (audio transcription)](/providers/deepgram).
-- Mistral setup details: [Mistral](/providers/mistral).
-- Audio providers can override `baseUrl`, `headers`, and `providerOptions` via `tools.media.audio`.
-- Default size cap is 20MB (`tools.media.audio.maxBytes`). Oversize audio is skipped for that model and the next entry is tried.
-- Tiny/empty audio files below 1024 bytes are skipped before provider/CLI transcription.
-- Default `maxChars` for audio is **unset** (full transcript). Set `tools.media.audio.maxChars` or per-entry `maxChars` to trim output.
-- OpenAI auto default is `gpt-4o-mini-transcribe`; set `model: "gpt-4o-transcribe"` for higher accuracy.
-- Use `tools.media.audio.attachments` to process multiple voice notes (`mode: "all"` + `maxAttachments`).
-- Transcript is available to templates as `{{Transcript}}`.
-- `tools.media.audio.echoTranscript` is off by default; enable it to send transcript confirmation back to the originating chat before agent processing.
-- `tools.media.audio.echoFormat` customizes the echo text (placeholder: `{transcript}`).
-- CLI stdout is capped (5MB); keep CLI output concise.
+- Xác thực nhà cung cấp tuân theo thứ tự xác thực mô hình tiêu chuẩn (hồ sơ xác thực, biến môi trường, `models.providers.*.apiKey`).
+- Deepgram sử dụng `DEEPGRAM_API_KEY` khi `provider: "deepgram"` được sử dụng.
+- Chi tiết thiết lập Deepgram: [Deepgram (chuyển đổi âm thanh)](/providers/deepgram).
+- Chi tiết thiết lập Mistral: [Mistral](/providers/mistral).
+- Các nhà cung cấp âm thanh có thể ghi đè `baseUrl`, `headers`, và `providerOptions` thông qua `tools.media.audio`.
+- Giới hạn kích thước mặc định là 20MB (`tools.media.audio.maxBytes`). Tệp âm thanh quá lớn sẽ bị bỏ qua cho mô hình đó và thử mục tiếp theo.
+- Tệp âm thanh nhỏ/trống dưới 1024 byte sẽ bị bỏ qua trước khi chuyển đổi nhà cung cấp/CLI.
+- `maxChars` mặc định cho âm thanh là **không đặt** (bản chuyển đổi đầy đủ). Đặt `tools.media.audio.maxChars` hoặc `maxChars` cho từng mục để cắt ngắn đầu ra.
+- Mặc định tự động của OpenAI là `gpt-4o-mini-transcribe`; đặt `model: "gpt-4o-transcribe"` để có độ chính xác cao hơn.
+- Sử dụng `tools.media.audio.attachments` để xử lý nhiều ghi chú giọng nói (`mode: "all"` + `maxAttachments`).
+- Bản chuyển đổi có sẵn cho mẫu dưới dạng `{{Transcript}}`.
+- `tools.media.audio.echoTranscript` mặc định là tắt; bật để gửi xác nhận bản chuyển đổi trở lại cuộc trò chuyện gốc trước khi xử lý tác nhân.
+- `tools.media.audio.echoFormat` tùy chỉnh văn bản phản hồi (chỗ dành sẵn: `{transcript}`).
+- Đầu ra CLI bị giới hạn (5MB); giữ đầu ra CLI ngắn gọn.
 
-### Proxy environment support
+### Hỗ trợ môi trường proxy
 
-Provider-based audio transcription honors standard outbound proxy env vars:
+Chuyển đổi âm thanh dựa trên nhà cung cấp tuân theo các biến môi trường proxy outbound tiêu chuẩn:
 
 - `HTTPS_PROXY`
 - `HTTP_PROXY`
 - `https_proxy`
 - `http_proxy`
 
-If no proxy env vars are set, direct egress is used. If proxy config is malformed, OpenClaw logs a warning and falls back to direct fetch.
+Nếu không có biến môi trường proxy nào được đặt, sử dụng kết nối trực tiếp. Nếu cấu hình proxy bị lỗi, OpenClaw ghi lại cảnh báo và quay lại lấy trực tiếp.
 
-## Mention Detection in Groups
+## Phát hiện Đề cập trong Nhóm
 
-When `requireMention: true` is set for a group chat, OpenClaw now transcribes audio **before** checking for mentions. This allows voice notes to be processed even when they contain mentions.
+Khi `requireMention: true` được đặt cho cuộc trò chuyện nhóm, OpenClaw hiện chuyển đổi âm thanh **trước** khi kiểm tra đề cập. Điều này cho phép xử lý ghi chú giọng nói ngay cả khi chúng chứa đề cập.
 
-**How it works:**
+**Cách hoạt động:**
 
-1. If a voice message has no text body and the group requires mentions, OpenClaw performs a "preflight" transcription.
-2. The transcript is checked for mention patterns (e.g., `@BotName`, emoji triggers).
-3. If a mention is found, the message proceeds through the full reply pipeline.
-4. The transcript is used for mention detection so voice notes can pass the mention gate.
+1. Nếu một tin nhắn giọng nói không có nội dung văn bản và nhóm yêu cầu đề cập, OpenClaw thực hiện chuyển đổi "kiểm tra trước".
+2. Bản chuyển đổi được kiểm tra các mẫu đề cập (ví dụ: `@BotName`, biểu tượng cảm xúc kích hoạt).
+3. Nếu tìm thấy đề cập, tin nhắn sẽ tiếp tục qua toàn bộ quy trình phản hồi.
+4. Bản chuyển đổi được sử dụng để phát hiện đề cập để ghi chú giọng nói có thể vượt qua cổng đề cập.
 
-**Fallback behavior:**
+**Hành vi dự phòng:**
 
-- If transcription fails during preflight (timeout, API error, etc.), the message is processed based on text-only mention detection.
-- This ensures that mixed messages (text + audio) are never incorrectly dropped.
+- Nếu chuyển đổi thất bại trong quá trình kiểm tra trước (thời gian chờ, lỗi API, v.v.), tin nhắn được xử lý dựa trên phát hiện đề cập chỉ có văn bản.
+- Điều này đảm bảo rằng các tin nhắn hỗn hợp (văn bản + âm thanh) không bao giờ bị bỏ qua sai.
 
-**Opt-out per Telegram group/topic:**
+**Tùy chọn không tham gia cho từng nhóm/chủ đề Telegram:**
 
-- Set `channels.telegram.groups.<chatId>.disableAudioPreflight: true` to skip preflight transcript mention checks for that group.
-- Set `channels.telegram.groups.<chatId>.topics.<threadId>.disableAudioPreflight` to override per-topic (`true` to skip, `false` to force-enable).
-- Default is `false` (preflight enabled when mention-gated conditions match).
+- Đặt `channels.telegram.groups.<chatId>.disableAudioPreflight: true` để bỏ qua kiểm tra trước bản chuyển đổi đề cập cho nhóm đó.
+- Đặt `channels.telegram.groups.<chatId>.topics.<threadId>.disableAudioPreflight` để ghi đè theo chủ đề (`true` để bỏ qua, `false` để buộc bật).
+- Mặc định là `false` (kiểm tra trước được bật khi điều kiện yêu cầu đề cập khớp).
 
-**Example:** A user sends a voice note saying "Hey @Claude, what's the weather?" in a Telegram group with `requireMention: true`. The voice note is transcribed, the mention is detected, and the agent replies.
+**Ví dụ:** Một người dùng gửi ghi chú giọng nói nói "Hey @Claude, what's the weather?" trong một nhóm Telegram với `requireMention: true`. Ghi chú giọng nói được chuyển đổi, đề cập được phát hiện và tác nhân phản hồi.
 
-## Gotchas
+## Lưu ý
 
-- Scope rules use first-match wins. `chatType` is normalized to `direct`, `group`, or `room`.
-- Ensure your CLI exits 0 and prints plain text; JSON needs to be massaged via `jq -r .text`.
-- For `parakeet-mlx`, if you pass `--output-dir`, OpenClaw reads `<output-dir>/<media-basename>.txt` when `--output-format` is `txt` (or omitted); non-`txt` output formats fall back to stdout parsing.
-- Keep timeouts reasonable (`timeoutSeconds`, default 60s) to avoid blocking the reply queue.
-- Preflight transcription only processes the **first** audio attachment for mention detection. Additional audio is processed during the main media understanding phase.
+- Quy tắc phạm vi sử dụng nguyên tắc "khớp đầu tiên thắng". `chatType` được chuẩn hóa thành `direct`, `group`, hoặc `room`.
+- Đảm bảo CLI của bạn thoát 0 và in văn bản thuần túy; JSON cần được xử lý qua `jq -r .text`.
+- Đối với `parakeet-mlx`, nếu bạn truyền `--output-dir`, OpenClaw đọc `<output-dir>/<media-basename>.txt` khi `--output-format` là `txt` (hoặc bị bỏ qua); các định dạng đầu ra không phải `txt` quay lại phân tích cú pháp stdout.
+- Giữ thời gian chờ hợp lý (`timeoutSeconds`, mặc định 60s) để tránh chặn hàng đợi phản hồi.
+- Chuyển đổi kiểm tra trước chỉ xử lý tệp âm thanh đính kèm **đầu tiên** để phát hiện đề cập. Âm thanh bổ sung được xử lý trong giai đoạn hiểu media chính.

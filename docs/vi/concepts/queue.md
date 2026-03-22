@@ -1,48 +1,46 @@
 ---
-summary: "Command queue design that serializes inbound auto-reply runs"
+summary: "Thiết kế hàng đợi lệnh để tuần tự hóa các lần chạy tự động trả lời đến"
 read_when:
-  - Changing auto-reply execution or concurrency
-title: "Command Queue"
+  - Thay đổi thực thi hoặc đồng thời của tự động trả lời
+title: "Hàng Đợi Lệnh"
 ---
 
-# Command Queue (2026-01-16)
+# Hàng Đợi Lệnh (2026-01-16)
 
-We serialize inbound auto-reply runs (all channels) through a tiny in-process queue to prevent multiple agent runs from colliding, while still allowing safe parallelism across sessions.
+Chúng tôi tuần tự hóa các lần chạy tự động trả lời đến (tất cả các kênh) thông qua một hàng đợi nhỏ trong quá trình để ngăn chặn các lần chạy tác nhân đồng thời va chạm, đồng thời vẫn cho phép thực hiện song song an toàn giữa các phiên.
 
-## Why
+## Tại sao
 
-- Auto-reply runs can be expensive (LLM calls) and can collide when multiple inbound messages arrive close together.
-- Serializing avoids competing for shared resources (session files, logs, CLI stdin) and reduces the chance of upstream rate limits.
+- Các lần chạy tự động trả lời có thể tốn kém (gọi LLM) và có thể va chạm khi nhiều tin nhắn đến gần nhau.
+- Tuần tự hóa giúp tránh cạnh tranh tài nguyên chia sẻ (tệp phiên, nhật ký, CLI stdin) và giảm khả năng bị giới hạn tốc độ từ phía trên.
 
-## How it works
+## Cách hoạt động
 
-- A lane-aware FIFO queue drains each lane with a configurable concurrency cap (default 1 for unconfigured lanes; main defaults to 4, subagent to 8).
-- `runEmbeddedPiAgent` enqueues by **session key** (lane `session:<key>`) to guarantee only one active run per session.
-- Each session run is then queued into a **global lane** (`main` by default) so overall parallelism is capped by `agents.defaults.maxConcurrent`.
-- When verbose logging is enabled, queued runs emit a short notice if they waited more than ~2s before starting.
-- Typing indicators still fire immediately on enqueue (when supported by the channel) so user experience is unchanged while we wait our turn.
+- Một hàng đợi FIFO nhận biết làn đường xả từng làn với giới hạn đồng thời có thể cấu hình (mặc định là 1 cho các làn chưa cấu hình; chính mặc định là 4, phụ là 8).
+- `runEmbeddedPiAgent` đưa vào hàng đợi theo **khóa phiên** (làn `session:<key>`) để đảm bảo chỉ có một lần chạy hoạt động mỗi phiên.
+- Mỗi lần chạy phiên sau đó được đưa vào một **làn toàn cầu** (`main` mặc định) để tổng thể song song được giới hạn bởi `agents.defaults.maxConcurrent`.
+- Khi bật ghi nhật ký chi tiết, các lần chạy trong hàng đợi sẽ phát ra thông báo ngắn nếu chúng chờ hơn ~2 giây trước khi bắt đầu.
+- Các chỉ báo gõ vẫn kích hoạt ngay lập tức khi đưa vào hàng đợi (khi được kênh hỗ trợ) để trải nghiệm người dùng không thay đổi trong khi chờ đợi.
 
-## Queue modes (per channel)
+## Chế độ hàng đợi (theo kênh)
 
-Inbound messages can steer the current run, wait for a followup turn, or do both:
+Tin nhắn đến có thể điều khiển lần chạy hiện tại, chờ lượt tiếp theo, hoặc cả hai:
 
-- `steer`: inject immediately into the current run (cancels pending tool calls after the next tool boundary). If not streaming, falls back to followup.
-- `followup`: enqueue for the next agent turn after the current run ends.
-- `collect`: coalesce all queued messages into a **single** followup turn (default). If messages target different channels/threads, they drain individually to preserve routing.
-- `steer-backlog` (aka `steer+backlog`): steer now **and** preserve the message for a followup turn.
-- `interrupt` (legacy): abort the active run for that session, then run the newest message.
-- `queue` (legacy alias): same as `steer`.
+- `steer`: chèn ngay vào lần chạy hiện tại (hủy các cuộc gọi công cụ đang chờ sau ranh giới công cụ tiếp theo). Nếu không phát trực tuyến, sẽ quay lại lượt tiếp theo.
+- `followup`: đưa vào hàng đợi cho lượt tác nhân tiếp theo sau khi lần chạy hiện tại kết thúc.
+- `collect`: hợp nhất tất cả các tin nhắn trong hàng đợi thành một lượt tiếp theo duy nhất (mặc định). Nếu tin nhắn nhắm mục tiêu các kênh/chủ đề khác nhau, chúng sẽ xả riêng để bảo toàn định tuyến.
+- `steer-backlog` (hay `steer+backlog`): điều khiển ngay bây giờ và bảo lưu tin nhắn cho lượt tiếp theo.
+- `interrupt` (cũ): hủy lần chạy hoạt động cho phiên đó, sau đó chạy tin nhắn mới nhất.
+- `queue` (bí danh cũ): giống như `steer`.
 
-Steer-backlog means you can get a followup response after the steered run, so
-streaming surfaces can look like duplicates. Prefer `collect`/`steer` if you want
-one response per inbound message.
-Send `/queue collect` as a standalone command (per-session) or set `messages.queue.byChannel.discord: "collect"`.
+Steer-backlog có nghĩa là bạn có thể nhận được phản hồi tiếp theo sau lần chạy đã điều khiển, vì vậy các bề mặt phát trực tuyến có thể trông như bị trùng lặp. Ưu tiên `collect`/`steer` nếu bạn muốn một phản hồi cho mỗi tin nhắn đến.
+Gửi `/queue collect` như một lệnh độc lập (theo phiên) hoặc đặt `messages.queue.byChannel.discord: "collect"`.
 
-Defaults (when unset in config):
+Mặc định (khi không được đặt trong cấu hình):
 
-- All surfaces → `collect`
+- Tất cả các bề mặt → `collect`
 
-Configure globally or per channel via `messages.queue`:
+Cấu hình toàn cầu hoặc theo kênh qua `messages.queue`:
 
 ```json5
 {
@@ -58,32 +56,32 @@ Configure globally or per channel via `messages.queue`:
 }
 ```
 
-## Queue options
+## Tùy chọn hàng đợi
 
-Options apply to `followup`, `collect`, and `steer-backlog` (and to `steer` when it falls back to followup):
+Các tùy chọn áp dụng cho `followup`, `collect`, và `steer-backlog` (và cho `steer` khi nó quay lại lượt tiếp theo):
 
-- `debounceMs`: wait for quiet before starting a followup turn (prevents “continue, continue”).
-- `cap`: max queued messages per session.
-- `drop`: overflow policy (`old`, `new`, `summarize`).
+- `debounceMs`: chờ yên tĩnh trước khi bắt đầu lượt tiếp theo (ngăn “tiếp tục, tiếp tục”).
+- `cap`: số lượng tin nhắn tối đa trong hàng đợi mỗi phiên.
+- `drop`: chính sách tràn (`old`, `new`, `summarize`).
 
-Summarize keeps a short bullet list of dropped messages and injects it as a synthetic followup prompt.
-Defaults: `debounceMs: 1000`, `cap: 20`, `drop: summarize`.
+Summarize giữ một danh sách gạch đầu dòng ngắn của các tin nhắn bị bỏ qua và chèn nó như một lời nhắc theo dõi tổng hợp.
+Mặc định: `debounceMs: 1000`, `cap: 20`, `drop: summarize`.
 
-## Per-session overrides
+## Ghi đè theo phiên
 
-- Send `/queue <mode>` as a standalone command to store the mode for the current session.
-- Options can be combined: `/queue collect debounce:2s cap:25 drop:summarize`
-- `/queue default` or `/queue reset` clears the session override.
+- Gửi `/queue <mode>` như một lệnh độc lập để lưu trữ chế độ cho phiên hiện tại.
+- Các tùy chọn có thể được kết hợp: `/queue collect debounce:2s cap:25 drop:summarize`
+- `/queue default` hoặc `/queue reset` xóa ghi đè phiên.
 
-## Scope and guarantees
+## Phạm vi và đảm bảo
 
-- Applies to auto-reply agent runs across all inbound channels that use the gateway reply pipeline (WhatsApp web, Telegram, Slack, Discord, Signal, iMessage, webchat, etc.).
-- Default lane (`main`) is process-wide for inbound + main heartbeats; set `agents.defaults.maxConcurrent` to allow multiple sessions in parallel.
-- Additional lanes may exist (e.g. `cron`, `subagent`) so background jobs can run in parallel without blocking inbound replies.
-- Per-session lanes guarantee that only one agent run touches a given session at a time.
-- No external dependencies or background worker threads; pure TypeScript + promises.
+- Áp dụng cho các lần chạy tác nhân tự động trả lời trên tất cả các kênh đến sử dụng đường dẫn trả lời gateway (WhatsApp web, Telegram, Slack, Discord, Signal, iMessage, webchat, v.v.).
+- Làn mặc định (`main`) là toàn bộ quá trình cho nhịp tim đến + chính; đặt `agents.defaults.maxConcurrent` để cho phép nhiều phiên song song.
+- Có thể tồn tại các làn bổ sung (ví dụ: `cron`, `subagent`) để các công việc nền có thể chạy song song mà không chặn các trả lời đến.
+- Các làn theo phiên đảm bảo rằng chỉ có một lần chạy tác nhân chạm vào một phiên nhất định tại một thời điểm.
+- Không có phụ thuộc bên ngoài hoặc luồng công nhân nền; chỉ TypeScript thuần túy + promises.
 
-## Troubleshooting
+## Khắc phục sự cố
 
-- If commands seem stuck, enable verbose logs and look for “queued for …ms” lines to confirm the queue is draining.
-- If you need queue depth, enable verbose logs and watch for queue timing lines.
+- Nếu các lệnh dường như bị kẹt, hãy bật nhật ký chi tiết và tìm các dòng “queued for …ms” để xác nhận hàng đợi đang xả.
+- Nếu cần độ sâu hàng đợi, hãy bật nhật ký chi tiết và theo dõi các dòng thời gian hàng đợi.

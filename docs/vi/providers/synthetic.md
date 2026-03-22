@@ -1,32 +1,31 @@
 ---
-summary: "Use Synthetic's Anthropic-compatible API in OpenClaw"
+summary: "Sử dụng API tương thích Anthropic của Synthetic trong OpenClaw"
 read_when:
-  - You want to use Synthetic as a model provider
-  - You need a Synthetic API key or base URL setup
+  - Bạn muốn sử dụng Synthetic làm nhà cung cấp mô hình
+  - Bạn cần thiết lập khóa API hoặc URL cơ sở của Synthetic
 title: "Synthetic"
 ---
 
 # Synthetic
 
-Synthetic exposes Anthropic-compatible endpoints. OpenClaw registers it as the
-`synthetic` provider and uses the Anthropic Messages API.
+Synthetic cung cấp các endpoint tương thích với Anthropic. OpenClaw đăng ký nó dưới dạng nhà cung cấp `synthetic` và sử dụng Anthropic Messages API.
 
-## Quick setup
+## Thiết lập nhanh
 
-1. Set `SYNTHETIC_API_KEY` (or run the wizard below).
-2. Run onboarding:
+1. Đặt `SYNTHETIC_API_KEY` (hoặc chạy trình hướng dẫn bên dưới).
+2. Chạy quy trình onboarding:
 
 ```bash
 openclaw onboard --auth-choice synthetic-api-key
 ```
 
-The default model is set to:
+Mô hình mặc định được đặt là:
 
 ```
 synthetic/hf:MiniMaxAI/MiniMax-M2.5
 ```
 
-## Config example
+## Ví dụ cấu hình
 
 ```json5
 {
@@ -61,13 +60,11 @@ synthetic/hf:MiniMaxAI/MiniMax-M2.5
 }
 ```
 
-Note: OpenClaw's Anthropic client appends `/v1` to the base URL, so use
-`https://api.synthetic.new/anthropic` (not `/anthropic/v1`). If Synthetic changes
-its base URL, override `models.providers.synthetic.baseUrl`.
+Lưu ý: Ứng dụng khách Anthropic của OpenClaw thêm `/v1` vào URL cơ sở, vì vậy hãy sử dụng `https://api.synthetic.new/anthropic` (không phải `/anthropic/v1`). Nếu Synthetic thay đổi URL cơ sở, hãy ghi đè `models.providers.synthetic.baseUrl`.
 
-## Model catalog
+## Danh mục mô hình
 
-All models below use cost `0` (input/output/cache).
+Tất cả các mô hình dưới đây đều có chi phí `0` (đầu vào/đầu ra/cache).
 
 | Model ID                                               | Context window | Max tokens | Reasoning | Input        |
 | ------------------------------------------------------ | -------------- | ---------- | --------- | ------------ |
@@ -91,9 +88,8 @@ All models below use cost `0` (input/output/cache).
 | `hf:deepseek-ai/DeepSeek-V3`                           | 128000         | 8192       | false     | text         |
 | `hf:Qwen/Qwen3-235B-A22B-Thinking-2507`                | 256000         | 8192       | true      | text         |
 
-## Notes
+## Ghi chú
 
-- Model refs use `synthetic/<modelId>`.
-- If you enable a model allowlist (`agents.defaults.models`), add every model you
-  plan to use.
-- See [Model providers](/concepts/model-providers) for provider rules.
+- Tham chiếu mô hình sử dụng `synthetic/<modelId>`.
+- Nếu bật danh sách cho phép mô hình (`agents.defaults.models`), hãy thêm mọi mô hình dự định sử dụng.
+- Xem [Nhà cung cấp mô hình](/concepts/model-providers) để biết quy tắc nhà cung cấp.

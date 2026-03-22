@@ -1,60 +1,54 @@
 ---
-summary: "WebSocket gateway architecture, components, and client flows"
+summary: "Kiến trúc gateway WebSocket, các thành phần và luồng khách hàng"
 read_when:
-  - Working on gateway protocol, clients, or transports
-title: "Gateway Architecture"
+  - Làm việc với giao thức gateway, khách hàng, hoặc phương tiện truyền tải
+title: "Kiến trúc Gateway"
 ---
 
-# Gateway architecture
+# Kiến trúc Gateway
 
-## Overview
+## Tổng quan
 
-- A single long‑lived **Gateway** owns all messaging surfaces (WhatsApp via
-  Baileys, Telegram via grammY, Slack, Discord, Signal, iMessage, WebChat).
-- Control-plane clients (macOS app, CLI, web UI, automations) connect to the
-  Gateway over **WebSocket** on the configured bind host (default
-  `127.0.0.1:18789`).
-- **Nodes** (macOS/iOS/Android/headless) also connect over **WebSocket**, but
-  declare `role: node` with explicit caps/commands.
-- One Gateway per host; it is the only place that opens a WhatsApp session.
-- The **canvas host** is served by the Gateway HTTP server under:
-  - `/__openclaw__/canvas/` (agent-editable HTML/CSS/JS)
-  - `/__openclaw__/a2ui/` (A2UI host)
-    It uses the same port as the Gateway (default `18789`).
+- Một **Gateway** duy nhất và lâu dài quản lý tất cả các bề mặt nhắn tin (WhatsApp qua Baileys, Telegram qua grammY, Slack, Discord, Signal, iMessage, WebChat).
+- Các khách hàng thuộc mặt điều khiển (ứng dụng macOS, CLI, giao diện web, tự động hóa) kết nối với Gateway qua **WebSocket** trên host đã cấu hình (mặc định `127.0.0.1:18789`).
+- **Nodes** (macOS/iOS/Android/headless) cũng kết nối qua **WebSocket**, nhưng khai báo `role: node` với các khả năng/lệnh rõ ràng.
+- Mỗi host chỉ có một Gateway; đây là nơi duy nhất mở phiên WhatsApp.
+- **Canvas host** được phục vụ bởi máy chủ HTTP của Gateway dưới:
+  - `/__openclaw__/canvas/` (HTML/CSS/JS có thể chỉnh sửa bởi agent)
+  - `/__openclaw__/a2ui/` (host A2UI)
+    Sử dụng cùng cổng với Gateway (mặc định `18789`).
 
-## Components and flows
+## Các thành phần và luồng
 
 ### Gateway (daemon)
 
-- Maintains provider connections.
-- Exposes a typed WS API (requests, responses, server‑push events).
-- Validates inbound frames against JSON Schema.
-- Emits events like `agent`, `chat`, `presence`, `health`, `heartbeat`, `cron`.
+- Duy trì kết nối với các nhà cung cấp.
+- Cung cấp một API WS kiểu (yêu cầu, phản hồi, sự kiện server-push).
+- Xác thực các khung đầu vào theo JSON Schema.
+- Phát ra các sự kiện như `agent`, `chat`, `presence`, `health`, `heartbeat`, `cron`.
 
-### Clients (mac app / CLI / web admin)
+### Khách hàng (ứng dụng mac / CLI / quản trị web)
 
-- One WS connection per client.
-- Send requests (`health`, `status`, `send`, `agent`, `system-presence`).
-- Subscribe to events (`tick`, `agent`, `presence`, `shutdown`).
+- Mỗi khách hàng có một kết nối WS.
+- Gửi yêu cầu (`health`, `status`, `send`, `agent`, `system-presence`).
+- Đăng ký sự kiện (`tick`, `agent`, `presence`, `shutdown`).
 
 ### Nodes (macOS / iOS / Android / headless)
 
-- Connect to the **same WS server** with `role: node`.
-- Provide a device identity in `connect`; pairing is **device‑based** (role `node`) and
-  approval lives in the device pairing store.
-- Expose commands like `canvas.*`, `camera.*`, `screen.record`, `location.get`.
+- Kết nối với **cùng máy chủ WS** với `role: node`.
+- Cung cấp danh tính thiết bị trong `connect`; ghép đôi dựa trên **thiết bị** (role `node`) và phê duyệt nằm trong kho lưu trữ ghép đôi thiết bị.
+- Cung cấp các lệnh như `canvas.*`, `camera.*`, `screen.record`, `location.get`.
 
-Protocol details:
+Chi tiết giao thức:
 
-- [Gateway protocol](/gateway/protocol)
+- [Giao thức Gateway](/gateway/protocol)
 
 ### WebChat
 
-- Static UI that uses the Gateway WS API for chat history and sends.
-- In remote setups, connects through the same SSH/Tailscale tunnel as other
-  clients.
+- Giao diện tĩnh sử dụng API WS của Gateway để lấy lịch sử chat và gửi tin nhắn.
+- Trong các thiết lập từ xa, kết nối qua cùng đường hầm SSH/Tailscale như các khách hàng khác.
 
-## Connection lifecycle (single client)
+## Vòng đời kết nối (một khách hàng)
 
 ```mermaid
 sequenceDiagram
@@ -63,7 +57,7 @@ sequenceDiagram
 
     Client->>Gateway: req:connect
     Gateway-->>Client: res (ok)
-    Note right of Gateway: or res error + close
+    Note right of Gateway: hoặc res lỗi + đóng
     Note left of Client: payload=hello-ok<br>snapshot: presence + health
 
     Gateway-->>Client: event:presence
@@ -75,63 +69,56 @@ sequenceDiagram
     Gateway-->>Client: res:agent<br>final {runId, status, summary}
 ```
 
-## Wire protocol (summary)
+## Giao thức truyền tải (tóm tắt)
 
-- Transport: WebSocket, text frames with JSON payloads.
-- First frame **must** be `connect`.
-- After handshake:
-  - Requests: `{type:"req", id, method, params}` → `{type:"res", id, ok, payload|error}`
-  - Events: `{type:"event", event, payload, seq?, stateVersion?}`
-- If `OPENCLAW_GATEWAY_TOKEN` (or `--token`) is set, `connect.params.auth.token`
-  must match or the socket closes.
-- Idempotency keys are required for side‑effecting methods (`send`, `agent`) to
-  safely retry; the server keeps a short‑lived dedupe cache.
-- Nodes must include `role: "node"` plus caps/commands/permissions in `connect`.
+- Phương tiện: WebSocket, khung văn bản với payload JSON.
+- Khung đầu tiên **phải** là `connect`.
+- Sau khi bắt tay:
+  - Yêu cầu: `{type:"req", id, method, params}` → `{type:"res", id, ok, payload|error}`
+  - Sự kiện: `{type:"event", event, payload, seq?, stateVersion?}`
+- Nếu `OPENCLAW_GATEWAY_TOKEN` (hoặc `--token`) được thiết lập, `connect.params.auth.token` phải khớp hoặc socket sẽ đóng.
+- Khóa idempotency là bắt buộc cho các phương thức có tác động phụ (`send`, `agent`) để thử lại an toàn; máy chủ giữ một bộ nhớ đệm loại bỏ trùng lặp ngắn hạn.
+- Nodes phải bao gồm `role: "node"` cùng với khả năng/lệnh/quyền trong `connect`.
 
-## Pairing + local trust
+## Ghép đôi + tin cậy cục bộ
 
-- All WS clients (operators + nodes) include a **device identity** on `connect`.
-- New device IDs require pairing approval; the Gateway issues a **device token**
-  for subsequent connects.
-- **Local** connects (loopback or the gateway host’s own tailnet address) can be
-  auto‑approved to keep same‑host UX smooth.
-- All connects must sign the `connect.challenge` nonce.
-- Signature payload `v3` also binds `platform` + `deviceFamily`; the gateway
-  pins paired metadata on reconnect and requires repair pairing for metadata
-  changes.
-- **Non‑local** connects still require explicit approval.
-- Gateway auth (`gateway.auth.*`) still applies to **all** connections, local or
-  remote.
+- Tất cả các khách hàng WS (người vận hành + nodes) bao gồm một **danh tính thiết bị** khi `connect`.
+- ID thiết bị mới cần phê duyệt ghép đôi; Gateway phát hành một **token thiết bị** cho các kết nối sau đó.
+- Kết nối **cục bộ** (loopback hoặc địa chỉ tailnet của chính gateway host) có thể được tự động phê duyệt để giữ trải nghiệm người dùng trên cùng host mượt mà.
+- Tất cả các kết nối phải ký vào nonce `connect.challenge`.
+- Payload chữ ký `v3` cũng ràng buộc `platform` + `deviceFamily`; gateway ghim metadata đã ghép đôi khi kết nối lại và yêu cầu ghép đôi lại cho các thay đổi metadata.
+- Kết nối **không cục bộ** vẫn cần phê duyệt rõ ràng.
+- Xác thực Gateway (`gateway.auth.*`) vẫn áp dụng cho **tất cả** các kết nối, cục bộ hoặc từ xa.
 
-Details: [Gateway protocol](/gateway/protocol), [Pairing](/channels/pairing),
-[Security](/gateway/security).
+Chi tiết: [Giao thức Gateway](/gateway/protocol), [Ghép đôi](/channels/pairing),
+[Bảo mật](/gateway/security).
 
-## Protocol typing and codegen
+## Kiểu giao thức và sinh mã
 
-- TypeBox schemas define the protocol.
-- JSON Schema is generated from those schemas.
-- Swift models are generated from the JSON Schema.
+- Các schema TypeBox định nghĩa giao thức.
+- JSON Schema được tạo từ các schema đó.
+- Các mô hình Swift được tạo từ JSON Schema.
 
-## Remote access
+## Truy cập từ xa
 
-- Preferred: Tailscale or VPN.
-- Alternative: SSH tunnel
+- Ưu tiên: Tailscale hoặc VPN.
+- Thay thế: Đường hầm SSH
 
   ```bash
   ssh -N -L 18789:127.0.0.1:18789 user@host
   ```
 
-- The same handshake + auth token apply over the tunnel.
-- TLS + optional pinning can be enabled for WS in remote setups.
+- Cùng quy trình bắt tay + token xác thực áp dụng qua đường hầm.
+- TLS + ghim tùy chọn có thể được kích hoạt cho WS trong các thiết lập từ xa.
 
-## Operations snapshot
+## Ảnh chụp hoạt động
 
-- Start: `openclaw gateway` (foreground, logs to stdout).
-- Health: `health` over WS (also included in `hello-ok`).
-- Supervision: launchd/systemd for auto‑restart.
+- Khởi động: `openclaw gateway` (chạy nền, ghi log ra stdout).
+- Tình trạng: `health` qua WS (cũng bao gồm trong `hello-ok`).
+- Giám sát: launchd/systemd để tự động khởi động lại.
 
-## Invariants
+## Bất biến
 
-- Exactly one Gateway controls a single Baileys session per host.
-- Handshake is mandatory; any non‑JSON or non‑connect first frame is a hard close.
-- Events are not replayed; clients must refresh on gaps.
+- Chính xác một Gateway kiểm soát một phiên Baileys duy nhất trên mỗi host.
+- Bắt tay là bắt buộc; bất kỳ khung đầu tiên nào không phải JSON hoặc không phải connect sẽ bị đóng cứng.
+- Sự kiện không được phát lại; khách hàng phải làm mới khi có khoảng trống.

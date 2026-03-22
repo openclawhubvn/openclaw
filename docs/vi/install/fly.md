@@ -1,54 +1,54 @@
 ---
 title: Fly.io
-summary: "Step-by-step Fly.io deployment for OpenClaw with persistent storage and HTTPS"
+summary: "Hướng dẫn triển khai OpenClaw trên Fly.io với lưu trữ dữ liệu và HTTPS tự động"
 read_when:
-  - Deploying OpenClaw on Fly.io
-  - Setting up Fly volumes, secrets, and first-run config
+  - Triển khai OpenClaw trên Fly.io
+  - Thiết lập Fly volumes, secrets và cấu hình lần đầu
 ---
 
-# Fly.io Deployment
+# Triển khai trên Fly.io
 
-**Goal:** OpenClaw Gateway running on a [Fly.io](https://fly.io) machine with persistent storage, automatic HTTPS, and Discord/channel access.
+**Mục tiêu:** Chạy OpenClaw Gateway trên máy Fly.io với lưu trữ dữ liệu, HTTPS tự động và truy cập Discord/kênh.
 
-## What you need
+## Bạn cần chuẩn bị
 
-- [flyctl CLI](https://fly.io/docs/hands-on/install-flyctl/) installed
-- Fly.io account (free tier works)
-- Model auth: API key for your chosen model provider
-- Channel credentials: Discord bot token, Telegram token, etc.
+- Đã cài đặt [flyctl CLI](https://fly.io/docs/hands-on/install-flyctl/)
+- Tài khoản Fly.io (miễn phí cũng được)
+- Xác thực mô hình: API key cho nhà cung cấp mô hình bạn chọn
+- Thông tin đăng nhập kênh: token bot Discord, token Telegram, v.v.
 
-## Beginner quick path
+## Lộ trình nhanh cho người mới
 
-1. Clone repo → customize `fly.toml`
-2. Create app + volume → set secrets
-3. Deploy with `fly deploy`
-4. SSH in to create config or use Control UI
+1. Clone repo → tùy chỉnh `fly.toml`
+2. Tạo ứng dụng + volume → thiết lập secrets
+3. Triển khai với `fly deploy`
+4. SSH vào để tạo cấu hình hoặc sử dụng Control UI
 
 <Steps>
-  <Step title="Create the Fly app">
+  <Step title="Tạo ứng dụng Fly">
     ```bash
-    # Clone the repo
+    # Clone repo
     git clone https://github.com/openclaw/openclaw.git
     cd openclaw
 
-    # Create a new Fly app (pick your own name)
+    # Tạo ứng dụng Fly mới (chọn tên riêng)
     fly apps create my-openclaw
 
-    # Create a persistent volume (1GB is usually enough)
+    # Tạo volume lưu trữ dữ liệu (1GB thường đủ)
     fly volumes create openclaw_data --size 1 --region iad
     ```
 
-    **Tip:** Choose a region close to you. Common options: `lhr` (London), `iad` (Virginia), `sjc` (San Jose).
+    **Mẹo:** Chọn khu vực gần bạn. Các lựa chọn phổ biến: `lhr` (London), `iad` (Virginia), `sjc` (San Jose).
 
   </Step>
 
-  <Step title="Configure fly.toml">
-    Edit `fly.toml` to match your app name and requirements.
+  <Step title="Cấu hình fly.toml">
+    Chỉnh sửa `fly.toml` để phù hợp với tên ứng dụng và yêu cầu của bạn.
 
-    **Security note:** The default config exposes a public URL. For a hardened deployment with no public IP, see [Private Deployment](#private-deployment-hardened) or use `fly.private.toml`.
+    **Lưu ý bảo mật:** Cấu hình mặc định mở URL công khai. Để triển khai an toàn hơn không có IP công khai, xem [Triển khai riêng tư](#private-deployment-hardened) hoặc sử dụng `fly.private.toml`.
 
     ```toml
-    app = "my-openclaw"  # Your app name
+    app = "my-openclaw"  # Tên ứng dụng của bạn
     primary_region = "iad"
 
     [build]
@@ -80,57 +80,57 @@ read_when:
       destination = "/data"
     ```
 
-    **Key settings:**
+    **Các thiết lập chính:**
 
-    | Setting                        | Why                                                                         |
-    | ------------------------------ | --------------------------------------------------------------------------- |
-    | `--bind lan`                   | Binds to `0.0.0.0` so Fly's proxy can reach the gateway                     |
-    | `--allow-unconfigured`         | Starts without a config file (you'll create one after)                      |
-    | `internal_port = 3000`         | Must match `--port 3000` (or `OPENCLAW_GATEWAY_PORT`) for Fly health checks |
-    | `memory = "2048mb"`            | 512MB is too small; 2GB recommended                                         |
-    | `OPENCLAW_STATE_DIR = "/data"` | Persists state on the volume                                                |
+    | Thiết lập                      | Lý do                                                                         |
+    | ------------------------------ | ----------------------------------------------------------------------------- |
+    | `--bind lan`                   | Kết nối với `0.0.0.0` để proxy của Fly có thể truy cập gateway                |
+    | `--allow-unconfigured`         | Khởi động mà không cần file cấu hình (bạn sẽ tạo sau)                         |
+    | `internal_port = 3000`         | Phải khớp với `--port 3000` (hoặc `OPENCLAW_GATEWAY_PORT`) để kiểm tra sức khỏe của Fly |
+    | `memory = "2048mb"`            | 512MB là quá nhỏ; khuyến nghị 2GB                                             |
+    | `OPENCLAW_STATE_DIR = "/data"` | Lưu trữ trạng thái trên volume                                                |
 
   </Step>
 
-  <Step title="Set secrets">
+  <Step title="Thiết lập secrets">
     ```bash
-    # Required: Gateway token (for non-loopback binding)
+    # Bắt buộc: Gateway token (cho kết nối không phải loopback)
     fly secrets set OPENCLAW_GATEWAY_TOKEN=$(openssl rand -hex 32)
 
-    # Model provider API keys
+    # API key của nhà cung cấp mô hình
     fly secrets set ANTHROPIC_API_KEY=sk-ant-...
 
-    # Optional: Other providers
+    # Tùy chọn: Các nhà cung cấp khác
     fly secrets set OPENAI_API_KEY=sk-...
     fly secrets set GOOGLE_API_KEY=...
 
-    # Channel tokens
+    # Token kênh
     fly secrets set DISCORD_BOT_TOKEN=MTQ...
     ```
 
-    **Notes:**
+    **Ghi chú:**
 
-    - Non-loopback binds (`--bind lan`) require `OPENCLAW_GATEWAY_TOKEN` for security.
-    - Treat these tokens like passwords.
-    - **Prefer env vars over config file** for all API keys and tokens. This keeps secrets out of `openclaw.json` where they could be accidentally exposed or logged.
+    - Kết nối không phải loopback (`--bind lan`) yêu cầu `OPENCLAW_GATEWAY_TOKEN` để bảo mật.
+    - Đối xử với các token này như mật khẩu.
+    - **Ưu tiên biến môi trường hơn file cấu hình** cho tất cả API key và token. Điều này giữ bí mật không bị lộ trong `openclaw.json`.
 
   </Step>
 
-  <Step title="Deploy">
+  <Step title="Triển khai">
     ```bash
     fly deploy
     ```
 
-    First deploy builds the Docker image (~2-3 minutes). Subsequent deploys are faster.
+    Triển khai đầu tiên sẽ build Docker image (~2-3 phút). Các lần triển khai sau nhanh hơn.
 
-    After deployment, verify:
+    Sau khi triển khai, kiểm tra:
 
     ```bash
     fly status
     fly logs
     ```
 
-    You should see:
+    Bạn sẽ thấy:
 
     ```
     [gateway] listening on ws://0.0.0.0:3000 (PID xxx)
@@ -139,14 +139,14 @@ read_when:
 
   </Step>
 
-  <Step title="Create config file">
-    SSH into the machine to create a proper config:
+  <Step title="Tạo file cấu hình">
+    SSH vào máy để tạo cấu hình đúng:
 
     ```bash
     fly ssh console
     ```
 
-    Create the config directory and file:
+    Tạo thư mục và file cấu hình:
 
     ```bash
     mkdir -p /data
@@ -200,16 +200,16 @@ read_when:
     EOF
     ```
 
-    **Note:** With `OPENCLAW_STATE_DIR=/data`, the config path is `/data/openclaw.json`.
+    **Lưu ý:** Với `OPENCLAW_STATE_DIR=/data`, đường dẫn cấu hình là `/data/openclaw.json`.
 
-    **Note:** The Discord token can come from either:
+    **Lưu ý:** Token Discord có thể đến từ:
 
-    - Environment variable: `DISCORD_BOT_TOKEN` (recommended for secrets)
-    - Config file: `channels.discord.token`
+    - Biến môi trường: `DISCORD_BOT_TOKEN` (khuyến nghị cho bảo mật)
+    - File cấu hình: `channels.discord.token`
 
-    If using env var, no need to add token to config. The gateway reads `DISCORD_BOT_TOKEN` automatically.
+    Nếu sử dụng biến môi trường, không cần thêm token vào cấu hình. Gateway sẽ tự động đọc `DISCORD_BOT_TOKEN`.
 
-    Restart to apply:
+    Khởi động lại để áp dụng:
 
     ```bash
     exit
@@ -218,24 +218,24 @@ read_when:
 
   </Step>
 
-  <Step title="Access the Gateway">
+  <Step title="Truy cập Gateway">
     ### Control UI
 
-    Open in browser:
+    Mở trong trình duyệt:
 
     ```bash
     fly open
     ```
 
-    Or visit `https://my-openclaw.fly.dev/`
+    Hoặc truy cập `https://my-openclaw.fly.dev/`
 
-    Paste your gateway token (the one from `OPENCLAW_GATEWAY_TOKEN`) to authenticate.
+    Dán token gateway của bạn (từ `OPENCLAW_GATEWAY_TOKEN`) để xác thực.
 
     ### Logs
 
     ```bash
-    fly logs              # Live logs
-    fly logs --no-tail    # Recent logs
+    fly logs              # Logs trực tiếp
+    fly logs --no-tail    # Logs gần đây
     ```
 
     ### SSH Console
@@ -247,205 +247,205 @@ read_when:
   </Step>
 </Steps>
 
-## Troubleshooting
+## Khắc phục sự cố
 
-### "App is not listening on expected address"
+### "Ứng dụng không lắng nghe trên địa chỉ mong đợi"
 
-The gateway is binding to `127.0.0.1` instead of `0.0.0.0`.
+Gateway đang kết nối với `127.0.0.1` thay vì `0.0.0.0`.
 
-**Fix:** Add `--bind lan` to your process command in `fly.toml`.
+**Khắc phục:** Thêm `--bind lan` vào lệnh process trong `fly.toml`.
 
-### Health checks failing / connection refused
+### Kiểm tra sức khỏe thất bại / kết nối bị từ chối
 
-Fly can't reach the gateway on the configured port.
+Fly không thể truy cập gateway trên cổng đã cấu hình.
 
-**Fix:** Ensure `internal_port` matches the gateway port (set `--port 3000` or `OPENCLAW_GATEWAY_PORT=3000`).
+**Khắc phục:** Đảm bảo `internal_port` khớp với cổng gateway (đặt `--port 3000` hoặc `OPENCLAW_GATEWAY_PORT=3000`).
 
-### OOM / Memory Issues
+### Vấn đề OOM / Bộ nhớ
 
-Container keeps restarting or getting killed. Signs: `SIGABRT`, `v8::internal::Runtime_AllocateInYoungGeneration`, or silent restarts.
+Container liên tục khởi động lại hoặc bị dừng. Dấu hiệu: `SIGABRT`, `v8::internal::Runtime_AllocateInYoungGeneration`, hoặc khởi động lại không thông báo.
 
-**Fix:** Increase memory in `fly.toml`:
+**Khắc phục:** Tăng bộ nhớ trong `fly.toml`:
 
 ```toml
 [[vm]]
   memory = "2048mb"
 ```
 
-Or update an existing machine:
+Hoặc cập nhật máy hiện tại:
 
 ```bash
 fly machine update <machine-id> --vm-memory 2048 -y
 ```
 
-**Note:** 512MB is too small. 1GB may work but can OOM under load or with verbose logging. **2GB is recommended.**
+**Lưu ý:** 512MB là quá nhỏ. 1GB có thể hoạt động nhưng có thể gặp OOM khi tải nặng hoặc log chi tiết. **Khuyến nghị 2GB.**
 
-### Gateway Lock Issues
+### Vấn đề khóa Gateway
 
-Gateway refuses to start with "already running" errors.
+Gateway từ chối khởi động với lỗi "đã chạy".
 
-This happens when the container restarts but the PID lock file persists on the volume.
+Điều này xảy ra khi container khởi động lại nhưng file khóa PID vẫn tồn tại trên volume.
 
-**Fix:** Delete the lock file:
+**Khắc phục:** Xóa file khóa:
 
 ```bash
 fly ssh console --command "rm -f /data/gateway.*.lock"
 fly machine restart <machine-id>
 ```
 
-The lock file is at `/data/gateway.*.lock` (not in a subdirectory).
+File khóa nằm tại `/data/gateway.*.lock` (không nằm trong thư mục con).
 
-### Config Not Being Read
+### Cấu hình không được đọc
 
-If using `--allow-unconfigured`, the gateway creates a minimal config. Your custom config at `/data/openclaw.json` should be read on restart.
+Nếu sử dụng `--allow-unconfigured`, gateway tạo cấu hình tối thiểu. Cấu hình tùy chỉnh của bạn tại `/data/openclaw.json` nên được đọc khi khởi động lại.
 
-Verify the config exists:
+Xác minh cấu hình tồn tại:
 
 ```bash
 fly ssh console --command "cat /data/openclaw.json"
 ```
 
-### Writing Config via SSH
+### Viết cấu hình qua SSH
 
-The `fly ssh console -C` command doesn't support shell redirection. To write a config file:
+Lệnh `fly ssh console -C` không hỗ trợ chuyển hướng shell. Để viết file cấu hình:
 
 ```bash
-# Use echo + tee (pipe from local to remote)
+# Sử dụng echo + tee (pipe từ local đến remote)
 echo '{"your":"config"}' | fly ssh console -C "tee /data/openclaw.json"
 
-# Or use sftp
+# Hoặc sử dụng sftp
 fly sftp shell
 > put /local/path/config.json /data/openclaw.json
 ```
 
-**Note:** `fly sftp` may fail if the file already exists. Delete first:
+**Lưu ý:** `fly sftp` có thể thất bại nếu file đã tồn tại. Xóa trước:
 
 ```bash
 fly ssh console --command "rm /data/openclaw.json"
 ```
 
-### State Not Persisting
+### Trạng thái không được lưu
 
-If you lose credentials or sessions after a restart, the state dir is writing to the container filesystem.
+Nếu bạn mất thông tin đăng nhập hoặc phiên sau khi khởi động lại, thư mục trạng thái đang ghi vào hệ thống file của container.
 
-**Fix:** Ensure `OPENCLAW_STATE_DIR=/data` is set in `fly.toml` and redeploy.
+**Khắc phục:** Đảm bảo `OPENCLAW_STATE_DIR=/data` được đặt trong `fly.toml` và triển khai lại.
 
-## Updates
+## Cập nhật
 
 ```bash
-# Pull latest changes
+# Kéo các thay đổi mới nhất
 git pull
 
-# Redeploy
+# Triển khai lại
 fly deploy
 
-# Check health
+# Kiểm tra sức khỏe
 fly status
 fly logs
 ```
 
-### Updating Machine Command
+### Cập nhật lệnh máy
 
-If you need to change the startup command without a full redeploy:
+Nếu bạn cần thay đổi lệnh khởi động mà không cần triển khai lại hoàn toàn:
 
 ```bash
-# Get machine ID
+# Lấy ID máy
 fly machines list
 
-# Update command
+# Cập nhật lệnh
 fly machine update <machine-id> --command "node dist/index.js gateway --port 3000 --bind lan" -y
 
-# Or with memory increase
+# Hoặc với tăng bộ nhớ
 fly machine update <machine-id> --vm-memory 2048 --command "node dist/index.js gateway --port 3000 --bind lan" -y
 ```
 
-**Note:** After `fly deploy`, the machine command may reset to what's in `fly.toml`. If you made manual changes, re-apply them after deploy.
+**Lưu ý:** Sau `fly deploy`, lệnh máy có thể được đặt lại theo `fly.toml`. Nếu bạn đã thực hiện thay đổi thủ công, hãy áp dụng lại sau khi triển khai.
 
-## Private Deployment (Hardened)
+## Triển khai riêng tư (An toàn hơn)
 
-By default, Fly allocates public IPs, making your gateway accessible at `https://your-app.fly.dev`. This is convenient but means your deployment is discoverable by internet scanners (Shodan, Censys, etc.).
+Theo mặc định, Fly cấp phát IP công khai, làm cho gateway của bạn có thể truy cập tại `https://your-app.fly.dev`. Điều này tiện lợi nhưng cũng có nghĩa là triển khai của bạn có thể bị phát hiện bởi các máy quét internet (Shodan, Censys, v.v.).
 
-For a hardened deployment with **no public exposure**, use the private template.
+Để triển khai an toàn hơn với **không có phơi bày công khai**, sử dụng mẫu riêng tư.
 
-### When to use private deployment
+### Khi nào nên sử dụng triển khai riêng tư
 
-- You only make **outbound** calls/messages (no inbound webhooks)
-- You use **ngrok or Tailscale** tunnels for any webhook callbacks
-- You access the gateway via **SSH, proxy, or WireGuard** instead of browser
-- You want the deployment **hidden from internet scanners**
+- Bạn chỉ thực hiện các cuộc gọi/tin nhắn **ra ngoài** (không có webhook inbound)
+- Bạn sử dụng **ngrok hoặc Tailscale** tunnels cho bất kỳ webhook callback nào
+- Bạn truy cập gateway qua **SSH, proxy, hoặc WireGuard** thay vì trình duyệt
+- Bạn muốn triển khai **ẩn khỏi các máy quét internet**
 
-### Setup
+### Thiết lập
 
-Use `fly.private.toml` instead of the standard config:
+Sử dụng `fly.private.toml` thay vì cấu hình tiêu chuẩn:
 
 ```bash
-# Deploy with private config
+# Triển khai với cấu hình riêng tư
 fly deploy -c fly.private.toml
 ```
 
-Or convert an existing deployment:
+Hoặc chuyển đổi một triển khai hiện có:
 
 ```bash
-# List current IPs
+# Liệt kê các IP hiện tại
 fly ips list -a my-openclaw
 
-# Release public IPs
+# Giải phóng các IP công khai
 fly ips release <public-ipv4> -a my-openclaw
 fly ips release <public-ipv6> -a my-openclaw
 
-# Switch to private config so future deploys don't re-allocate public IPs
-# (remove [http_service] or deploy with the private template)
+# Chuyển sang cấu hình riêng tư để các triển khai trong tương lai không cấp phát lại IP công khai
+# (xóa [http_service] hoặc triển khai với mẫu riêng tư)
 fly deploy -c fly.private.toml
 
-# Allocate private-only IPv6
+# Cấp phát IPv6 chỉ riêng tư
 fly ips allocate-v6 --private -a my-openclaw
 ```
 
-After this, `fly ips list` should show only a `private` type IP:
+Sau đó, `fly ips list` chỉ nên hiển thị một IP loại `private`:
 
 ```
 VERSION  IP                   TYPE             REGION
 v6       fdaa:x:x:x:x::x      private          global
 ```
 
-### Accessing a private deployment
+### Truy cập triển khai riêng tư
 
-Since there's no public URL, use one of these methods:
+Vì không có URL công khai, sử dụng một trong các phương pháp sau:
 
-**Option 1: Local proxy (simplest)**
+**Lựa chọn 1: Proxy cục bộ (đơn giản nhất)**
 
 ```bash
-# Forward local port 3000 to the app
+# Chuyển tiếp cổng cục bộ 3000 đến ứng dụng
 fly proxy 3000:3000 -a my-openclaw
 
-# Then open http://localhost:3000 in browser
+# Sau đó mở http://localhost:3000 trong trình duyệt
 ```
 
-**Option 2: WireGuard VPN**
+**Lựa chọn 2: VPN WireGuard**
 
 ```bash
-# Create WireGuard config (one-time)
+# Tạo cấu hình WireGuard (một lần)
 fly wireguard create
 
-# Import to WireGuard client, then access via internal IPv6
-# Example: http://[fdaa:x:x:x:x::x]:3000
+# Nhập vào client WireGuard, sau đó truy cập qua IPv6 nội bộ
+# Ví dụ: http://[fdaa:x:x:x:x::x]:3000
 ```
 
-**Option 3: SSH only**
+**Lựa chọn 3: Chỉ SSH**
 
 ```bash
 fly ssh console -a my-openclaw
 ```
 
-### Webhooks with private deployment
+### Webhooks với triển khai riêng tư
 
-If you need webhook callbacks (Twilio, Telnyx, etc.) without public exposure:
+Nếu bạn cần webhook callback (Twilio, Telnyx, v.v.) mà không phơi bày công khai:
 
-1. **ngrok tunnel** - Run ngrok inside the container or as a sidecar
-2. **Tailscale Funnel** - Expose specific paths via Tailscale
-3. **Outbound-only** - Some providers (Twilio) work fine for outbound calls without webhooks
+1. **ngrok tunnel** - Chạy ngrok bên trong container hoặc như một sidecar
+2. **Tailscale Funnel** - Phơi bày các đường dẫn cụ thể qua Tailscale
+3. **Chỉ outbound** - Một số nhà cung cấp (Twilio) hoạt động tốt cho các cuộc gọi outbound mà không cần webhooks
 
-Example voice-call config with ngrok:
+Cấu hình cuộc gọi thoại ví dụ với ngrok:
 
 ```json5
 {
@@ -466,36 +466,36 @@ Example voice-call config with ngrok:
 }
 ```
 
-The ngrok tunnel runs inside the container and provides a public webhook URL without exposing the Fly app itself. Set `webhookSecurity.allowedHosts` to the public tunnel hostname so forwarded host headers are accepted.
+Ngrok tunnel chạy bên trong container và cung cấp một URL webhook công khai mà không phơi bày ứng dụng Fly. Đặt `webhookSecurity.allowedHosts` thành tên miền công khai của tunnel để các tiêu đề host được chuyển tiếp được chấp nhận.
 
-### Security benefits
+### Lợi ích bảo mật
 
-| Aspect            | Public       | Private    |
-| ----------------- | ------------ | ---------- |
-| Internet scanners | Discoverable | Hidden     |
-| Direct attacks    | Possible     | Blocked    |
-| Control UI access | Browser      | Proxy/VPN  |
-| Webhook delivery  | Direct       | Via tunnel |
+| Khía cạnh           | Công khai    | Riêng tư   |
+| ------------------- | ------------ | ---------- |
+| Máy quét internet   | Có thể phát hiện | Ẩn        |
+| Tấn công trực tiếp  | Có thể       | Bị chặn    |
+| Truy cập Control UI | Trình duyệt  | Proxy/VPN  |
+| Giao hàng webhook   | Trực tiếp    | Qua tunnel |
 
-## Notes
+## Ghi chú
 
-- Fly.io uses **x86 architecture** (not ARM)
-- The Dockerfile is compatible with both architectures
-- For WhatsApp/Telegram onboarding, use `fly ssh console`
-- Persistent data lives on the volume at `/data`
-- Signal requires Java + signal-cli; use a custom image and keep memory at 2GB+.
+- Fly.io sử dụng kiến trúc **x86** (không phải ARM)
+- Dockerfile tương thích với cả hai kiến trúc
+- Để onboarding WhatsApp/Telegram, sử dụng `fly ssh console`
+- Dữ liệu lưu trữ nằm trên volume tại `/data`
+- Signal yêu cầu Java + signal-cli; sử dụng image tùy chỉnh và giữ bộ nhớ ở mức 2GB+.
 
-## Cost
+## Chi phí
 
-With the recommended config (`shared-cpu-2x`, 2GB RAM):
+Với cấu hình khuyến nghị (`shared-cpu-2x`, RAM 2GB):
 
-- ~$10-15/month depending on usage
-- Free tier includes some allowance
+- ~10-15 USD/tháng tùy thuộc vào mức sử dụng
+- Gói miễn phí bao gồm một số hạn mức
 
-See [Fly.io pricing](https://fly.io/docs/about/pricing/) for details.
+Xem chi tiết [giá Fly.io](https://fly.io/docs/about/pricing/).
 
-## Next steps
+## Bước tiếp theo
 
-- Set up messaging channels: [Channels](/channels)
-- Configure the Gateway: [Gateway configuration](/gateway/configuration)
-- Keep OpenClaw up to date: [Updating](/install/updating)
+- Thiết lập các kênh nhắn tin: [Channels](/channels)
+- Cấu hình Gateway: [Gateway configuration](/gateway/configuration)
+- Giữ OpenClaw luôn cập nhật: [Updating](/install/updating)

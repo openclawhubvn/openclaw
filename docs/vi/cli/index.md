@@ -1,16 +1,16 @@
 ---
-summary: "OpenClaw CLI reference for `openclaw` commands, subcommands, and options"
+summary: "Tham khảo CLI OpenClaw cho các lệnh, lệnh con và tùy chọn của `openclaw`"
 read_when:
-  - Adding or modifying CLI commands or options
-  - Documenting new command surfaces
-title: "CLI Reference"
+  - Thêm hoặc chỉnh sửa lệnh CLI hoặc tùy chọn
+  - Tài liệu hóa bề mặt lệnh mới
+title: "Tham khảo CLI"
 ---
 
-# CLI reference
+# Tham khảo CLI
 
-This page describes the current CLI behavior. If commands change, update this doc.
+Trang này mô tả hành vi hiện tại của CLI. Nếu có thay đổi lệnh, hãy cập nhật tài liệu này.
 
-## Command pages
+## Trang lệnh
 
 - [`setup`](/cli/setup)
 - [`onboard`](/cli/onboard)
@@ -50,47 +50,47 @@ This page describes the current CLI behavior. If commands change, update this do
 - [`webhooks`](/cli/webhooks)
 - [`pairing`](/cli/pairing)
 - [`qr`](/cli/qr)
-- [`plugins`](/cli/plugins) (plugin commands)
+- [`plugins`](/cli/plugins) (lệnh plugin)
 - [`channels`](/cli/channels)
 - [`security`](/cli/security)
 - [`secrets`](/cli/secrets)
 - [`skills`](/cli/skills)
-- [`daemon`](/cli/daemon) (legacy alias for gateway service commands)
-- [`clawbot`](/cli/clawbot) (legacy alias namespace)
-- [`voicecall`](/cli/voicecall) (plugin; if installed)
+- [`daemon`](/cli/daemon) (bí danh cũ cho lệnh dịch vụ gateway)
+- [`clawbot`](/cli/clawbot) (namespace bí danh cũ)
+- [`voicecall`](/cli/voicecall) (plugin; nếu đã cài đặt)
 
-## Global flags
+## Cờ toàn cục
 
-- `--dev`: isolate state under `~/.openclaw-dev` and shift default ports.
-- `--profile <name>`: isolate state under `~/.openclaw-<name>`.
-- `--no-color`: disable ANSI colors.
-- `--update`: shorthand for `openclaw update` (source installs only).
-- `-V`, `--version`, `-v`: print version and exit.
+- `--dev`: cô lập trạng thái dưới `~/.openclaw-dev` và thay đổi cổng mặc định.
+- `--profile <name>`: cô lập trạng thái dưới `~/.openclaw-<name>`.
+- `--no-color`: tắt màu ANSI.
+- `--update`: viết tắt cho `openclaw update` (chỉ cài đặt từ nguồn).
+- `-V`, `--version`, `-v`: in phiên bản và thoát.
 
-## Output styling
+## Định dạng đầu ra
 
-- ANSI colors and progress indicators only render in TTY sessions.
-- OSC-8 hyperlinks render as clickable links in supported terminals; otherwise we fall back to plain URLs.
-- `--json` (and `--plain` where supported) disables styling for clean output.
-- `--no-color` disables ANSI styling; `NO_COLOR=1` is also respected.
-- Long-running commands show a progress indicator (OSC 9;4 when supported).
+- Màu ANSI và chỉ báo tiến trình chỉ hiển thị trong các phiên TTY.
+- Liên kết OSC-8 hiển thị dưới dạng liên kết có thể nhấp trong các terminal hỗ trợ; nếu không, sẽ quay lại URL thông thường.
+- `--json` (và `--plain` nếu được hỗ trợ) tắt định dạng để có đầu ra sạch.
+- `--no-color` tắt định dạng ANSI; `NO_COLOR=1` cũng được tôn trọng.
+- Các lệnh chạy lâu hiển thị chỉ báo tiến trình (OSC 9;4 khi được hỗ trợ).
 
-## Color palette
+## Bảng màu
 
-OpenClaw uses a lobster palette for CLI output.
+OpenClaw sử dụng bảng màu lobster cho đầu ra CLI.
 
-- `accent` (#FF5A2D): headings, labels, primary highlights.
-- `accentBright` (#FF7A3D): command names, emphasis.
-- `accentDim` (#D14A22): secondary highlight text.
-- `info` (#FF8A5B): informational values.
-- `success` (#2FBF71): success states.
-- `warn` (#FFB020): warnings, fallbacks, attention.
-- `error` (#E23D2D): errors, failures.
-- `muted` (#8B7F77): de-emphasis, metadata.
+- `accent` (#FF5A2D): tiêu đề, nhãn, điểm nhấn chính.
+- `accentBright` (#FF7A3D): tên lệnh, nhấn mạnh.
+- `accentDim` (#D14A22): văn bản nổi bật thứ cấp.
+- `info` (#FF8A5B): giá trị thông tin.
+- `success` (#2FBF71): trạng thái thành công.
+- `warn` (#FFB020): cảnh báo, dự phòng, chú ý.
+- `error` (#E23D2D): lỗi, thất bại.
+- `muted` (#8B7F77): giảm nhấn mạnh, siêu dữ liệu.
 
-Palette source of truth: `src/terminal/palette.ts` (the “lobster palette”).
+Nguồn bảng màu: `src/terminal/palette.ts` (bảng màu “lobster”).
 
-## Command tree
+## Cây lệnh
 
 ```
 openclaw [--dev] [--profile <name>] <command>
@@ -265,87 +265,87 @@ openclaw [--dev] [--profile <name>] <command>
   tui
 ```
 
-Note: plugins can add additional top-level commands (for example `openclaw voicecall`).
+Lưu ý: các plugin có thể thêm lệnh cấp cao nhất (ví dụ `openclaw voicecall`).
 
-## Security
+## Bảo mật
 
-- `openclaw security audit` — audit config + local state for common security foot-guns.
-- `openclaw security audit --deep` — best-effort live Gateway probe.
-- `openclaw security audit --fix` — tighten safe defaults and chmod state/config.
+- `openclaw security audit` — kiểm tra cấu hình + trạng thái cục bộ để phát hiện các lỗi bảo mật phổ biến.
+- `openclaw security audit --deep` — nỗ lực tốt nhất để thăm dò Gateway trực tiếp.
+- `openclaw security audit --fix` — thắt chặt các mặc định an toàn và chmod trạng thái/cấu hình.
 
 ## Secrets
 
-- `openclaw secrets reload` — re-resolve refs and atomically swap the runtime snapshot.
-- `openclaw secrets audit` — scan for plaintext residues, unresolved refs, and precedence drift (`--allow-exec` to execute exec providers during audit).
-- `openclaw secrets configure` — interactive helper for provider setup + SecretRef mapping + preflight/apply (`--allow-exec` to execute exec providers during preflight and exec-containing apply flows).
-- `openclaw secrets apply --from <plan.json>` — apply a previously generated plan (`--dry-run` supported; use `--allow-exec` to permit exec providers in dry-run and exec-containing write plans).
+- `openclaw secrets reload` — giải quyết lại các tham chiếu và hoán đổi ảnh chụp nhanh runtime một cách nguyên tử.
+- `openclaw secrets audit` — quét các dư lượng văn bản thuần túy, tham chiếu chưa được giải quyết và sự trôi dạt ưu tiên (`--allow-exec` để thực thi các nhà cung cấp exec trong quá trình kiểm tra).
+- `openclaw secrets configure` — trợ giúp tương tác cho thiết lập nhà cung cấp + ánh xạ SecretRef + kiểm tra trước/áp dụng (`--allow-exec` để thực thi các nhà cung cấp exec trong các luồng kiểm tra trước và áp dụng có chứa exec).
+- `openclaw secrets apply --from <plan.json>` — áp dụng một kế hoạch đã được tạo trước đó (`--dry-run` được hỗ trợ; sử dụng `--allow-exec` để cho phép các nhà cung cấp exec trong các kế hoạch ghi chạy thử và có chứa exec).
 
 ## Plugins
 
-Manage extensions and their config:
+Quản lý các tiện ích mở rộng và cấu hình của chúng:
 
-- `openclaw plugins list` — discover plugins (use `--json` for machine output).
-- `openclaw plugins inspect <id>` — show details for a plugin (`info` is an alias).
-- `openclaw plugins install <path|.tgz|npm-spec|plugin@marketplace>` — install a plugin (or add a plugin path to `plugins.load.paths`).
-- `openclaw plugins marketplace list <marketplace>` — list marketplace entries before install.
-- `openclaw plugins enable <id>` / `disable <id>` — toggle `plugins.entries.<id>.enabled`.
-- `openclaw plugins doctor` — report plugin load errors.
+- `openclaw plugins list` — khám phá các plugin (sử dụng `--json` để có đầu ra máy).
+- `openclaw plugins inspect <id>` — hiển thị chi tiết cho một plugin (`info` là một bí danh).
+- `openclaw plugins install <path|.tgz|npm-spec|plugin@marketplace>` — cài đặt một plugin (hoặc thêm đường dẫn plugin vào `plugins.load.paths`).
+- `openclaw plugins marketplace list <marketplace>` — liệt kê các mục trong marketplace trước khi cài đặt.
+- `openclaw plugins enable <id>` / `disable <id>` — chuyển đổi `plugins.entries.<id>.enabled`.
+- `openclaw plugins doctor` — báo cáo lỗi tải plugin.
 
-Most plugin changes require a gateway restart. See [/plugin](/tools/plugin).
+Hầu hết các thay đổi plugin yêu cầu khởi động lại gateway. Xem [/plugin](/tools/plugin).
 
 ## Memory
 
-Vector search over `MEMORY.md` + `memory/*.md`:
+Tìm kiếm vector qua `MEMORY.md` + `memory/*.md`:
 
-- `openclaw memory status` — show index stats.
-- `openclaw memory index` — reindex memory files.
-- `openclaw memory search "<query>"` (or `--query "<query>"`) — semantic search over memory.
+- `openclaw memory status` — hiển thị thống kê chỉ mục.
+- `openclaw memory index` — lập chỉ mục lại các tệp nhớ.
+- `openclaw memory search "<query>"` (hoặc `--query "<query>"`) — tìm kiếm ngữ nghĩa qua bộ nhớ.
 
-## Chat slash commands
+## Lệnh gạch chéo trong chat
 
-Chat messages support `/...` commands (text and native). See [/tools/slash-commands](/tools/slash-commands).
+Tin nhắn chat hỗ trợ các lệnh `/...` (văn bản và gốc). Xem [/tools/slash-commands](/tools/slash-commands).
 
-Highlights:
+Điểm nổi bật:
 
-- `/status` for quick diagnostics.
-- `/config` for persisted config changes.
-- `/debug` for runtime-only config overrides (memory, not disk; requires `commands.debug: true`).
+- `/status` để chẩn đoán nhanh.
+- `/config` để thay đổi cấu hình được lưu trữ.
+- `/debug` để ghi đè cấu hình chỉ trong runtime (bộ nhớ, không phải đĩa; yêu cầu `commands.debug: true`).
 
-## Setup + onboarding
+## Thiết lập + onboarding
 
 ### `setup`
 
-Initialize config + workspace.
+Khởi tạo cấu hình + workspace.
 
-Options:
+Tùy chọn:
 
-- `--workspace <dir>`: agent workspace path (default `~/.openclaw/workspace`).
-- `--wizard`: run onboarding.
-- `--non-interactive`: run onboarding without prompts.
-- `--mode <local|remote>`: onboard mode.
-- `--remote-url <url>`: remote Gateway URL.
-- `--remote-token <token>`: remote Gateway token.
+- `--workspace <dir>`: đường dẫn workspace của agent (mặc định `~/.openclaw/workspace`).
+- `--wizard`: chạy onboarding.
+- `--non-interactive`: chạy onboarding không có nhắc nhở.
+- `--mode <local|remote>`: chế độ onboard.
+- `--remote-url <url>`: URL Gateway từ xa.
+- `--remote-token <token>`: token Gateway từ xa.
 
-Onboarding auto-runs when any onboarding flags are present (`--non-interactive`, `--mode`, `--remote-url`, `--remote-token`).
+Onboarding tự động chạy khi có bất kỳ cờ onboarding nào (`--non-interactive`, `--mode`, `--remote-url`, `--remote-token`).
 
 ### `onboard`
 
-Interactive onboarding for gateway, workspace, and skills.
+Onboarding tương tác cho gateway, workspace và kỹ năng.
 
-Options:
+Tùy chọn:
 
 - `--workspace <dir>`
-- `--reset` (reset config + credentials + sessions before onboarding)
-- `--reset-scope <config|config+creds+sessions|full>` (default `config+creds+sessions`; use `full` to also remove workspace)
+- `--reset` (đặt lại cấu hình + thông tin xác thực + phiên trước khi onboarding)
+- `--reset-scope <config|config+creds+sessions|full>` (mặc định `config+creds+sessions`; sử dụng `full` để cũng xóa workspace)
 - `--non-interactive`
 - `--mode <local|remote>`
-- `--flow <quickstart|advanced|manual>` (manual is an alias for advanced)
+- `--flow <quickstart|advanced|manual>` (manual là bí danh cho advanced)
 - `--auth-choice <setup-token|token|chutes|openai-codex|openai-api-key|openrouter-api-key|ollama|ai-gateway-api-key|moonshot-api-key|moonshot-api-key-cn|kimi-code-api-key|synthetic-api-key|venice-api-key|gemini-api-key|zai-api-key|mistral-api-key|apiKey|minimax-api|minimax-api-lightning|opencode-zen|opencode-go|custom-api-key|skip>`
-- `--token-provider <id>` (non-interactive; used with `--auth-choice token`)
-- `--token <token>` (non-interactive; used with `--auth-choice token`)
-- `--token-profile-id <id>` (non-interactive; default: `<provider>:manual`)
-- `--token-expires-in <duration>` (non-interactive; e.g. `365d`, `12h`)
-- `--secret-input-mode <plaintext|ref>` (default `plaintext`; use `ref` to store provider default env refs instead of plaintext keys)
+- `--token-provider <id>` (không tương tác; sử dụng với `--auth-choice token`)
+- `--token <token>` (không tương tác; sử dụng với `--auth-choice token`)
+- `--token-profile-id <id>` (không tương tác; mặc định: `<provider>:manual`)
+- `--token-expires-in <duration>` (không tương tác; ví dụ: `365d`, `12h`)
+- `--secret-input-mode <plaintext|ref>` (mặc định `plaintext`; sử dụng `ref` để lưu trữ các tham chiếu môi trường mặc định của nhà cung cấp thay vì các khóa văn bản thuần túy)
 - `--anthropic-api-key <key>`
 - `--openai-api-key <key>`
 - `--mistral-api-key <key>`
@@ -358,118 +358,118 @@ Options:
 - `--minimax-api-key <key>`
 - `--opencode-zen-api-key <key>`
 - `--opencode-go-api-key <key>`
-- `--custom-base-url <url>` (non-interactive; used with `--auth-choice custom-api-key` or `--auth-choice ollama`)
-- `--custom-model-id <id>` (non-interactive; used with `--auth-choice custom-api-key` or `--auth-choice ollama`)
-- `--custom-api-key <key>` (non-interactive; optional; used with `--auth-choice custom-api-key`; falls back to `CUSTOM_API_KEY` when omitted)
-- `--custom-provider-id <id>` (non-interactive; optional custom provider id)
-- `--custom-compatibility <openai|anthropic>` (non-interactive; optional; default `openai`)
+- `--custom-base-url <url>` (không tương tác; sử dụng với `--auth-choice custom-api-key` hoặc `--auth-choice ollama`)
+- `--custom-model-id <id>` (không tương tác; sử dụng với `--auth-choice custom-api-key` hoặc `--auth-choice ollama`)
+- `--custom-api-key <key>` (không tương tác; tùy chọn; sử dụng với `--auth-choice custom-api-key`; quay lại `CUSTOM_API_KEY` khi bị bỏ qua)
+- `--custom-provider-id <id>` (không tương tác; id nhà cung cấp tùy chỉnh tùy chọn)
+- `--custom-compatibility <openai|anthropic>` (không tương tác; tùy chọn; mặc định `openai`)
 - `--gateway-port <port>`
 - `--gateway-bind <loopback|lan|tailnet|auto|custom>`
 - `--gateway-auth <token|password>`
 - `--gateway-token <token>`
-- `--gateway-token-ref-env <name>` (non-interactive; store `gateway.auth.token` as an env SecretRef; requires that env var to be set; cannot be combined with `--gateway-token`)
+- `--gateway-token-ref-env <name>` (không tương tác; lưu `gateway.auth.token` dưới dạng một env SecretRef; yêu cầu biến môi trường đó được đặt; không thể kết hợp với `--gateway-token`)
 - `--gateway-password <password>`
 - `--remote-url <url>`
 - `--remote-token <token>`
 - `--tailscale <off|serve|funnel>`
 - `--tailscale-reset-on-exit`
 - `--install-daemon`
-- `--no-install-daemon` (alias: `--skip-daemon`)
+- `--no-install-daemon` (bí danh: `--skip-daemon`)
 - `--daemon-runtime <node|bun>`
 - `--skip-channels`
 - `--skip-skills`
 - `--skip-health`
 - `--skip-ui`
-- `--node-manager <npm|pnpm|bun>` (pnpm recommended; bun not recommended for Gateway runtime)
+- `--node-manager <npm|pnpm|bun>` (pnpm được khuyến nghị; bun không được khuyến nghị cho runtime Gateway)
 - `--json`
 
 ### `configure`
 
-Interactive configuration wizard (models, channels, skills, gateway).
+Trình hướng dẫn cấu hình tương tác (mô hình, kênh, kỹ năng, gateway).
 
 ### `config`
 
-Non-interactive config helpers (get/set/unset/file/validate). Running `openclaw config` with no
-subcommand launches the wizard.
+Trình trợ giúp cấu hình không tương tác (get/set/unset/file/validate). Chạy `openclaw config` mà không có
+lệnh con sẽ khởi chạy trình hướng dẫn.
 
-Subcommands:
+Lệnh con:
 
-- `config get <path>`: print a config value (dot/bracket path).
-- `config set`: supports four assignment modes:
-  - value mode: `config set <path> <value>` (JSON5-or-string parsing)
-  - SecretRef builder mode: `config set <path> --ref-provider <provider> --ref-source <source> --ref-id <id>`
-  - provider builder mode: `config set secrets.providers.<alias> --provider-source <env|file|exec> ...`
-  - batch mode: `config set --batch-json '<json>'` or `config set --batch-file <path>`
-- `config set --dry-run`: validate assignments without writing `openclaw.json` (exec SecretRef checks are skipped by default).
-- `config set --allow-exec --dry-run`: opt in to exec SecretRef dry-run checks (may execute provider commands).
-- `config set --dry-run --json`: emit machine-readable dry-run output (checks + completeness signal, operations, refs checked/skipped, errors).
-- `config set --strict-json`: require JSON5 parsing for path/value input. `--json` remains a legacy alias for strict parsing outside dry-run output mode.
-- `config unset <path>`: remove a value.
-- `config file`: print the active config file path.
-- `config validate`: validate the current config against the schema without starting the gateway.
-- `config validate --json`: emit machine-readable JSON output.
+- `config get <path>`: in một giá trị cấu hình (đường dẫn dot/bracket).
+- `config set`: hỗ trợ bốn chế độ gán:
+  - chế độ giá trị: `config set <path> <value>` (phân tích cú pháp JSON5-hoặc-chuỗi)
+  - chế độ xây dựng SecretRef: `config set <path> --ref-provider <provider> --ref-source <source> --ref-id <id>`
+  - chế độ xây dựng nhà cung cấp: `config set secrets.providers.<alias> --provider-source <env|file|exec> ...`
+  - chế độ hàng loạt: `config set --batch-json '<json>'` hoặc `config set --batch-file <path>`
+- `config set --dry-run`: xác thực các gán mà không ghi `openclaw.json` (kiểm tra SecretRef exec bị bỏ qua theo mặc định).
+- `config set --allow-exec --dry-run`: chọn tham gia kiểm tra SecretRef exec dry-run (có thể thực thi các lệnh của nhà cung cấp).
+- `config set --dry-run --json`: phát ra đầu ra dry-run có thể đọc được bằng máy (kiểm tra + tín hiệu hoàn chỉnh, hoạt động, tham chiếu đã kiểm tra/bỏ qua, lỗi).
+- `config set --strict-json`: yêu cầu phân tích cú pháp JSON5 cho đầu vào đường dẫn/giá trị. `--json` vẫn là một bí danh cũ cho phân tích cú pháp nghiêm ngặt ngoài chế độ đầu ra dry-run.
+- `config unset <path>`: xóa một giá trị.
+- `config file`: in đường dẫn tệp cấu hình đang hoạt động.
+- `config validate`: xác thực cấu hình hiện tại so với lược đồ mà không khởi động gateway.
+- `config validate --json`: phát ra đầu ra JSON có thể đọc được bằng máy.
 
 ### `doctor`
 
-Health checks + quick fixes (config + gateway + legacy services).
+Kiểm tra sức khỏe + sửa chữa nhanh (cấu hình + gateway + dịch vụ cũ).
 
-Options:
+Tùy chọn:
 
-- `--no-workspace-suggestions`: disable workspace memory hints.
-- `--yes`: accept defaults without prompting (headless).
-- `--non-interactive`: skip prompts; apply safe migrations only.
-- `--deep`: scan system services for extra gateway installs.
+- `--no-workspace-suggestions`: tắt gợi ý bộ nhớ workspace.
+- `--yes`: chấp nhận mặc định mà không nhắc nhở (không đầu).
+- `--non-interactive`: bỏ qua nhắc nhở; chỉ áp dụng các di chuyển an toàn.
+- `--deep`: quét các dịch vụ hệ thống để tìm các cài đặt gateway bổ sung.
 
-## Channel helpers
+## Trợ giúp kênh
 
 ### `channels`
 
-Manage chat channel accounts (WhatsApp/Telegram/Discord/Google Chat/Slack/Mattermost (plugin)/Signal/iMessage/Microsoft Teams).
+Quản lý tài khoản kênh chat (WhatsApp/Telegram/Discord/Google Chat/Slack/Mattermost (plugin)/Signal/iMessage/Microsoft Teams).
 
-Subcommands:
+Lệnh con:
 
-- `channels list`: show configured channels and auth profiles.
-- `channels status`: check gateway reachability and channel health (`--probe` runs extra checks; use `openclaw health` or `openclaw status --deep` for gateway health probes).
-- Tip: `channels status` prints warnings with suggested fixes when it can detect common misconfigurations (then points you to `openclaw doctor`).
-- `channels logs`: show recent channel logs from the gateway log file.
-- `channels add`: wizard-style setup when no flags are passed; flags switch to non-interactive mode.
-  - When adding a non-default account to a channel still using single-account top-level config, OpenClaw moves account-scoped values into `channels.<channel>.accounts.default` before writing the new account.
-  - Non-interactive `channels add` does not auto-create/upgrade bindings; channel-only bindings continue to match the default account.
-- `channels remove`: disable by default; pass `--delete` to remove config entries without prompts.
-- `channels login`: interactive channel login (WhatsApp Web only).
-- `channels logout`: log out of a channel session (if supported).
+- `channels list`: hiển thị các kênh đã cấu hình và hồ sơ xác thực.
+- `channels status`: kiểm tra khả năng truy cập gateway và sức khỏe kênh (`--probe` chạy các kiểm tra bổ sung; sử dụng `openclaw health` hoặc `openclaw status --deep` để thăm dò sức khỏe gateway).
+- Mẹo: `channels status` in cảnh báo với các đề xuất sửa chữa khi nó có thể phát hiện các cấu hình sai phổ biến (sau đó chỉ bạn đến `openclaw doctor`).
+- `channels logs`: hiển thị nhật ký kênh gần đây từ tệp nhật ký gateway.
+- `channels add`: thiết lập kiểu wizard khi không có cờ nào được truyền; cờ chuyển sang chế độ không tương tác.
+  - Khi thêm một tài khoản không mặc định vào một kênh vẫn sử dụng cấu hình cấp cao nhất cho một tài khoản, OpenClaw di chuyển các giá trị phạm vi tài khoản vào `channels.<channel>.accounts.default` trước khi ghi tài khoản mới.
+  - `channels add` không tương tác không tự động tạo/nâng cấp các ràng buộc; các ràng buộc chỉ kênh tiếp tục khớp với tài khoản mặc định.
+- `channels remove`: tắt theo mặc định; truyền `--delete` để xóa các mục cấu hình mà không cần nhắc nhở.
+- `channels login`: đăng nhập kênh tương tác (chỉ WhatsApp Web).
+- `channels logout`: đăng xuất khỏi phiên kênh (nếu được hỗ trợ).
 
-Common options:
+Tùy chọn phổ biến:
 
 - `--channel <name>`: `whatsapp|telegram|discord|googlechat|slack|mattermost|signal|imessage|msteams`
-- `--account <id>`: channel account id (default `default`)
-- `--name <label>`: display name for the account
+- `--account <id>`: id tài khoản kênh (mặc định `default`)
+- `--name <label>`: tên hiển thị cho tài khoản
 
-`channels login` options:
+Tùy chọn `channels login`:
 
-- `--channel <channel>` (default `whatsapp`; supports `whatsapp`/`web`)
+- `--channel <channel>` (mặc định `whatsapp`; hỗ trợ `whatsapp`/`web`)
 - `--account <id>`
 - `--verbose`
 
-`channels logout` options:
+Tùy chọn `channels logout`:
 
-- `--channel <channel>` (default `whatsapp`)
+- `--channel <channel>` (mặc định `whatsapp`)
 - `--account <id>`
 
-`channels list` options:
+Tùy chọn `channels list`:
 
-- `--no-usage`: skip model provider usage/quota snapshots (OAuth/API-backed only).
-- `--json`: output JSON (includes usage unless `--no-usage` is set).
+- `--no-usage`: bỏ qua ảnh chụp nhanh sử dụng/định mức của nhà cung cấp mô hình (chỉ hỗ trợ OAuth/API).
+- `--json`: đầu ra JSON (bao gồm sử dụng trừ khi `--no-usage` được đặt).
 
-`channels logs` options:
+Tùy chọn `channels logs`:
 
-- `--channel <name|all>` (default `all`)
-- `--lines <n>` (default `200`)
+- `--channel <name|all>` (mặc định `all`)
+- `--lines <n>` (mặc định `200`)
 - `--json`
 
-More detail: [/concepts/oauth](/concepts/oauth)
+Chi tiết thêm: [/concepts/oauth](/concepts/oauth)
 
-Examples:
+Ví dụ:
 
 ```bash
 openclaw channels add --channel telegram --account alerts --name "Alerts Bot" --token $TELEGRAM_BOT_TOKEN
@@ -481,27 +481,27 @@ openclaw status --deep
 
 ### `skills`
 
-List and inspect available skills plus readiness info.
+Liệt kê và kiểm tra các kỹ năng có sẵn cùng thông tin sẵn sàng.
 
-Subcommands:
+Lệnh con:
 
-- `skills list`: list skills (default when no subcommand).
-- `skills info <name>`: show details for one skill.
-- `skills check`: summary of ready vs missing requirements.
+- `skills list`: liệt kê các kỹ năng (mặc định khi không có lệnh con).
+- `skills info <name>`: hiển thị chi tiết cho một kỹ năng.
+- `skills check`: tóm tắt các yêu cầu sẵn sàng so với thiếu.
 
-Options:
+Tùy chọn:
 
-- `--eligible`: show only ready skills.
-- `--json`: output JSON (no styling).
-- `-v`, `--verbose`: include missing requirements detail.
+- `--eligible`: chỉ hiển thị các kỹ năng sẵn sàng.
+- `--json`: đầu ra JSON (không có định dạng).
+- `-v`, `--verbose`: bao gồm chi tiết yêu cầu thiếu.
 
-Tip: use `npx clawhub` to search, install, and sync skills.
+Mẹo: sử dụng `npx clawhub` để tìm kiếm, cài đặt và đồng bộ hóa kỹ năng.
 
 ### `pairing`
 
-Approve DM pairing requests across channels.
+Phê duyệt yêu cầu ghép đôi DM trên các kênh.
 
-Subcommands:
+Lệnh con:
 
 - `pairing list [channel] [--channel <channel>] [--account <id>] [--json]`
 - `pairing approve <channel> <code> [--account <id>] [--notify]`
@@ -509,9 +509,9 @@ Subcommands:
 
 ### `devices`
 
-Manage gateway device pairing entries and per-role device tokens.
+Quản lý các mục ghép đôi thiết bị gateway và token thiết bị theo vai trò.
 
-Subcommands:
+Lệnh con:
 
 - `devices list [--json]`
 - `devices approve [requestId] [--latest]`
@@ -523,30 +523,30 @@ Subcommands:
 
 ### `webhooks gmail`
 
-Gmail Pub/Sub hook setup + runner. See [/automation/gmail-pubsub](/automation/gmail-pubsub).
+Thiết lập hook Pub/Sub Gmail + runner. Xem [/automation/gmail-pubsub](/automation/gmail-pubsub).
 
-Subcommands:
+Lệnh con:
 
-- `webhooks gmail setup` (requires `--account <email>`; supports `--project`, `--topic`, `--subscription`, `--label`, `--hook-url`, `--hook-token`, `--push-token`, `--bind`, `--port`, `--path`, `--include-body`, `--max-bytes`, `--renew-minutes`, `--tailscale`, `--tailscale-path`, `--tailscale-target`, `--push-endpoint`, `--json`)
-- `webhooks gmail run` (runtime overrides for the same flags)
+- `webhooks gmail setup` (yêu cầu `--account <email>`; hỗ trợ `--project`, `--topic`, `--subscription`, `--label`, `--hook-url`, `--hook-token`, `--push-token`, `--bind`, `--port`, `--path`, `--include-body`, `--max-bytes`, `--renew-minutes`, `--tailscale`, `--tailscale-path`, `--tailscale-target`, `--push-endpoint`, `--json`)
+- `webhooks gmail run` (ghi đè runtime cho cùng các cờ)
 
 ### `dns setup`
 
-Wide-area discovery DNS helper (CoreDNS + Tailscale). See [/gateway/discovery](/gateway/discovery).
+Trợ giúp DNS khám phá diện rộng (CoreDNS + Tailscale). Xem [/gateway/discovery](/gateway/discovery).
 
-Options:
+Tùy chọn:
 
-- `--apply`: install/update CoreDNS config (requires sudo; macOS only).
+- `--apply`: cài đặt/cập nhật cấu hình CoreDNS (yêu cầu sudo; chỉ macOS).
 
-## Messaging + agent
+## Nhắn tin + agent
 
 ### `message`
 
-Unified outbound messaging + channel actions.
+Nhắn tin ra ngoài hợp nhất + hành động kênh.
 
-See: [/cli/message](/cli/message)
+Xem: [/cli/message](/cli/message)
 
-Subcommands:
+Lệnh con:
 
 - `message send|poll|react|reactions|read|edit|delete|pin|unpin|pins|permissions|search|timeout|kick|ban`
 - `message thread <create|list|reply>`
@@ -558,24 +558,24 @@ Subcommands:
 - `message voice status`
 - `message event <list|create>`
 
-Examples:
+Ví dụ:
 
 - `openclaw message send --target +15555550123 --message "Hi"`
 - `openclaw message poll --channel discord --target channel:123 --poll-question "Snack?" --poll-option Pizza --poll-option Sushi`
 
 ### `agent`
 
-Run one agent turn via the Gateway (or `--local` embedded).
+Chạy một lượt agent thông qua Gateway (hoặc `--local` nhúng).
 
-Required:
+Yêu cầu:
 
 - `--message <text>`
 
-Options:
+Tùy chọn:
 
-- `--to <dest>` (for session key and optional delivery)
+- `--to <dest>` (cho khóa phiên và tùy chọn giao hàng)
 - `--session-id <id>`
-- `--thinking <off|minimal|low|medium|high|xhigh>` (GPT-5.2 + Codex models only)
+- `--thinking <off|minimal|low|medium|high|xhigh>` (chỉ mô hình GPT-5.2 + Codex)
 - `--verbose <on|full|off>`
 - `--channel <whatsapp|telegram|discord|slack|mattermost|signal|imessage|msteams>`
 - `--local`
@@ -585,117 +585,117 @@ Options:
 
 ### `agents`
 
-Manage isolated agents (workspaces + auth + routing).
+Quản lý các agent cô lập (workspaces + xác thực + định tuyến).
 
 #### `agents list`
 
-List configured agents.
+Liệt kê các agent đã cấu hình.
 
-Options:
+Tùy chọn:
 
 - `--json`
 - `--bindings`
 
 #### `agents add [name]`
 
-Add a new isolated agent. Runs the guided wizard unless flags (or `--non-interactive`) are passed; `--workspace` is required in non-interactive mode.
+Thêm một agent cô lập mới. Chạy trình hướng dẫn có hướng dẫn trừ khi có cờ (hoặc `--non-interactive`) được truyền; `--workspace` là bắt buộc trong chế độ không tương tác.
 
-Options:
+Tùy chọn:
 
 - `--workspace <dir>`
 - `--model <id>`
 - `--agent-dir <dir>`
-- `--bind <channel[:accountId]>` (repeatable)
+- `--bind <channel[:accountId]>` (lặp lại)
 - `--non-interactive`
 - `--json`
 
-Binding specs use `channel[:accountId]`. When `accountId` is omitted, OpenClaw may resolve account scope via channel defaults/plugin hooks; otherwise it is a channel binding without explicit account scope.
+Thông số ràng buộc sử dụng `channel[:accountId]`. Khi `accountId` bị bỏ qua, OpenClaw có thể giải quyết phạm vi tài khoản thông qua các mặc định kênh/plugin hooks; nếu không, đó là một ràng buộc kênh mà không có phạm vi tài khoản rõ ràng.
 
 #### `agents bindings`
 
-List routing bindings.
+Liệt kê các ràng buộc định tuyến.
 
-Options:
+Tùy chọn:
 
 - `--agent <id>`
 - `--json`
 
 #### `agents bind`
 
-Add routing bindings for an agent.
+Thêm các ràng buộc định tuyến cho một agent.
 
-Options:
+Tùy chọn:
 
 - `--agent <id>`
-- `--bind <channel[:accountId]>` (repeatable)
+- `--bind <channel[:accountId]>` (lặp lại)
 - `--json`
 
 #### `agents unbind`
 
-Remove routing bindings for an agent.
+Xóa các ràng buộc định tuyến cho một agent.
 
-Options:
+Tùy chọn:
 
 - `--agent <id>`
-- `--bind <channel[:accountId]>` (repeatable)
+- `--bind <channel[:accountId]>` (lặp lại)
 - `--all`
 - `--json`
 
 #### `agents delete <id>`
 
-Delete an agent and prune its workspace + state.
+Xóa một agent và cắt tỉa workspace + trạng thái của nó.
 
-Options:
+Tùy chọn:
 
 - `--force`
 - `--json`
 
 ### `acp`
 
-Run the ACP bridge that connects IDEs to the Gateway.
+Chạy cầu nối ACP kết nối IDE với Gateway.
 
-See [`acp`](/cli/acp) for full options and examples.
+Xem [`acp`](/cli/acp) để biết đầy đủ tùy chọn và ví dụ.
 
 ### `status`
 
-Show linked session health and recent recipients.
+Hiển thị sức khỏe phiên được liên kết và người nhận gần đây.
 
-Options:
+Tùy chọn:
 
 - `--json`
-- `--all` (full diagnosis; read-only, pasteable)
-- `--deep` (probe channels)
-- `--usage` (show model provider usage/quota)
+- `--all` (chẩn đoán đầy đủ; chỉ đọc, có thể dán)
+- `--deep` (thăm dò các kênh)
+- `--usage` (hiển thị sử dụng/định mức của nhà cung cấp mô hình)
 - `--timeout <ms>`
 - `--verbose`
-- `--debug` (alias for `--verbose`)
+- `--debug` (bí danh cho `--verbose`)
 
-Notes:
+Ghi chú:
 
-- Overview includes Gateway + node host service status when available.
+- Tổng quan bao gồm trạng thái dịch vụ máy chủ Gateway + node khi có sẵn.
 
-### Usage tracking
+### Theo dõi sử dụng
 
-OpenClaw can surface provider usage/quota when OAuth/API creds are available.
+OpenClaw có thể hiển thị sử dụng/định mức của nhà cung cấp khi có thông tin xác thực OAuth/API.
 
-Surfaces:
+Bề mặt:
 
-- `/status` (adds a short provider usage line when available)
-- `openclaw status --usage` (prints full provider breakdown)
-- macOS menu bar (Usage section under Context)
+- `/status` (thêm một dòng sử dụng nhà cung cấp ngắn khi có sẵn)
+- `openclaw status --usage` (in đầy đủ phân tích nhà cung cấp)
+- thanh menu macOS (phần Sử dụng dưới Context)
 
-Notes:
+Ghi chú:
 
-- Data comes directly from provider usage endpoints (no estimates).
-- Providers: Anthropic, GitHub Copilot, OpenAI Codex OAuth, plus Gemini CLI via the bundled `google` plugin and Antigravity where configured.
-- If no matching credentials exist, usage is hidden.
-- Details: see [Usage tracking](/concepts/usage-tracking).
+- Dữ liệu đến trực tiếp từ các điểm cuối sử dụng của nhà cung cấp (không có ước tính).
+- Nhà cung cấp: Anthropic, GitHub Copilot, OpenAI Codex OAuth, cộng với Gemini CLI thông qua plugin `google` đi kèm và Antigravity khi được cấu hình.
+- Nếu không có thông tin xác thực phù hợp, việc sử dụng sẽ bị ẩn.
+- Chi tiết: xem [Theo dõi sử dụng](/concepts/usage-tracking).
 
 ### `health`
 
-Fetch health from the running Gateway.
+Lấy sức khỏe từ Gateway đang chạy.
 
-Options:
+Tùy chọn:
 
 - `--json`
 - `--timeout <ms>`
@@ -703,37 +703,37 @@ Options:
 
 ### `sessions`
 
-List stored conversation sessions.
+Liệt kê các phiên hội thoại đã lưu trữ.
 
-Options:
+Tùy chọn:
 
 - `--json`
 - `--verbose`
 - `--store <path>`
 - `--active <minutes>`
 
-## Reset / Uninstall
+## Đặt lại / Gỡ cài đặt
 
 ### `reset`
 
-Reset local config/state (keeps the CLI installed).
+Đặt lại cấu hình/trạng thái cục bộ (giữ CLI được cài đặt).
 
-Options:
+Tùy chọn:
 
 - `--scope <config|config+creds+sessions|full>`
 - `--yes`
 - `--non-interactive`
 - `--dry-run`
 
-Notes:
+Ghi chú:
 
-- `--non-interactive` requires `--scope` and `--yes`.
+- `--non-interactive` yêu cầu `--scope` và `--yes`.
 
 ### `uninstall`
 
-Uninstall the gateway service + local data (CLI remains).
+Gỡ cài đặt dịch vụ gateway + dữ liệu cục bộ (CLI vẫn còn).
 
-Options:
+Tùy chọn:
 
 - `--service`
 - `--state`
@@ -744,17 +744,17 @@ Options:
 - `--non-interactive`
 - `--dry-run`
 
-Notes:
+Ghi chú:
 
-- `--non-interactive` requires `--yes` and explicit scopes (or `--all`).
+- `--non-interactive` yêu cầu `--yes` và các phạm vi rõ ràng (hoặc `--all`).
 
 ## Gateway
 
 ### `gateway`
 
-Run the WebSocket Gateway.
+Chạy Gateway WebSocket.
 
-Options:
+Tùy chọn:
 
 - `--port <port>`
 - `--bind <loopback|tailnet|lan|auto|custom>`
@@ -766,50 +766,50 @@ Options:
 - `--tailscale-reset-on-exit`
 - `--allow-unconfigured`
 - `--dev`
-- `--reset` (reset dev config + credentials + sessions + workspace)
-- `--force` (kill existing listener on port)
+- `--reset` (đặt lại cấu hình dev + thông tin xác thực + phiên + workspace)
+- `--force` (giết listener hiện có trên cổng)
 - `--verbose`
 - `--claude-cli-logs`
 - `--ws-log <auto|full|compact>`
-- `--compact` (alias for `--ws-log compact`)
+- `--compact` (bí danh cho `--ws-log compact`)
 - `--raw-stream`
 - `--raw-stream-path <path>`
 
 ### `gateway service`
 
-Manage the Gateway service (launchd/systemd/schtasks).
+Quản lý dịch vụ Gateway (launchd/systemd/schtasks).
 
-Subcommands:
+Lệnh con:
 
-- `gateway status` (probes the Gateway RPC by default)
-- `gateway install` (service install)
+- `gateway status` (thăm dò RPC Gateway theo mặc định)
+- `gateway install` (cài đặt dịch vụ)
 - `gateway uninstall`
 - `gateway start`
 - `gateway stop`
 - `gateway restart`
 
-Notes:
+Ghi chú:
 
-- `gateway status` probes the Gateway RPC by default using the service’s resolved port/config (override with `--url/--token/--password`).
-- `gateway status` supports `--no-probe`, `--deep`, `--require-rpc`, and `--json` for scripting.
-- `gateway status` also surfaces legacy or extra gateway services when it can detect them (`--deep` adds system-level scans). Profile-named OpenClaw services are treated as first-class and aren't flagged as "extra".
-- `gateway status` prints which config path the CLI uses vs which config the service likely uses (service env), plus the resolved probe target URL.
-- If gateway auth SecretRefs are unresolved in the current command path, `gateway status --json` reports `rpc.authWarning` only when probe connectivity/auth fails (warnings are suppressed when probe succeeds).
-- On Linux systemd installs, status token-drift checks include both `Environment=` and `EnvironmentFile=` unit sources.
-- `gateway install|uninstall|start|stop|restart` support `--json` for scripting (default output stays human-friendly).
-- `gateway install` defaults to Node runtime; bun is **not recommended** (WhatsApp/Telegram bugs).
-- `gateway install` options: `--port`, `--runtime`, `--token`, `--force`, `--json`.
+- `gateway status` thăm dò RPC Gateway theo mặc định sử dụng cổng/cấu hình đã giải quyết của dịch vụ (ghi đè bằng `--url/--token/--password`).
+- `gateway status` hỗ trợ `--no-probe`, `--deep`, `--require-rpc`, và `--json` cho scripting.
+- `gateway status` cũng hiển thị các dịch vụ gateway cũ hoặc bổ sung khi nó có thể phát hiện chúng (`--deep` thêm các quét cấp hệ thống). Các dịch vụ OpenClaw được đặt tên theo hồ sơ được coi là hạng nhất và không bị gắn cờ là "bổ sung".
+- `gateway status` in đường dẫn cấu hình mà CLI sử dụng so với cấu hình mà dịch vụ có thể sử dụng (môi trường dịch vụ), cộng với URL mục tiêu thăm dò đã giải quyết.
+- Nếu các SecretRefs xác thực gateway chưa được giải quyết trong đường dẫn lệnh hiện tại, `gateway status --json` báo cáo `rpc.authWarning` chỉ khi kết nối thăm dò/xác thực thất bại (cảnh báo bị ẩn khi thăm dò thành công).
+- Trên các cài đặt Linux systemd, kiểm tra trôi dạt token trạng thái bao gồm cả nguồn `Environment=` và `EnvironmentFile=` của đơn vị.
+- `gateway install|uninstall|start|stop|restart` hỗ trợ `--json` cho scripting (đầu ra mặc định vẫn thân thiện với con người).
+- `gateway install` mặc định sử dụng runtime Node; bun **không được khuyến nghị** (lỗi WhatsApp/Telegram).
+- Tùy chọn `gateway install`: `--port`, `--runtime`, `--token`, `--force`, `--json`.
 
 ### `logs`
 
-Tail Gateway file logs via RPC.
+Theo dõi nhật ký tệp Gateway qua RPC.
 
-Notes:
+Ghi chú:
 
-- TTY sessions render a colorized, structured view; non-TTY falls back to plain text.
-- `--json` emits line-delimited JSON (one log event per line).
+- Các phiên TTY hiển thị chế độ xem có cấu trúc, có màu sắc; không TTY quay lại văn bản thuần túy.
+- `--json` phát ra JSON phân dòng (một sự kiện nhật ký mỗi dòng).
 
-Examples:
+Ví dụ:
 
 ```bash
 openclaw logs --follow
@@ -821,11 +821,11 @@ openclaw logs --no-color
 
 ### `gateway <subcommand>`
 
-Gateway CLI helpers (use `--url`, `--token`, `--password`, `--timeout`, `--expect-final` for RPC subcommands).
-When you pass `--url`, the CLI does not auto-apply config or environment credentials.
-Include `--token` or `--password` explicitly. Missing explicit credentials is an error.
+Trình trợ giúp CLI Gateway (sử dụng `--url`, `--token`, `--password`, `--timeout`, `--expect-final` cho các lệnh con RPC).
+Khi bạn truyền `--url`, CLI không tự động áp dụng cấu hình hoặc thông tin xác thực môi trường.
+Bao gồm `--token` hoặc `--password` một cách rõ ràng. Thiếu thông tin xác thực rõ ràng là một lỗi.
 
-Subcommands:
+Lệnh con:
 
 - `gateway call <method> [--params <json>]`
 - `gateway health`
@@ -835,20 +835,20 @@ Subcommands:
 - `gateway install|uninstall|start|stop|restart`
 - `gateway run`
 
-Common RPCs:
+RPC phổ biến:
 
-- `config.apply` (validate + write config + restart + wake)
-- `config.patch` (merge a partial update + restart + wake)
-- `update.run` (run update + restart + wake)
+- `config.apply` (xác thực + ghi cấu hình + khởi động lại + đánh thức)
+- `config.patch` (hợp nhất một bản cập nhật một phần + khởi động lại + đánh thức)
+- `update.run` (chạy cập nhật + khởi động lại + đánh thức)
 
-Tip: when calling `config.set`/`config.apply`/`config.patch` directly, pass `baseHash` from
-`config.get` if a config already exists.
+Mẹo: khi gọi `config.set`/`config.apply`/`config.patch` trực tiếp, truyền `baseHash` từ
+`config.get` nếu một cấu hình đã tồn tại.
 
 ## Models
 
-See [/concepts/models](/concepts/models) for fallback behavior and scanning strategy.
+Xem [/concepts/models](/concepts/models) để biết hành vi dự phòng và chiến lược quét.
 
-Anthropic setup-token (supported):
+Thiết lập token Anthropic (được hỗ trợ):
 
 ```bash
 claude setup-token
@@ -856,22 +856,21 @@ openclaw models auth setup-token --provider anthropic
 openclaw models status
 ```
 
-Policy note: this is technical compatibility. Anthropic has blocked some
-subscription usage outside Claude Code in the past; verify current Anthropic
-terms before relying on setup-token in production.
+Ghi chú chính sách: đây là khả năng tương thích kỹ thuật. Anthropic đã chặn một số
+sử dụng đăng ký ngoài Claude Code trong quá khứ; xác minh các điều khoản hiện tại của Anthropic trước khi dựa vào setup-token trong sản xuất.
 
-### `models` (root)
+### `models` (gốc)
 
-`openclaw models` is an alias for `models status`.
+`openclaw models` là một bí danh cho `models status`.
 
-Root options:
+Tùy chọn gốc:
 
-- `--status-json` (alias for `models status --json`)
-- `--status-plain` (alias for `models status --plain`)
+- `--status-json` (bí danh cho `models status --json`)
+- `--status-plain` (bí danh cho `models status --plain`)
 
 ### `models list`
 
-Options:
+Tùy chọn:
 
 - `--all`
 - `--local`
@@ -881,32 +880,32 @@ Options:
 
 ### `models status`
 
-Options:
+Tùy chọn:
 
 - `--json`
 - `--plain`
-- `--check` (exit 1=expired/missing, 2=expiring)
-- `--probe` (live probe of configured auth profiles)
+- `--check` (thoát 1=hết hạn/thiếu, 2=sắp hết hạn)
+- `--probe` (thăm dò trực tiếp các hồ sơ xác thực đã cấu hình)
 - `--probe-provider <name>`
-- `--probe-profile <id>` (repeat or comma-separated)
+- `--probe-profile <id>` (lặp lại hoặc phân tách bằng dấu phẩy)
 - `--probe-timeout <ms>`
 - `--probe-concurrency <n>`
 - `--probe-max-tokens <n>`
 
-Always includes the auth overview and OAuth expiry status for profiles in the auth store.
-`--probe` runs live requests (may consume tokens and trigger rate limits).
+Luôn bao gồm tổng quan xác thực và trạng thái hết hạn OAuth cho các hồ sơ trong kho lưu trữ xác thực.
+`--probe` chạy các yêu cầu trực tiếp (có thể tiêu thụ token và kích hoạt giới hạn tốc độ).
 
 ### `models set <model>`
 
-Set `agents.defaults.model.primary`.
+Đặt `agents.defaults.model.primary`.
 
 ### `models set-image <model>`
 
-Set `agents.defaults.imageModel.primary`.
+Đặt `agents.defaults.imageModel.primary`.
 
 ### `models aliases list|add|remove`
 
-Options:
+Tùy chọn:
 
 - `list`: `--json`, `--plain`
 - `add <alias> <model>`
@@ -914,7 +913,7 @@ Options:
 
 ### `models fallbacks list|add|remove|clear`
 
-Options:
+Tùy chọn:
 
 - `list`: `--json`, `--plain`
 - `add <model>`
@@ -923,7 +922,7 @@ Options:
 
 ### `models image-fallbacks list|add|remove|clear`
 
-Options:
+Tùy chọn:
 
 - `list`: `--json`, `--plain`
 - `add <model>`
@@ -932,7 +931,7 @@ Options:
 
 ### `models scan`
 
-Options:
+Tùy chọn:
 
 - `--min-params <b>`
 - `--max-age-days <days>`
@@ -949,31 +948,31 @@ Options:
 
 ### `models auth add|setup-token|paste-token`
 
-Options:
+Tùy chọn:
 
-- `add`: interactive auth helper
-- `setup-token`: `--provider <name>` (default `anthropic`), `--yes`
+- `add`: trợ giúp xác thực tương tác
+- `setup-token`: `--provider <name>` (mặc định `anthropic`), `--yes`
 - `paste-token`: `--provider <name>`, `--profile-id <id>`, `--expires-in <duration>`
 
 ### `models auth order get|set|clear`
 
-Options:
+Tùy chọn:
 
 - `get`: `--provider <name>`, `--agent <id>`, `--json`
 - `set`: `--provider <name>`, `--agent <id>`, `<profileIds...>`
 - `clear`: `--provider <name>`, `--agent <id>`
 
-## System
+## Hệ thống
 
 ### `system event`
 
-Enqueue a system event and optionally trigger a heartbeat (Gateway RPC).
+Xếp hàng một sự kiện hệ thống và tùy chọn kích hoạt một nhịp tim (RPC Gateway).
 
-Required:
+Yêu cầu:
 
 - `--text <text>`
 
-Options:
+Tùy chọn:
 
 - `--mode <now|next-heartbeat>`
 - `--json`
@@ -981,46 +980,46 @@ Options:
 
 ### `system heartbeat last|enable|disable`
 
-Heartbeat controls (Gateway RPC).
+Điều khiển nhịp tim (RPC Gateway).
 
-Options:
+Tùy chọn:
 
 - `--json`
 - `--url`, `--token`, `--timeout`, `--expect-final`
 
 ### `system presence`
 
-List system presence entries (Gateway RPC).
+Liệt kê các mục hiện diện hệ thống (RPC Gateway).
 
-Options:
+Tùy chọn:
 
 - `--json`
 - `--url`, `--token`, `--timeout`, `--expect-final`
 
 ## Cron
 
-Manage scheduled jobs (Gateway RPC). See [/automation/cron-jobs](/automation/cron-jobs).
+Quản lý các công việc đã lên lịch (RPC Gateway). Xem [/automation/cron-jobs](/automation/cron-jobs).
 
-Subcommands:
+Lệnh con:
 
 - `cron status [--json]`
-- `cron list [--all] [--json]` (table output by default; use `--json` for raw)
-- `cron add` (alias: `create`; requires `--name` and exactly one of `--at` | `--every` | `--cron`, and exactly one payload of `--system-event` | `--message`)
-- `cron edit <id>` (patch fields)
-- `cron rm <id>` (aliases: `remove`, `delete`)
+- `cron list [--all] [--json]` (đầu ra bảng theo mặc định; sử dụng `--json` để có thô)
+- `cron add` (bí danh: `create`; yêu cầu `--name` và chính xác một trong `--at` | `--every` | `--cron`, và chính xác một payload của `--system-event` | `--message`)
+- `cron edit <id>` (sửa các trường)
+- `cron rm <id>` (bí danh: `remove`, `delete`)
 - `cron enable <id>`
 - `cron disable <id>`
 - `cron runs --id <id> [--limit <n>]`
 - `cron run <id> [--force]`
 
-All `cron` commands accept `--url`, `--token`, `--timeout`, `--expect-final`.
+Tất cả các lệnh `cron` chấp nhận `--url`, `--token`, `--timeout`, `--expect-final`.
 
-## Node host
+## Máy chủ node
 
-`node` runs a **headless node host** or manages it as a background service. See
+`node` chạy một **máy chủ node không đầu** hoặc quản lý nó như một dịch vụ nền. Xem
 [`openclaw node`](/cli/node).
 
-Subcommands:
+Lệnh con:
 
 - `node run --host <gateway-host> --port 18789`
 - `node status`
@@ -1029,20 +1028,20 @@ Subcommands:
 - `node stop`
 - `node restart`
 
-Auth notes:
+Ghi chú xác thực:
 
-- `node` resolves gateway auth from env/config (no `--token`/`--password` flags): `OPENCLAW_GATEWAY_TOKEN` / `OPENCLAW_GATEWAY_PASSWORD`, then `gateway.auth.*`. In local mode, node host intentionally ignores `gateway.remote.*`; in `gateway.mode=remote`, `gateway.remote.*` participates per remote precedence rules.
-- Legacy `CLAWDBOT_GATEWAY_*` env vars are intentionally ignored for node-host auth resolution.
+- `node` giải quyết xác thực gateway từ env/config (không có cờ `--token`/`--password`): `OPENCLAW_GATEWAY_TOKEN` / `OPENCLAW_GATEWAY_PASSWORD`, sau đó `gateway.auth.*`. Trong chế độ cục bộ, máy chủ node cố ý bỏ qua `gateway.remote.*`; trong `gateway.mode=remote`, `gateway.remote.*` tham gia theo các quy tắc ưu tiên từ xa.
+- Các biến môi trường `CLAWDBOT_GATEWAY_*` cũ cố ý bị bỏ qua để giải quyết xác thực máy chủ node.
 
 ## Nodes
 
-`nodes` talks to the Gateway and targets paired nodes. See [/nodes](/nodes).
+`nodes` nói chuyện với Gateway và nhắm mục tiêu các node đã ghép đôi. Xem [/nodes](/nodes).
 
-Common options:
+Tùy chọn phổ biến:
 
 - `--url`, `--token`, `--timeout`, `--json`
 
-Subcommands:
+Lệnh con:
 
 - `nodes status [--connected] [--last-connected <duration>]`
 - `nodes describe --node <id|name|ip>`
@@ -1052,8 +1051,8 @@ Subcommands:
 - `nodes reject <requestId>`
 - `nodes rename --node <id|name|ip> --name <displayName>`
 - `nodes invoke --node <id|name|ip> --command <command> [--params <json>] [--invoke-timeout <ms>] [--idempotency-key <key>]`
-- `nodes run --node <id|name|ip> [--cwd <path>] [--env KEY=VAL] [--command-timeout <ms>] [--needs-screen-recording] [--invoke-timeout <ms>] <command...>` (mac node or headless node host)
-- `nodes notify --node <id|name|ip> [--title <text>] [--body <text>] [--sound <name>] [--priority <passive|active|timeSensitive>] [--delivery <system|overlay|auto>] [--invoke-timeout <ms>]` (mac only)
+- `nodes run --node <id|name|ip> [--cwd <path>] [--env KEY=VAL] [--command-timeout <ms>] [--needs-screen-recording] [--invoke-timeout <ms>] <command...>` (node mac hoặc máy chủ node không đầu)
+- `nodes notify --node <id|name|ip> [--title <text>] [--body <text>] [--sound <name>] [--priority <passive|active|timeSensitive>] [--delivery <system|overlay|auto>] [--invoke-timeout <ms>]` (chỉ mac)
 
 Camera:
 
@@ -1061,7 +1060,7 @@ Camera:
 - `nodes camera snap --node <id|name|ip> [--facing front|back|both] [--device-id <id>] [--max-width <px>] [--quality <0-1>] [--delay-ms <ms>] [--invoke-timeout <ms>]`
 - `nodes camera clip --node <id|name|ip> [--facing front|back] [--device-id <id>] [--duration <ms|10s|1m>] [--no-audio] [--invoke-timeout <ms>]`
 
-Canvas + screen:
+Canvas + màn hình:
 
 - `nodes canvas snapshot --node <id|name|ip> [--format png|jpg|jpeg] [--max-width <px>] [--quality <0-1>] [--invoke-timeout <ms>]`
 - `nodes canvas present --node <id|name|ip> [--target <urlOrPath>] [--x <px>] [--y <px>] [--width <px>] [--height <px>] [--invoke-timeout <ms>]`
@@ -1072,20 +1071,20 @@ Canvas + screen:
 - `nodes canvas a2ui reset --node <id|name|ip> [--invoke-timeout <ms>]`
 - `nodes screen record --node <id|name|ip> [--screen <index>] [--duration <ms|10s>] [--fps <n>] [--no-audio] [--out <path>] [--invoke-timeout <ms>]`
 
-Location:
+Vị trí:
 
 - `nodes location get --node <id|name|ip> [--max-age <ms>] [--accuracy <coarse|balanced|precise>] [--location-timeout <ms>] [--invoke-timeout <ms>]`
 
-## Browser
+## Trình duyệt
 
-Browser control CLI (dedicated Chrome/Brave/Edge/Chromium). See [`openclaw browser`](/cli/browser) and the [Browser tool](/tools/browser).
+CLI điều khiển trình duyệt (Chrome/Brave/Edge/Chromium chuyên dụng). Xem [`openclaw browser`](/cli/browser) và [Công cụ trình duyệt](/tools/browser).
 
-Common options:
+Tùy chọn phổ biến:
 
 - `--url`, `--token`, `--timeout`, `--json`
 - `--browser-profile <name>`
 
-Manage:
+Quản lý:
 
 - `browser status`
 - `browser start`
@@ -1099,12 +1098,12 @@ Manage:
 - `browser create-profile --name <name> [--color <hex>] [--cdp-url <url>]`
 - `browser delete-profile --name <name>`
 
-Inspect:
+Kiểm tra:
 
 - `browser screenshot [targetId] [--full-page] [--ref <ref>] [--element <selector>] [--type png|jpeg]`
 - `browser snapshot [--format aria|ai] [--target-id <id>] [--limit <n>] [--interactive] [--compact] [--depth <n>] [--selector <sel>] [--out <path>]`
 
-Actions:
+Hành động:
 
 - `browser navigate <url> [--target-id <id>]`
 - `browser resize <width> <height> [--target-id <id>]`
@@ -1122,19 +1121,19 @@ Actions:
 - `browser console [--level <error|warn|info>] [--target-id <id>]`
 - `browser pdf [--target-id <id>]`
 
-## Docs search
+## Tìm kiếm tài liệu
 
 ### `docs [query...]`
 
-Search the live docs index.
+Tìm kiếm chỉ mục tài liệu trực tiếp.
 
 ## TUI
 
 ### `tui`
 
-Open the terminal UI connected to the Gateway.
+Mở giao diện người dùng terminal kết nối với Gateway.
 
-Options:
+Tùy chọn:
 
 - `--url <url>`
 - `--token <token>`
@@ -1143,5 +1142,5 @@ Options:
 - `--deliver`
 - `--thinking <level>`
 - `--message <text>`
-- `--timeout-ms <ms>` (defaults to `agents.defaults.timeoutSeconds`)
+- `--timeout-ms <ms>` (mặc định là `agents.defaults.timeoutSeconds`)
 - `--history-limit <n>`

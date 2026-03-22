@@ -1,30 +1,30 @@
 ---
-summary: "CLI reference for `openclaw tui` (terminal UI connected to the Gateway)"
+summary: "Tham khảo CLI cho `openclaw tui` (giao diện dòng lệnh kết nối với Gateway)"
 read_when:
-  - You want a terminal UI for the Gateway (remote-friendly)
-  - You want to pass url/token/session from scripts
+  - Bạn cần giao diện dòng lệnh cho Gateway (thân thiện với truy cập từ xa)
+  - Bạn muốn truyền url/token/session từ các script
 title: "tui"
 ---
 
 # `openclaw tui`
 
-Open the terminal UI connected to the Gateway.
+Mở giao diện dòng lệnh kết nối với Gateway.
 
-Related:
+Liên quan:
 
-- TUI guide: [TUI](/web/tui)
+- Hướng dẫn TUI: [TUI](/web/tui)
 
-Notes:
+Lưu ý:
 
-- `tui` resolves configured gateway auth SecretRefs for token/password auth when possible (`env`/`file`/`exec` providers).
-- When launched from inside a configured agent workspace directory, TUI auto-selects that agent for the session key default (unless `--session` is explicitly `agent:<id>:...`).
+- `tui` sẽ tự động giải quyết các SecretRefs cấu hình cho xác thực gateway bằng token/mật khẩu khi có thể (`env`/`file`/`exec` providers).
+- Khi khởi chạy từ bên trong thư mục workspace của agent đã cấu hình, TUI sẽ tự động chọn agent đó làm mặc định cho khóa phiên (trừ khi `--session` được chỉ định rõ là `agent:<id>:...`).
 
-## Examples
+## Ví dụ
 
 ```bash
 openclaw tui
 openclaw tui --url ws://127.0.0.1:18789 --token <token>
 openclaw tui --session main --deliver
-# when run inside an agent workspace, infers that agent automatically
+# khi chạy bên trong workspace của agent, tự động suy ra agent đó
 openclaw tui --session bugfix
 ```

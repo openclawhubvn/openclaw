@@ -1,30 +1,29 @@
 ---
-summary: "Context window + compaction: how OpenClaw keeps sessions under model limits"
+summary: "Cửa sổ ngữ cảnh và nén: cách OpenClaw giữ phiên trong giới hạn của mô hình"
 read_when:
-  - You want to understand auto-compaction and /compact
-  - You are debugging long sessions hitting context limits
-title: "Compaction"
+  - Bạn muốn hiểu về tự động nén và /compact
+  - Bạn đang gỡ lỗi các phiên dài vượt quá giới hạn ngữ cảnh
+title: "Nén"
 ---
 
-# Context Window & Compaction
+# Cửa sổ Ngữ cảnh & Nén
 
-Every model has a **context window** (max tokens it can see). Long-running chats accumulate messages and tool results; once the window is tight, OpenClaw **compacts** older history to stay within limits.
+Mỗi mô hình có một **cửa sổ ngữ cảnh** (số lượng token tối đa mà nó có thể xử lý). Các cuộc trò chuyện dài sẽ tích lũy tin nhắn và kết quả công cụ; khi cửa sổ trở nên chật chội, OpenClaw sẽ **nén** lịch sử cũ hơn để duy trì trong giới hạn.
 
-## What compaction is
+## Nén là gì
 
-Compaction **summarizes older conversation** into a compact summary entry and keeps recent messages intact. The summary is stored in the session history, so future requests use:
+Nén **tóm tắt cuộc trò chuyện cũ** thành một mục tóm tắt ngắn gọn và giữ nguyên các tin nhắn gần đây. Tóm tắt này được lưu trong lịch sử phiên, để các yêu cầu trong tương lai sử dụng:
 
-- The compaction summary
-- Recent messages after the compaction point
+- Tóm tắt nén
+- Các tin nhắn gần đây sau điểm nén
 
-Compaction **persists** in the session’s JSONL history.
+Nén **duy trì** trong lịch sử JSONL của phiên.
 
-## Configuration
+## Cấu hình
 
-Use the `agents.defaults.compaction` setting in your `openclaw.json` to configure compaction behavior (mode, target tokens, etc.).
-Compaction summarization preserves opaque identifiers by default (`identifierPolicy: "strict"`). You can override this with `identifierPolicy: "off"` or provide custom text with `identifierPolicy: "custom"` and `identifierInstructions`.
+Sử dụng cài đặt `agents.defaults.compaction` trong `openclaw.json` để cấu hình hành vi nén (chế độ, số lượng token mục tiêu, v.v.). Tóm tắt nén mặc định giữ nguyên các định danh không rõ (`identifierPolicy: "strict"`). Bạn có thể thay đổi điều này với `identifierPolicy: "off"` hoặc cung cấp văn bản tùy chỉnh với `identifierPolicy: "custom"` và `identifierInstructions`.
 
-You can optionally specify a different model for compaction summarization via `agents.defaults.compaction.model`. This is useful when your primary model is a local or small model and you want compaction summaries produced by a more capable model. The override accepts any `provider/model-id` string:
+Bạn có thể chỉ định một mô hình khác cho tóm tắt nén thông qua `agents.defaults.compaction.model`. Điều này hữu ích khi mô hình chính của bạn là mô hình cục bộ hoặc nhỏ và bạn muốn tóm tắt nén được tạo ra bởi một mô hình mạnh mẽ hơn. Việc ghi đè chấp nhận bất kỳ chuỗi `provider/model-id` nào:
 
 ```json
 {
@@ -38,7 +37,7 @@ You can optionally specify a different model for compaction summarization via `a
 }
 ```
 
-This also works with local models, for example a second Ollama model dedicated to summarization or a fine-tuned compaction specialist:
+Điều này cũng hoạt động với các mô hình cục bộ, ví dụ như một mô hình Ollama thứ hai dành riêng cho tóm tắt hoặc một chuyên gia nén được tinh chỉnh:
 
 ```json
 {
@@ -52,72 +51,59 @@ This also works with local models, for example a second Ollama model dedicated t
 }
 ```
 
-When unset, compaction uses the agent's primary model.
+Khi không được thiết lập, nén sử dụng mô hình chính của agent.
 
-## Auto-compaction (default on)
+## Tự động nén (mặc định bật)
 
-When a session nears or exceeds the model’s context window, OpenClaw triggers auto-compaction and may retry the original request using the compacted context.
+Khi một phiên gần hoặc vượt quá cửa sổ ngữ cảnh của mô hình, OpenClaw kích hoạt tự động nén và có thể thử lại yêu cầu gốc bằng ngữ cảnh đã nén.
 
-You’ll see:
+Bạn sẽ thấy:
 
-- `🧹 Auto-compaction complete` in verbose mode
-- `/status` showing `🧹 Compactions: <count>`
+- `🧹 Auto-compaction complete` trong chế độ chi tiết
+- `/status` hiển thị `🧹 Compactions: <count>`
 
-Before compaction, OpenClaw can run a **silent memory flush** turn to store
-durable notes to disk. See [Memory](/concepts/memory) for details and config.
+Trước khi nén, OpenClaw có thể thực hiện một lượt **xóa bộ nhớ im lặng** để lưu các ghi chú bền vững vào đĩa. Xem [Memory](/concepts/memory) để biết chi tiết và cấu hình.
 
-## Manual compaction
+## Nén thủ công
 
-Use `/compact` (optionally with instructions) to force a compaction pass:
+Sử dụng `/compact` (có thể kèm theo hướng dẫn) để buộc thực hiện một lượt nén:
 
 ```
-/compact Focus on decisions and open questions
+/compact Tập trung vào các quyết định và câu hỏi mở
 ```
 
-## Context window source
+## Nguồn cửa sổ ngữ cảnh
 
-Context window is model-specific. OpenClaw uses the model definition from the configured provider catalog to determine limits.
+Cửa sổ ngữ cảnh là đặc thù của mô hình. OpenClaw sử dụng định nghĩa mô hình từ danh mục nhà cung cấp đã cấu hình để xác định giới hạn.
 
-## Compaction vs pruning
+## Nén so với cắt tỉa
 
-- **Compaction**: summarises and **persists** in JSONL.
-- **Session pruning**: trims old **tool results** only, **in-memory**, per request.
+- **Nén**: tóm tắt và **duy trì** trong JSONL.
+- **Cắt tỉa phiên**: chỉ cắt tỉa các **kết quả công cụ** cũ, **trong bộ nhớ**, theo từng yêu cầu.
 
-See [/concepts/session-pruning](/concepts/session-pruning) for pruning details.
+Xem [/concepts/session-pruning](/concepts/session-pruning) để biết chi tiết về cắt tỉa.
 
-## OpenAI server-side compaction
+## Nén phía máy chủ OpenAI
 
-OpenClaw also supports OpenAI Responses server-side compaction hints for
-compatible direct OpenAI models. This is separate from local OpenClaw
-compaction and can run alongside it.
+OpenClaw cũng hỗ trợ gợi ý nén phía máy chủ OpenAI Responses cho các mô hình OpenAI trực tiếp tương thích. Điều này tách biệt với nén cục bộ OpenClaw và có thể chạy song song.
 
-- Local compaction: OpenClaw summarizes and persists into session JSONL.
-- Server-side compaction: OpenAI compacts context on the provider side when
-  `store` + `context_management` are enabled.
+- Nén cục bộ: OpenClaw tóm tắt và duy trì vào JSONL của phiên.
+- Nén phía máy chủ: OpenAI nén ngữ cảnh phía nhà cung cấp khi `store` + `context_management` được bật.
 
-See [OpenAI provider](/providers/openai) for model params and overrides.
+Xem [OpenAI provider](/providers/openai) để biết tham số mô hình và ghi đè.
 
-## Custom context engines
+## Động cơ ngữ cảnh tùy chỉnh
 
-Compaction behavior is owned by the active
-[context engine](/concepts/context-engine). The legacy engine uses the built-in
-summarization described above. Plugin engines (selected via
-`plugins.slots.contextEngine`) can implement any compaction strategy — DAG
-summaries, vector retrieval, incremental condensation, etc.
+Hành vi nén được quản lý bởi [động cơ ngữ cảnh](/concepts/context-engine) đang hoạt động. Động cơ cũ sử dụng tóm tắt tích hợp như đã mô tả ở trên. Các động cơ plugin (được chọn thông qua `plugins.slots.contextEngine`) có thể triển khai bất kỳ chiến lược nén nào — tóm tắt DAG, truy xuất vector, ngưng tụ gia tăng, v.v.
 
-When a plugin engine sets `ownsCompaction: true`, OpenClaw delegates all
-compaction decisions to the engine and does not run built-in auto-compaction.
+Khi một động cơ plugin đặt `ownsCompaction: true`, OpenClaw ủy quyền tất cả các quyết định nén cho động cơ và không chạy tự động nén tích hợp.
 
-When `ownsCompaction` is `false` or unset, OpenClaw may still use Pi's
-built-in in-attempt auto-compaction, but the active engine's `compact()` method
-still handles `/compact` and overflow recovery. There is no automatic fallback
-to the legacy engine's compaction path.
+Khi `ownsCompaction` là `false` hoặc không được thiết lập, OpenClaw vẫn có thể sử dụng tự động nén trong nỗ lực của Pi, nhưng phương thức `compact()` của động cơ đang hoạt động vẫn xử lý `/compact` và phục hồi tràn. Không có sự quay lại tự động cho đường dẫn nén của động cơ cũ.
 
-If you are building a non-owning context engine, implement `compact()` by
-calling `delegateCompactionToRuntime(...)` from `openclaw/plugin-sdk/core`.
+Nếu bạn đang xây dựng một động cơ ngữ cảnh không sở hữu, hãy triển khai `compact()` bằng cách gọi `delegateCompactionToRuntime(...)` từ `openclaw/plugin-sdk/core`.
 
-## Tips
+## Mẹo
 
-- Use `/compact` when sessions feel stale or context is bloated.
-- Large tool outputs are already truncated; pruning can further reduce tool-result buildup.
-- If you need a fresh slate, `/new` or `/reset` starts a new session id.
+- Sử dụng `/compact` khi các phiên cảm thấy cũ kỹ hoặc ngữ cảnh bị phình to.
+- Các đầu ra công cụ lớn đã bị cắt ngắn; cắt tỉa có thể giảm thêm sự tích tụ kết quả công cụ.
+- Nếu cần một khởi đầu mới, `/new` hoặc `/reset` sẽ bắt đầu một ID phiên mới.

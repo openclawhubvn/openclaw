@@ -1,98 +1,98 @@
 ---
-title: "Contributing to the Threat Model"
-summary: "How to contribute to the OpenClaw threat model"
+title: "Đóng góp cho Mô hình Đe dọa"
+summary: "Cách đóng góp cho mô hình đe dọa của OpenClaw"
 read_when:
-  - You want to contribute security findings or threat scenarios
-  - Reviewing or updating the threat model
+  - Bạn muốn đóng góp phát hiện bảo mật hoặc kịch bản đe dọa
+  - Đang xem xét hoặc cập nhật mô hình đe dọa
 ---
 
-# Contributing to the OpenClaw Threat Model
+# Đóng góp cho Mô hình Đe dọa của OpenClaw
 
-Thanks for helping make OpenClaw more secure. This threat model is a living document and we welcome contributions from anyone - you don't need to be a security expert.
+Cảm ơn bạn đã giúp OpenClaw trở nên an toàn hơn. Mô hình đe dọa này là một tài liệu sống và chúng tôi hoan nghênh mọi đóng góp từ bất kỳ ai - bạn không cần phải là chuyên gia bảo mật.
 
-## Ways to Contribute
+## Cách Đóng Góp
 
-### Add a Threat
+### Thêm một Đe dọa
 
-Spotted an attack vector or risk we haven't covered? Open an issue on [openclaw/trust](https://github.com/openclaw/trust/issues) and describe it in your own words. You don't need to know any frameworks or fill in every field - just describe the scenario.
+Phát hiện một điểm tấn công hoặc rủi ro mà chúng tôi chưa đề cập? Hãy mở một issue trên [openclaw/trust](https://github.com/openclaw/trust/issues) và mô tả nó theo cách của bạn. Bạn không cần biết bất kỳ framework nào hay điền vào mọi trường - chỉ cần mô tả kịch bản.
 
-**Helpful to include (but not required):**
+**Nên bao gồm (nhưng không bắt buộc):**
 
-- The attack scenario and how it could be exploited
-- Which parts of OpenClaw are affected (CLI, gateway, channels, ClawHub, MCP servers, etc.)
-- How severe you think it is (low / medium / high / critical)
-- Any links to related research, CVEs, or real-world examples
+- Kịch bản tấn công và cách nó có thể bị khai thác
+- Phần nào của OpenClaw bị ảnh hưởng (CLI, gateway, channels, ClawHub, MCP servers, v.v.)
+- Mức độ nghiêm trọng bạn nghĩ là (thấp / trung bình / cao / nghiêm trọng)
+- Bất kỳ liên kết nào đến nghiên cứu liên quan, CVE, hoặc ví dụ thực tế
 
-We'll handle the ATLAS mapping, threat IDs, and risk assessment during review. If you want to include those details, great - but it's not expected.
+Chúng tôi sẽ xử lý việc ánh xạ ATLAS, ID đe dọa và đánh giá rủi ro trong quá trình xem xét. Nếu bạn muốn bao gồm những chi tiết đó, rất tốt - nhưng không bắt buộc.
 
-> **This is for adding to the threat model, not reporting live vulnerabilities.** If you've found an exploitable vulnerability, see our [Trust page](https://trust.openclaw.ai) for responsible disclosure instructions.
+> **Đây là để thêm vào mô hình đe dọa, không phải báo cáo lỗ hổng đang hoạt động.** Nếu bạn đã tìm thấy một lỗ hổng có thể khai thác, hãy xem trang [Trust của chúng tôi](https://trust.openclaw.ai) để biết hướng dẫn tiết lộ có trách nhiệm.
 
-### Suggest a Mitigation
+### Đề xuất một Biện pháp Giảm thiểu
 
-Have an idea for how to address an existing threat? Open an issue or PR referencing the threat. Useful mitigations are specific and actionable - for example, "per-sender rate limiting of 10 messages/minute at the gateway" is better than "implement rate limiting."
+Có ý tưởng về cách giải quyết một đe dọa hiện có? Mở một issue hoặc PR tham chiếu đến đe dọa đó. Các biện pháp giảm thiểu hữu ích là cụ thể và có thể thực hiện được - ví dụ, "giới hạn tốc độ gửi tin nhắn 10 tin/phút tại gateway" tốt hơn là "thực hiện giới hạn tốc độ."
 
-### Propose an Attack Chain
+### Đề xuất một Chuỗi Tấn công
 
-Attack chains show how multiple threats combine into a realistic attack scenario. If you see a dangerous combination, describe the steps and how an attacker would chain them together. A short narrative of how the attack unfolds in practice is more valuable than a formal template.
+Chuỗi tấn công cho thấy cách nhiều đe dọa kết hợp thành một kịch bản tấn công thực tế. Nếu bạn thấy một sự kết hợp nguy hiểm, hãy mô tả các bước và cách kẻ tấn công sẽ kết hợp chúng lại. Một câu chuyện ngắn về cách cuộc tấn công diễn ra trong thực tế có giá trị hơn là một mẫu chính thức.
 
-### Fix or Improve Existing Content
+### Sửa hoặc Cải thiện Nội dung Hiện có
 
-Typos, clarifications, outdated info, better examples - PRs welcome, no issue needed.
+Lỗi chính tả, làm rõ, thông tin lỗi thời, ví dụ tốt hơn - PRs được chào đón, không cần issue.
 
-## What We Use
+## Những Gì Chúng Tôi Sử Dụng
 
 ### MITRE ATLAS
 
-This threat model is built on [MITRE ATLAS](https://atlas.mitre.org/) (Adversarial Threat Landscape for AI Systems), a framework designed specifically for AI/ML threats like prompt injection, tool misuse, and agent exploitation. You don't need to know ATLAS to contribute - we map submissions to the framework during review.
+Mô hình đe dọa này được xây dựng trên [MITRE ATLAS](https://atlas.mitre.org/) (Adversarial Threat Landscape for AI Systems), một framework được thiết kế đặc biệt cho các mối đe dọa AI/ML như tiêm lệnh, lạm dụng công cụ và khai thác agent. Bạn không cần biết ATLAS để đóng góp - chúng tôi sẽ ánh xạ các đóng góp vào framework trong quá trình xem xét.
 
-### Threat IDs
+### ID Đe dọa
 
-Each threat gets an ID like `T-EXEC-003`. The categories are:
+Mỗi đe dọa nhận được một ID như `T-EXEC-003`. Các danh mục bao gồm:
 
-| Code    | Category                                   |
-| ------- | ------------------------------------------ |
-| RECON   | Reconnaissance - information gathering     |
-| ACCESS  | Initial access - gaining entry             |
-| EXEC    | Execution - running malicious actions      |
-| PERSIST | Persistence - maintaining access           |
-| EVADE   | Defense evasion - avoiding detection       |
-| DISC    | Discovery - learning about the environment |
-| EXFIL   | Exfiltration - stealing data               |
-| IMPACT  | Impact - damage or disruption              |
+| Mã      | Danh mục                                    |
+| ------- | -------------------------------------------- |
+| RECON   | Trinh sát - thu thập thông tin               |
+| ACCESS  | Truy cập ban đầu - xâm nhập                  |
+| EXEC    | Thực thi - thực hiện hành động độc hại       |
+| PERSIST | Duy trì - duy trì truy cập                   |
+| EVADE   | Tránh né - tránh bị phát hiện                |
+| DISC    | Khám phá - tìm hiểu về môi trường            |
+| EXFIL   | Rò rỉ - đánh cắp dữ liệu                     |
+| IMPACT  | Tác động - gây thiệt hại hoặc gián đoạn      |
 
-IDs are assigned by maintainers during review. You don't need to pick one.
+ID được gán bởi người duy trì trong quá trình xem xét. Bạn không cần chọn một.
 
-### Risk Levels
+### Mức Độ Rủi ro
 
-| Level        | Meaning                                                           |
-| ------------ | ----------------------------------------------------------------- |
-| **Critical** | Full system compromise, or high likelihood + critical impact      |
-| **High**     | Significant damage likely, or medium likelihood + critical impact |
-| **Medium**   | Moderate risk, or low likelihood + high impact                    |
-| **Low**      | Unlikely and limited impact                                       |
+| Mức độ     | Ý nghĩa                                                            |
+| ---------- | ------------------------------------------------------------------ |
+| **Nghiêm trọng** | Toàn bộ hệ thống bị xâm nhập, hoặc khả năng cao + tác động nghiêm trọng |
+| **Cao**    | Thiệt hại đáng kể có khả năng xảy ra, hoặc khả năng trung bình + tác động nghiêm trọng |
+| **Trung bình** | Rủi ro vừa phải, hoặc khả năng thấp + tác động cao             |
+| **Thấp**   | Không có khả năng và tác động hạn chế                              |
 
-If you're unsure about the risk level, just describe the impact and we'll assess it.
+Nếu bạn không chắc về mức độ rủi ro, chỉ cần mô tả tác động và chúng tôi sẽ đánh giá.
 
-## Review Process
+## Quy Trình Xem Xét
 
-1. **Triage** - We review new submissions within 48 hours
-2. **Assessment** - We verify feasibility, assign ATLAS mapping and threat ID, validate risk level
-3. **Documentation** - We ensure everything is formatted and complete
-4. **Merge** - Added to the threat model and visualization
+1. **Phân loại** - Chúng tôi xem xét các đóng góp mới trong vòng 48 giờ
+2. **Đánh giá** - Chúng tôi xác minh tính khả thi, gán ánh xạ ATLAS và ID đe dọa, xác nhận mức độ rủi ro
+3. **Tài liệu** - Chúng tôi đảm bảo mọi thứ được định dạng và hoàn chỉnh
+4. **Hợp nhất** - Thêm vào mô hình đe dọa và hình ảnh hóa
 
-## Resources
+## Tài Nguyên
 
-- [ATLAS Website](https://atlas.mitre.org/)
-- [ATLAS Techniques](https://atlas.mitre.org/techniques/)
-- [ATLAS Case Studies](https://atlas.mitre.org/studies/)
-- [OpenClaw Threat Model](/security/THREAT-MODEL-ATLAS)
+- [Trang web ATLAS](https://atlas.mitre.org/)
+- [Kỹ thuật ATLAS](https://atlas.mitre.org/techniques/)
+- [Nghiên cứu trường hợp ATLAS](https://atlas.mitre.org/studies/)
+- [Mô hình Đe dọa OpenClaw](/security/THREAT-MODEL-ATLAS)
 
-## Contact
+## Liên Hệ
 
-- **Security vulnerabilities:** See our [Trust page](https://trust.openclaw.ai) for reporting instructions
-- **Threat model questions:** Open an issue on [openclaw/trust](https://github.com/openclaw/trust/issues)
-- **General chat:** Discord #security channel
+- **Lỗ hổng bảo mật:** Xem trang [Trust của chúng tôi](https://trust.openclaw.ai) để biết hướng dẫn báo cáo
+- **Câu hỏi về mô hình đe dọa:** Mở một issue trên [openclaw/trust](https://github.com/openclaw/trust/issues)
+- **Trò chuyện chung:** Kênh Discord #security
 
-## Recognition
+## Ghi Nhận
 
-Contributors to the threat model are recognized in the threat model acknowledgments, release notes, and the OpenClaw security hall of fame for significant contributions.
+Những người đóng góp cho mô hình đe dọa được ghi nhận trong phần cảm ơn của mô hình đe dọa, ghi chú phát hành và bảng danh dự bảo mật của OpenClaw cho những đóng góp đáng kể.

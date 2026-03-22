@@ -1,35 +1,35 @@
 ---
-summary: "Usage tracking surfaces and credential requirements"
+summary: "Theo dõi sử dụng và yêu cầu thông tin xác thực"
 read_when:
-  - You are wiring provider usage/quota surfaces
-  - You need to explain usage tracking behavior or auth requirements
-title: "Usage Tracking"
+  - Bạn đang kết nối các bề mặt sử dụng/hạn mức của nhà cung cấp
+  - Bạn cần giải thích hành vi theo dõi sử dụng hoặc yêu cầu xác thực
+title: "Theo dõi sử dụng"
 ---
 
-# Usage tracking
+# Theo dõi sử dụng
 
-## What it is
+## Định nghĩa
 
-- Pulls provider usage/quota directly from their usage endpoints.
-- No estimated costs; only the provider-reported windows.
+- Lấy thông tin sử dụng/hạn mức từ các điểm cuối sử dụng của nhà cung cấp.
+- Không có chi phí ước tính; chỉ có các khoảng thời gian do nhà cung cấp báo cáo.
 
-## Where it shows up
+## Hiển thị ở đâu
 
-- `/status` in chats: emoji‑rich status card with session tokens + estimated cost (API key only). Provider usage shows for the **current model provider** when available.
-- `/usage off|tokens|full` in chats: per-response usage footer (OAuth shows tokens only).
-- `/usage cost` in chats: local cost summary aggregated from OpenClaw session logs.
-- CLI: `openclaw status --usage` prints a full per-provider breakdown.
-- CLI: `openclaw channels list` prints the same usage snapshot alongside provider config (use `--no-usage` to skip).
-- macOS menu bar: “Usage” section under Context (only if available).
+- `/status` trong các cuộc trò chuyện: thẻ trạng thái phong phú với emoji, bao gồm token phiên và chi phí ước tính (chỉ với API key). Hiển thị sử dụng của nhà cung cấp **hiện tại** khi có sẵn.
+- `/usage off|tokens|full` trong các cuộc trò chuyện: chân trang sử dụng cho từng phản hồi (OAuth chỉ hiển thị token).
+- `/usage cost` trong các cuộc trò chuyện: tóm tắt chi phí cục bộ được tổng hợp từ nhật ký phiên OpenClaw.
+- CLI: `openclaw status --usage` in ra phân tích chi tiết theo từng nhà cung cấp.
+- CLI: `openclaw channels list` in ra cùng một ảnh chụp sử dụng kèm theo cấu hình nhà cung cấp (sử dụng `--no-usage` để bỏ qua).
+- Thanh menu macOS: phần “Usage” dưới Context (chỉ khi có sẵn).
 
-## Providers + credentials
+## Nhà cung cấp + thông tin xác thực
 
-- **Anthropic (Claude)**: OAuth tokens in auth profiles.
-- **GitHub Copilot**: OAuth tokens in auth profiles.
-- **Gemini CLI**: OAuth tokens in auth profiles.
-- **Antigravity**: OAuth tokens in auth profiles.
-- **OpenAI Codex**: OAuth tokens in auth profiles (accountId used when present).
-- **MiniMax**: API key (coding plan key; `MINIMAX_CODE_PLAN_KEY` or `MINIMAX_API_KEY`); uses the 5‑hour coding plan window.
-- **z.ai**: API key via env/config/auth store.
+- **Anthropic (Claude)**: Token OAuth trong hồ sơ xác thực.
+- **GitHub Copilot**: Token OAuth trong hồ sơ xác thực.
+- **Gemini CLI**: Token OAuth trong hồ sơ xác thực.
+- **Antigravity**: Token OAuth trong hồ sơ xác thực.
+- **OpenAI Codex**: Token OAuth trong hồ sơ xác thực (sử dụng accountId khi có).
+- **MiniMax**: API key (khóa kế hoạch mã hóa; `MINIMAX_CODE_PLAN_KEY` hoặc `MINIMAX_API_KEY`); sử dụng khoảng thời gian kế hoạch mã hóa 5 giờ.
+- **z.ai**: API key thông qua môi trường/cấu hình/kho lưu trữ xác thực.
 
-Usage is hidden if no matching OAuth/API credentials exist.
+Thông tin sử dụng sẽ bị ẩn nếu không có thông tin xác thực OAuth/API phù hợp.

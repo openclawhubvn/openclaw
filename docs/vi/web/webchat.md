@@ -1,61 +1,59 @@
 ---
-summary: "Loopback WebChat static host and Gateway WS usage for chat UI"
+summary: "Sử dụng Loopback WebChat làm host tĩnh và Gateway WS cho giao diện chat"
 read_when:
-  - Debugging or configuring WebChat access
+  - Gặp sự cố hoặc cấu hình truy cập WebChat
 title: "WebChat"
 ---
 
-# WebChat (Gateway WebSocket UI)
+# WebChat (Giao diện WebSocket của Gateway)
 
-Status: the macOS/iOS SwiftUI chat UI talks directly to the Gateway WebSocket.
+Trạng thái: Giao diện chat SwiftUI trên macOS/iOS kết nối trực tiếp với Gateway WebSocket.
 
-## What it is
+## Giới thiệu
 
-- A native chat UI for the gateway (no embedded browser and no local static server).
-- Uses the same sessions and routing rules as other channels.
-- Deterministic routing: replies always go back to WebChat.
+- Giao diện chat gốc cho gateway (không cần trình duyệt nhúng và không cần server tĩnh cục bộ).
+- Sử dụng cùng phiên và quy tắc định tuyến như các kênh khác.
+- Định tuyến xác định: phản hồi luôn quay lại WebChat.
 
-## Quick start
+## Bắt đầu nhanh
 
-1. Start the gateway.
-2. Open the WebChat UI (macOS/iOS app) or the Control UI chat tab.
-3. Ensure gateway auth is configured (required by default, even on loopback).
+1. Khởi động gateway.
+2. Mở giao diện WebChat (ứng dụng macOS/iOS) hoặc tab chat trong Control UI.
+3. Đảm bảo cấu hình xác thực gateway (mặc định yêu cầu, ngay cả khi loopback).
 
-## How it works (behavior)
+## Cách hoạt động (hành vi)
 
-- The UI connects to the Gateway WebSocket and uses `chat.history`, `chat.send`, and `chat.inject`.
-- `chat.history` is bounded for stability: Gateway may truncate long text fields, omit heavy metadata, and replace oversized entries with `[chat.history omitted: message too large]`.
-- `chat.inject` appends an assistant note directly to the transcript and broadcasts it to the UI (no agent run).
-- Aborted runs can keep partial assistant output visible in the UI.
-- Gateway persists aborted partial assistant text into transcript history when buffered output exists, and marks those entries with abort metadata.
-- History is always fetched from the gateway (no local file watching).
-- If the gateway is unreachable, WebChat is read-only.
+- Giao diện kết nối với Gateway WebSocket và sử dụng `chat.history`, `chat.send`, và `chat.inject`.
+- `chat.history` được giới hạn để đảm bảo ổn định: Gateway có thể cắt ngắn các trường văn bản dài, bỏ qua metadata nặng, và thay thế các mục quá lớn bằng `[chat.history omitted: message too large]`.
+- `chat.inject` thêm ghi chú trợ lý trực tiếp vào bản ghi và phát tới giao diện (không cần chạy agent).
+- Các lần chạy bị hủy có thể giữ lại một phần đầu ra của trợ lý hiển thị trên giao diện.
+- Gateway lưu trữ văn bản trợ lý bị hủy vào lịch sử bản ghi khi có đầu ra được đệm, và đánh dấu các mục đó với metadata hủy.
+- Lịch sử luôn được lấy từ gateway (không theo dõi file cục bộ).
+- Nếu gateway không thể truy cập, WebChat chỉ có thể đọc.
 
-## Control UI agents tools panel
+## Bảng công cụ của Control UI agents
 
-- The Control UI `/agents` Tools panel fetches a runtime catalog via `tools.catalog` and labels each
-  tool as `core` or `plugin:<id>` (plus `optional` for optional plugin tools).
-- If `tools.catalog` is unavailable, the panel falls back to a built-in static list.
-- The panel edits profile and override config, but effective runtime access still follows policy
-  precedence (`allow`/`deny`, per-agent and provider/channel overrides).
+- Bảng Công cụ `/agents` của Control UI lấy danh mục runtime qua `tools.catalog` và gắn nhãn mỗi công cụ là `core` hoặc `plugin:<id>` (cộng thêm `optional` cho các công cụ plugin tùy chọn).
+- Nếu `tools.catalog` không khả dụng, bảng sẽ sử dụng danh sách tĩnh tích hợp sẵn.
+- Bảng chỉnh sửa cấu hình profile và override, nhưng quyền truy cập runtime hiệu quả vẫn tuân theo thứ tự ưu tiên chính sách (`allow`/`deny`, theo từng agent và override của provider/kênh).
 
-## Remote use
+## Sử dụng từ xa
 
-- Remote mode tunnels the gateway WebSocket over SSH/Tailscale.
-- You do not need to run a separate WebChat server.
+- Chế độ từ xa tạo đường hầm cho Gateway WebSocket qua SSH/Tailscale.
+- Không cần chạy server WebChat riêng biệt.
 
-## Configuration reference (WebChat)
+## Tham khảo cấu hình (WebChat)
 
-Full configuration: [Configuration](/gateway/configuration)
+Cấu hình đầy đủ: [Configuration](/gateway/configuration)
 
-Channel options:
+Tùy chọn kênh:
 
-- No dedicated `webchat.*` block. WebChat uses the gateway endpoint + auth settings below.
+- Không có khối `webchat.*` riêng biệt. WebChat sử dụng endpoint của gateway + cài đặt xác thực dưới đây.
 
-Related global options:
+Các tùy chọn toàn cầu liên quan:
 
-- `gateway.port`, `gateway.bind`: WebSocket host/port.
-- `gateway.auth.mode`, `gateway.auth.token`, `gateway.auth.password`: WebSocket auth (token/password).
-- `gateway.auth.mode: "trusted-proxy"`: reverse-proxy auth for browser clients (see [Trusted Proxy Auth](/gateway/trusted-proxy-auth)).
-- `gateway.remote.url`, `gateway.remote.token`, `gateway.remote.password`: remote gateway target.
-- `session.*`: session storage and main key defaults.
+- `gateway.port`, `gateway.bind`: host/port của WebSocket.
+- `gateway.auth.mode`, `gateway.auth.token`, `gateway.auth.password`: xác thực WebSocket (token/mật khẩu).
+- `gateway.auth.mode: "trusted-proxy"`: xác thực reverse-proxy cho trình duyệt (xem [Trusted Proxy Auth](/gateway/trusted-proxy-auth)).
+- `gateway.remote.url`, `gateway.remote.token`, `gateway.remote.password`: mục tiêu gateway từ xa.
+- `session.*`: lưu trữ phiên và các khóa chính mặc định.

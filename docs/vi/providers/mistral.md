@@ -1,26 +1,24 @@
 ---
-summary: "Use Mistral models and Voxtral transcription with OpenClaw"
+summary: "Sử dụng mô hình Mistral và chuyển đổi giọng nói Voxtral với OpenClaw"
 read_when:
-  - You want to use Mistral models in OpenClaw
-  - You need Mistral API key onboarding and model refs
+  - Bạn muốn sử dụng mô hình Mistral trong OpenClaw
+  - Bạn cần hướng dẫn API key Mistral và tham chiếu mô hình
 title: "Mistral"
 ---
 
 # Mistral
 
-OpenClaw supports Mistral for both text/image model routing (`mistral/...`) and
-audio transcription via Voxtral in media understanding.
-Mistral can also be used for memory embeddings (`memorySearch.provider = "mistral"`).
+OpenClaw hỗ trợ Mistral cho cả định tuyến mô hình văn bản/hình ảnh (`mistral/...`) và chuyển đổi giọng nói qua Voxtral trong việc hiểu phương tiện. Mistral cũng có thể được sử dụng cho nhúng bộ nhớ (`memorySearch.provider = "mistral"`).
 
-## CLI setup
+## Thiết lập CLI
 
 ```bash
 openclaw onboard --auth-choice mistral-api-key
-# or non-interactive
+# hoặc không tương tác
 openclaw onboard --mistral-api-key "$MISTRAL_API_KEY"
 ```
 
-## Config snippet (LLM provider)
+## Đoạn cấu hình (nhà cung cấp LLM)
 
 ```json5
 {
@@ -29,7 +27,7 @@ openclaw onboard --mistral-api-key "$MISTRAL_API_KEY"
 }
 ```
 
-## Config snippet (audio transcription with Voxtral)
+## Đoạn cấu hình (chuyển đổi giọng nói với Voxtral)
 
 ```json5
 {
@@ -44,11 +42,11 @@ openclaw onboard --mistral-api-key "$MISTRAL_API_KEY"
 }
 ```
 
-## Notes
+## Ghi chú
 
-- Mistral auth uses `MISTRAL_API_KEY`.
-- Provider base URL defaults to `https://api.mistral.ai/v1`.
-- Onboarding default model is `mistral/mistral-large-latest`.
-- Media-understanding default audio model for Mistral is `voxtral-mini-latest`.
-- Media transcription path uses `/v1/audio/transcriptions`.
-- Memory embeddings path uses `/v1/embeddings` (default model: `mistral-embed`).
+- Xác thực Mistral sử dụng `MISTRAL_API_KEY`.
+- URL cơ sở của nhà cung cấp mặc định là `https://api.mistral.ai/v1`.
+- Mô hình mặc định khi onboard là `mistral/mistral-large-latest`.
+- Mô hình âm thanh mặc định cho việc hiểu phương tiện của Mistral là `voxtral-mini-latest`.
+- Đường dẫn chuyển đổi giọng nói sử dụng `/v1/audio/transcriptions`.
+- Đường dẫn nhúng bộ nhớ sử dụng `/v1/embeddings` (mô hình mặc định: `mistral-embed`).

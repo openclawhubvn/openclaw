@@ -1,17 +1,16 @@
 ---
-summary: "Reaction tool semantics across all supported channels"
+summary: "Ngữ nghĩa công cụ phản hồi trên tất cả các kênh hỗ trợ"
 read_when:
-  - Working on reactions in any channel
-  - Understanding how emoji reactions differ across platforms
-title: "Reactions"
+  - Làm việc với phản hồi trong bất kỳ kênh nào
+  - Hiểu cách phản hồi bằng emoji khác nhau trên các nền tảng
+title: "Phản hồi"
 ---
 
-# Reactions
+# Phản hồi
 
-The agent can add and remove emoji reactions on messages using the `message`
-tool with the `react` action. Reaction behavior varies by channel.
+Agent có thể thêm và xóa phản hồi bằng emoji trên tin nhắn bằng công cụ `message` với hành động `react`. Hành vi của phản hồi thay đổi tùy theo kênh.
 
-## How it works
+## Cách hoạt động
 
 ```json
 {
@@ -21,44 +20,44 @@ tool with the `react` action. Reaction behavior varies by channel.
 }
 ```
 
-- `emoji` is required when adding a reaction.
-- Set `emoji` to an empty string (`""`) to remove the bot's reaction(s).
-- Set `remove: true` to remove a specific emoji (requires non-empty `emoji`).
+- `emoji` là bắt buộc khi thêm phản hồi.
+- Đặt `emoji` là chuỗi rỗng (`""`) để xóa phản hồi của bot.
+- Đặt `remove: true` để xóa một emoji cụ thể (yêu cầu `emoji` không rỗng).
 
-## Channel behavior
+## Hành vi theo kênh
 
 <AccordionGroup>
-  <Accordion title="Discord and Slack">
-    - Empty `emoji` removes all of the bot's reactions on the message.
-    - `remove: true` removes just the specified emoji.
+  <Accordion title="Discord và Slack">
+    - `emoji` rỗng sẽ xóa tất cả phản hồi của bot trên tin nhắn.
+    - `remove: true` chỉ xóa emoji được chỉ định.
   </Accordion>
 
   <Accordion title="Google Chat">
-    - Empty `emoji` removes the app's reactions on the message.
-    - `remove: true` removes just the specified emoji.
+    - `emoji` rỗng sẽ xóa phản hồi của ứng dụng trên tin nhắn.
+    - `remove: true` chỉ xóa emoji được chỉ định.
   </Accordion>
 
   <Accordion title="Telegram">
-    - Empty `emoji` removes the bot's reactions.
-    - `remove: true` also removes reactions but still requires a non-empty `emoji` for tool validation.
+    - `emoji` rỗng sẽ xóa phản hồi của bot.
+    - `remove: true` cũng xóa phản hồi nhưng vẫn yêu cầu `emoji` không rỗng để xác thực công cụ.
   </Accordion>
 
   <Accordion title="WhatsApp">
-    - Empty `emoji` removes the bot reaction.
-    - `remove: true` maps to empty emoji internally (still requires `emoji` in the tool call).
+    - `emoji` rỗng sẽ xóa phản hồi của bot.
+    - `remove: true` được ánh xạ thành emoji rỗng nội bộ (vẫn yêu cầu `emoji` trong cuộc gọi công cụ).
   </Accordion>
 
-  <Accordion title="Zalo Personal (zalouser)">
-    - Requires non-empty `emoji`.
-    - `remove: true` removes that specific emoji reaction.
+  <Accordion title="Zalo Cá nhân (zalouser)">
+    - Yêu cầu `emoji` không rỗng.
+    - `remove: true` xóa phản hồi emoji cụ thể đó.
   </Accordion>
 
   <Accordion title="Signal">
-    - Inbound reaction notifications emit system events when `channels.signal.reactionNotifications` is enabled.
+    - Thông báo phản hồi đến phát ra sự kiện hệ thống khi `channels.signal.reactionNotifications` được bật.
   </Accordion>
 </AccordionGroup>
 
-## Related
+## Liên quan
 
-- [Agent Send](/tools/agent-send) — the `message` tool that includes `react`
-- [Channels](/channels) — channel-specific configuration
+- [Agent Send](/tools/agent-send) — công cụ `message` bao gồm `react`
+- [Channels](/channels) — cấu hình cụ thể cho từng kênh

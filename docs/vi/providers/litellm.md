@@ -1,41 +1,41 @@
 ---
 title: "LiteLLM"
-summary: "Run OpenClaw through LiteLLM Proxy for unified model access and cost tracking"
+summary: "Chạy OpenClaw qua LiteLLM Proxy để truy cập mô hình thống nhất và theo dõi chi phí"
 read_when:
-  - You want to route OpenClaw through a LiteLLM proxy
-  - You need cost tracking, logging, or model routing through LiteLLM
+  - Bạn muốn định tuyến OpenClaw qua proxy LiteLLM
+  - Bạn cần theo dõi chi phí, ghi log, hoặc định tuyến mô hình qua LiteLLM
 ---
 
 # LiteLLM
 
-[LiteLLM](https://litellm.ai) is an open-source LLM gateway that provides a unified API to 100+ model providers. Route OpenClaw through LiteLLM to get centralized cost tracking, logging, and the flexibility to switch backends without changing your OpenClaw config.
+[LiteLLM](https://litellm.ai) là một gateway mã nguồn mở cho LLM, cung cấp API thống nhất cho hơn 100 nhà cung cấp mô hình. Định tuyến OpenClaw qua LiteLLM để có thể theo dõi chi phí tập trung, ghi log và linh hoạt chuyển đổi backend mà không cần thay đổi cấu hình OpenClaw.
 
-## Why use LiteLLM with OpenClaw?
+## Tại sao nên dùng LiteLLM với OpenClaw?
 
-- **Cost tracking** — See exactly what OpenClaw spends across all models
-- **Model routing** — Switch between Claude, GPT-4, Gemini, Bedrock without config changes
-- **Virtual keys** — Create keys with spend limits for OpenClaw
-- **Logging** — Full request/response logs for debugging
-- **Fallbacks** — Automatic failover if your primary provider is down
+- **Theo dõi chi phí** — Xem chính xác chi phí OpenClaw sử dụng trên tất cả các mô hình
+- **Định tuyến mô hình** — Chuyển đổi giữa Claude, GPT-4, Gemini, Bedrock mà không cần thay đổi cấu hình
+- **Khóa ảo** — Tạo khóa với giới hạn chi tiêu cho OpenClaw
+- **Ghi log** — Ghi lại đầy đủ yêu cầu/phản hồi để debug
+- **Dự phòng** — Tự động chuyển đổi nếu nhà cung cấp chính bị gián đoạn
 
-## Quick start
+## Bắt đầu nhanh
 
-### Via onboarding
+### Qua onboarding
 
 ```bash
 openclaw onboard --auth-choice litellm-api-key
 ```
 
-### Manual setup
+### Cài đặt thủ công
 
-1. Start LiteLLM Proxy:
+1. Khởi động LiteLLM Proxy:
 
 ```bash
 pip install 'litellm[proxy]'
 litellm --model claude-opus-4-6
 ```
 
-2. Point OpenClaw to LiteLLM:
+2. Trỏ OpenClaw đến LiteLLM:
 
 ```bash
 export LITELLM_API_KEY="your-litellm-key"
@@ -43,17 +43,17 @@ export LITELLM_API_KEY="your-litellm-key"
 openclaw
 ```
 
-That's it. OpenClaw now routes through LiteLLM.
+Vậy là xong. OpenClaw giờ đã định tuyến qua LiteLLM.
 
-## Configuration
+## Cấu hình
 
-### Environment variables
+### Biến môi trường
 
 ```bash
 export LITELLM_API_KEY="sk-litellm-key"
 ```
 
-### Config file
+### File cấu hình
 
 ```json5
 {
@@ -92,9 +92,9 @@ export LITELLM_API_KEY="sk-litellm-key"
 }
 ```
 
-## Virtual keys
+## Khóa ảo
 
-Create a dedicated key for OpenClaw with spend limits:
+Tạo khóa riêng cho OpenClaw với giới hạn chi tiêu:
 
 ```bash
 curl -X POST "http://localhost:4000/key/generate" \
@@ -107,11 +107,11 @@ curl -X POST "http://localhost:4000/key/generate" \
   }'
 ```
 
-Use the generated key as `LITELLM_API_KEY`.
+Sử dụng khóa được tạo làm `LITELLM_API_KEY`.
 
-## Model routing
+## Định tuyến mô hình
 
-LiteLLM can route model requests to different backends. Configure in your LiteLLM `config.yaml`:
+LiteLLM có thể định tuyến yêu cầu mô hình đến các backend khác nhau. Cấu hình trong `config.yaml` của LiteLLM:
 
 ```yaml
 model_list:
@@ -126,29 +126,29 @@ model_list:
       api_key: os.environ/OPENAI_API_KEY
 ```
 
-OpenClaw keeps requesting `claude-opus-4-6` — LiteLLM handles the routing.
+OpenClaw tiếp tục yêu cầu `claude-opus-4-6` — LiteLLM xử lý định tuyến.
 
-## Viewing usage
+## Xem sử dụng
 
-Check LiteLLM's dashboard or API:
+Kiểm tra dashboard hoặc API của LiteLLM:
 
 ```bash
-# Key info
+# Thông tin khóa
 curl "http://localhost:4000/key/info" \
   -H "Authorization: Bearer sk-litellm-key"
 
-# Spend logs
+# Nhật ký chi tiêu
 curl "http://localhost:4000/spend/logs" \
   -H "Authorization: Bearer $LITELLM_MASTER_KEY"
 ```
 
-## Notes
+## Lưu ý
 
-- LiteLLM runs on `http://localhost:4000` by default
-- OpenClaw connects via the OpenAI-compatible `/v1/chat/completions` endpoint
-- All OpenClaw features work through LiteLLM — no limitations
+- LiteLLM chạy mặc định tại `http://localhost:4000`
+- OpenClaw kết nối qua endpoint tương thích OpenAI `/v1/chat/completions`
+- Tất cả tính năng của OpenClaw hoạt động qua LiteLLM — không có giới hạn
 
-## See also
+## Xem thêm
 
-- [LiteLLM Docs](https://docs.litellm.ai)
-- [Model Providers](/concepts/model-providers)
+- [Tài liệu LiteLLM](https://docs.litellm.ai)
+- [Nhà cung cấp mô hình](/concepts/model-providers)

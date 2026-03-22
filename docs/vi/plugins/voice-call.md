@@ -1,58 +1,57 @@
 ---
-summary: "Voice Call plugin: outbound + inbound calls via Twilio/Telnyx/Plivo (plugin install + config + CLI)"
+summary: "Plugin cuộc gọi thoại: gọi đi + gọi đến qua Twilio/Telnyx/Plivo (cài đặt plugin + cấu hình + CLI)"
 read_when:
-  - You want to place an outbound voice call from OpenClaw
-  - You are configuring or developing the voice-call plugin
-title: "Voice Call Plugin"
+  - Bạn muốn thực hiện cuộc gọi thoại đi từ OpenClaw
+  - Bạn đang cấu hình hoặc phát triển plugin cuộc gọi thoại
+title: "Plugin Cuộc Gọi Thoại"
 ---
 
-# Voice Call (plugin)
+# Cuộc Gọi Thoại (plugin)
 
-Voice calls for OpenClaw via a plugin. Supports outbound notifications and
-multi-turn conversations with inbound policies.
+Cuộc gọi thoại cho OpenClaw thông qua plugin. Hỗ trợ thông báo đi và hội thoại nhiều lượt với chính sách gọi đến.
 
-Current providers:
+Các nhà cung cấp hiện tại:
 
 - `twilio` (Programmable Voice + Media Streams)
 - `telnyx` (Call Control v2)
 - `plivo` (Voice API + XML transfer + GetInput speech)
-- `mock` (dev/no network)
+- `mock` (dev/không mạng)
 
-Quick mental model:
+Mô hình tư duy nhanh:
 
-- Install plugin
-- Restart Gateway
-- Configure under `plugins.entries.voice-call.config`
-- Use `openclaw voicecall ...` or the `voice_call` tool
+- Cài đặt plugin
+- Khởi động lại Gateway
+- Cấu hình dưới `plugins.entries.voice-call.config`
+- Sử dụng `openclaw voicecall ...` hoặc công cụ `voice_call`
 
-## Where it runs (local vs remote)
+## Nơi chạy (local vs remote)
 
-The Voice Call plugin runs **inside the Gateway process**.
+Plugin Cuộc Gọi Thoại chạy **bên trong quá trình Gateway**.
 
-If you use a remote Gateway, install/configure the plugin on the **machine running the Gateway**, then restart the Gateway to load it.
+Nếu sử dụng Gateway từ xa, cài đặt/cấu hình plugin trên **máy chạy Gateway**, sau đó khởi động lại Gateway để tải plugin.
 
-## Install
+## Cài đặt
 
-### Option A: install from npm (recommended)
+### Lựa chọn A: cài đặt từ npm (khuyến nghị)
 
 ```bash
 openclaw plugins install @openclaw/voice-call
 ```
 
-Restart the Gateway afterwards.
+Khởi động lại Gateway sau đó.
 
-### Option B: install from a local folder (dev, no copying)
+### Lựa chọn B: cài đặt từ thư mục local (dev, không sao chép)
 
 ```bash
 openclaw plugins install ./extensions/voice-call
 cd ./extensions/voice-call && pnpm install
 ```
 
-Restart the Gateway afterwards.
+Khởi động lại Gateway sau đó.
 
-## Config
+## Cấu hình
 
-Set config under `plugins.entries.voice-call.config`:
+Đặt cấu hình dưới `plugins.entries.voice-call.config`:
 
 ```json5
 {
@@ -61,7 +60,7 @@ Set config under `plugins.entries.voice-call.config`:
       "voice-call": {
         enabled: true,
         config: {
-          provider: "twilio", // or "telnyx" | "plivo" | "mock"
+          provider: "twilio", // hoặc "telnyx" | "plivo" | "mock"
           fromNumber: "+15550001234",
           toNumber: "+15550005678",
 
@@ -73,8 +72,8 @@ Set config under `plugins.entries.voice-call.config`:
           telnyx: {
             apiKey: "...",
             connectionId: "...",
-            // Telnyx webhook public key from the Telnyx Mission Control Portal
-            // (Base64 string; can also be set via TELNYX_PUBLIC_KEY).
+            // Khóa công khai webhook Telnyx từ Telnyx Mission Control Portal
+            // (Chuỗi Base64; cũng có thể được đặt qua TELNYX_PUBLIC_KEY).
             publicKey: "...",
           },
 
@@ -83,19 +82,19 @@ Set config under `plugins.entries.voice-call.config`:
             authToken: "...",
           },
 
-          // Webhook server
+          // Máy chủ Webhook
           serve: {
             port: 3334,
             path: "/voice/webhook",
           },
 
-          // Webhook security (recommended for tunnels/proxies)
+          // Bảo mật Webhook (khuyến nghị cho tunnel/proxy)
           webhookSecurity: {
             allowedHosts: ["voice.example.com"],
             trustedProxyIPs: ["100.64.0.1"],
           },
 
-          // Public exposure (pick one)
+          // Công khai (chọn một)
           // publicUrl: "https://example.ngrok.app/voice/webhook",
           // tunnel: { provider: "ngrok" },
           // tailscale: { mode: "funnel", path: "/voice/webhook" }
@@ -119,35 +118,32 @@ Set config under `plugins.entries.voice-call.config`:
 }
 ```
 
-Notes:
+Lưu ý:
 
-- Twilio/Telnyx require a **publicly reachable** webhook URL.
-- Plivo requires a **publicly reachable** webhook URL.
-- `mock` is a local dev provider (no network calls).
-- Telnyx requires `telnyx.publicKey` (or `TELNYX_PUBLIC_KEY`) unless `skipSignatureVerification` is true.
-- `skipSignatureVerification` is for local testing only.
-- If you use ngrok free tier, set `publicUrl` to the exact ngrok URL; signature verification is always enforced.
-- `tunnel.allowNgrokFreeTierLoopbackBypass: true` allows Twilio webhooks with invalid signatures **only** when `tunnel.provider="ngrok"` and `serve.bind` is loopback (ngrok local agent). Use for local dev only.
-- Ngrok free tier URLs can change or add interstitial behavior; if `publicUrl` drifts, Twilio signatures will fail. For production, prefer a stable domain or Tailscale funnel.
-- Streaming security defaults:
-  - `streaming.preStartTimeoutMs` closes sockets that never send a valid `start` frame.
-  - `streaming.maxPendingConnections` caps total unauthenticated pre-start sockets.
-  - `streaming.maxPendingConnectionsPerIp` caps unauthenticated pre-start sockets per source IP.
-  - `streaming.maxConnections` caps total open media stream sockets (pending + active).
+- Twilio/Telnyx yêu cầu URL webhook **có thể truy cập công khai**.
+- Plivo yêu cầu URL webhook **có thể truy cập công khai**.
+- `mock` là nhà cung cấp dev local (không có cuộc gọi mạng).
+- Telnyx yêu cầu `telnyx.publicKey` (hoặc `TELNYX_PUBLIC_KEY`) trừ khi `skipSignatureVerification` là true.
+- `skipSignatureVerification` chỉ dành cho thử nghiệm local.
+- Nếu sử dụng ngrok miễn phí, đặt `publicUrl` thành URL ngrok chính xác; xác minh chữ ký luôn được thực thi.
+- `tunnel.allowNgrokFreeTierLoopbackBypass: true` cho phép webhook Twilio với chữ ký không hợp lệ **chỉ khi** `tunnel.provider="ngrok"` và `serve.bind` là loopback (ngrok local agent). Chỉ sử dụng cho dev local.
+- URL ngrok miễn phí có thể thay đổi hoặc thêm hành vi xen kẽ; nếu `publicUrl` thay đổi, chữ ký Twilio sẽ thất bại. Đối với sản xuất, ưu tiên một tên miền ổn định hoặc Tailscale funnel.
+- Mặc định bảo mật streaming:
+  - `streaming.preStartTimeoutMs` đóng các socket không bao giờ gửi một khung `start` hợp lệ.
+  - `streaming.maxPendingConnections` giới hạn tổng số socket chưa xác thực trước khi bắt đầu.
+  - `streaming.maxPendingConnectionsPerIp` giới hạn socket chưa xác thực trước khi bắt đầu theo IP nguồn.
+  - `streaming.maxConnections` giới hạn tổng số socket stream media mở (đang chờ + hoạt động).
 
-## Stale call reaper
+## Quản lý cuộc gọi cũ
 
-Use `staleCallReaperSeconds` to end calls that never receive a terminal webhook
-(for example, notify-mode calls that never complete). The default is `0`
-(disabled).
+Sử dụng `staleCallReaperSeconds` để kết thúc các cuộc gọi không bao giờ nhận được webhook cuối cùng (ví dụ, các cuộc gọi chế độ thông báo không bao giờ hoàn thành). Mặc định là `0` (vô hiệu hóa).
 
-Recommended ranges:
+Phạm vi khuyến nghị:
 
-- **Production:** `120`–`300` seconds for notify-style flows.
-- Keep this value **higher than `maxDurationSeconds`** so normal calls can
-  finish. A good starting point is `maxDurationSeconds + 30–60` seconds.
+- **Sản xuất:** `120`–`300` giây cho các luồng kiểu thông báo.
+- Giữ giá trị này **cao hơn `maxDurationSeconds`** để các cuộc gọi bình thường có thể hoàn thành. Một điểm khởi đầu tốt là `maxDurationSeconds + 30–60` giây.
 
-Example:
+Ví dụ:
 
 ```json5
 {
@@ -164,26 +160,21 @@ Example:
 }
 ```
 
-## Webhook Security
+## Bảo mật Webhook
 
-When a proxy or tunnel sits in front of the Gateway, the plugin reconstructs the
-public URL for signature verification. These options control which forwarded
-headers are trusted.
+Khi một proxy hoặc tunnel nằm trước Gateway, plugin sẽ tái tạo URL công khai để xác minh chữ ký. Các tùy chọn này kiểm soát các tiêu đề chuyển tiếp nào được tin cậy.
 
-`webhookSecurity.allowedHosts` allowlists hosts from forwarding headers.
+`webhookSecurity.allowedHosts` cho phép danh sách các host từ tiêu đề chuyển tiếp.
 
-`webhookSecurity.trustForwardingHeaders` trusts forwarded headers without an allowlist.
+`webhookSecurity.trustForwardingHeaders` tin tưởng các tiêu đề chuyển tiếp mà không cần danh sách cho phép.
 
-`webhookSecurity.trustedProxyIPs` only trusts forwarded headers when the request
-remote IP matches the list.
+`webhookSecurity.trustedProxyIPs` chỉ tin tưởng các tiêu đề chuyển tiếp khi IP từ xa của yêu cầu khớp với danh sách.
 
-Webhook replay protection is enabled for Twilio and Plivo. Replayed valid webhook
-requests are acknowledged but skipped for side effects.
+Bảo vệ phát lại webhook được kích hoạt cho Twilio và Plivo. Các yêu cầu webhook hợp lệ được phát lại sẽ được công nhận nhưng bỏ qua các tác động phụ.
 
-Twilio conversation turns include a per-turn token in `<Gather>` callbacks, so
-stale/replayed speech callbacks cannot satisfy a newer pending transcript turn.
+Các lượt hội thoại Twilio bao gồm một token cho mỗi lượt trong các callback `<Gather>`, do đó các callback lời nói cũ/phát lại không thể thỏa mãn một lượt bản ghi chờ mới hơn.
 
-Example with a stable public host:
+Ví dụ với một host công khai ổn định:
 
 ```json5
 {
@@ -202,11 +193,9 @@ Example with a stable public host:
 }
 ```
 
-## TTS for calls
+## TTS cho cuộc gọi
 
-Voice Call uses the core `messages.tts` configuration for
-streaming speech on calls. You can override it under the plugin config with the
-**same shape** — it deep‑merges with `messages.tts`.
+Cuộc Gọi Thoại sử dụng cấu hình `messages.tts` cốt lõi để phát âm thanh trên các cuộc gọi. Bạn có thể ghi đè nó dưới cấu hình plugin với **cùng hình dạng** — nó sẽ hợp nhất sâu với `messages.tts`.
 
 ```json5
 {
@@ -220,15 +209,15 @@ streaming speech on calls. You can override it under the plugin config with the
 }
 ```
 
-Notes:
+Lưu ý:
 
-- **Microsoft speech is ignored for voice calls** (telephony audio needs PCM; the current Microsoft transport does not expose telephony PCM output).
-- Core TTS is used when Twilio media streaming is enabled; otherwise calls fall back to provider native voices.
-- If a Twilio media stream is already active, Voice Call does not fall back to TwiML `<Say>`. If telephony TTS is unavailable in that state, the playback request fails instead of mixing two playback paths.
+- **Microsoft speech bị bỏ qua cho các cuộc gọi thoại** (âm thanh điện thoại cần PCM; hiện tại Microsoft không cung cấp đầu ra PCM cho điện thoại).
+- TTS cốt lõi được sử dụng khi streaming media Twilio được kích hoạt; nếu không, các cuộc gọi sẽ sử dụng giọng nói gốc của nhà cung cấp.
+- Nếu một stream media Twilio đã hoạt động, Cuộc Gọi Thoại không quay lại TwiML `<Say>`. Nếu TTS điện thoại không khả dụng trong trạng thái đó, yêu cầu phát lại sẽ thất bại thay vì trộn hai đường phát lại.
 
-### More examples
+### Nhiều ví dụ hơn
 
-Use core TTS only (no override):
+Chỉ sử dụng TTS cốt lõi (không ghi đè):
 
 ```json5
 {
@@ -241,7 +230,7 @@ Use core TTS only (no override):
 }
 ```
 
-Override to ElevenLabs just for calls (keep core default elsewhere):
+Ghi đè sang ElevenLabs chỉ cho các cuộc gọi (giữ mặc định cốt lõi ở nơi khác):
 
 ```json5
 {
@@ -264,7 +253,7 @@ Override to ElevenLabs just for calls (keep core default elsewhere):
 }
 ```
 
-Override only the OpenAI model for calls (deep‑merge example):
+Chỉ ghi đè mô hình OpenAI cho các cuộc gọi (ví dụ hợp nhất sâu):
 
 ```json5
 {
@@ -285,83 +274,76 @@ Override only the OpenAI model for calls (deep‑merge example):
 }
 ```
 
-## Inbound calls
+## Cuộc gọi đến
 
-Inbound policy defaults to `disabled`. To enable inbound calls, set:
+Chính sách gọi đến mặc định là `disabled`. Để kích hoạt cuộc gọi đến, đặt:
 
 ```json5
 {
   inboundPolicy: "allowlist",
   allowFrom: ["+15550001234"],
-  inboundGreeting: "Hello! How can I help?",
+  inboundGreeting: "Xin chào! Tôi có thể giúp gì?",
 }
 ```
 
-`inboundPolicy: "allowlist"` is a low-assurance caller-ID screen. The plugin
-normalizes the provider-supplied `From` value and compares it to `allowFrom`.
-Webhook verification authenticates provider delivery and payload integrity, but
-it does not prove PSTN/VoIP caller-number ownership. Treat `allowFrom` as
-caller-ID filtering, not strong caller identity.
+`inboundPolicy: "allowlist"` là một màn hình ID người gọi có độ tin cậy thấp. Plugin chuẩn hóa giá trị `From` do nhà cung cấp cung cấp và so sánh nó với `allowFrom`. Xác minh webhook xác thực việc giao hàng của nhà cung cấp và tính toàn vẹn của tải trọng, nhưng không chứng minh quyền sở hữu số người gọi PSTN/VoIP. Xem `allowFrom` như là lọc ID người gọi, không phải là nhận dạng người gọi mạnh.
 
-Auto-responses use the agent system. Tune with:
+Phản hồi tự động sử dụng hệ thống agent. Điều chỉnh với:
 
 - `responseModel`
 - `responseSystemPrompt`
 - `responseTimeoutMs`
 
-### Spoken output contract
+### Hợp đồng đầu ra nói
 
-For auto-responses, Voice Call appends a strict spoken-output contract to the system prompt:
+Đối với phản hồi tự động, Cuộc Gọi Thoại thêm một hợp đồng đầu ra nói nghiêm ngặt vào lời nhắc hệ thống:
 
 - `{"spoken":"..."}`
 
-Voice Call then extracts speech text defensively:
+Cuộc Gọi Thoại sau đó trích xuất văn bản lời nói một cách phòng thủ:
 
-- Ignores payloads marked as reasoning/error content.
-- Parses direct JSON, fenced JSON, or inline `"spoken"` keys.
-- Falls back to plain text and removes likely planning/meta lead-in paragraphs.
+- Bỏ qua các tải trọng được đánh dấu là nội dung lý luận/lỗi.
+- Phân tích cú pháp JSON trực tiếp, JSON có khung, hoặc các khóa `"spoken"` nội tuyến.
+- Quay lại văn bản thuần túy và loại bỏ các đoạn văn dẫn đầu có khả năng lập kế hoạch/meta.
 
-This keeps spoken playback focused on caller-facing text and avoids leaking planning text into audio.
+Điều này giữ cho phát lại âm thanh tập trung vào văn bản hướng đến người gọi và tránh rò rỉ văn bản lập kế hoạch vào âm thanh.
 
-### Conversation startup behavior
+### Hành vi khởi động hội thoại
 
-For outbound `conversation` calls, first-message handling is tied to live playback state:
+Đối với các cuộc gọi `conversation` đi, xử lý tin nhắn đầu tiên được liên kết với trạng thái phát lại trực tiếp:
 
-- Barge-in queue clear and auto-response are suppressed only while the initial greeting is actively speaking.
-- If initial playback fails, the call returns to `listening` and the initial message remains queued for retry.
-- Initial playback for Twilio streaming starts on stream connect without extra delay.
+- Hàng đợi ngắt lời và phản hồi tự động chỉ bị ngăn chặn trong khi lời chào ban đầu đang phát.
+- Nếu phát lại ban đầu thất bại, cuộc gọi sẽ trở lại trạng thái `listening` và tin nhắn ban đầu vẫn được xếp hàng để thử lại.
+- Phát lại ban đầu cho streaming Twilio bắt đầu khi kết nối stream mà không có độ trễ thêm.
 
-### Twilio stream disconnect grace
+### Thời gian chờ ngắt kết nối stream Twilio
 
-When a Twilio media stream disconnects, Voice Call waits `2000ms` before auto-ending the call:
+Khi một stream media Twilio ngắt kết nối, Cuộc Gọi Thoại chờ `2000ms` trước khi tự động kết thúc cuộc gọi:
 
-- If the stream reconnects during that window, auto-end is canceled.
-- If no stream is re-registered after the grace period, the call is ended to prevent stuck active calls.
+- Nếu stream kết nối lại trong khoảng thời gian đó, tự động kết thúc sẽ bị hủy.
+- Nếu không có stream nào được đăng ký lại sau thời gian chờ, cuộc gọi sẽ kết thúc để ngăn chặn các cuộc gọi hoạt động bị kẹt.
 
 ## CLI
 
 ```bash
-openclaw voicecall call --to "+15555550123" --message "Hello from OpenClaw"
-openclaw voicecall start --to "+15555550123"   # alias for call
-openclaw voicecall continue --call-id <id> --message "Any questions?"
-openclaw voicecall speak --call-id <id> --message "One moment"
+openclaw voicecall call --to "+15555550123" --message "Xin chào từ OpenClaw"
+openclaw voicecall start --to "+15555550123"   # alias cho call
+openclaw voicecall continue --call-id <id> --message "Có câu hỏi nào không?"
+openclaw voicecall speak --call-id <id> --message "Một chút nhé"
 openclaw voicecall end --call-id <id>
 openclaw voicecall status --call-id <id>
 openclaw voicecall tail
-openclaw voicecall latency                     # summarize turn latency from logs
+openclaw voicecall latency                     # tóm tắt độ trễ lượt từ nhật ký
 openclaw voicecall expose --mode funnel
 ```
 
-`latency` reads `calls.jsonl` from the default voice-call storage path. Use
-`--file <path>` to point at a different log and `--last <n>` to limit analysis
-to the last N records (default 200). Output includes p50/p90/p99 for turn
-latency and listen-wait times.
+`latency` đọc `calls.jsonl` từ đường dẫn lưu trữ cuộc gọi thoại mặc định. Sử dụng `--file <path>` để chỉ định một nhật ký khác và `--last <n>` để giới hạn phân tích vào N bản ghi cuối cùng (mặc định 200). Đầu ra bao gồm p50/p90/p99 cho độ trễ lượt và thời gian chờ nghe.
 
-## Agent tool
+## Công cụ Agent
 
-Tool name: `voice_call`
+Tên công cụ: `voice_call`
 
-Actions:
+Hành động:
 
 - `initiate_call` (message, to?, mode?)
 - `continue_call` (callId, message)
@@ -369,7 +351,7 @@ Actions:
 - `end_call` (callId)
 - `get_status` (callId)
 
-This repo ships a matching skill doc at `skills/voice-call/SKILL.md`.
+Repo này cung cấp một tài liệu kỹ năng tương ứng tại `skills/voice-call/SKILL.md`.
 
 ## Gateway RPC
 

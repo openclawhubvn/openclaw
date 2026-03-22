@@ -1,60 +1,60 @@
 ---
-summary: "Host OpenClaw on a Raspberry Pi for always-on self-hosting"
+summary: "Chạy OpenClaw trên Raspberry Pi để tự host liên tục"
 read_when:
-  - Setting up OpenClaw on a Raspberry Pi
-  - Running OpenClaw on ARM devices
-  - Building a cheap always-on personal AI
+  - Cài đặt OpenClaw trên Raspberry Pi
+  - Chạy OpenClaw trên thiết bị ARM
+  - Xây dựng AI cá nhân giá rẻ luôn hoạt động
 title: "Raspberry Pi"
 ---
 
 # Raspberry Pi
 
-Run a persistent, always-on OpenClaw Gateway on a Raspberry Pi. Since the Pi is just the gateway (models run in the cloud via API), even a modest Pi handles the workload well.
+Chạy OpenClaw Gateway liên tục trên Raspberry Pi. Vì Pi chỉ là gateway (các mô hình chạy trên đám mây qua API), nên ngay cả một Pi khiêm tốn cũng xử lý tốt khối lượng công việc.
 
-## Prerequisites
+## Yêu cầu
 
-- Raspberry Pi 4 or 5 with 2 GB+ RAM (4 GB recommended)
-- MicroSD card (16 GB+) or USB SSD (better performance)
-- Official Pi power supply
-- Network connection (Ethernet or WiFi)
-- 64-bit Raspberry Pi OS (required -- do not use 32-bit)
-- About 30 minutes
+- Raspberry Pi 4 hoặc 5 với RAM 2 GB trở lên (khuyến nghị 4 GB)
+- Thẻ MicroSD (16 GB trở lên) hoặc USB SSD (hiệu suất tốt hơn)
+- Nguồn điện chính hãng cho Pi
+- Kết nối mạng (Ethernet hoặc WiFi)
+- Hệ điều hành Raspberry Pi 64-bit (bắt buộc — không dùng 32-bit)
+- Khoảng 30 phút
 
-## Setup
+## Thiết lập
 
 <Steps>
-  <Step title="Flash the OS">
-    Use **Raspberry Pi OS Lite (64-bit)** -- no desktop needed for a headless server.
+  <Step title="Ghi hệ điều hành">
+    Sử dụng **Raspberry Pi OS Lite (64-bit)** — không cần giao diện desktop cho server không màn hình.
 
-    1. Download [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
-    2. Choose OS: **Raspberry Pi OS Lite (64-bit)**.
-    3. In the settings dialog, pre-configure:
+    1. Tải [Raspberry Pi Imager](https://www.raspberrypi.com/software/).
+    2. Chọn hệ điều hành: **Raspberry Pi OS Lite (64-bit)**.
+    3. Trong hộp thoại cài đặt, cấu hình trước:
        - Hostname: `gateway-host`
-       - Enable SSH
-       - Set username and password
-       - Configure WiFi (if not using Ethernet)
-    4. Flash to your SD card or USB drive, insert it, and boot the Pi.
+       - Kích hoạt SSH
+       - Đặt tên người dùng và mật khẩu
+       - Cấu hình WiFi (nếu không dùng Ethernet)
+    4. Ghi vào thẻ SD hoặc ổ USB, cắm vào và khởi động Pi.
 
   </Step>
 
-  <Step title="Connect via SSH">
+  <Step title="Kết nối qua SSH">
     ```bash
     ssh user@gateway-host
     ```
   </Step>
 
-  <Step title="Update the system">
+  <Step title="Cập nhật hệ thống">
     ```bash
     sudo apt update && sudo apt upgrade -y
     sudo apt install -y git curl build-essential
 
-    # Set timezone (important for cron and reminders)
+    # Đặt múi giờ (quan trọng cho cron và nhắc nhở)
     sudo timedatectl set-timezone America/Chicago
     ```
 
   </Step>
 
-  <Step title="Install Node.js 24">
+  <Step title="Cài đặt Node.js 24">
     ```bash
     curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
     sudo apt install -y nodejs
@@ -62,7 +62,7 @@ Run a persistent, always-on OpenClaw Gateway on a Raspberry Pi. Since the Pi is 
     ```
   </Step>
 
-  <Step title="Add swap (important for 2 GB or less)">
+  <Step title="Thêm swap (quan trọng cho 2 GB RAM hoặc ít hơn)">
     ```bash
     sudo fallocate -l 2G /swapfile
     sudo chmod 600 /swapfile
@@ -70,29 +70,29 @@ Run a persistent, always-on OpenClaw Gateway on a Raspberry Pi. Since the Pi is 
     sudo swapon /swapfile
     echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
 
-    # Reduce swappiness for low-RAM devices
+    # Giảm swappiness cho thiết bị ít RAM
     echo 'vm.swappiness=10' | sudo tee -a /etc/sysctl.conf
     sudo sysctl -p
     ```
 
   </Step>
 
-  <Step title="Install OpenClaw">
+  <Step title="Cài đặt OpenClaw">
     ```bash
     curl -fsSL https://openclaw.ai/install.sh | bash
     ```
   </Step>
 
-  <Step title="Run onboarding">
+  <Step title="Chạy onboarding">
     ```bash
     openclaw onboard --install-daemon
     ```
 
-    Follow the wizard. API keys are recommended over OAuth for headless devices. Telegram is the easiest channel to start with.
+    Làm theo hướng dẫn. Khóa API được khuyến nghị hơn OAuth cho thiết bị không màn hình. Telegram là kênh dễ bắt đầu nhất.
 
   </Step>
 
-  <Step title="Verify">
+  <Step title="Xác minh">
     ```bash
     openclaw status
     sudo systemctl status openclaw
@@ -100,29 +100,29 @@ Run a persistent, always-on OpenClaw Gateway on a Raspberry Pi. Since the Pi is 
     ```
   </Step>
 
-  <Step title="Access the Control UI">
-    On your computer, get a dashboard URL from the Pi:
+  <Step title="Truy cập giao diện điều khiển">
+    Trên máy tính, lấy URL dashboard từ Pi:
 
     ```bash
     ssh user@gateway-host 'openclaw dashboard --no-open'
     ```
 
-    Then create an SSH tunnel in another terminal:
+    Sau đó tạo một SSH tunnel trong terminal khác:
 
     ```bash
     ssh -N -L 18789:127.0.0.1:18789 user@gateway-host
     ```
 
-    Open the printed URL in your local browser. For always-on remote access, see [Tailscale integration](/gateway/tailscale).
+    Mở URL đã in ra trong trình duyệt của bạn. Để truy cập từ xa liên tục, xem [Tích hợp Tailscale](/gateway/tailscale).
 
   </Step>
 </Steps>
 
-## Performance tips
+## Mẹo cải thiện hiệu suất
 
-**Use a USB SSD** -- SD cards are slow and wear out. A USB SSD dramatically improves performance. See the [Pi USB boot guide](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#usb-mass-storage-boot).
+**Sử dụng USB SSD** — Thẻ SD chậm và dễ hỏng. USB SSD cải thiện hiệu suất đáng kể. Xem [hướng dẫn boot USB cho Pi](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#usb-mass-storage-boot).
 
-**Enable module compile cache** -- Speeds up repeated CLI invocations on lower-power Pi hosts:
+**Kích hoạt bộ nhớ đệm biên dịch module** — Tăng tốc độ gọi CLI lặp lại trên Pi công suất thấp:
 
 ```bash
 grep -q 'NODE_COMPILE_CACHE=/var/tmp/openclaw-compile-cache' ~/.bashrc || cat >> ~/.bashrc <<'EOF' # pragma: allowlist secret
@@ -133,27 +133,27 @@ EOF
 source ~/.bashrc
 ```
 
-**Reduce memory usage** -- For headless setups, free GPU memory and disable unused services:
+**Giảm sử dụng bộ nhớ** — Đối với thiết lập không màn hình, giải phóng bộ nhớ GPU và vô hiệu hóa các dịch vụ không dùng:
 
 ```bash
 echo 'gpu_mem=16' | sudo tee -a /boot/config.txt
 sudo systemctl disable bluetooth
 ```
 
-## Troubleshooting
+## Khắc phục sự cố
 
-**Out of memory** -- Verify swap is active with `free -h`. Disable unused services (`sudo systemctl disable cups bluetooth avahi-daemon`). Use API-based models only.
+**Thiếu bộ nhớ** — Kiểm tra swap có hoạt động không với `free -h`. Vô hiệu hóa các dịch vụ không dùng (`sudo systemctl disable cups bluetooth avahi-daemon`). Chỉ sử dụng các mô hình dựa trên API.
 
-**Slow performance** -- Use a USB SSD instead of an SD card. Check for CPU throttling with `vcgencmd get_throttled` (should return `0x0`).
+**Hiệu suất chậm** — Sử dụng USB SSD thay vì thẻ SD. Kiểm tra CPU có bị giới hạn không với `vcgencmd get_throttled` (nên trả về `0x0`).
 
-**Service will not start** -- Check logs with `journalctl -u openclaw --no-pager -n 100` and run `openclaw doctor --non-interactive`.
+**Dịch vụ không khởi động** — Kiểm tra log với `journalctl -u openclaw --no-pager -n 100` và chạy `openclaw doctor --non-interactive`.
 
-**ARM binary issues** -- If a skill fails with "exec format error", check whether the binary has an ARM64 build. Verify architecture with `uname -m` (should show `aarch64`).
+**Vấn đề với binary ARM** — Nếu một skill gặp lỗi "exec format error", kiểm tra xem binary có bản build ARM64 không. Xác minh kiến trúc với `uname -m` (nên hiển thị `aarch64`).
 
-**WiFi drops** -- Disable WiFi power management: `sudo iwconfig wlan0 power off`.
+**WiFi bị ngắt kết nối** — Vô hiệu hóa quản lý năng lượng WiFi: `sudo iwconfig wlan0 power off`.
 
-## Next steps
+## Bước tiếp theo
 
-- [Channels](/channels) -- connect Telegram, WhatsApp, Discord, and more
-- [Gateway configuration](/gateway/configuration) -- all config options
-- [Updating](/install/updating) -- keep OpenClaw up to date
+- [Channels](/channels) — kết nối Telegram, WhatsApp, Discord và nhiều hơn nữa
+- [Cấu hình Gateway](/gateway/configuration) — tất cả tùy chọn cấu hình
+- [Cập nhật](/install/updating) — giữ OpenClaw luôn cập nhật

@@ -1,34 +1,34 @@
 ---
-summary: "Zalo personal account support via native zca-js (QR login), capabilities, and configuration"
+summary: "Hỗ trợ tài khoản cá nhân Zalo qua zca-js (đăng nhập QR), khả năng và cấu hình"
 read_when:
-  - Setting up Zalo Personal for OpenClaw
-  - Debugging Zalo Personal login or message flow
+  - Cài đặt Zalo Personal cho OpenClaw
+  - Khắc phục sự cố đăng nhập hoặc luồng tin nhắn Zalo Personal
 title: "Zalo Personal"
 ---
 
-# Zalo Personal (unofficial)
+# Zalo Personal (không chính thức)
 
-Status: experimental. This integration automates a **personal Zalo account** via native `zca-js` inside OpenClaw.
+Trạng thái: thử nghiệm. Tích hợp này tự động hóa **tài khoản cá nhân Zalo** qua `zca-js` trong OpenClaw.
 
-> **Warning:** This is an unofficial integration and may result in account suspension/ban. Use at your own risk.
+> **Cảnh báo:** Đây là tích hợp không chính thức và có thể dẫn đến việc tài khoản bị khóa. Sử dụng tự chịu rủi ro.
 
-## Plugin required
+## Yêu cầu Plugin
 
-Zalo Personal ships as a plugin and is not bundled with the core install.
+Zalo Personal được cung cấp dưới dạng plugin và không đi kèm với cài đặt gốc.
 
-- Install via CLI: `openclaw plugins install @openclaw/zalouser`
-- Or from a source checkout: `openclaw plugins install ./extensions/zalouser`
-- Details: [Plugins](/tools/plugin)
+- Cài đặt qua CLI: `openclaw plugins install @openclaw/zalouser`
+- Hoặc từ source checkout: `openclaw plugins install ./extensions/zalouser`
+- Chi tiết: [Plugins](/tools/plugin)
 
-No external `zca`/`openzca` CLI binary is required.
+Không cần CLI binary `zca`/`openzca` bên ngoài.
 
-## Quick setup (beginner)
+## Cài đặt nhanh (cho người mới)
 
-1. Install the plugin (see above).
-2. Login (QR, on the Gateway machine):
+1. Cài đặt plugin (xem trên).
+2. Đăng nhập (QR, trên máy Gateway):
    - `openclaw channels login --channel zalouser`
-   - Scan the QR code with the Zalo mobile app.
-3. Enable the channel:
+   - Quét mã QR bằng ứng dụng Zalo trên điện thoại.
+3. Kích hoạt kênh:
 
 ```json5
 {
@@ -41,23 +41,23 @@ No external `zca`/`openzca` CLI binary is required.
 }
 ```
 
-4. Restart the Gateway (or finish setup).
-5. DM access defaults to pairing; approve the pairing code on first contact.
+4. Khởi động lại Gateway (hoặc hoàn tất cài đặt).
+5. Truy cập DM mặc định là pairing; phê duyệt mã pairing khi liên hệ lần đầu.
 
-## What it is
+## Đặc điểm
 
-- Runs entirely in-process via `zca-js`.
-- Uses native event listeners to receive inbound messages.
-- Sends replies directly through the JS API (text/media/link).
-- Designed for “personal account” use cases where Zalo Bot API is not available.
+- Chạy hoàn toàn trong tiến trình qua `zca-js`.
+- Sử dụng listener sự kiện gốc để nhận tin nhắn đến.
+- Gửi phản hồi trực tiếp qua JS API (văn bản/đa phương tiện/liên kết).
+- Thiết kế cho các trường hợp sử dụng "tài khoản cá nhân" khi Zalo Bot API không khả dụng.
 
-## Naming
+## Đặt tên
 
-Channel id is `zalouser` to make it explicit this automates a **personal Zalo user account** (unofficial). We keep `zalo` reserved for a potential future official Zalo API integration.
+ID kênh là `zalouser` để làm rõ rằng đây là tự động hóa **tài khoản người dùng cá nhân Zalo** (không chính thức). Chúng tôi giữ `zalo` cho khả năng tích hợp API Zalo chính thức trong tương lai.
 
-## Finding IDs (directory)
+## Tìm ID (thư mục)
 
-Use the directory CLI to discover peers/groups and their IDs:
+Sử dụng CLI thư mục để tìm kiếm đồng nghiệp/nhóm và ID của họ:
 
 ```bash
 openclaw directory self --channel zalouser
@@ -65,38 +65,38 @@ openclaw directory peers list --channel zalouser --query "name"
 openclaw directory groups list --channel zalouser --query "work"
 ```
 
-## Limits
+## Giới hạn
 
-- Outbound text is chunked to ~2000 characters (Zalo client limits).
-- Streaming is blocked by default.
+- Văn bản gửi đi được chia thành ~2000 ký tự (giới hạn của Zalo client).
+- Streaming bị chặn theo mặc định.
 
-## Access control (DMs)
+## Kiểm soát truy cập (DMs)
 
-`channels.zalouser.dmPolicy` supports: `pairing | allowlist | open | disabled` (default: `pairing`).
+`channels.zalouser.dmPolicy` hỗ trợ: `pairing | allowlist | open | disabled` (mặc định: `pairing`).
 
-`channels.zalouser.allowFrom` accepts user IDs or names. During setup, names are resolved to IDs using the plugin's in-process contact lookup.
+`channels.zalouser.allowFrom` chấp nhận ID người dùng hoặc tên. Trong quá trình cài đặt, tên được chuyển thành ID bằng cách tra cứu liên hệ trong plugin.
 
-Approve via:
+Phê duyệt qua:
 
 - `openclaw pairing list zalouser`
 - `openclaw pairing approve zalouser <code>`
 
-## Group access (optional)
+## Truy cập nhóm (tùy chọn)
 
-- Default: `channels.zalouser.groupPolicy = "open"` (groups allowed). Use `channels.defaults.groupPolicy` to override the default when unset.
-- Restrict to an allowlist with:
+- Mặc định: `channels.zalouser.groupPolicy = "open"` (cho phép nhóm). Sử dụng `channels.defaults.groupPolicy` để ghi đè mặc định khi không được đặt.
+- Hạn chế vào danh sách cho phép với:
   - `channels.zalouser.groupPolicy = "allowlist"`
-  - `channels.zalouser.groups` (keys should be stable group IDs; names are resolved to IDs on startup when possible)
-  - `channels.zalouser.groupAllowFrom` (controls which senders in allowed groups can trigger the bot)
-- Block all groups: `channels.zalouser.groupPolicy = "disabled"`.
-- The configure wizard can prompt for group allowlists.
-- On startup, OpenClaw resolves group/user names in allowlists to IDs and logs the mapping.
-- Group allowlist matching is ID-only by default. Unresolved names are ignored for auth unless `channels.zalouser.dangerouslyAllowNameMatching: true` is enabled.
-- `channels.zalouser.dangerouslyAllowNameMatching: true` is a break-glass compatibility mode that re-enables mutable group-name matching.
-- If `groupAllowFrom` is unset, runtime falls back to `allowFrom` for group sender checks.
-- Sender checks apply to both normal group messages and control commands (for example `/new`, `/reset`).
+  - `channels.zalouser.groups` (khóa nên là ID nhóm ổn định; tên được chuyển thành ID khi khởi động nếu có thể)
+  - `channels.zalouser.groupAllowFrom` (kiểm soát người gửi nào trong các nhóm được phép có thể kích hoạt bot)
+- Chặn tất cả các nhóm: `channels.zalouser.groupPolicy = "disabled"`.
+- Trình hướng dẫn cấu hình có thể nhắc nhở về danh sách cho phép nhóm.
+- Khi khởi động, OpenClaw chuyển đổi tên nhóm/người dùng trong danh sách cho phép thành ID và ghi lại ánh xạ.
+- Khớp danh sách cho phép nhóm mặc định chỉ dựa trên ID. Tên không được giải quyết sẽ bị bỏ qua cho xác thực trừ khi `channels.zalouser.dangerouslyAllowNameMatching: true` được bật.
+- `channels.zalouser.dangerouslyAllowNameMatching: true` là chế độ tương thích khẩn cấp cho phép khớp tên nhóm có thể thay đổi.
+- Nếu `groupAllowFrom` không được đặt, runtime sẽ sử dụng `allowFrom` cho kiểm tra người gửi nhóm.
+- Kiểm tra người gửi áp dụng cho cả tin nhắn nhóm thông thường và lệnh điều khiển (ví dụ `/new`, `/reset`).
 
-Example:
+Ví dụ:
 
 ```json5
 {
@@ -113,16 +113,16 @@ Example:
 }
 ```
 
-### Group mention gating
+### Kiểm soát nhắc đến nhóm
 
-- `channels.zalouser.groups.<group>.requireMention` controls whether group replies require a mention.
-- Resolution order: exact group id/name -> normalized group slug -> `*` -> default (`true`).
-- This applies both to allowlisted groups and open group mode.
-- Authorized control commands (for example `/new`) can bypass mention gating.
-- When a group message is skipped because mention is required, OpenClaw stores it as pending group history and includes it on the next processed group message.
-- Group history limit defaults to `messages.groupChat.historyLimit` (fallback `50`). You can override per account with `channels.zalouser.historyLimit`.
+- `channels.zalouser.groups.<group>.requireMention` kiểm soát xem phản hồi nhóm có yêu cầu nhắc đến hay không.
+- Thứ tự giải quyết: ID/tên nhóm chính xác -> slug nhóm chuẩn hóa -> `*` -> mặc định (`true`).
+- Điều này áp dụng cho cả nhóm trong danh sách cho phép và chế độ nhóm mở.
+- Lệnh điều khiển được ủy quyền (ví dụ `/new`) có thể bỏ qua kiểm soát nhắc đến.
+- Khi một tin nhắn nhóm bị bỏ qua vì yêu cầu nhắc đến, OpenClaw lưu trữ nó như lịch sử nhóm chờ xử lý và bao gồm nó trong tin nhắn nhóm được xử lý tiếp theo.
+- Giới hạn lịch sử nhóm mặc định là `messages.groupChat.historyLimit` (dự phòng `50`). Bạn có thể ghi đè theo tài khoản với `channels.zalouser.historyLimit`.
 
-Example:
+Ví dụ:
 
 ```json5
 {
@@ -138,9 +138,9 @@ Example:
 }
 ```
 
-## Multi-account
+## Nhiều tài khoản
 
-Accounts map to `zalouser` profiles in OpenClaw state. Example:
+Tài khoản được ánh xạ tới hồ sơ `zalouser` trong trạng thái OpenClaw. Ví dụ:
 
 ```json5
 {
@@ -156,26 +156,26 @@ Accounts map to `zalouser` profiles in OpenClaw state. Example:
 }
 ```
 
-## Typing, reactions, and delivery acknowledgements
+## Gõ, phản ứng và xác nhận giao hàng
 
-- OpenClaw sends a typing event before dispatching a reply (best-effort).
-- Message reaction action `react` is supported for `zalouser` in channel actions.
-  - Use `remove: true` to remove a specific reaction emoji from a message.
-  - Reaction semantics: [Reactions](/tools/reactions)
-- For inbound messages that include event metadata, OpenClaw sends delivered + seen acknowledgements (best-effort).
+- OpenClaw gửi sự kiện gõ trước khi gửi phản hồi (cố gắng tốt nhất).
+- Hành động phản ứng tin nhắn `react` được hỗ trợ cho `zalouser` trong các hành động kênh.
+  - Sử dụng `remove: true` để xóa một emoji phản ứng cụ thể khỏi tin nhắn.
+  - Ngữ nghĩa phản ứng: [Reactions](/tools/reactions)
+- Đối với tin nhắn đến có chứa siêu dữ liệu sự kiện, OpenClaw gửi xác nhận đã giao + đã xem (cố gắng tốt nhất).
 
-## Troubleshooting
+## Khắc phục sự cố
 
-**Login doesn't stick:**
+**Đăng nhập không giữ được:**
 
 - `openclaw channels status --probe`
-- Re-login: `openclaw channels logout --channel zalouser && openclaw channels login --channel zalouser`
+- Đăng nhập lại: `openclaw channels logout --channel zalouser && openclaw channels login --channel zalouser`
 
-**Allowlist/group name didn't resolve:**
+**Danh sách cho phép/tên nhóm không được giải quyết:**
 
-- Use numeric IDs in `allowFrom`/`groupAllowFrom`/`groups`, or exact friend/group names.
+- Sử dụng ID số trong `allowFrom`/`groupAllowFrom`/`groups`, hoặc tên bạn bè/nhóm chính xác.
 
-**Upgraded from old CLI-based setup:**
+**Nâng cấp từ cài đặt CLI cũ:**
 
-- Remove any old external `zca` process assumptions.
-- The channel now runs fully in OpenClaw without external CLI binaries.
+- Loại bỏ bất kỳ giả định nào về quy trình `zca` bên ngoài cũ.
+- Kênh hiện chạy hoàn toàn trong OpenClaw mà không cần CLI binary bên ngoài.

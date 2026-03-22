@@ -1,100 +1,96 @@
 ---
-summary: "Run agent turns from the CLI and optionally deliver replies to channels"
+summary: "Chạy agent từ CLI và tùy chọn gửi phản hồi đến các kênh"
 read_when:
-  - You want to trigger agent runs from scripts or the command line
-  - You need to deliver agent replies to a chat channel programmatically
-title: "Agent Send"
+  - Bạn muốn kích hoạt agent từ script hoặc dòng lệnh
+  - Bạn cần gửi phản hồi của agent đến một kênh chat một cách tự động
+title: "Gửi Agent"
 ---
 
-# Agent Send
+# Gửi Agent
 
-`openclaw agent` runs a single agent turn from the command line without needing
-an inbound chat message. Use it for scripted workflows, testing, and
-programmatic delivery.
+`openclaw agent` cho phép chạy một lượt agent từ dòng lệnh mà không cần tin nhắn chat đầu vào. Sử dụng cho các quy trình tự động, kiểm thử và gửi thông điệp tự động.
 
-## Quick start
+## Bắt đầu nhanh
 
 <Steps>
-  <Step title="Run a simple agent turn">
+  <Step title="Chạy một lượt agent đơn giản">
     ```bash
-    openclaw agent --message "What is the weather today?"
+    openclaw agent --message "Thời tiết hôm nay thế nào?"
     ```
 
-    This sends the message through the Gateway and prints the reply.
+    Lệnh này gửi tin nhắn qua Gateway và in ra phản hồi.
 
   </Step>
 
-  <Step title="Target a specific agent or session">
+  <Step title="Nhắm đến một agent hoặc phiên cụ thể">
     ```bash
-    # Target a specific agent
-    openclaw agent --agent ops --message "Summarize logs"
+    # Nhắm đến một agent cụ thể
+    openclaw agent --agent ops --message "Tóm tắt nhật ký"
 
-    # Target a phone number (derives session key)
-    openclaw agent --to +15555550123 --message "Status update"
+    # Nhắm đến một số điện thoại (tạo khóa phiên)
+    openclaw agent --to +15555550123 --message "Cập nhật trạng thái"
 
-    # Reuse an existing session
-    openclaw agent --session-id abc123 --message "Continue the task"
+    # Sử dụng lại một phiên đã có
+    openclaw agent --session-id abc123 --message "Tiếp tục công việc"
     ```
 
   </Step>
 
-  <Step title="Deliver the reply to a channel">
+  <Step title="Gửi phản hồi đến một kênh">
     ```bash
-    # Deliver to WhatsApp (default channel)
-    openclaw agent --to +15555550123 --message "Report ready" --deliver
+    # Gửi đến WhatsApp (kênh mặc định)
+    openclaw agent --to +15555550123 --message "Báo cáo đã sẵn sàng" --deliver
 
-    # Deliver to Slack
-    openclaw agent --agent ops --message "Generate report" \
+    # Gửi đến Slack
+    openclaw agent --agent ops --message "Tạo báo cáo" \
       --deliver --reply-channel slack --reply-to "#reports"
     ```
 
   </Step>
 </Steps>
 
-## Flags
+## Các tùy chọn
 
-| Flag                          | Description                                                 |
-| ----------------------------- | ----------------------------------------------------------- |
-| `--message \<text\>`          | Message to send (required)                                  |
-| `--to \<dest\>`               | Derive session key from a target (phone, chat id)           |
-| `--agent \<id\>`              | Target a configured agent (uses its `main` session)         |
-| `--session-id \<id\>`         | Reuse an existing session by id                             |
-| `--local`                     | Force local embedded runtime (skip Gateway)                 |
-| `--deliver`                   | Send the reply to a chat channel                            |
-| `--channel \<name\>`          | Delivery channel (whatsapp, telegram, discord, slack, etc.) |
-| `--reply-to \<target\>`       | Delivery target override                                    |
-| `--reply-channel \<name\>`    | Delivery channel override                                   |
-| `--reply-account \<id\>`      | Delivery account id override                                |
-| `--thinking \<level\>`        | Set thinking level (off, minimal, low, medium, high, xhigh) |
-| `--verbose \<on\|full\|off\>` | Set verbose level                                           |
-| `--timeout \<seconds\>`       | Override agent timeout                                      |
-| `--json`                      | Output structured JSON                                      |
+| Tùy chọn                      | Mô tả                                                        |
+| ----------------------------- | ------------------------------------------------------------ |
+| `--message \<text\>`          | Tin nhắn cần gửi (bắt buộc)                                  |
+| `--to \<dest\>`               | Tạo khóa phiên từ một mục tiêu (số điện thoại, id chat)      |
+| `--agent \<id\>`              | Nhắm đến một agent đã cấu hình (sử dụng phiên `main` của nó) |
+| `--session-id \<id\>`         | Sử dụng lại một phiên đã có bằng id                          |
+| `--local`                     | Buộc chạy cục bộ (bỏ qua Gateway)                            |
+| `--deliver`                   | Gửi phản hồi đến một kênh chat                               |
+| `--channel \<name\>`          | Kênh gửi (whatsapp, telegram, discord, slack, v.v.)          |
+| `--reply-to \<target\>`       | Ghi đè mục tiêu gửi                                          |
+| `--reply-channel \<name\>`    | Ghi đè kênh gửi                                              |
+| `--reply-account \<id\>`      | Ghi đè id tài khoản gửi                                      |
+| `--thinking \<level\>`        | Đặt mức độ suy nghĩ (off, minimal, low, medium, high, xhigh) |
+| `--verbose \<on\|full\|off\>` | Đặt mức độ chi tiết                                          |
+| `--timeout \<seconds\>`       | Ghi đè thời gian chờ của agent                               |
+| `--json`                      | Xuất ra JSON có cấu trúc                                     |
 
-## Behavior
+## Hành vi
 
-- By default, the CLI goes **through the Gateway**. Add `--local` to force the
-  embedded runtime on the current machine.
-- If the Gateway is unreachable, the CLI **falls back** to the local embedded run.
-- Session selection: `--to` derives the session key (group/channel targets
-  preserve isolation; direct chats collapse to `main`).
-- Thinking and verbose flags persist into the session store.
-- Output: plain text by default, or `--json` for structured payload + metadata.
+- Mặc định, CLI sẽ **qua Gateway**. Thêm `--local` để buộc chạy cục bộ trên máy hiện tại.
+- Nếu Gateway không thể truy cập, CLI sẽ **chuyển sang** chạy cục bộ.
+- Lựa chọn phiên: `--to` tạo khóa phiên (mục tiêu nhóm/kênh giữ nguyên cách ly; chat trực tiếp gộp vào `main`).
+- Các tùy chọn suy nghĩ và chi tiết sẽ được lưu vào kho phiên.
+- Đầu ra: văn bản đơn giản mặc định, hoặc `--json` cho dữ liệu có cấu trúc và metadata.
 
-## Examples
+## Ví dụ
 
 ```bash
-# Simple turn with JSON output
-openclaw agent --to +15555550123 --message "Trace logs" --verbose on --json
+# Lượt đơn giản với đầu ra JSON
+openclaw agent --to +15555550123 --message "Theo dõi nhật ký" --verbose on --json
 
-# Turn with thinking level
-openclaw agent --session-id 1234 --message "Summarize inbox" --thinking medium
+# Lượt với mức độ suy nghĩ
+openclaw agent --session-id 1234 --message "Tóm tắt hộp thư" --thinking medium
 
-# Deliver to a different channel than the session
-openclaw agent --agent ops --message "Alert" --deliver --reply-channel telegram --reply-to "@admin"
+# Gửi đến kênh khác với phiên
+openclaw agent --agent ops --message "Cảnh báo" --deliver --reply-channel telegram --reply-to "@admin"
 ```
 
-## Related
+## Liên quan
 
-- [Agent CLI reference](/cli/agent)
-- [Sub-agents](/tools/subagents) — background sub-agent spawning
-- [Sessions](/concepts/session) — how session keys work
+- [Tham khảo CLI Agent](/cli/agent)
+- [Sub-agents](/tools/subagents) — khởi tạo sub-agent nền
+- [Phiên](/concepts/session) — cách hoạt động của khóa phiên

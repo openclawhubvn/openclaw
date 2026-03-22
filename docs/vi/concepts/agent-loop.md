@@ -1,148 +1,142 @@
 ---
-summary: "Agent loop lifecycle, streams, and wait semantics"
+summary: "Vòng đời của agent loop, luồng dữ liệu và cách chờ đợi"
 read_when:
-  - You need an exact walkthrough of the agent loop or lifecycle events
-title: "Agent Loop"
+  - Cần hướng dẫn chi tiết về vòng lặp agent hoặc các sự kiện vòng đời
+title: "Vòng Lặp Agent"
 ---
 
-# Agent Loop (OpenClaw)
+# Vòng Lặp Agent (OpenClaw)
 
-An agentic loop is the full “real” run of an agent: intake → context assembly → model inference →
-tool execution → streaming replies → persistence. It’s the authoritative path that turns a message
-into actions and a final reply, while keeping session state consistent.
+Vòng lặp agent là quá trình chạy đầy đủ của một agent: tiếp nhận → lắp ráp ngữ cảnh → suy luận mô hình → thực thi công cụ → phát luồng phản hồi → lưu trữ. Đây là quy trình chính thức biến một thông điệp thành hành động và phản hồi cuối cùng, đồng thời duy trì trạng thái phiên nhất quán.
 
-In OpenClaw, a loop is a single, serialized run per session that emits lifecycle and stream events
-as the model thinks, calls tools, and streams output. This doc explains how that authentic loop is
-wired end-to-end.
+Trong OpenClaw, một vòng lặp là một lần chạy đơn lẻ, được tuần tự hóa cho mỗi phiên, phát ra các sự kiện vòng đời và luồng khi mô hình suy nghĩ, gọi công cụ và phát luồng đầu ra. Tài liệu này giải thích cách vòng lặp thực sự này được kết nối từ đầu đến cuối.
 
-## Entry points
+## Điểm bắt đầu
 
-- Gateway RPC: `agent` and `agent.wait`.
-- CLI: `agent` command.
+- Gateway RPC: `agent` và `agent.wait`.
+- CLI: lệnh `agent`.
 
-## How it works (high-level)
+## Cách hoạt động (tổng quan)
 
-1. `agent` RPC validates params, resolves session (sessionKey/sessionId), persists session metadata, returns `{ runId, acceptedAt }` immediately.
-2. `agentCommand` runs the agent:
-   - resolves model + thinking/verbose defaults
-   - loads skills snapshot
-   - calls `runEmbeddedPiAgent` (pi-agent-core runtime)
-   - emits **lifecycle end/error** if the embedded loop does not emit one
+1. RPC `agent` xác thực tham số, giải quyết phiên (sessionKey/sessionId), lưu trữ metadata phiên, trả về `{ runId, acceptedAt }` ngay lập tức.
+2. `agentCommand` chạy agent:
+   - giải quyết mô hình + mặc định suy nghĩ/chi tiết
+   - tải snapshot kỹ năng
+   - gọi `runEmbeddedPiAgent` (runtime pi-agent-core)
+   - phát ra **vòng đời kết thúc/lỗi** nếu vòng lặp nhúng không phát ra
 3. `runEmbeddedPiAgent`:
-   - serializes runs via per-session + global queues
-   - resolves model + auth profile and builds the pi session
-   - subscribes to pi events and streams assistant/tool deltas
-   - enforces timeout -> aborts run if exceeded
-   - returns payloads + usage metadata
-4. `subscribeEmbeddedPiSession` bridges pi-agent-core events to OpenClaw `agent` stream:
-   - tool events => `stream: "tool"`
-   - assistant deltas => `stream: "assistant"`
-   - lifecycle events => `stream: "lifecycle"` (`phase: "start" | "end" | "error"`)
-5. `agent.wait` uses `waitForAgentJob`:
-   - waits for **lifecycle end/error** for `runId`
-   - returns `{ status: ok|error|timeout, startedAt, endedAt, error? }`
+   - tuần tự hóa các lần chạy qua hàng đợi phiên + toàn cầu
+   - giải quyết mô hình + hồ sơ xác thực và xây dựng phiên pi
+   - đăng ký sự kiện pi và phát luồng delta trợ lý/công cụ
+   - thực thi timeout -> hủy chạy nếu vượt quá
+   - trả về payloads + metadata sử dụng
+4. `subscribeEmbeddedPiSession` kết nối sự kiện pi-agent-core với luồng `agent` của OpenClaw:
+   - sự kiện công cụ => `stream: "tool"`
+   - delta trợ lý => `stream: "assistant"`
+   - sự kiện vòng đời => `stream: "lifecycle"` (`phase: "start" | "end" | "error"`)
+5. `agent.wait` sử dụng `waitForAgentJob`:
+   - chờ **vòng đời kết thúc/lỗi** cho `runId`
+   - trả về `{ status: ok|error|timeout, startedAt, endedAt, error? }`
 
-## Queueing + concurrency
+## Hàng đợi + đồng thời
 
-- Runs are serialized per session key (session lane) and optionally through a global lane.
-- This prevents tool/session races and keeps session history consistent.
-- Messaging channels can choose queue modes (collect/steer/followup) that feed this lane system.
-  See [Command Queue](/concepts/queue).
+- Các lần chạy được tuần tự hóa theo khóa phiên (làn phiên) và tùy chọn qua làn toàn cầu.
+- Điều này ngăn chặn các cuộc đua công cụ/phiên và giữ lịch sử phiên nhất quán.
+- Các kênh nhắn tin có thể chọn chế độ hàng đợi (thu thập/điều hướng/theo dõi) để đưa vào hệ thống làn này.
+  Xem [Hàng đợi Lệnh](/concepts/queue).
 
-## Session + workspace preparation
+## Chuẩn bị phiên + không gian làm việc
 
-- Workspace is resolved and created; sandboxed runs may redirect to a sandbox workspace root.
-- Skills are loaded (or reused from a snapshot) and injected into env and prompt.
-- Bootstrap/context files are resolved and injected into the system prompt report.
-- A session write lock is acquired; `SessionManager` is opened and prepared before streaming.
+- Không gian làm việc được giải quyết và tạo; các lần chạy sandbox có thể chuyển hướng đến gốc không gian làm việc sandbox.
+- Kỹ năng được tải (hoặc tái sử dụng từ snapshot) và tiêm vào môi trường và prompt.
+- Các tệp bootstrap/ngữ cảnh được giải quyết và tiêm vào báo cáo prompt hệ thống.
+- Khóa ghi phiên được lấy; `SessionManager` được mở và chuẩn bị trước khi phát luồng.
 
-## Prompt assembly + system prompt
+## Lắp ráp prompt + prompt hệ thống
 
-- System prompt is built from OpenClaw’s base prompt, skills prompt, bootstrap context, and per-run overrides.
-- Model-specific limits and compaction reserve tokens are enforced.
-- See [System prompt](/concepts/system-prompt) for what the model sees.
+- Prompt hệ thống được xây dựng từ prompt cơ bản của OpenClaw, prompt kỹ năng, ngữ cảnh bootstrap và ghi đè từng lần chạy.
+- Giới hạn mô hình cụ thể và dự trữ token nén được thực thi.
+- Xem [Prompt hệ thống](/concepts/system-prompt) để biết mô hình thấy gì.
 
-## Hook points (where you can intercept)
+## Điểm móc (nơi bạn có thể can thiệp)
 
-OpenClaw has two hook systems:
+OpenClaw có hai hệ thống móc:
 
-- **Internal hooks** (Gateway hooks): event-driven scripts for commands and lifecycle events.
-- **Plugin hooks**: extension points inside the agent/tool lifecycle and gateway pipeline.
+- **Móc nội bộ** (Gateway hooks): kịch bản dựa trên sự kiện cho các lệnh và sự kiện vòng đời.
+- **Móc plugin**: điểm mở rộng bên trong vòng đời agent/công cụ và pipeline gateway.
 
-### Internal hooks (Gateway hooks)
+### Móc nội bộ (Gateway hooks)
 
-- **`agent:bootstrap`**: runs while building bootstrap files before the system prompt is finalized.
-  Use this to add/remove bootstrap context files.
-- **Command hooks**: `/new`, `/reset`, `/stop`, and other command events (see Hooks doc).
+- **`agent:bootstrap`**: chạy khi xây dựng các tệp bootstrap trước khi prompt hệ thống được hoàn thiện. Sử dụng để thêm/xóa tệp ngữ cảnh bootstrap.
+- Móc lệnh: `/new`, `/reset`, `/stop`, và các sự kiện lệnh khác (xem tài liệu Hooks).
 
-See [Hooks](/automation/hooks) for setup and examples.
+Xem [Hooks](/automation/hooks) để biết cách thiết lập và ví dụ.
 
-### Plugin hooks (agent + gateway lifecycle)
+### Móc plugin (vòng đời agent + gateway)
 
-These run inside the agent loop or gateway pipeline:
+Chạy bên trong vòng lặp agent hoặc pipeline gateway:
 
-- **`before_model_resolve`**: runs pre-session (no `messages`) to deterministically override provider/model before model resolution.
-- **`before_prompt_build`**: runs after session load (with `messages`) to inject `prependContext`, `systemPrompt`, `prependSystemContext`, or `appendSystemContext` before prompt submission. Use `prependContext` for per-turn dynamic text and system-context fields for stable guidance that should sit in system prompt space.
-- **`before_agent_start`**: legacy compatibility hook that may run in either phase; prefer the explicit hooks above.
-- **`agent_end`**: inspect the final message list and run metadata after completion.
-- **`before_compaction` / `after_compaction`**: observe or annotate compaction cycles.
-- **`before_tool_call` / `after_tool_call`**: intercept tool params/results.
-- **`tool_result_persist`**: synchronously transform tool results before they are written to the session transcript.
-- **`message_received` / `message_sending` / `message_sent`**: inbound + outbound message hooks.
-- **`session_start` / `session_end`**: session lifecycle boundaries.
-- **`gateway_start` / `gateway_stop`**: gateway lifecycle events.
+- **`before_model_resolve`**: chạy trước phiên (không có `messages`) để ghi đè nhà cung cấp/mô hình trước khi giải quyết mô hình.
+- **`before_prompt_build`**: chạy sau khi tải phiên (với `messages`) để tiêm `prependContext`, `systemPrompt`, `prependSystemContext`, hoặc `appendSystemContext` trước khi gửi prompt. Sử dụng `prependContext` cho văn bản động từng lượt và các trường ngữ cảnh hệ thống cho hướng dẫn ổn định nên nằm trong không gian prompt hệ thống.
+- **`before_agent_start`**: móc tương thích kế thừa có thể chạy trong bất kỳ giai đoạn nào; ưu tiên các móc rõ ràng ở trên.
+- **`agent_end`**: kiểm tra danh sách thông điệp cuối cùng và metadata chạy sau khi hoàn thành.
+- **`before_compaction` / `after_compaction`**: quan sát hoặc chú thích các chu kỳ nén.
+- **`before_tool_call` / `after_tool_call`**: can thiệp tham số/kết quả công cụ.
+- **`tool_result_persist`**: chuyển đổi đồng bộ kết quả công cụ trước khi chúng được ghi vào bản ghi phiên.
+- **`message_received` / `message_sending` / `message_sent`**: móc thông điệp vào + ra.
+- **`session_start` / `session_end`**: ranh giới vòng đời phiên.
+- **`gateway_start` / `gateway_stop`**: sự kiện vòng đời gateway.
 
-See [Plugin hooks](/plugins/architecture#provider-runtime-hooks) for the hook API and registration details.
+Xem [Móc plugin](/plugins/architecture#provider-runtime-hooks) để biết API móc và chi tiết đăng ký.
 
-## Streaming + partial replies
+## Phát luồng + phản hồi từng phần
 
-- Assistant deltas are streamed from pi-agent-core and emitted as `assistant` events.
-- Block streaming can emit partial replies either on `text_end` or `message_end`.
-- Reasoning streaming can be emitted as a separate stream or as block replies.
-- See [Streaming](/concepts/streaming) for chunking and block reply behavior.
+- Delta trợ lý được phát từ pi-agent-core và phát ra dưới dạng sự kiện `assistant`.
+- Phát luồng khối có thể phát ra phản hồi từng phần trên `text_end` hoặc `message_end`.
+- Phát luồng lý luận có thể được phát ra dưới dạng luồng riêng biệt hoặc dưới dạng phản hồi khối.
+- Xem [Phát luồng](/concepts/streaming) để biết hành vi chia nhỏ và phản hồi khối.
 
-## Tool execution + messaging tools
+## Thực thi công cụ + công cụ nhắn tin
 
-- Tool start/update/end events are emitted on the `tool` stream.
-- Tool results are sanitized for size and image payloads before logging/emitting.
-- Messaging tool sends are tracked to suppress duplicate assistant confirmations.
+- Sự kiện bắt đầu/cập nhật/kết thúc công cụ được phát ra trên luồng `tool`.
+- Kết quả công cụ được làm sạch kích thước và payload hình ảnh trước khi ghi nhật ký/phát ra.
+- Gửi công cụ nhắn tin được theo dõi để ngăn chặn xác nhận trợ lý trùng lặp.
 
-## Reply shaping + suppression
+## Định hình phản hồi + ngăn chặn
 
-- Final payloads are assembled from:
-  - assistant text (and optional reasoning)
-  - inline tool summaries (when verbose + allowed)
-  - assistant error text when the model errors
-- `NO_REPLY` is treated as a silent token and filtered from outgoing payloads.
-- Messaging tool duplicates are removed from the final payload list.
-- If no renderable payloads remain and a tool errored, a fallback tool error reply is emitted
-  (unless a messaging tool already sent a user-visible reply).
+- Payload cuối cùng được lắp ráp từ:
+  - văn bản trợ lý (và lý luận tùy chọn)
+  - tóm tắt công cụ nội tuyến (khi chi tiết + cho phép)
+  - văn bản lỗi trợ lý khi mô hình gặp lỗi
+- `NO_REPLY` được coi là token im lặng và bị lọc khỏi danh sách payload gửi đi.
+- Các bản sao công cụ nhắn tin bị loại bỏ khỏi danh sách payload cuối cùng.
+- Nếu không còn payload có thể hiển thị và một công cụ gặp lỗi, một phản hồi lỗi công cụ dự phòng được phát ra (trừ khi một công cụ nhắn tin đã gửi phản hồi có thể thấy cho người dùng).
 
-## Compaction + retries
+## Nén + thử lại
 
-- Auto-compaction emits `compaction` stream events and can trigger a retry.
-- On retry, in-memory buffers and tool summaries are reset to avoid duplicate output.
-- See [Compaction](/concepts/compaction) for the compaction pipeline.
+- Nén tự động phát ra sự kiện luồng `compaction` và có thể kích hoạt thử lại.
+- Khi thử lại, bộ đệm trong bộ nhớ và tóm tắt công cụ được đặt lại để tránh đầu ra trùng lặp.
+- Xem [Nén](/concepts/compaction) để biết pipeline nén.
 
-## Event streams (today)
+## Luồng sự kiện (hiện tại)
 
-- `lifecycle`: emitted by `subscribeEmbeddedPiSession` (and as a fallback by `agentCommand`)
-- `assistant`: streamed deltas from pi-agent-core
-- `tool`: streamed tool events from pi-agent-core
+- `lifecycle`: phát ra bởi `subscribeEmbeddedPiSession` (và như một dự phòng bởi `agentCommand`)
+- `assistant`: delta phát từ pi-agent-core
+- `tool`: sự kiện công cụ phát từ pi-agent-core
 
-## Chat channel handling
+## Xử lý kênh chat
 
-- Assistant deltas are buffered into chat `delta` messages.
-- A chat `final` is emitted on **lifecycle end/error**.
+- Delta trợ lý được đệm thành thông điệp `delta` chat.
+- Một chat `final` được phát ra khi **vòng đời kết thúc/lỗi**.
 
-## Timeouts
+## Thời gian chờ
 
-- `agent.wait` default: 30s (just the wait). `timeoutMs` param overrides.
-- Agent runtime: `agents.defaults.timeoutSeconds` default 600s; enforced in `runEmbeddedPiAgent` abort timer.
+- Mặc định `agent.wait`: 30s (chỉ chờ). Tham số `timeoutMs` ghi đè.
+- Thời gian chạy agent: `agents.defaults.timeoutSeconds` mặc định 600s; thực thi trong bộ hẹn giờ hủy `runEmbeddedPiAgent`.
 
-## Where things can end early
+## Nơi có thể kết thúc sớm
 
-- Agent timeout (abort)
-- AbortSignal (cancel)
-- Gateway disconnect or RPC timeout
-- `agent.wait` timeout (wait-only, does not stop agent)
+- Thời gian chờ agent (hủy)
+- AbortSignal (hủy)
+- Ngắt kết nối Gateway hoặc thời gian chờ RPC
+- Thời gian chờ `agent.wait` (chỉ chờ, không dừng agent)

@@ -1,67 +1,58 @@
 ---
-summary: "Exec tool usage, stdin modes, and TTY support"
+summary: "Sử dụng công cụ exec, các chế độ stdin và hỗ trợ TTY"
 read_when:
-  - Using or modifying the exec tool
-  - Debugging stdin or TTY behavior
-title: "Exec Tool"
+  - Sử dụng hoặc chỉnh sửa công cụ exec
+  - Gỡ lỗi hành vi stdin hoặc TTY
+title: "Công cụ Exec"
 ---
 
-# Exec tool
+# Công cụ Exec
 
-Run shell commands in the workspace. Supports foreground + background execution via `process`.
-If `process` is disallowed, `exec` runs synchronously and ignores `yieldMs`/`background`.
-Background sessions are scoped per agent; `process` only sees sessions from the same agent.
+Chạy các lệnh shell trong workspace. Hỗ trợ thực thi ở chế độ foreground và background thông qua `process`. Nếu `process` bị cấm, `exec` sẽ chạy đồng bộ và bỏ qua `yieldMs`/`background`. Các phiên background được giới hạn theo từng agent; `process` chỉ thấy các phiên từ cùng một agent.
 
-## Parameters
+## Tham số
 
-- `command` (required)
-- `workdir` (defaults to cwd)
-- `env` (key/value overrides)
-- `yieldMs` (default 10000): auto-background after delay
-- `background` (bool): background immediately
-- `timeout` (seconds, default 1800): kill on expiry
-- `pty` (bool): run in a pseudo-terminal when available (TTY-only CLIs, coding agents, terminal UIs)
-- `host` (`sandbox | gateway | node`): where to execute
-- `security` (`deny | allowlist | full`): enforcement mode for `gateway`/`node`
-- `ask` (`off | on-miss | always`): approval prompts for `gateway`/`node`
-- `node` (string): node id/name for `host=node`
-- `elevated` (bool): request elevated mode (gateway host); `security=full` is only forced when elevated resolves to `full`
+- `command` (bắt buộc)
+- `workdir` (mặc định là cwd)
+- `env` (ghi đè key/value)
+- `yieldMs` (mặc định 10000): tự động chuyển sang background sau một khoảng thời gian
+- `background` (bool): chuyển sang background ngay lập tức
+- `timeout` (giây, mặc định 1800): dừng khi hết thời gian
+- `pty` (bool): chạy trong một pseudo-terminal khi có sẵn (chỉ dành cho CLI TTY, coding agents, giao diện terminal)
+- `host` (`sandbox | gateway | node`): nơi thực thi
+- `security` (`deny | allowlist | full`): chế độ thực thi cho `gateway`/`node`
+- `ask` (`off | on-miss | always`): yêu cầu phê duyệt cho `gateway`/`node`
+- `node` (chuỗi): id/tên node cho `host=node`
+- `elevated` (bool): yêu cầu chế độ nâng cao (host gateway); `security=full` chỉ được áp dụng khi chế độ nâng cao được đặt thành `full`
 
-Notes:
+Lưu ý:
 
-- `host` defaults to `sandbox`.
-- `elevated` is ignored when sandboxing is off (exec already runs on the host).
-- `gateway`/`node` approvals are controlled by `~/.openclaw/exec-approvals.json`.
-- `node` requires a paired node (companion app or headless node host).
-- If multiple nodes are available, set `exec.node` or `tools.exec.node` to select one.
-- On non-Windows hosts, exec uses `SHELL` when set; if `SHELL` is `fish`, it prefers `bash` (or `sh`)
-  from `PATH` to avoid fish-incompatible scripts, then falls back to `SHELL` if neither exists.
-- On Windows hosts, exec prefers PowerShell 7 (`pwsh`) discovery (Program Files, ProgramW6432, then PATH),
-  then falls back to Windows PowerShell 5.1.
-- Host execution (`gateway`/`node`) rejects `env.PATH` and loader overrides (`LD_*`/`DYLD_*`) to
-  prevent binary hijacking or injected code.
-- OpenClaw sets `OPENCLAW_SHELL=exec` in the spawned command environment (including PTY and sandbox execution) so shell/profile rules can detect exec-tool context.
-- Important: sandboxing is **off by default**. If sandboxing is off and `host=sandbox` is explicitly
-  configured/requested, exec now fails closed instead of silently running on the gateway host.
-  Enable sandboxing or use `host=gateway` with approvals.
-- Script preflight checks (for common Python/Node shell-syntax mistakes) only inspect files inside the
-  effective `workdir` boundary. If a script path resolves outside `workdir`, preflight is skipped for
-  that file.
+- `host` mặc định là `sandbox`.
+- `elevated` bị bỏ qua khi sandboxing tắt (exec đã chạy trên host).
+- Phê duyệt `gateway`/`node` được kiểm soát bởi `~/.openclaw/exec-approvals.json`.
+- `node` yêu cầu một node ghép đôi (ứng dụng đồng hành hoặc host node không có giao diện).
+- Nếu có nhiều node, đặt `exec.node` hoặc `tools.exec.node` để chọn một.
+- Trên các host không phải Windows, exec sử dụng `SHELL` khi được đặt; nếu `SHELL` là `fish`, nó ưu tiên `bash` (hoặc `sh`) từ `PATH` để tránh các script không tương thích với fish, sau đó quay lại `SHELL` nếu không có.
+- Trên các host Windows, exec ưu tiên phát hiện PowerShell 7 (`pwsh`) (Program Files, ProgramW6432, sau đó PATH), sau đó quay lại Windows PowerShell 5.1.
+- Thực thi trên host (`gateway`/`node`) từ chối `env.PATH` và ghi đè loader (`LD_*`/`DYLD_*`) để ngăn chặn việc chiếm quyền điều khiển binary hoặc mã được chèn vào.
+- OpenClaw đặt `OPENCLAW_SHELL=exec` trong môi trường lệnh được khởi chạy (bao gồm cả PTY và thực thi sandbox) để các quy tắc shell/profile có thể phát hiện ngữ cảnh công cụ exec.
+- Quan trọng: sandboxing **tắt theo mặc định**. Nếu sandboxing tắt và `host=sandbox` được cấu hình/yêu cầu rõ ràng, exec sẽ thất bại thay vì chạy âm thầm trên host gateway. Bật sandboxing hoặc sử dụng `host=gateway` với phê duyệt.
+- Kiểm tra trước script (cho các lỗi cú pháp shell Python/Node phổ biến) chỉ kiểm tra các tệp bên trong ranh giới `workdir` hiệu quả. Nếu một đường dẫn script nằm ngoài `workdir`, kiểm tra trước sẽ bị bỏ qua cho tệp đó.
 
-## Config
+## Cấu hình
 
-- `tools.exec.notifyOnExit` (default: true): when true, backgrounded exec sessions enqueue a system event and request a heartbeat on exit.
-- `tools.exec.approvalRunningNoticeMs` (default: 10000): emit a single “running” notice when an approval-gated exec runs longer than this (0 disables).
-- `tools.exec.host` (default: `sandbox`)
-- `tools.exec.security` (default: `deny` for sandbox, `allowlist` for gateway + node when unset)
-- `tools.exec.ask` (default: `on-miss`)
-- `tools.exec.node` (default: unset)
-- `tools.exec.pathPrepend`: list of directories to prepend to `PATH` for exec runs (gateway + sandbox only).
-- `tools.exec.safeBins`: stdin-only safe binaries that can run without explicit allowlist entries. For behavior details, see [Safe bins](/tools/exec-approvals#safe-bins-stdin-only).
-- `tools.exec.safeBinTrustedDirs`: additional explicit directories trusted for `safeBins` path checks. `PATH` entries are never auto-trusted. Built-in defaults are `/bin` and `/usr/bin`.
-- `tools.exec.safeBinProfiles`: optional custom argv policy per safe bin (`minPositional`, `maxPositional`, `allowedValueFlags`, `deniedFlags`).
+- `tools.exec.notifyOnExit` (mặc định: true): khi true, các phiên exec chuyển sang background sẽ xếp hàng một sự kiện hệ thống và yêu cầu một nhịp tim khi thoát.
+- `tools.exec.approvalRunningNoticeMs` (mặc định: 10000): phát ra một thông báo “đang chạy” khi một exec yêu cầu phê duyệt chạy lâu hơn thời gian này (0 để tắt).
+- `tools.exec.host` (mặc định: `sandbox`)
+- `tools.exec.security` (mặc định: `deny` cho sandbox, `allowlist` cho gateway + node khi không được đặt)
+- `tools.exec.ask` (mặc định: `on-miss`)
+- `tools.exec.node` (mặc định: không đặt)
+- `tools.exec.pathPrepend`: danh sách các thư mục để thêm vào đầu `PATH` cho các lần chạy exec (chỉ dành cho gateway + sandbox).
+- `tools.exec.safeBins`: các binary an toàn chỉ dành cho stdin có thể chạy mà không cần các mục allowlist rõ ràng. Để biết chi tiết hành vi, xem [Safe bins](/tools/exec-approvals#safe-bins-stdin-only).
+- `tools.exec.safeBinTrustedDirs`: các thư mục rõ ràng bổ sung được tin cậy cho các kiểm tra đường dẫn `safeBins`. Các mục `PATH` không bao giờ được tự động tin cậy. Mặc định tích hợp là `/bin` và `/usr/bin`.
+- `tools.exec.safeBinProfiles`: chính sách argv tùy chọn cho từng safe bin (`minPositional`, `maxPositional`, `allowedValueFlags`, `deniedFlags`).
 
-Example:
+Ví dụ:
 
 ```json5
 {
@@ -73,80 +64,61 @@ Example:
 }
 ```
 
-### PATH handling
+### Xử lý PATH
 
-- `host=gateway`: merges your login-shell `PATH` into the exec environment. `env.PATH` overrides are
-  rejected for host execution. The daemon itself still runs with a minimal `PATH`:
+- `host=gateway`: hợp nhất `PATH` của shell đăng nhập vào môi trường exec. Các ghi đè `env.PATH` bị từ chối cho thực thi trên host. Daemon tự chạy với một `PATH` tối thiểu:
   - macOS: `/opt/homebrew/bin`, `/usr/local/bin`, `/usr/bin`, `/bin`
   - Linux: `/usr/local/bin`, `/usr/bin`, `/bin`
-- `host=sandbox`: runs `sh -lc` (login shell) inside the container, so `/etc/profile` may reset `PATH`.
-  OpenClaw prepends `env.PATH` after profile sourcing via an internal env var (no shell interpolation);
-  `tools.exec.pathPrepend` applies here too.
-- `host=node`: only non-blocked env overrides you pass are sent to the node. `env.PATH` overrides are
-  rejected for host execution and ignored by node hosts. If you need additional PATH entries on a node,
-  configure the node host service environment (systemd/launchd) or install tools in standard locations.
+- `host=sandbox`: chạy `sh -lc` (shell đăng nhập) bên trong container, vì vậy `/etc/profile` có thể đặt lại `PATH`. OpenClaw thêm `env.PATH` sau khi nguồn profile thông qua một biến môi trường nội bộ (không có nội suy shell); `tools.exec.pathPrepend` cũng áp dụng ở đây.
+- `host=node`: chỉ các ghi đè env không bị chặn bạn gửi mới được gửi đến node. Các ghi đè `env.PATH` bị từ chối cho thực thi trên host và bị node hosts bỏ qua. Nếu bạn cần thêm các mục PATH trên một node, cấu hình môi trường dịch vụ host node (systemd/launchd) hoặc cài đặt công cụ ở các vị trí tiêu chuẩn.
 
-Per-agent node binding (use the agent list index in config):
+Liên kết node theo agent (sử dụng chỉ mục danh sách agent trong cấu hình):
 
 ```bash
 openclaw config get agents.list
 openclaw config set agents.list[0].tools.exec.node "node-id-or-name"
 ```
 
-Control UI: the Nodes tab includes a small “Exec node binding” panel for the same settings.
+Giao diện điều khiển: tab Nodes bao gồm một bảng điều khiển nhỏ “Liên kết node Exec” cho các cài đặt tương tự.
 
-## Session overrides (`/exec`)
+## Ghi đè phiên (`/exec`)
 
-Use `/exec` to set **per-session** defaults for `host`, `security`, `ask`, and `node`.
-Send `/exec` with no arguments to show the current values.
+Sử dụng `/exec` để đặt các mặc định **theo phiên** cho `host`, `security`, `ask`, và `node`. Gửi `/exec` mà không có tham số để hiển thị các giá trị hiện tại.
 
-Example:
+Ví dụ:
 
 ```
 /exec host=gateway security=allowlist ask=on-miss node=mac-1
 ```
 
-## Authorization model
+## Mô hình ủy quyền
 
-`/exec` is only honored for **authorized senders** (channel allowlists/pairing plus `commands.useAccessGroups`).
-It updates **session state only** and does not write config. To hard-disable exec, deny it via tool
-policy (`tools.deny: ["exec"]` or per-agent). Host approvals still apply unless you explicitly set
-`security=full` and `ask=off`.
+`/exec` chỉ được chấp nhận cho **người gửi được ủy quyền** (danh sách cho phép kênh/ghép đôi cộng với `commands.useAccessGroups`). Nó chỉ cập nhật **trạng thái phiên** và không ghi cấu hình. Để vô hiệu hóa exec hoàn toàn, từ chối nó thông qua chính sách công cụ (`tools.deny: ["exec"]` hoặc theo agent). Phê duyệt host vẫn áp dụng trừ khi bạn đặt rõ `security=full` và `ask=off`.
 
-## Exec approvals (companion app / node host)
+## Phê duyệt Exec (ứng dụng đồng hành / host node)
 
-Sandboxed agents can require per-request approval before `exec` runs on the gateway or node host.
-See [Exec approvals](/tools/exec-approvals) for the policy, allowlist, and UI flow.
+Các agent được sandbox có thể yêu cầu phê duyệt từng yêu cầu trước khi `exec` chạy trên gateway hoặc host node. Xem [Phê duyệt Exec](/tools/exec-approvals) để biết chính sách, danh sách cho phép và luồng giao diện người dùng.
 
-When approvals are required, the exec tool returns immediately with
-`status: "approval-pending"` and an approval id. Once approved (or denied / timed out),
-the Gateway emits system events (`Exec finished` / `Exec denied`). If the command is still
-running after `tools.exec.approvalRunningNoticeMs`, a single `Exec running` notice is emitted.
+Khi cần phê duyệt, công cụ exec trả về ngay lập tức với `status: "approval-pending"` và một id phê duyệt. Khi được phê duyệt (hoặc từ chối / hết thời gian), Gateway phát ra các sự kiện hệ thống (`Exec finished` / `Exec denied`). Nếu lệnh vẫn đang chạy sau `tools.exec.approvalRunningNoticeMs`, một thông báo `Exec running` duy nhất được phát ra.
 
 ## Allowlist + safe bins
 
-Manual allowlist enforcement matches **resolved binary paths only** (no basename matches). When
-`security=allowlist`, shell commands are auto-allowed only if every pipeline segment is
-allowlisted or a safe bin. Chaining (`;`, `&&`, `||`) and redirections are rejected in
-allowlist mode unless every top-level segment satisfies the allowlist (including safe bins).
-Redirections remain unsupported.
+Thực thi danh sách cho phép thủ công chỉ khớp với **đường dẫn binary đã giải quyết** (không khớp tên cơ sở). Khi `security=allowlist`, các lệnh shell được tự động cho phép chỉ khi mọi đoạn pipeline đều nằm trong danh sách cho phép hoặc là một safe bin. Chaining (`;`, `&&`, `||`) và chuyển hướng bị từ chối trong chế độ danh sách cho phép trừ khi mọi đoạn cấp cao nhất thỏa mãn danh sách cho phép (bao gồm cả safe bins). Chuyển hướng vẫn không được hỗ trợ.
 
-`autoAllowSkills` is a separate convenience path in exec approvals. It is not the same as
-manual path allowlist entries. For strict explicit trust, keep `autoAllowSkills` disabled.
+`autoAllowSkills` là một đường dẫn tiện lợi riêng trong phê duyệt exec. Nó không giống như các mục danh sách cho phép đường dẫn thủ công. Để tin tưởng rõ ràng, giữ `autoAllowSkills` bị tắt.
 
-Use the two controls for different jobs:
+Sử dụng hai điều khiển cho các công việc khác nhau:
 
-- `tools.exec.safeBins`: small, stdin-only stream filters.
-- `tools.exec.safeBinTrustedDirs`: explicit extra trusted directories for safe-bin executable paths.
-- `tools.exec.safeBinProfiles`: explicit argv policy for custom safe bins.
-- allowlist: explicit trust for executable paths.
+- `tools.exec.safeBins`: bộ lọc luồng chỉ dành cho stdin nhỏ.
+- `tools.exec.safeBinTrustedDirs`: các thư mục tin cậy bổ sung rõ ràng cho các đường dẫn thực thi safe-bin.
+- `tools.exec.safeBinProfiles`: chính sách argv rõ ràng cho các safe bin tùy chỉnh.
+- allowlist: tin tưởng rõ ràng cho các đường dẫn thực thi.
 
-Do not treat `safeBins` as a generic allowlist, and do not add interpreter/runtime binaries (for example `python3`, `node`, `ruby`, `bash`). If you need those, use explicit allowlist entries and keep approval prompts enabled.
-`openclaw security audit` warns when interpreter/runtime `safeBins` entries are missing explicit profiles, and `openclaw doctor --fix` can scaffold missing custom `safeBinProfiles` entries.
+Không coi `safeBins` là một danh sách cho phép chung, và không thêm các binary thông dịch/chạy (ví dụ `python3`, `node`, `ruby`, `bash`). Nếu bạn cần những thứ đó, sử dụng các mục danh sách cho phép rõ ràng và giữ các yêu cầu phê duyệt được bật. `openclaw security audit` cảnh báo khi các mục `safeBins` thông dịch/chạy thiếu các hồ sơ rõ ràng, và `openclaw doctor --fix` có thể tạo khung các mục `safeBinProfiles` tùy chỉnh bị thiếu.
 
-For full policy details and examples, see [Exec approvals](/tools/exec-approvals#safe-bins-stdin-only) and [Safe bins versus allowlist](/tools/exec-approvals#safe-bins-versus-allowlist).
+Để biết chi tiết chính sách đầy đủ và ví dụ, xem [Phê duyệt Exec](/tools/exec-approvals#safe-bins-stdin-only) và [Safe bins so với allowlist](/tools/exec-approvals#safe-bins-versus-allowlist).
 
-## Examples
+## Ví dụ
 
 Foreground:
 
@@ -161,7 +133,7 @@ Background + poll:
 {"tool":"process","action":"poll","sessionId":"<id>"}
 ```
 
-Send keys (tmux-style):
+Gửi phím (kiểu tmux):
 
 ```json
 {"tool":"process","action":"send-keys","sessionId":"<id>","keys":["Enter"]}
@@ -169,22 +141,21 @@ Send keys (tmux-style):
 {"tool":"process","action":"send-keys","sessionId":"<id>","keys":["Up","Up","Enter"]}
 ```
 
-Submit (send CR only):
+Gửi (chỉ gửi CR):
 
 ```json
 { "tool": "process", "action": "submit", "sessionId": "<id>" }
 ```
 
-Paste (bracketed by default):
+Dán (mặc định có ngoặc):
 
 ```json
 { "tool": "process", "action": "paste", "sessionId": "<id>", "text": "line1\nline2\n" }
 ```
 
-## apply_patch (experimental)
+## apply_patch (thử nghiệm)
 
-`apply_patch` is a subtool of `exec` for structured multi-file edits.
-Enable it explicitly:
+`apply_patch` là một công cụ con của `exec` để chỉnh sửa nhiều tệp có cấu trúc. Kích hoạt nó rõ ràng:
 
 ```json5
 {
@@ -196,9 +167,9 @@ Enable it explicitly:
 }
 ```
 
-Notes:
+Lưu ý:
 
-- Only available for OpenAI/OpenAI Codex models.
-- Tool policy still applies; `allow: ["exec"]` implicitly allows `apply_patch`.
-- Config lives under `tools.exec.applyPatch`.
-- `tools.exec.applyPatch.workspaceOnly` defaults to `true` (workspace-contained). Set it to `false` only if you intentionally want `apply_patch` to write/delete outside the workspace directory.
+- Chỉ có sẵn cho các mô hình OpenAI/OpenAI Codex.
+- Chính sách công cụ vẫn áp dụng; `allow: ["exec"]` ngầm cho phép `apply_patch`.
+- Cấu hình nằm dưới `tools.exec.applyPatch`.
+- `tools.exec.applyPatch.workspaceOnly` mặc định là `true` (chỉ trong workspace). Đặt nó thành `false` chỉ khi bạn muốn `apply_patch` ghi/xóa ngoài thư mục workspace.

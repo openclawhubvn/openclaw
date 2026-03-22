@@ -1,49 +1,33 @@
 ---
-summary: "Integrated Tailscale Serve/Funnel for the Gateway dashboard"
+summary: "Tích hợp Tailscale Serve/Funnel cho bảng điều khiển Gateway"
 read_when:
-  - Exposing the Gateway Control UI outside localhost
-  - Automating tailnet or public dashboard access
+  - Khi cần mở rộng giao diện điều khiển Gateway ra ngoài localhost
+  - Khi cần tự động hóa truy cập dashboard qua tailnet hoặc công khai
 title: "Tailscale"
 ---
 
-# Tailscale (Gateway dashboard)
+# Tailscale (bảng điều khiển Gateway)
 
-OpenClaw can auto-configure Tailscale **Serve** (tailnet) or **Funnel** (public) for the
-Gateway dashboard and WebSocket port. This keeps the Gateway bound to loopback while
-Tailscale provides HTTPS, routing, and (for Serve) identity headers.
+OpenClaw có thể tự động cấu hình Tailscale **Serve** (tailnet) hoặc **Funnel** (công khai) cho bảng điều khiển Gateway và cổng WebSocket. Điều này giúp Gateway chỉ cần kết nối nội bộ, trong khi Tailscale cung cấp HTTPS, định tuyến và (với Serve) các header nhận diện.
 
-## Modes
+## Chế độ
 
-- `serve`: Tailnet-only Serve via `tailscale serve`. The gateway stays on `127.0.0.1`.
-- `funnel`: Public HTTPS via `tailscale funnel`. OpenClaw requires a shared password.
-- `off`: Default (no Tailscale automation).
+- `serve`: Chỉ dùng Tailnet Serve qua `tailscale serve`. Gateway vẫn giữ trên `127.0.0.1`.
+- `funnel`: HTTPS công khai qua `tailscale funnel`. OpenClaw yêu cầu mật khẩu chia sẻ.
+- `off`: Mặc định (không tự động hóa Tailscale).
 
-## Auth
+## Xác thực
 
-Set `gateway.auth.mode` to control the handshake:
+Thiết lập `gateway.auth.mode` để kiểm soát quá trình bắt tay:
 
-- `token` (default when `OPENCLAW_GATEWAY_TOKEN` is set)
-- `password` (shared secret via `OPENCLAW_GATEWAY_PASSWORD` or config)
+- `token` (mặc định khi `OPENCLAW_GATEWAY_TOKEN` được thiết lập)
+- `password` (bí mật chia sẻ qua `OPENCLAW_GATEWAY_PASSWORD` hoặc cấu hình)
 
-When `tailscale.mode = "serve"` and `gateway.auth.allowTailscale` is `true`,
-Control UI/WebSocket auth can use Tailscale identity headers
-(`tailscale-user-login`) without supplying a token/password. OpenClaw verifies
-the identity by resolving the `x-forwarded-for` address via the local Tailscale
-daemon (`tailscale whois`) and matching it to the header before accepting it.
-OpenClaw only treats a request as Serve when it arrives from loopback with
-Tailscale’s `x-forwarded-for`, `x-forwarded-proto`, and `x-forwarded-host`
-headers.
-HTTP API endpoints (for example `/v1/*`, `/tools/invoke`, and `/api/channels/*`)
-still require token/password auth.
-This tokenless flow assumes the gateway host is trusted. If untrusted local code
-may run on the same host, disable `gateway.auth.allowTailscale` and require
-token/password auth instead.
-To require explicit credentials, set `gateway.auth.allowTailscale: false` or
-force `gateway.auth.mode: "password"`.
+Khi `tailscale.mode = "serve"` và `gateway.auth.allowTailscale` là `true`, xác thực giao diện điều khiển/WebSocket có thể sử dụng các header nhận diện của Tailscale (`tailscale-user-login`) mà không cần cung cấp token/mật khẩu. OpenClaw xác minh danh tính bằng cách giải quyết địa chỉ `x-forwarded-for` qua daemon Tailscale cục bộ (`tailscale whois`) và đối chiếu với header trước khi chấp nhận. OpenClaw chỉ coi một yêu cầu là Serve khi nó đến từ loopback với các header `x-forwarded-for`, `x-forwarded-proto`, và `x-forwarded-host` của Tailscale. Các endpoint API HTTP (ví dụ `/v1/*`, `/tools/invoke`, và `/api/channels/*`) vẫn yêu cầu xác thực token/mật khẩu. Luồng không cần token này giả định máy chủ gateway là đáng tin cậy. Nếu mã cục bộ không đáng tin có thể chạy trên cùng máy chủ, hãy tắt `gateway.auth.allowTailscale` và yêu cầu xác thực token/mật khẩu. Để yêu cầu thông tin xác thực rõ ràng, thiết lập `gateway.auth.allowTailscale: false` hoặc buộc `gateway.auth.mode: "password"`.
 
-## Config examples
+## Ví dụ cấu hình
 
-### Tailnet-only (Serve)
+### Chỉ Tailnet (Serve)
 
 ```json5
 {
@@ -54,11 +38,11 @@ force `gateway.auth.mode: "password"`.
 }
 ```
 
-Open: `https://<magicdns>/` (or your configured `gateway.controlUi.basePath`)
+Mở: `https://<magicdns>/` (hoặc `gateway.controlUi.basePath` đã cấu hình)
 
-### Tailnet-only (bind to Tailnet IP)
+### Chỉ Tailnet (kết nối trực tiếp IP Tailnet)
 
-Use this when you want the Gateway to listen directly on the Tailnet IP (no Serve/Funnel).
+Sử dụng khi muốn Gateway lắng nghe trực tiếp trên IP Tailnet (không dùng Serve/Funnel).
 
 ```json5
 {
@@ -69,14 +53,14 @@ Use this when you want the Gateway to listen directly on the Tailnet IP (no Serv
 }
 ```
 
-Connect from another Tailnet device:
+Kết nối từ thiết bị Tailnet khác:
 
-- Control UI: `http://<tailscale-ip>:18789/`
+- Giao diện điều khiển: `http://<tailscale-ip>:18789/`
 - WebSocket: `ws://<tailscale-ip>:18789`
 
-Note: loopback (`http://127.0.0.1:18789`) will **not** work in this mode.
+Lưu ý: loopback (`http://127.0.0.1:18789`) sẽ **không** hoạt động trong chế độ này.
 
-### Public internet (Funnel + shared password)
+### Internet công khai (Funnel + mật khẩu chia sẻ)
 
 ```json5
 {
@@ -88,45 +72,41 @@ Note: loopback (`http://127.0.0.1:18789`) will **not** work in this mode.
 }
 ```
 
-Prefer `OPENCLAW_GATEWAY_PASSWORD` over committing a password to disk.
+Ưu tiên `OPENCLAW_GATEWAY_PASSWORD` thay vì lưu mật khẩu vào đĩa.
 
-## CLI examples
+## Ví dụ CLI
 
 ```bash
 openclaw gateway --tailscale serve
 openclaw gateway --tailscale funnel --auth password
 ```
 
-## Notes
+## Ghi chú
 
-- Tailscale Serve/Funnel requires the `tailscale` CLI to be installed and logged in.
-- `tailscale.mode: "funnel"` refuses to start unless auth mode is `password` to avoid public exposure.
-- Set `gateway.tailscale.resetOnExit` if you want OpenClaw to undo `tailscale serve`
-  or `tailscale funnel` configuration on shutdown.
-- `gateway.bind: "tailnet"` is a direct Tailnet bind (no HTTPS, no Serve/Funnel).
-- `gateway.bind: "auto"` prefers loopback; use `tailnet` if you want Tailnet-only.
-- Serve/Funnel only expose the **Gateway control UI + WS**. Nodes connect over
-  the same Gateway WS endpoint, so Serve can work for node access.
+- Tailscale Serve/Funnel yêu cầu cài đặt và đăng nhập CLI `tailscale`.
+- `tailscale.mode: "funnel"` từ chối khởi động trừ khi chế độ xác thực là `password` để tránh lộ công khai.
+- Thiết lập `gateway.tailscale.resetOnExit` nếu muốn OpenClaw hoàn tác cấu hình `tailscale serve` hoặc `tailscale funnel` khi tắt.
+- `gateway.bind: "tailnet"` là kết nối trực tiếp Tailnet (không HTTPS, không Serve/Funnel).
+- `gateway.bind: "auto"` ưu tiên loopback; sử dụng `tailnet` nếu chỉ muốn Tailnet.
+- Serve/Funnel chỉ mở giao diện điều khiển Gateway + WS. Các node kết nối qua cùng endpoint Gateway WS, nên Serve có thể hoạt động cho truy cập node.
 
-## Browser control (remote Gateway + local browser)
+## Điều khiển trình duyệt (Gateway từ xa + trình duyệt cục bộ)
 
-If you run the Gateway on one machine but want to drive a browser on another machine,
-run a **node host** on the browser machine and keep both on the same tailnet.
-The Gateway will proxy browser actions to the node; no separate control server or Serve URL needed.
+Nếu chạy Gateway trên một máy nhưng muốn điều khiển trình duyệt trên máy khác, hãy chạy một **node host** trên máy trình duyệt và giữ cả hai trên cùng tailnet. Gateway sẽ chuyển tiếp hành động trình duyệt đến node; không cần máy chủ điều khiển riêng hoặc URL Serve.
 
-Avoid Funnel for browser control; treat node pairing like operator access.
+Tránh dùng Funnel cho điều khiển trình duyệt; coi việc ghép đôi node như truy cập của người vận hành.
 
-## Tailscale prerequisites + limits
+## Yêu cầu và giới hạn của Tailscale
 
-- Serve requires HTTPS enabled for your tailnet; the CLI prompts if it is missing.
-- Serve injects Tailscale identity headers; Funnel does not.
-- Funnel requires Tailscale v1.38.3+, MagicDNS, HTTPS enabled, and a funnel node attribute.
-- Funnel only supports ports `443`, `8443`, and `10000` over TLS.
-- Funnel on macOS requires the open-source Tailscale app variant.
+- Serve yêu cầu bật HTTPS cho tailnet; CLI sẽ nhắc nếu thiếu.
+- Serve chèn các header nhận diện của Tailscale; Funnel thì không.
+- Funnel yêu cầu Tailscale v1.38.3+, MagicDNS, bật HTTPS, và thuộc tính node funnel.
+- Funnel chỉ hỗ trợ các cổng `443`, `8443`, và `10000` qua TLS.
+- Funnel trên macOS yêu cầu phiên bản ứng dụng Tailscale mã nguồn mở.
 
-## Learn more
+## Tìm hiểu thêm
 
-- Tailscale Serve overview: [https://tailscale.com/kb/1312/serve](https://tailscale.com/kb/1312/serve)
-- `tailscale serve` command: [https://tailscale.com/kb/1242/tailscale-serve](https://tailscale.com/kb/1242/tailscale-serve)
-- Tailscale Funnel overview: [https://tailscale.com/kb/1223/tailscale-funnel](https://tailscale.com/kb/1223/tailscale-funnel)
-- `tailscale funnel` command: [https://tailscale.com/kb/1311/tailscale-funnel](https://tailscale.com/kb/1311/tailscale-funnel)
+- Tổng quan về Tailscale Serve: [https://tailscale.com/kb/1312/serve](https://tailscale.com/kb/1312/serve)
+- Lệnh `tailscale serve`: [https://tailscale.com/kb/1242/tailscale-serve](https://tailscale.com/kb/1242/tailscale-serve)
+- Tổng quan về Tailscale Funnel: [https://tailscale.com/kb/1223/tailscale-funnel](https://tailscale.com/kb/1223/tailscale-funnel)
+- Lệnh `tailscale funnel`: [https://tailscale.com/kb/1311/tailscale-funnel](https://tailscale.com/kb/1311/tailscale-funnel)

@@ -1,36 +1,33 @@
 ---
-summary: "Use Xiaomi MiMo models with OpenClaw"
+summary: "Sử dụng các mô hình Xiaomi MiMo với OpenClaw"
 read_when:
-  - You want Xiaomi MiMo models in OpenClaw
-  - You need XIAOMI_API_KEY setup
+  - Bạn muốn sử dụng mô hình Xiaomi MiMo trong OpenClaw
+  - Bạn cần thiết lập XIAOMI_API_KEY
 title: "Xiaomi MiMo"
 ---
 
 # Xiaomi MiMo
 
-Xiaomi MiMo is the API platform for **MiMo** models. OpenClaw uses the Xiaomi
-OpenAI-compatible endpoint with API-key authentication. Create your API key in the
-[Xiaomi MiMo console](https://platform.xiaomimimo.com/#/console/api-keys), then configure the
-bundled `xiaomi` provider with that key.
+Xiaomi MiMo là nền tảng API cho các mô hình **MiMo**. OpenClaw sử dụng endpoint tương thích với OpenAI của Xiaomi với xác thực bằng API-key. Tạo API key của bạn trong [Xiaomi MiMo console](https://platform.xiaomimimo.com/#/console/api-keys), sau đó cấu hình provider `xiaomi` đi kèm với key đó.
 
-## Model overview
+## Tổng quan về mô hình
 
-- **mimo-v2-flash**: default text model, 262144-token context window
-- **mimo-v2-pro**: reasoning text model, 1048576-token context window
-- **mimo-v2-omni**: reasoning multimodal model with text and image input, 262144-token context window
-- Base URL: `https://api.xiaomimimo.com/v1`
+- **mimo-v2-flash**: mô hình văn bản mặc định, cửa sổ ngữ cảnh 262144 token
+- **mimo-v2-pro**: mô hình văn bản suy luận, cửa sổ ngữ cảnh 1048576 token
+- **mimo-v2-omni**: mô hình đa phương tiện suy luận với đầu vào văn bản và hình ảnh, cửa sổ ngữ cảnh 262144 token
+- URL cơ bản: `https://api.xiaomimimo.com/v1`
 - API: `openai-completions`
-- Authorization: `Bearer $XIAOMI_API_KEY`
+- Xác thực: `Bearer $XIAOMI_API_KEY`
 
-## CLI setup
+## Thiết lập CLI
 
 ```bash
 openclaw onboard --auth-choice xiaomi-api-key
-# or non-interactive
+# hoặc không tương tác
 openclaw onboard --auth-choice xiaomi-api-key --xiaomi-api-key "$XIAOMI_API_KEY"
 ```
 
-## Config snippet
+## Đoạn cấu hình
 
 ```json5
 {
@@ -78,9 +75,9 @@ openclaw onboard --auth-choice xiaomi-api-key --xiaomi-api-key "$XIAOMI_API_KEY"
 }
 ```
 
-## Notes
+## Ghi chú
 
-- Default model ref: `xiaomi/mimo-v2-flash`.
-- Additional built-in models: `xiaomi/mimo-v2-pro`, `xiaomi/mimo-v2-omni`.
-- The provider is injected automatically when `XIAOMI_API_KEY` is set (or an auth profile exists).
-- See [/concepts/model-providers](/concepts/model-providers) for provider rules.
+- Mô hình mặc định: `xiaomi/mimo-v2-flash`.
+- Các mô hình tích hợp khác: `xiaomi/mimo-v2-pro`, `xiaomi/mimo-v2-omni`.
+- Provider được tự động thêm vào khi `XIAOMI_API_KEY` được thiết lập (hoặc có hồ sơ xác thực).
+- Xem [/concepts/model-providers](/concepts/model-providers) để biết quy tắc của provider.

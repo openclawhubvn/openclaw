@@ -1,83 +1,65 @@
----
-summary: "Models CLI: list, set, aliases, fallbacks, scan, status"
-read_when:
-  - Adding or modifying models CLI (models list/set/scan/aliases/fallbacks)
-  - Changing model fallback behavior or selection UX
-  - Updating model scan probes (tools/images)
-title: "Models CLI"
----
+# CLI Models
 
-# Models CLI
+Xem thêm tại [/concepts/model-failover](/concepts/model-failover) để biết về việc xoay vòng hồ sơ xác thực, thời gian chờ và cách chúng tương tác với các phương án dự phòng. Tổng quan nhanh về nhà cung cấp và ví dụ: [/concepts/model-providers](/concepts/model-providers).
 
-See [/concepts/model-failover](/concepts/model-failover) for auth profile
-rotation, cooldowns, and how that interacts with fallbacks.
-Quick provider overview + examples: [/concepts/model-providers](/concepts/model-providers).
+## Cách chọn mô hình
 
-## How model selection works
+OpenClaw chọn mô hình theo thứ tự sau:
 
-OpenClaw selects models in this order:
+1. Mô hình **Chính** (`agents.defaults.model.primary` hoặc `agents.defaults.model`).
+2. Các mô hình **Dự phòng** trong `agents.defaults.model.fallbacks` (theo thứ tự).
+3. **Chuyển đổi xác thực nhà cung cấp** xảy ra trong một nhà cung cấp trước khi chuyển sang mô hình tiếp theo.
 
-1. **Primary** model (`agents.defaults.model.primary` or `agents.defaults.model`).
-2. **Fallbacks** in `agents.defaults.model.fallbacks` (in order).
-3. **Provider auth failover** happens inside a provider before moving to the
-   next model.
+Liên quan:
 
-Related:
+- `agents.defaults.models` là danh sách cho phép/danh mục các mô hình mà OpenClaw có thể sử dụng (cộng với các bí danh).
+- `agents.defaults.imageModel` chỉ được sử dụng **khi** mô hình chính không thể chấp nhận hình ảnh.
+- `agents.defaults.imageGenerationModel` được sử dụng bởi khả năng tạo hình ảnh chia sẻ. Nếu không có, `image_generate` vẫn có thể suy ra mặc định nhà cung cấp từ các plugin tạo hình ảnh có xác thực tương thích.
+- Mặc định theo từng agent có thể ghi đè `agents.defaults.model` thông qua `agents.list[].model` cộng với ràng buộc (xem [/concepts/multi-agent](/concepts/multi-agent)).
 
-- `agents.defaults.models` is the allowlist/catalog of models OpenClaw can use (plus aliases).
-- `agents.defaults.imageModel` is used **only when** the primary model can’t accept images.
-- `agents.defaults.imageGenerationModel` is used by the shared image-generation capability. If omitted, `image_generate` can still infer a provider default from compatible auth-backed image-generation plugins.
-- Per-agent defaults can override `agents.defaults.model` via `agents.list[].model` plus bindings (see [/concepts/multi-agent](/concepts/multi-agent)).
+## Chính sách mô hình nhanh
 
-## Quick model policy
+- Đặt mô hình chính của bạn là mô hình thế hệ mới mạnh nhất có sẵn.
+- Sử dụng dự phòng cho các tác vụ nhạy cảm về chi phí/độ trễ và trò chuyện ít quan trọng hơn.
+- Đối với các agent có công cụ hoặc đầu vào không đáng tin cậy, tránh các mô hình cũ/yếu hơn.
 
-- Set your primary to the strongest latest-generation model available to you.
-- Use fallbacks for cost/latency-sensitive tasks and lower-stakes chat.
-- For tool-enabled agents or untrusted inputs, avoid older/weaker model tiers.
+## Hướng dẫn khởi động (khuyến nghị)
 
-## Onboarding (recommended)
-
-If you don’t want to hand-edit config, run onboarding:
+Nếu không muốn chỉnh sửa cấu hình bằng tay, hãy chạy hướng dẫn khởi động:
 
 ```bash
 openclaw onboard
 ```
 
-It can set up model + auth for common providers, including **OpenAI Code (Codex)
-subscription** (OAuth) and **Anthropic** (API key or `claude setup-token`).
+Nó có thể thiết lập mô hình + xác thực cho các nhà cung cấp phổ biến, bao gồm **OpenAI Code (Codex) subscription** (OAuth) và **Anthropic** (API key hoặc `claude setup-token`).
 
-## Config keys (overview)
+## Các khóa cấu hình (tổng quan)
 
-- `agents.defaults.model.primary` and `agents.defaults.model.fallbacks`
-- `agents.defaults.imageModel.primary` and `agents.defaults.imageModel.fallbacks`
-- `agents.defaults.imageGenerationModel.primary` and `agents.defaults.imageGenerationModel.fallbacks`
-- `agents.defaults.models` (allowlist + aliases + provider params)
-- `models.providers` (custom providers written into `models.json`)
+- `agents.defaults.model.primary` và `agents.defaults.model.fallbacks`
+- `agents.defaults.imageModel.primary` và `agents.defaults.imageModel.fallbacks`
+- `agents.defaults.imageGenerationModel.primary` và `agents.defaults.imageGenerationModel.fallbacks`
+- `agents.defaults.models` (danh sách cho phép + bí danh + tham số nhà cung cấp)
+- `models.providers` (nhà cung cấp tùy chỉnh được ghi vào `models.json`)
 
-Model refs are normalized to lowercase. Provider aliases like `z.ai/*` normalize
-to `zai/*`.
+Tham chiếu mô hình được chuẩn hóa thành chữ thường. Bí danh nhà cung cấp như `z.ai/*` chuẩn hóa thành `zai/*`.
 
-Provider configuration examples (including OpenCode) live in
-[/providers/opencode](/providers/opencode).
+Ví dụ cấu hình nhà cung cấp (bao gồm OpenCode) có tại [/providers/opencode](/providers/opencode).
 
-## "Model is not allowed" (and why replies stop)
+## "Mô hình không được phép" (và lý do phản hồi dừng)
 
-If `agents.defaults.models` is set, it becomes the **allowlist** for `/model` and for
-session overrides. When a user selects a model that isn’t in that allowlist,
-OpenClaw returns:
+Nếu `agents.defaults.models` được thiết lập, nó trở thành **danh sách cho phép** cho `/model` và cho các ghi đè phiên. Khi người dùng chọn một mô hình không có trong danh sách cho phép đó, OpenClaw trả về:
 
 ```
 Model "provider/model" is not allowed. Use /model to list available models.
 ```
 
-This happens **before** a normal reply is generated, so the message can feel
-like it “didn’t respond.” The fix is to either:
+Điều này xảy ra **trước khi** một phản hồi bình thường được tạo ra, vì vậy thông điệp có thể cảm thấy như nó "không phản hồi." Cách khắc phục là:
 
-- Add the model to `agents.defaults.models`, or
-- Clear the allowlist (remove `agents.defaults.models`), or
-- Pick a model from `/model list`.
+- Thêm mô hình vào `agents.defaults.models`, hoặc
+- Xóa danh sách cho phép (loại bỏ `agents.defaults.models`), hoặc
+- Chọn một mô hình từ `/model list`.
 
-Example allowlist config:
+Ví dụ cấu hình danh sách cho phép:
 
 ```json5
 {
@@ -91,9 +73,9 @@ Example allowlist config:
 }
 ```
 
-## Switching models in chat (`/model`)
+## Chuyển đổi mô hình trong chat (`/model`)
 
-You can switch models for the current session without restarting:
+Bạn có thể chuyển đổi mô hình cho phiên hiện tại mà không cần khởi động lại:
 
 ```
 /model
@@ -103,19 +85,19 @@ You can switch models for the current session without restarting:
 /model status
 ```
 
-Notes:
+Ghi chú:
 
-- `/model` (and `/model list`) is a compact, numbered picker (model family + available providers).
-- On Discord, `/model` and `/models` open an interactive picker with provider and model dropdowns plus a Submit step.
-- `/model <#>` selects from that picker.
-- `/model status` is the detailed view (auth candidates and, when configured, provider endpoint `baseUrl` + `api` mode).
-- Model refs are parsed by splitting on the **first** `/`. Use `provider/model` when typing `/model <ref>`.
-- If the model ID itself contains `/` (OpenRouter-style), you must include the provider prefix (example: `/model openrouter/moonshotai/kimi-k2`).
-- If you omit the provider, OpenClaw treats the input as an alias or a model for the **default provider** (only works when there is no `/` in the model ID).
+- `/model` (và `/model list`) là một bộ chọn nhỏ gọn, có đánh số (gia đình mô hình + nhà cung cấp có sẵn).
+- Trên Discord, `/model` và `/models` mở một bộ chọn tương tác với các danh sách thả xuống nhà cung cấp và mô hình cùng với bước Gửi.
+- `/model <#>` chọn từ bộ chọn đó.
+- `/model status` là chế độ xem chi tiết (ứng viên xác thực và, khi được cấu hình, điểm cuối nhà cung cấp `baseUrl` + chế độ `api`).
+- Tham chiếu mô hình được phân tích bằng cách tách trên `/` **đầu tiên**. Sử dụng `provider/model` khi nhập `/model <ref>`.
+- Nếu ID mô hình tự nó chứa `/` (kiểu OpenRouter), bạn phải bao gồm tiền tố nhà cung cấp (ví dụ: `/model openrouter/moonshotai/kimi-k2`).
+- Nếu bạn bỏ qua nhà cung cấp, OpenClaw coi đầu vào là một bí danh hoặc một mô hình cho **nhà cung cấp mặc định** (chỉ hoạt động khi không có `/` trong ID mô hình).
 
-Full command behavior/config: [Slash commands](/tools/slash-commands).
+Hành vi/lệnh cấu hình đầy đủ: [Slash commands](/tools/slash-commands).
 
-## CLI commands
+## Lệnh CLI
 
 ```bash
 openclaw models list
@@ -138,88 +120,78 @@ openclaw models image-fallbacks remove <provider/model>
 openclaw models image-fallbacks clear
 ```
 
-`openclaw models` (no subcommand) is a shortcut for `models status`.
+`openclaw models` (không có lệnh con) là một phím tắt cho `models status`.
 
 ### `models list`
 
-Shows configured models by default. Useful flags:
+Hiển thị các mô hình đã cấu hình theo mặc định. Các cờ hữu ích:
 
-- `--all`: full catalog
-- `--local`: local providers only
-- `--provider <name>`: filter by provider
-- `--plain`: one model per line
-- `--json`: machine‑readable output
+- `--all`: danh mục đầy đủ
+- `--local`: chỉ các nhà cung cấp địa phương
+- `--provider <name>`: lọc theo nhà cung cấp
+- `--plain`: một mô hình mỗi dòng
+- `--json`: đầu ra có thể đọc được bằng máy
 
 ### `models status`
 
-Shows the resolved primary model, fallbacks, image model, and an auth overview
-of configured providers. It also surfaces OAuth expiry status for profiles found
-in the auth store (warns within 24h by default). `--plain` prints only the
-resolved primary model.
-OAuth status is always shown (and included in `--json` output). If a configured
-provider has no credentials, `models status` prints a **Missing auth** section.
-JSON includes `auth.oauth` (warn window + profiles) and `auth.providers`
-(effective auth per provider).
-Use `--check` for automation (exit `1` when missing/expired, `2` when expiring).
+Hiển thị mô hình chính đã được giải quyết, các mô hình dự phòng, mô hình hình ảnh và tổng quan xác thực của các nhà cung cấp đã cấu hình. Nó cũng hiển thị trạng thái hết hạn OAuth cho các hồ sơ tìm thấy trong kho lưu trữ xác thực (cảnh báo trong vòng 24 giờ theo mặc định). `--plain` chỉ in mô hình chính đã được giải quyết.
+Trạng thái OAuth luôn được hiển thị (và bao gồm trong đầu ra `--json`). Nếu một nhà cung cấp đã cấu hình không có thông tin xác thực, `models status` sẽ in một phần **Thiếu xác thực**.
+JSON bao gồm `auth.oauth` (cửa sổ cảnh báo + hồ sơ) và `auth.providers` (xác thực hiệu quả cho mỗi nhà cung cấp).
+Sử dụng `--check` cho tự động hóa (thoát `1` khi thiếu/hết hạn, `2` khi sắp hết hạn).
 
-Auth choice is provider/account dependent. For always-on gateway hosts, API keys are usually the most predictable; subscription token flows are also supported.
+Lựa chọn xác thực phụ thuộc vào nhà cung cấp/tài khoản. Đối với các máy chủ cổng luôn bật, khóa API thường là lựa chọn dự đoán nhất; các luồng token đăng ký cũng được hỗ trợ.
 
-Example (Anthropic setup-token):
+Ví dụ (Anthropic setup-token):
 
 ```bash
 claude setup-token
 openclaw models status
 ```
 
-## Scanning (OpenRouter free models)
+## Quét (mô hình miễn phí OpenRouter)
 
-`openclaw models scan` inspects OpenRouter’s **free model catalog** and can
-optionally probe models for tool and image support.
+`openclaw models scan` kiểm tra **danh mục mô hình miễn phí** của OpenRouter và có thể tùy chọn thăm dò các mô hình để hỗ trợ công cụ và hình ảnh.
 
-Key flags:
+Các cờ chính:
 
-- `--no-probe`: skip live probes (metadata only)
-- `--min-params <b>`: minimum parameter size (billions)
-- `--max-age-days <days>`: skip older models
-- `--provider <name>`: provider prefix filter
-- `--max-candidates <n>`: fallback list size
-- `--set-default`: set `agents.defaults.model.primary` to the first selection
-- `--set-image`: set `agents.defaults.imageModel.primary` to the first image selection
+- `--no-probe`: bỏ qua thăm dò trực tiếp (chỉ metadata)
+- `--min-params <b>`: kích thước tham số tối thiểu (tỷ)
+- `--max-age-days <days>`: bỏ qua các mô hình cũ hơn
+- `--provider <name>`: lọc tiền tố nhà cung cấp
+- `--max-candidates <n>`: kích thước danh sách dự phòng
+- `--set-default`: đặt `agents.defaults.model.primary` thành lựa chọn đầu tiên
+- `--set-image`: đặt `agents.defaults.imageModel.primary` thành lựa chọn hình ảnh đầu tiên
 
-Probing requires an OpenRouter API key (from auth profiles or
-`OPENROUTER_API_KEY`). Without a key, use `--no-probe` to list candidates only.
+Thăm dò yêu cầu khóa API OpenRouter (từ hồ sơ xác thực hoặc `OPENROUTER_API_KEY`). Không có khóa, sử dụng `--no-probe` để chỉ liệt kê các ứng viên.
 
-Scan results are ranked by:
+Kết quả quét được xếp hạng theo:
 
-1. Image support
-2. Tool latency
-3. Context size
-4. Parameter count
+1. Hỗ trợ hình ảnh
+2. Độ trễ công cụ
+3. Kích thước ngữ cảnh
+4. Số lượng tham số
 
-Input
+Đầu vào
 
-- OpenRouter `/models` list (filter `:free`)
-- Requires OpenRouter API key from auth profiles or `OPENROUTER_API_KEY` (see [/environment](/help/environment))
-- Optional filters: `--max-age-days`, `--min-params`, `--provider`, `--max-candidates`
-- Probe controls: `--timeout`, `--concurrency`
+- Danh sách OpenRouter `/models` (lọc `:free`)
+- Yêu cầu khóa API OpenRouter từ hồ sơ xác thực hoặc `OPENROUTER_API_KEY` (xem [/environment](/help/environment))
+- Bộ lọc tùy chọn: `--max-age-days`, `--min-params`, `--provider`, `--max-candidates`
+- Kiểm soát thăm dò: `--timeout`, `--concurrency`
 
-When run in a TTY, you can select fallbacks interactively. In non‑interactive
-mode, pass `--yes` to accept defaults.
+Khi chạy trong TTY, bạn có thể chọn dự phòng một cách tương tác. Trong chế độ không tương tác, truyền `--yes` để chấp nhận mặc định.
 
-## Models registry (`models.json`)
+## Đăng ký mô hình (`models.json`)
 
-Custom providers in `models.providers` are written into `models.json` under the
-agent directory (default `~/.openclaw/agents/<agentId>/agent/models.json`). This file
-is merged by default unless `models.mode` is set to `replace`.
+Các nhà cung cấp tùy chỉnh trong `models.providers` được ghi vào `models.json` dưới thư mục agent (mặc định `~/.openclaw/agents/<agentId>/agent/models.json`). Tệp này được hợp nhất theo mặc định trừ khi `models.mode` được đặt thành `replace`.
 
-Merge mode precedence for matching provider IDs:
+Thứ tự ưu tiên chế độ hợp nhất cho các ID nhà cung cấp khớp:
 
-- Non-empty `baseUrl` already present in the agent `models.json` wins.
-- Non-empty `apiKey` in the agent `models.json` wins only when that provider is not SecretRef-managed in current config/auth-profile context.
-- SecretRef-managed provider `apiKey` values are refreshed from source markers (`ENV_VAR_NAME` for env refs, `secretref-managed` for file/exec refs) instead of persisting resolved secrets.
-- SecretRef-managed provider header values are refreshed from source markers (`secretref-env:ENV_VAR_NAME` for env refs, `secretref-managed` for file/exec refs).
-- Empty or missing agent `apiKey`/`baseUrl` fall back to config `models.providers`.
-- Other provider fields are refreshed from config and normalized catalog data.
+- `baseUrl` không rỗng đã có trong `models.json` của agent sẽ thắng.
+- `apiKey` không rỗng trong `models.json` của agent chỉ thắng khi nhà cung cấp đó không được quản lý bởi SecretRef trong ngữ cảnh cấu hình/hồ sơ xác thực hiện tại.
+- Giá trị `apiKey` của nhà cung cấp được quản lý bởi SecretRef được làm mới từ các dấu nguồn (`ENV_VAR_NAME` cho tham chiếu môi trường, `secretref-managed` cho tham chiếu tệp/thực thi) thay vì duy trì các bí mật đã giải quyết.
+- Giá trị tiêu đề của nhà cung cấp được quản lý bởi SecretRef được làm mới từ các dấu nguồn (`secretref-env:ENV_VAR_NAME` cho tham chiếu môi trường, `secretref-managed` cho tham chiếu tệp/thực thi).
+- `apiKey`/`baseUrl` trống hoặc thiếu của agent sẽ quay lại cấu hình `models.providers`.
+- Các trường nhà cung cấp khác được làm mới từ cấu hình và dữ liệu danh mục đã chuẩn hóa.
 
-Marker persistence is source-authoritative: OpenClaw writes markers from the active source config snapshot (pre-resolution), not from resolved runtime secret values.
-This applies whenever OpenClaw regenerates `models.json`, including command-driven paths like `openclaw agent`.
+Dấu hiệu lưu trữ là nguồn gốc: OpenClaw ghi dấu từ ảnh chụp cấu hình nguồn hoạt động (trước khi giải quyết), không phải từ các giá trị bí mật đã giải quyết trong thời gian chạy.
+Điều này áp dụng bất cứ khi nào OpenClaw tái tạo `models.json`, bao gồm các đường dẫn điều khiển bằng lệnh như `openclaw agent`.

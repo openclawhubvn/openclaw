@@ -1,24 +1,24 @@
 ---
-summary: "Canonical supported vs unsupported SecretRef credential surface"
+summary: "So sánh giữa SecretRef được hỗ trợ và không được hỗ trợ"
 read_when:
-  - Verifying SecretRef credential coverage
-  - Auditing whether a credential is eligible for `secrets configure` or `secrets apply`
-  - Verifying why a credential is outside the supported surface
-title: "SecretRef Credential Surface"
+  - Kiểm tra phạm vi hỗ trợ của SecretRef
+  - Đánh giá xem một thông tin xác thực có đủ điều kiện cho `secrets configure` hoặc `secrets apply` không
+  - Xác minh lý do một thông tin xác thực nằm ngoài phạm vi hỗ trợ
+title: "Phạm vi SecretRef Credential"
 ---
 
-# SecretRef credential surface
+# Phạm vi SecretRef Credential
 
-This page defines the canonical SecretRef credential surface.
+Trang này định nghĩa phạm vi chuẩn của SecretRef credential.
 
-Scope intent:
+Phạm vi:
 
-- In scope: strictly user-supplied credentials that OpenClaw does not mint or rotate.
-- Out of scope: runtime-minted or rotating credentials, OAuth refresh material, and session-like artifacts.
+- Trong phạm vi: thông tin xác thực do người dùng cung cấp mà OpenClaw không tạo hoặc xoay vòng.
+- Ngoài phạm vi: thông tin xác thực được tạo hoặc xoay vòng trong thời gian chạy, tài liệu làm mới OAuth, và các tài liệu giống phiên.
 
-## Supported credentials
+## Thông tin xác thực được hỗ trợ
 
-### `openclaw.json` targets (`secrets configure` + `secrets apply` + `secrets audit`)
+### Mục tiêu `openclaw.json` (`secrets configure` + `secrets apply` + `secrets audit`)
 
 [//]: # "secretref-supported-list-start"
 
@@ -94,32 +94,32 @@ Scope intent:
 - `channels.zalo.webhookSecret`
 - `channels.zalo.accounts.*.botToken`
 - `channels.zalo.accounts.*.webhookSecret`
-- `channels.googlechat.serviceAccount` via sibling `serviceAccountRef` (compatibility exception)
-- `channels.googlechat.accounts.*.serviceAccount` via sibling `serviceAccountRef` (compatibility exception)
+- `channels.googlechat.serviceAccount` thông qua `serviceAccountRef` (ngoại lệ tương thích)
+- `channels.googlechat.accounts.*.serviceAccount` thông qua `serviceAccountRef` (ngoại lệ tương thích)
 
-### `auth-profiles.json` targets (`secrets configure` + `secrets apply` + `secrets audit`)
+### Mục tiêu `auth-profiles.json` (`secrets configure` + `secrets apply` + `secrets audit`)
 
 - `profiles.*.keyRef` (`type: "api_key"`)
 - `profiles.*.tokenRef` (`type: "token"`)
 
 [//]: # "secretref-supported-list-end"
 
-Notes:
+Ghi chú:
 
-- Auth-profile plan targets require `agentId`.
-- Plan entries target `profiles.*.key` / `profiles.*.token` and write sibling refs (`keyRef` / `tokenRef`).
-- Auth-profile refs are included in runtime resolution and audit coverage.
-- For SecretRef-managed model providers, generated `agents/*/agent/models.json` entries persist non-secret markers (not resolved secret values) for `apiKey`/header surfaces.
-- Marker persistence is source-authoritative: OpenClaw writes markers from the active source config snapshot (pre-resolution), not from resolved runtime secret values.
-- For web search:
-  - In explicit provider mode (`tools.web.search.provider` set), only the selected provider key is active.
-  - In auto mode (`tools.web.search.provider` unset), only the first provider key that resolves by precedence is active.
-  - In auto mode, non-selected provider refs are treated as inactive until selected.
-  - Legacy `tools.web.search.*` provider paths still resolve during the compatibility window, but the canonical SecretRef surface is `plugins.entries.<plugin>.config.webSearch.*`.
+- Mục tiêu kế hoạch auth-profile yêu cầu `agentId`.
+- Các mục kế hoạch nhắm đến `profiles.*.key` / `profiles.*.token` và ghi các tham chiếu liền kề (`keyRef` / `tokenRef`).
+- Tham chiếu auth-profile được bao gồm trong việc giải quyết và kiểm tra thời gian chạy.
+- Đối với các nhà cung cấp mô hình được quản lý bởi SecretRef, các mục `agents/*/agent/models.json` được tạo ra sẽ duy trì các dấu hiệu không phải bí mật (không phải giá trị bí mật đã giải quyết) cho các bề mặt `apiKey`/header.
+- Duy trì dấu hiệu là nguồn gốc: OpenClaw ghi dấu hiệu từ ảnh chụp cấu hình nguồn hoạt động (trước khi giải quyết), không phải từ các giá trị bí mật đã giải quyết trong thời gian chạy.
+- Đối với tìm kiếm web:
+  - Trong chế độ nhà cung cấp rõ ràng (`tools.web.search.provider` được đặt), chỉ có khóa nhà cung cấp đã chọn là hoạt động.
+  - Trong chế độ tự động (`tools.web.search.provider` không được đặt), chỉ có khóa nhà cung cấp đầu tiên được giải quyết theo thứ tự ưu tiên là hoạt động.
+  - Trong chế độ tự động, các tham chiếu nhà cung cấp không được chọn được coi là không hoạt động cho đến khi được chọn.
+  - Các đường dẫn nhà cung cấp `tools.web.search.*` cũ vẫn được giải quyết trong cửa sổ tương thích, nhưng bề mặt SecretRef chuẩn là `plugins.entries.<plugin>.config.webSearch.*`.
 
-## Unsupported credentials
+## Thông tin xác thực không được hỗ trợ
 
-Out-of-scope credentials include:
+Các thông tin xác thực ngoài phạm vi bao gồm:
 
 [//]: # "secretref-unsupported-list-start"
 
@@ -135,6 +135,6 @@ Out-of-scope credentials include:
 
 [//]: # "secretref-unsupported-list-end"
 
-Rationale:
+Lý do:
 
-- These credentials are minted, rotated, session-bearing, or OAuth-durable classes that do not fit read-only external SecretRef resolution.
+- Các thông tin xác thực này được tạo, xoay vòng, mang tính phiên, hoặc thuộc loại OAuth bền vững không phù hợp với việc giải quyết SecretRef chỉ đọc từ bên ngoài.

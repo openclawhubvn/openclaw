@@ -1,30 +1,25 @@
 ---
-summary: “Per-agent sandbox + tool restrictions, precedence, and examples”
-title: Multi-Agent Sandbox & Tools
-read_when: “You want per-agent sandboxing or per-agent tool allow/deny policies in a multi-agent gateway.”
+summary: "Hạn chế công cụ và sandbox theo từng agent, thứ tự ưu tiên và ví dụ"
+title: Cấu hình Sandbox & Công cụ cho Multi-Agent
+read_when: "Khi cần sandbox hoặc chính sách cho phép/từ chối công cụ theo từng agent trong một gateway đa agent."
 status: active
 ---
 
-# Multi-Agent Sandbox & Tools Configuration
+# Cấu hình Sandbox & Công cụ cho Multi-Agent
 
-Each agent in a multi-agent setup can override the global sandbox and tool
-policy. This page covers per-agent configuration, precedence rules, and
-examples.
+Mỗi agent trong một hệ thống đa agent có thể ghi đè chính sách sandbox và công cụ toàn cục. Trang này hướng dẫn cấu hình theo từng agent, quy tắc ưu tiên và ví dụ.
 
-- **Sandbox backends and modes**: see [Sandboxing](/gateway/sandboxing).
-- **Debugging blocked tools**: see [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated) and `openclaw sandbox explain`.
-- **Elevated exec**: see [Elevated Mode](/tools/elevated).
+- **Backend và chế độ sandbox**: xem [Sandboxing](/gateway/sandboxing).
+- **Gỡ lỗi công cụ bị chặn**: xem [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated) và `openclaw sandbox explain`.
+- **Chế độ thực thi nâng cao**: xem [Elevated Mode](/tools/elevated).
 
-Auth is per-agent: each agent reads from its own `agentDir` auth store at
-`~/.openclaw/agents/<agentId>/agent/auth-profiles.json`.
-Credentials are **not** shared between agents. Never reuse `agentDir` across agents.
-If you want to share creds, copy `auth-profiles.json` into the other agent's `agentDir`.
+Xác thực là theo từng agent: mỗi agent đọc từ kho xác thực `agentDir` của riêng mình tại `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`. Thông tin xác thực **không** được chia sẻ giữa các agent. Không bao giờ tái sử dụng `agentDir` giữa các agent. Nếu muốn chia sẻ thông tin xác thực, sao chép `auth-profiles.json` vào `agentDir` của agent khác.
 
 ---
 
-## Configuration Examples
+## Ví dụ cấu hình
 
-### Example 1: Personal + Restricted Family Agent
+### Ví dụ 1: Agent Cá nhân + Gia đình bị hạn chế
 
 ```json
 {
@@ -33,13 +28,13 @@ If you want to share creds, copy `auth-profiles.json` into the other agent's `ag
       {
         "id": "main",
         "default": true,
-        "name": "Personal Assistant",
+        "name": "Trợ lý cá nhân",
         "workspace": "~/.openclaw/workspace",
         "sandbox": { "mode": "off" }
       },
       {
         "id": "family",
-        "name": "Family Bot",
+        "name": "Bot gia đình",
         "workspace": "~/.openclaw/workspace-family",
         "sandbox": {
           "mode": "all",
@@ -68,14 +63,14 @@ If you want to share creds, copy `auth-profiles.json` into the other agent's `ag
 }
 ```
 
-**Result:**
+**Kết quả:**
 
-- `main` agent: Runs on host, full tool access
-- `family` agent: Runs in Docker (one container per agent), only `read` tool
+- Agent `main`: Chạy trên host, truy cập đầy đủ công cụ
+- Agent `family`: Chạy trong Docker (một container cho mỗi agent), chỉ có công cụ `read`
 
 ---
 
-### Example 2: Work Agent with Shared Sandbox
+### Ví dụ 2: Agent Công việc với Sandbox chia sẻ
 
 ```json
 {
@@ -106,7 +101,7 @@ If you want to share creds, copy `auth-profiles.json` into the other agent's `ag
 
 ---
 
-### Example 2b: Global coding profile + messaging-only agent
+### Ví dụ 2b: Hồ sơ mã hóa toàn cầu + agent chỉ nhắn tin
 
 ```json
 {
@@ -122,21 +117,21 @@ If you want to share creds, copy `auth-profiles.json` into the other agent's `ag
 }
 ```
 
-**Result:**
+**Kết quả:**
 
-- default agents get coding tools
-- `support` agent is messaging-only (+ Slack tool)
+- Các agent mặc định có công cụ mã hóa
+- Agent `support` chỉ dùng để nhắn tin (+ công cụ Slack)
 
 ---
 
-### Example 3: Different Sandbox Modes per Agent
+### Ví dụ 3: Chế độ Sandbox khác nhau theo từng Agent
 
 ```json
 {
   "agents": {
     "defaults": {
       "sandbox": {
-        "mode": "non-main", // Global default
+        "mode": "non-main", // Mặc định toàn cục
         "scope": "session"
       }
     },
@@ -145,14 +140,14 @@ If you want to share creds, copy `auth-profiles.json` into the other agent's `ag
         "id": "main",
         "workspace": "~/.openclaw/workspace",
         "sandbox": {
-          "mode": "off" // Override: main never sandboxed
+          "mode": "off" // Ghi đè: main không bao giờ bị sandbox
         }
       },
       {
         "id": "public",
         "workspace": "~/.openclaw/workspace-public",
         "sandbox": {
-          "mode": "all", // Override: public always sandboxed
+          "mode": "all", // Ghi đè: public luôn bị sandbox
           "scope": "agent"
         },
         "tools": {
@@ -167,13 +162,13 @@ If you want to share creds, copy `auth-profiles.json` into the other agent's `ag
 
 ---
 
-## Configuration Precedence
+## Thứ tự ưu tiên cấu hình
 
-When both global (`agents.defaults.*`) and agent-specific (`agents.list[].*`) configs exist:
+Khi có cả cấu hình toàn cục (`agents.defaults.*`) và cấu hình theo từng agent (`agents.list[].*`):
 
-### Sandbox Config
+### Cấu hình Sandbox
 
-Agent-specific settings override global:
+Cài đặt theo từng agent ghi đè toàn cục:
 
 ```
 agents.list[].sandbox.mode > agents.defaults.sandbox.mode
@@ -185,37 +180,34 @@ agents.list[].sandbox.browser.* > agents.defaults.sandbox.browser.*
 agents.list[].sandbox.prune.* > agents.defaults.sandbox.prune.*
 ```
 
-**Notes:**
+**Lưu ý:**
 
-- `agents.list[].sandbox.{docker,browser,prune}.*` overrides `agents.defaults.sandbox.{docker,browser,prune}.*` for that agent (ignored when sandbox scope resolves to `"shared"`).
+- `agents.list[].sandbox.{docker,browser,prune}.*` ghi đè `agents.defaults.sandbox.{docker,browser,prune}.*` cho agent đó (bỏ qua khi phạm vi sandbox là `"shared"`).
 
-### Tool Restrictions
+### Hạn chế Công cụ
 
-The filtering order is:
+Thứ tự lọc là:
 
-1. **Tool profile** (`tools.profile` or `agents.list[].tools.profile`)
-2. **Provider tool profile** (`tools.byProvider[provider].profile` or `agents.list[].tools.byProvider[provider].profile`)
-3. **Global tool policy** (`tools.allow` / `tools.deny`)
-4. **Provider tool policy** (`tools.byProvider[provider].allow/deny`)
-5. **Agent-specific tool policy** (`agents.list[].tools.allow/deny`)
-6. **Agent provider policy** (`agents.list[].tools.byProvider[provider].allow/deny`)
-7. **Sandbox tool policy** (`tools.sandbox.tools` or `agents.list[].tools.sandbox.tools`)
-8. **Subagent tool policy** (`tools.subagents.tools`, if applicable)
+1. **Hồ sơ công cụ** (`tools.profile` hoặc `agents.list[].tools.profile`)
+2. **Hồ sơ công cụ theo nhà cung cấp** (`tools.byProvider[provider].profile` hoặc `agents.list[].tools.byProvider[provider].profile`)
+3. **Chính sách công cụ toàn cục** (`tools.allow` / `tools.deny`)
+4. **Chính sách công cụ theo nhà cung cấp** (`tools.byProvider[provider].allow/deny`)
+5. **Chính sách công cụ theo từng agent** (`agents.list[].tools.allow/deny`)
+6. **Chính sách nhà cung cấp theo agent** (`agents.list[].tools.byProvider[provider].allow/deny`)
+7. **Chính sách công cụ sandbox** (`tools.sandbox.tools` hoặc `agents.list[].tools.sandbox.tools`)
+8. **Chính sách công cụ subagent** (`tools.subagents.tools`, nếu có)
 
-Each level can further restrict tools, but cannot grant back denied tools from earlier levels.
-If `agents.list[].tools.sandbox.tools` is set, it replaces `tools.sandbox.tools` for that agent.
-If `agents.list[].tools.profile` is set, it overrides `tools.profile` for that agent.
-Provider tool keys accept either `provider` (e.g. `google-antigravity`) or `provider/model` (e.g. `openai/gpt-5.2`).
+Mỗi cấp độ có thể hạn chế thêm công cụ, nhưng không thể cấp lại công cụ đã bị từ chối từ các cấp trước. Nếu `agents.list[].tools.sandbox.tools` được đặt, nó thay thế `tools.sandbox.tools` cho agent đó. Nếu `agents.list[].tools.profile` được đặt, nó ghi đè `tools.profile` cho agent đó. Các khóa công cụ nhà cung cấp chấp nhận `provider` (ví dụ `google-antigravity`) hoặc `provider/model` (ví dụ `openai/gpt-5.2`).
 
-Tool policies support `group:*` shorthands that expand to multiple tools. See [Tool groups](/gateway/sandbox-vs-tool-policy-vs-elevated#tool-groups-shorthands) for the full list.
+Chính sách công cụ hỗ trợ `group:*` mở rộng thành nhiều công cụ. Xem [Nhóm công cụ](/gateway/sandbox-vs-tool-policy-vs-elevated#tool-groups-shorthands) để biết danh sách đầy đủ.
 
-Per-agent elevated overrides (`agents.list[].tools.elevated`) can further restrict elevated exec for specific agents. See [Elevated Mode](/tools/elevated) for details.
+Ghi đè nâng cao theo từng agent (`agents.list[].tools.elevated`) có thể hạn chế thêm thực thi nâng cao cho các agent cụ thể. Xem [Chế độ Nâng cao](/tools/elevated) để biết chi tiết.
 
 ---
 
-## Migration from Single Agent
+## Chuyển đổi từ Single Agent
 
-**Before (single agent):**
+**Trước (single agent):**
 
 ```json
 {
@@ -238,7 +230,7 @@ Per-agent elevated overrides (`agents.list[].tools.elevated`) can further restri
 }
 ```
 
-**After (multi-agent with different profiles):**
+**Sau (multi-agent với các hồ sơ khác nhau):**
 
 ```json
 {
@@ -255,13 +247,13 @@ Per-agent elevated overrides (`agents.list[].tools.elevated`) can further restri
 }
 ```
 
-Legacy `agent.*` configs are migrated by `openclaw doctor`; prefer `agents.defaults` + `agents.list` going forward.
+Cấu hình `agent.*` cũ được chuyển đổi bởi `openclaw doctor`; ưu tiên `agents.defaults` + `agents.list` trong tương lai.
 
 ---
 
-## Tool Restriction Examples
+## Ví dụ về Hạn chế Công cụ
 
-### Read-only Agent
+### Agent chỉ đọc
 
 ```json
 {
@@ -272,7 +264,7 @@ Legacy `agent.*` configs are migrated by `openclaw doctor`; prefer `agents.defau
 }
 ```
 
-### Safe Execution Agent (no file modifications)
+### Agent thực thi an toàn (không sửa đổi file)
 
 ```json
 {
@@ -283,7 +275,7 @@ Legacy `agent.*` configs are migrated by `openclaw doctor`; prefer `agents.defau
 }
 ```
 
-### Communication-only Agent
+### Agent chỉ giao tiếp
 
 ```json
 {
@@ -297,36 +289,33 @@ Legacy `agent.*` configs are migrated by `openclaw doctor`; prefer `agents.defau
 
 ---
 
-## Common Pitfall: "non-main"
+## Lỗi thường gặp: "non-main"
 
-`agents.defaults.sandbox.mode: "non-main"` is based on `session.mainKey` (default `"main"`),
-not the agent id. Group/channel sessions always get their own keys, so they
-are treated as non-main and will be sandboxed. If you want an agent to never
-sandbox, set `agents.list[].sandbox.mode: "off"`.
+`agents.defaults.sandbox.mode: "non-main"` dựa trên `session.mainKey` (mặc định là `"main"`), không phải id của agent. Các phiên nhóm/kênh luôn có khóa riêng, nên chúng được coi là không phải main và sẽ bị sandbox. Nếu muốn một agent không bao giờ bị sandbox, đặt `agents.list[].sandbox.mode: "off"`.
 
 ---
 
-## Testing
+## Kiểm tra
 
-After configuring multi-agent sandbox and tools:
+Sau khi cấu hình sandbox và công cụ cho multi-agent:
 
-1. **Check agent resolution:**
+1. **Kiểm tra phân giải agent:**
 
    ```exec
    openclaw agents list --bindings
    ```
 
-2. **Verify sandbox containers:**
+2. **Xác minh container sandbox:**
 
    ```exec
    docker ps --filter "name=openclaw-sbx-"
    ```
 
-3. **Test tool restrictions:**
-   - Send a message requiring restricted tools
-   - Verify the agent cannot use denied tools
+3. **Kiểm tra hạn chế công cụ:**
+   - Gửi một tin nhắn yêu cầu công cụ bị hạn chế
+   - Xác minh agent không thể sử dụng công cụ bị từ chối
 
-4. **Monitor logs:**
+4. **Theo dõi log:**
 
    ```exec
    tail -f "${OPENCLAW_STATE_DIR:-$HOME/.openclaw}/logs/gateway.log" | grep -E "routing|sandbox|tools"
@@ -334,31 +323,31 @@ After configuring multi-agent sandbox and tools:
 
 ---
 
-## Troubleshooting
+## Khắc phục sự cố
 
-### Agent not sandboxed despite `mode: "all"`
+### Agent không bị sandbox dù `mode: "all"`
 
-- Check if there's a global `agents.defaults.sandbox.mode` that overrides it
-- Agent-specific config takes precedence, so set `agents.list[].sandbox.mode: "all"`
+- Kiểm tra xem có `agents.defaults.sandbox.mode` toàn cục ghi đè không
+- Cấu hình theo từng agent có ưu tiên, nên đặt `agents.list[].sandbox.mode: "all"`
 
-### Tools still available despite deny list
+### Công cụ vẫn có sẵn dù có danh sách từ chối
 
-- Check tool filtering order: global → agent → sandbox → subagent
-- Each level can only further restrict, not grant back
-- Verify with logs: `[tools] filtering tools for agent:${agentId}`
+- Kiểm tra thứ tự lọc công cụ: toàn cục → agent → sandbox → subagent
+- Mỗi cấp độ chỉ có thể hạn chế thêm, không thể cấp lại
+- Xác minh với log: `[tools] filtering tools for agent:${agentId}`
 
-### Container not isolated per agent
+### Container không tách biệt theo từng agent
 
-- Set `scope: "agent"` in agent-specific sandbox config
-- Default is `"session"` which creates one container per session
+- Đặt `scope: "agent"` trong cấu hình sandbox theo từng agent
+- Mặc định là `"session"` tạo một container cho mỗi phiên
 
 ---
 
-## See also
+## Xem thêm
 
-- [Sandboxing](/gateway/sandboxing) -- full sandbox reference (modes, scopes, backends, images)
-- [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated) -- debugging "why is this blocked?"
-- [Elevated Mode](/tools/elevated)
-- [Multi-Agent Routing](/concepts/multi-agent)
-- [Sandbox Configuration](/gateway/configuration-reference#agents-defaults-sandbox)
-- [Session Management](/concepts/session)
+- [Sandboxing](/gateway/sandboxing) -- tham khảo đầy đủ về sandbox (chế độ, phạm vi, backend, hình ảnh)
+- [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated) -- gỡ lỗi "tại sao bị chặn?"
+- [Chế độ Nâng cao](/tools/elevated)
+- [Định tuyến Multi-Agent](/concepts/multi-agent)
+- [Cấu hình Sandbox](/gateway/configuration-reference#agents-defaults-sandbox)
+- [Quản lý Phiên](/concepts/session)

@@ -1,22 +1,22 @@
 ---
-summary: "CLI reference for `openclaw approvals` (exec approvals for gateway or node hosts)"
+summary: "Tham khảo CLI cho `openclaw approvals` (phê duyệt thực thi cho gateway hoặc node hosts)"
 read_when:
-  - You want to edit exec approvals from the CLI
-  - You need to manage allowlists on gateway or node hosts
+  - Bạn muốn chỉnh sửa phê duyệt thực thi từ CLI
+  - Bạn cần quản lý danh sách cho phép trên gateway hoặc node hosts
 title: "approvals"
 ---
 
 # `openclaw approvals`
 
-Manage exec approvals for the **local host**, **gateway host**, or a **node host**.
-By default, commands target the local approvals file on disk. Use `--gateway` to target the gateway, or `--node` to target a specific node.
+Quản lý phê duyệt thực thi cho **máy chủ cục bộ**, **máy chủ gateway**, hoặc **máy chủ node**.
+Mặc định, các lệnh sẽ nhắm đến file phê duyệt cục bộ trên ổ đĩa. Sử dụng `--gateway` để nhắm đến gateway, hoặc `--node` để nhắm đến một node cụ thể.
 
-Related:
+Liên quan:
 
-- Exec approvals: [Exec approvals](/tools/exec-approvals)
+- Phê duyệt thực thi: [Phê duyệt thực thi](/tools/exec-approvals)
 - Nodes: [Nodes](/nodes)
 
-## Common commands
+## Các lệnh thông dụng
 
 ```bash
 openclaw approvals get
@@ -24,7 +24,7 @@ openclaw approvals get --node <id|name|ip>
 openclaw approvals get --gateway
 ```
 
-## Replace approvals from a file
+## Thay thế phê duyệt từ một file
 
 ```bash
 openclaw approvals set --file ./exec-approvals.json
@@ -32,7 +32,7 @@ openclaw approvals set --node <id|name|ip> --file ./exec-approvals.json
 openclaw approvals set --gateway --file ./exec-approvals.json
 ```
 
-## Allowlist helpers
+## Trợ giúp danh sách cho phép
 
 ```bash
 openclaw approvals allowlist add "~/Projects/**/bin/rg"
@@ -42,9 +42,9 @@ openclaw approvals allowlist add --agent "*" "/usr/bin/uname"
 openclaw approvals allowlist remove "~/Projects/**/bin/rg"
 ```
 
-## Notes
+## Ghi chú
 
-- `--node` uses the same resolver as `openclaw nodes` (id, name, ip, or id prefix).
-- `--agent` defaults to `"*"`, which applies to all agents.
-- The node host must advertise `system.execApprovals.get/set` (macOS app or headless node host).
-- Approvals files are stored per host at `~/.openclaw/exec-approvals.json`.
+- `--node` sử dụng cùng bộ giải quyết như `openclaw nodes` (id, tên, ip, hoặc tiền tố id).
+- `--agent` mặc định là `"*"`, áp dụng cho tất cả các agent.
+- Máy chủ node phải quảng cáo `system.execApprovals.get/set` (ứng dụng macOS hoặc máy chủ node không giao diện).
+- Các file phê duyệt được lưu trữ theo từng máy chủ tại `~/.openclaw/exec-approvals.json`.

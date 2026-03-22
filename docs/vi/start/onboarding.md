@@ -1,91 +1,82 @@
 ---
-summary: "First-run setup flow for OpenClaw (macOS app)"
+summary: "Quy trình thiết lập lần đầu cho OpenClaw (ứng dụng macOS)"
 read_when:
-  - Designing the macOS onboarding assistant
-  - Implementing auth or identity setup
-title: "Onboarding (macOS App)"
-sidebarTitle: "Onboarding: macOS App"
+  - Thiết kế trợ lý onboarding cho macOS
+  - Triển khai xác thực hoặc thiết lập danh tính
+title: "Onboarding (Ứng dụng macOS)"
+sidebarTitle: "Onboarding: Ứng dụng macOS"
 ---
 
-# Onboarding (macOS App)
+# Onboarding (Ứng dụng macOS)
 
-This doc describes the **current** first‑run setup flow. The goal is a
-smooth “day 0” experience: pick where the Gateway runs, connect auth, run the
-wizard, and let the agent bootstrap itself.
-For a general overview of onboarding paths, see [Onboarding Overview](/start/onboarding-overview).
+Tài liệu này mô tả quy trình thiết lập lần đầu **hiện tại**. Mục tiêu là mang lại trải nghiệm "ngày 0" mượt mà: chọn nơi Gateway chạy, kết nối xác thực, chạy trình hướng dẫn và để agent tự khởi động. Để có cái nhìn tổng quan về các lộ trình onboarding, xem [Tổng quan Onboarding](/start/onboarding-overview).
 
 <Steps>
-<Step title="Approve macOS warning">
+<Step title="Chấp nhận cảnh báo macOS">
 <Frame>
 <img src="/assets/macos-onboarding/01-macos-warning.jpeg" alt="" />
 </Frame>
 </Step>
-<Step title="Approve find local networks">
+<Step title="Chấp nhận tìm mạng cục bộ">
 <Frame>
 <img src="/assets/macos-onboarding/02-local-networks.jpeg" alt="" />
 </Frame>
 </Step>
-<Step title="Welcome and security notice">
-<Frame caption="Read the security notice displayed and decide accordingly">
+<Step title="Chào mừng và thông báo bảo mật">
+<Frame caption="Đọc thông báo bảo mật hiển thị và quyết định phù hợp">
 <img src="/assets/macos-onboarding/03-security-notice.png" alt="" />
 </Frame>
 
-Security trust model:
+Mô hình tin cậy bảo mật:
 
-- By default, OpenClaw is a personal agent: one trusted operator boundary.
-- Shared/multi-user setups require lock-down (split trust boundaries, keep tool access minimal, and follow [Security](/gateway/security)).
-- Local onboarding now defaults new configs to `tools.profile: "coding"` so fresh local setups keep filesystem/runtime tools without forcing the unrestricted `full` profile.
-- If hooks/webhooks or other untrusted content feeds are enabled, use a strong modern model tier and keep strict tool policy/sandboxing.
+- Mặc định, OpenClaw là một agent cá nhân: một ranh giới vận hành tin cậy.
+- Thiết lập chia sẻ/nhiều người dùng yêu cầu khóa chặt (chia ranh giới tin cậy, giữ quyền truy cập công cụ ở mức tối thiểu và tuân theo [Bảo mật](/gateway/security)).
+- Onboarding cục bộ hiện mặc định cấu hình mới là `tools.profile: "coding"` để các thiết lập cục bộ mới giữ công cụ hệ thống tập tin/thời gian chạy mà không bắt buộc sử dụng profile `full` không giới hạn.
+- Nếu các hook/webhook hoặc nguồn nội dung không tin cậy khác được kích hoạt, hãy sử dụng mô hình hiện đại mạnh mẽ và giữ chính sách công cụ/sandboxing nghiêm ngặt.
 
 </Step>
-<Step title="Local vs Remote">
+<Step title="Cục bộ vs Từ xa">
 <Frame>
 <img src="/assets/macos-onboarding/04-choose-gateway.png" alt="" />
 </Frame>
 
-Where does the **Gateway** run?
+Gateway chạy ở đâu?
 
-- **This Mac (Local only):** onboarding can configure auth and write credentials
-  locally.
-- **Remote (over SSH/Tailnet):** onboarding does **not** configure local auth;
-  credentials must exist on the gateway host.
-- **Configure later:** skip setup and leave the app unconfigured.
+- **Máy Mac này (Chỉ cục bộ):** onboarding có thể cấu hình xác thực và ghi thông tin xác thực cục bộ.
+- **Từ xa (qua SSH/Tailnet):** onboarding **không** cấu hình xác thực cục bộ; thông tin xác thực phải tồn tại trên máy chủ gateway.
+- **Cấu hình sau:** bỏ qua thiết lập và để ứng dụng chưa được cấu hình.
 
 <Tip>
-**Gateway auth tip:**
+**Mẹo xác thực Gateway:**
 
-- The wizard now generates a **token** even for loopback, so local WS clients must authenticate.
-- If you disable auth, any local process can connect; use that only on fully trusted machines.
-- Use a **token** for multi‑machine access or non‑loopback binds.
+- Trình hướng dẫn hiện tạo một **token** ngay cả cho loopback, vì vậy các client WS cục bộ phải xác thực.
+- Nếu bạn tắt xác thực, bất kỳ quy trình cục bộ nào cũng có thể kết nối; chỉ sử dụng điều đó trên các máy hoàn toàn tin cậy.
+- Sử dụng **token** cho truy cập nhiều máy hoặc kết nối không phải loopback.
 
 </Tip>
 </Step>
-<Step title="Permissions">
-<Frame caption="Choose what permissions do you want to give OpenClaw">
+<Step title="Quyền">
+<Frame caption="Chọn quyền bạn muốn cấp cho OpenClaw">
 <img src="/assets/macos-onboarding/05-permissions.png" alt="" />
 </Frame>
 
-Onboarding requests TCC permissions needed for:
+Onboarding yêu cầu quyền TCC cần thiết cho:
 
-- Automation (AppleScript)
-- Notifications
-- Accessibility
-- Screen Recording
+- Tự động hóa (AppleScript)
+- Thông báo
+- Trợ năng
+- Ghi màn hình
 - Microphone
-- Speech Recognition
+- Nhận diện giọng nói
 - Camera
-- Location
+- Vị trí
 
 </Step>
 <Step title="CLI">
-  <Info>This step is optional</Info>
-  The app can install the global `openclaw` CLI via npm/pnpm so terminal
-  workflows and launchd tasks work out of the box.
+  <Info>Bước này là tùy chọn</Info>
+  Ứng dụng có thể cài đặt CLI `openclaw` toàn cầu qua npm/pnpm để các quy trình làm việc trên terminal và các tác vụ launchd hoạt động ngay lập tức.
 </Step>
-<Step title="Onboarding Chat (dedicated session)">
-  After setup, the app opens a dedicated onboarding chat session so the agent can
-  introduce itself and guide next steps. This keeps first‑run guidance separate
-  from your normal conversation. See [Bootstrapping](/start/bootstrapping) for
-  what happens on the gateway host during the first agent run.
+<Step title="Chat Onboarding (phiên riêng biệt)">
+  Sau khi thiết lập, ứng dụng mở một phiên chat onboarding riêng biệt để agent có thể tự giới thiệu và hướng dẫn các bước tiếp theo. Điều này giữ cho hướng dẫn lần đầu tách biệt khỏi cuộc trò chuyện thông thường của bạn. Xem [Bootstrapping](/start/bootstrapping) để biết điều gì xảy ra trên máy chủ gateway trong lần chạy agent đầu tiên.
 </Step>
 </Steps>

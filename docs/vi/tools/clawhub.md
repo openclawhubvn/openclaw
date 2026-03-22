@@ -1,60 +1,60 @@
 ---
-summary: "ClawHub guide: public skills registry + CLI workflows"
+summary: "Hướng dẫn ClawHub: đăng ký kỹ năng công khai + quy trình CLI"
 read_when:
-  - Introducing ClawHub to new users
-  - Installing, searching, or publishing skills
-  - Explaining ClawHub CLI flags and sync behavior
+  - Giới thiệu ClawHub cho người dùng mới
+  - Cài đặt, tìm kiếm hoặc xuất bản kỹ năng
+  - Giải thích các cờ CLI và hành vi đồng bộ của ClawHub
 title: "ClawHub"
 ---
 
 # ClawHub
 
-ClawHub is the **public skill registry for OpenClaw**. It is a free service: all skills are public, open, and visible to everyone for sharing and reuse. A skill is just a folder with a `SKILL.md` file (plus supporting text files). You can browse skills in the web app or use the CLI to search, install, update, and publish skills.
+ClawHub là **đăng ký kỹ năng công khai cho OpenClaw**. Đây là dịch vụ miễn phí: tất cả các kỹ năng đều công khai, mở và có thể chia sẻ, tái sử dụng. Một kỹ năng chỉ là một thư mục với file `SKILL.md` (cùng các file văn bản hỗ trợ). Bạn có thể duyệt kỹ năng trên ứng dụng web hoặc sử dụng CLI để tìm kiếm, cài đặt, cập nhật và xuất bản kỹ năng.
 
-Site: [clawhub.ai](https://clawhub.ai)
+Trang web: [clawhub.ai](https://clawhub.ai)
 
-## What ClawHub is
+## ClawHub là gì
 
-- A public registry for OpenClaw skills.
-- A versioned store of skill bundles and metadata.
-- A discovery surface for search, tags, and usage signals.
+- Đăng ký công khai cho các kỹ năng của OpenClaw.
+- Kho lưu trữ phiên bản của các gói kỹ năng và metadata.
+- Nền tảng khám phá cho tìm kiếm, thẻ và tín hiệu sử dụng.
 
-## How it works
+## Cách hoạt động
 
-1. A user publishes a skill bundle (files + metadata).
-2. ClawHub stores the bundle, parses metadata, and assigns a version.
-3. The registry indexes the skill for search and discovery.
-4. Users browse, download, and install skills in OpenClaw.
+1. Người dùng xuất bản một gói kỹ năng (file + metadata).
+2. ClawHub lưu trữ gói, phân tích metadata và gán phiên bản.
+3. Đăng ký lập chỉ mục kỹ năng để tìm kiếm và khám phá.
+4. Người dùng duyệt, tải xuống và cài đặt kỹ năng trong OpenClaw.
 
-## What you can do
+## Bạn có thể làm gì
 
-- Publish new skills and new versions of existing skills.
-- Discover skills by name, tags, or search.
-- Download skill bundles and inspect their files.
-- Report skills that are abusive or unsafe.
-- If you are a moderator, hide, unhide, delete, or ban.
+- Xuất bản kỹ năng mới và phiên bản mới của kỹ năng hiện có.
+- Khám phá kỹ năng theo tên, thẻ hoặc tìm kiếm.
+- Tải xuống gói kỹ năng và kiểm tra các file của chúng.
+- Báo cáo kỹ năng có nội dung lạm dụng hoặc không an toàn.
+- Nếu bạn là người điều hành, có thể ẩn, hiện, xóa hoặc cấm.
 
-## Who this is for (beginner-friendly)
+## Dành cho ai (thân thiện với người mới bắt đầu)
 
-If you want to add new capabilities to your OpenClaw agent, ClawHub is the easiest way to find and install skills. You do not need to know how the backend works. You can:
+Nếu muốn thêm khả năng mới cho agent OpenClaw, ClawHub là cách dễ nhất để tìm và cài đặt kỹ năng. Không cần biết cách hoạt động của backend. Bạn có thể:
 
-- Search for skills by plain language.
-- Install a skill into your workspace.
-- Update skills later with one command.
-- Back up your own skills by publishing them.
+- Tìm kiếm kỹ năng bằng ngôn ngữ đơn giản.
+- Cài đặt kỹ năng vào workspace.
+- Cập nhật kỹ năng sau này chỉ với một lệnh.
+- Sao lưu kỹ năng của mình bằng cách xuất bản chúng.
 
-## Quick start (non-technical)
+## Bắt đầu nhanh (không cần kỹ thuật)
 
-1. Install the CLI (see next section).
-2. Search for something you need:
+1. Cài đặt CLI (xem phần tiếp theo).
+2. Tìm kiếm thứ bạn cần:
    - `clawhub search "calendar"`
-3. Install a skill:
+3. Cài đặt một kỹ năng:
    - `clawhub install <skill-slug>`
-4. Start a new OpenClaw session so it picks up the new skill.
+4. Bắt đầu một phiên OpenClaw mới để nhận kỹ năng mới.
 
-## Install the CLI
+## Cài đặt CLI
 
-Pick one:
+Chọn một trong các cách sau:
 
 ```bash
 npm i -g clawhub
@@ -64,194 +64,186 @@ npm i -g clawhub
 pnpm add -g clawhub
 ```
 
-## How it fits into OpenClaw
+## Cách tích hợp vào OpenClaw
 
-By default, the CLI installs skills into `./skills` under your current working directory. If an OpenClaw workspace is configured, `clawhub` falls back to that workspace unless you override `--workdir` (or `CLAWHUB_WORKDIR`). OpenClaw loads workspace skills from `<workspace>/skills` and will pick them up in the **next** session. If you already use `~/.openclaw/skills` or bundled skills, workspace skills take precedence.
+Theo mặc định, CLI cài đặt kỹ năng vào `./skills` trong thư mục làm việc hiện tại. Nếu một workspace OpenClaw được cấu hình, `clawhub` sẽ sử dụng workspace đó trừ khi bạn ghi đè bằng `--workdir` (hoặc `CLAWHUB_WORKDIR`). OpenClaw tải kỹ năng từ `<workspace>/skills` và sẽ nhận chúng trong phiên **tiếp theo**. Nếu bạn đã sử dụng `~/.openclaw/skills` hoặc kỹ năng gói, kỹ năng workspace sẽ được ưu tiên.
 
-For more detail on how skills are loaded, shared, and gated, see
-[Skills](/tools/skills).
+Để biết thêm chi tiết về cách kỹ năng được tải, chia sẻ và kiểm soát, xem [Skills](/tools/skills).
 
-## Skill system overview
+## Tổng quan về hệ thống kỹ năng
 
-A skill is a versioned bundle of files that teaches OpenClaw how to perform a
-specific task. Each publish creates a new version, and the registry keeps a
-history of versions so users can audit changes.
+Một kỹ năng là một gói file có phiên bản giúp OpenClaw thực hiện một nhiệm vụ cụ thể. Mỗi lần xuất bản tạo ra một phiên bản mới, và đăng ký giữ lịch sử các phiên bản để người dùng có thể kiểm tra thay đổi.
 
-A typical skill includes:
+Một kỹ năng điển hình bao gồm:
 
-- A `SKILL.md` file with the primary description and usage.
-- Optional configs, scripts, or supporting files used by the skill.
-- Metadata such as tags, summary, and install requirements.
+- File `SKILL.md` với mô tả chính và cách sử dụng.
+- Các cấu hình, script hoặc file hỗ trợ tùy chọn được sử dụng bởi kỹ năng.
+- Metadata như thẻ, tóm tắt và yêu cầu cài đặt.
 
-ClawHub uses metadata to power discovery and safely expose skill capabilities.
-The registry also tracks usage signals (such as stars and downloads) to improve
-ranking and visibility.
+ClawHub sử dụng metadata để hỗ trợ khám phá và an toàn khi hiển thị khả năng của kỹ năng. Đăng ký cũng theo dõi tín hiệu sử dụng (như sao và lượt tải xuống) để cải thiện xếp hạng và khả năng hiển thị.
 
-## What the service provides (features)
+## Dịch vụ cung cấp (tính năng)
 
-- **Public browsing** of skills and their `SKILL.md` content.
-- **Search** powered by embeddings (vector search), not just keywords.
-- **Versioning** with semver, changelogs, and tags (including `latest`).
-- **Downloads** as a zip per version.
-- **Stars and comments** for community feedback.
-- **Moderation** hooks for approvals and audits.
-- **CLI-friendly API** for automation and scripting.
+- **Duyệt công khai** các kỹ năng và nội dung `SKILL.md`.
+- **Tìm kiếm** được hỗ trợ bởi embeddings (tìm kiếm vector), không chỉ từ khóa.
+- **Phiên bản** với semver, changelogs và thẻ (bao gồm `latest`).
+- **Tải xuống** dưới dạng zip cho mỗi phiên bản.
+- **Sao và bình luận** để phản hồi từ cộng đồng.
+- **Công cụ điều hành** cho phê duyệt và kiểm tra.
+- **API thân thiện với CLI** cho tự động hóa và scripting.
 
-## Security and moderation
+## Bảo mật và điều hành
 
-ClawHub is open by default. Anyone can upload skills, but a GitHub account must
-be at least one week old to publish. This helps slow down abuse without blocking
-legitimate contributors.
+ClawHub mở mặc định. Bất kỳ ai cũng có thể tải lên kỹ năng, nhưng tài khoản GitHub phải ít nhất một tuần tuổi để xuất bản. Điều này giúp giảm thiểu lạm dụng mà không chặn những người đóng góp hợp pháp.
 
-Reporting and moderation:
+Báo cáo và điều hành:
 
-- Any signed in user can report a skill.
-- Report reasons are required and recorded.
-- Each user can have up to 20 active reports at a time.
-- Skills with more than 3 unique reports are auto hidden by default.
-- Moderators can view hidden skills, unhide them, delete them, or ban users.
-- Abusing the report feature can result in account bans.
+- Bất kỳ người dùng đã đăng nhập nào cũng có thể báo cáo một kỹ năng.
+- Lý do báo cáo là bắt buộc và được ghi lại.
+- Mỗi người dùng có thể có tối đa 20 báo cáo hoạt động cùng lúc.
+- Kỹ năng có hơn 3 báo cáo duy nhất sẽ tự động bị ẩn theo mặc định.
+- Người điều hành có thể xem kỹ năng bị ẩn, hiện chúng, xóa hoặc cấm người dùng.
+- Lạm dụng tính năng báo cáo có thể dẫn đến cấm tài khoản.
 
-Interested in becoming a moderator? Ask in the OpenClaw Discord and contact a
-moderator or maintainer.
+Quan tâm đến việc trở thành người điều hành? Hãy hỏi trong Discord của OpenClaw và liên hệ với người điều hành hoặc người bảo trì.
 
-## CLI commands and parameters
+## Lệnh và tham số CLI
 
-Global options (apply to all commands):
+Tùy chọn toàn cầu (áp dụng cho tất cả các lệnh):
 
-- `--workdir <dir>`: Working directory (default: current dir; falls back to OpenClaw workspace).
-- `--dir <dir>`: Skills directory, relative to workdir (default: `skills`).
-- `--site <url>`: Site base URL (browser login).
-- `--registry <url>`: Registry API base URL.
-- `--no-input`: Disable prompts (non-interactive).
-- `-V, --cli-version`: Print CLI version.
+- `--workdir <dir>`: Thư mục làm việc (mặc định: thư mục hiện tại; sử dụng workspace OpenClaw nếu có).
+- `--dir <dir>`: Thư mục kỹ năng, tương đối với workdir (mặc định: `skills`).
+- `--site <url>`: URL cơ sở của trang web (đăng nhập trình duyệt).
+- `--registry <url>`: URL cơ sở của API đăng ký.
+- `--no-input`: Tắt nhắc nhở (không tương tác).
+- `-V, --cli-version`: In phiên bản CLI.
 
-Auth:
+Xác thực:
 
-- `clawhub login` (browser flow) or `clawhub login --token <token>`
+- `clawhub login` (dòng trình duyệt) hoặc `clawhub login --token <token>`
 - `clawhub logout`
 - `clawhub whoami`
 
-Options:
+Tùy chọn:
 
-- `--token <token>`: Paste an API token.
-- `--label <label>`: Label stored for browser login tokens (default: `CLI token`).
-- `--no-browser`: Do not open a browser (requires `--token`).
+- `--token <token>`: Dán một token API.
+- `--label <label>`: Nhãn lưu trữ cho token đăng nhập trình duyệt (mặc định: `CLI token`).
+- `--no-browser`: Không mở trình duyệt (yêu cầu `--token`).
 
-Search:
+Tìm kiếm:
 
 - `clawhub search "query"`
-- `--limit <n>`: Max results.
+- `--limit <n>`: Kết quả tối đa.
 
-Install:
+Cài đặt:
 
 - `clawhub install <slug>`
-- `--version <version>`: Install a specific version.
-- `--force`: Overwrite if the folder already exists.
+- `--version <version>`: Cài đặt một phiên bản cụ thể.
+- `--force`: Ghi đè nếu thư mục đã tồn tại.
 
-Update:
+Cập nhật:
 
 - `clawhub update <slug>`
 - `clawhub update --all`
-- `--version <version>`: Update to a specific version (single slug only).
-- `--force`: Overwrite when local files do not match any published version.
+- `--version <version>`: Cập nhật lên một phiên bản cụ thể (chỉ một slug).
+- `--force`: Ghi đè khi file cục bộ không khớp với bất kỳ phiên bản nào đã xuất bản.
 
-List:
+Danh sách:
 
-- `clawhub list` (reads `.clawhub/lock.json`)
+- `clawhub list` (đọc `.clawhub/lock.json`)
 
-Publish:
+Xuất bản:
 
 - `clawhub publish <path>`
-- `--slug <slug>`: Skill slug.
-- `--name <name>`: Display name.
-- `--version <version>`: Semver version.
-- `--changelog <text>`: Changelog text (can be empty).
-- `--tags <tags>`: Comma-separated tags (default: `latest`).
+- `--slug <slug>`: Slug kỹ năng.
+- `--name <name>`: Tên hiển thị.
+- `--version <version>`: Phiên bản semver.
+- `--changelog <text>`: Văn bản changelog (có thể để trống).
+- `--tags <tags>`: Thẻ phân tách bằng dấu phẩy (mặc định: `latest`).
 
-Delete/undelete (owner/admin only):
+Xóa/khôi phục (chỉ chủ sở hữu/quản trị viên):
 
 - `clawhub delete <slug> --yes`
 - `clawhub undelete <slug> --yes`
 
-Sync (scan local skills + publish new/updated):
+Đồng bộ (quét kỹ năng cục bộ + xuất bản mới/cập nhật):
 
 - `clawhub sync`
-- `--root <dir...>`: Extra scan roots.
-- `--all`: Upload everything without prompts.
-- `--dry-run`: Show what would be uploaded.
-- `--bump <type>`: `patch|minor|major` for updates (default: `patch`).
-- `--changelog <text>`: Changelog for non-interactive updates.
-- `--tags <tags>`: Comma-separated tags (default: `latest`).
-- `--concurrency <n>`: Registry checks (default: 4).
+- `--root <dir...>`: Gốc quét bổ sung.
+- `--all`: Tải lên tất cả mà không cần nhắc nhở.
+- `--dry-run`: Hiển thị những gì sẽ được tải lên.
+- `--bump <type>`: `patch|minor|major` cho cập nhật (mặc định: `patch`).
+- `--changelog <text>`: Changelog cho cập nhật không tương tác.
+- `--tags <tags>`: Thẻ phân tách bằng dấu phẩy (mặc định: `latest`).
+- `--concurrency <n>`: Kiểm tra đăng ký (mặc định: 4).
 
-## Common workflows for agents
+## Quy trình làm việc phổ biến cho agent
 
-### Search for skills
+### Tìm kiếm kỹ năng
 
 ```bash
 clawhub search "postgres backups"
 ```
 
-### Download new skills
+### Tải xuống kỹ năng mới
 
 ```bash
 clawhub install my-skill-pack
 ```
 
-### Update installed skills
+### Cập nhật kỹ năng đã cài đặt
 
 ```bash
 clawhub update --all
 ```
 
-### Back up your skills (publish or sync)
+### Sao lưu kỹ năng của bạn (xuất bản hoặc đồng bộ)
 
-For a single skill folder:
+Đối với một thư mục kỹ năng đơn lẻ:
 
 ```bash
 clawhub publish ./my-skill --slug my-skill --name "My Skill" --version 1.0.0 --tags latest
 ```
 
-To scan and back up many skills at once:
+Để quét và sao lưu nhiều kỹ năng cùng lúc:
 
 ```bash
 clawhub sync --all
 ```
 
-## Advanced details (technical)
+## Chi tiết nâng cao (kỹ thuật)
 
-### Versioning and tags
+### Phiên bản và thẻ
 
-- Each publish creates a new **semver** `SkillVersion`.
-- Tags (like `latest`) point to a version; moving tags lets you roll back.
-- Changelogs are attached per version and can be empty when syncing or publishing updates.
+- Mỗi lần xuất bản tạo ra một **semver** `SkillVersion`.
+- Thẻ (như `latest`) trỏ đến một phiên bản; di chuyển thẻ cho phép bạn quay lại.
+- Changelogs được đính kèm cho mỗi phiên bản và có thể để trống khi đồng bộ hoặc xuất bản cập nhật.
 
-### Local changes vs registry versions
+### Thay đổi cục bộ so với phiên bản đăng ký
 
-Updates compare the local skill contents to registry versions using a content hash. If local files do not match any published version, the CLI asks before overwriting (or requires `--force` in non-interactive runs).
+Cập nhật so sánh nội dung kỹ năng cục bộ với phiên bản đăng ký bằng cách sử dụng hash nội dung. Nếu file cục bộ không khớp với bất kỳ phiên bản nào đã xuất bản, CLI sẽ hỏi trước khi ghi đè (hoặc yêu cầu `--force` trong các lần chạy không tương tác).
 
-### Sync scanning and fallback roots
+### Quét đồng bộ và gốc dự phòng
 
-`clawhub sync` scans your current workdir first. If no skills are found, it falls back to known legacy locations (for example `~/openclaw/skills` and `~/.openclaw/skills`). This is designed to find older skill installs without extra flags.
+`clawhub sync` quét thư mục làm việc hiện tại của bạn trước. Nếu không tìm thấy kỹ năng nào, nó sẽ quay lại các vị trí cũ đã biết (ví dụ `~/openclaw/skills` và `~/.openclaw/skills`). Điều này được thiết kế để tìm các cài đặt kỹ năng cũ mà không cần cờ bổ sung.
 
-### Storage and lockfile
+### Lưu trữ và file khóa
 
-- Installed skills are recorded in `.clawhub/lock.json` under your workdir.
-- Auth tokens are stored in the ClawHub CLI config file (override via `CLAWHUB_CONFIG_PATH`).
+- Kỹ năng đã cài đặt được ghi lại trong `.clawhub/lock.json` dưới thư mục làm việc của bạn.
+- Token xác thực được lưu trữ trong file cấu hình ClawHub CLI (ghi đè qua `CLAWHUB_CONFIG_PATH`).
 
-### Telemetry (install counts)
+### Telemetry (đếm lượt cài đặt)
 
-When you run `clawhub sync` while logged in, the CLI sends a minimal snapshot to compute install counts. You can disable this entirely:
+Khi bạn chạy `clawhub sync` trong khi đã đăng nhập, CLI gửi một snapshot tối thiểu để tính toán lượt cài đặt. Bạn có thể tắt hoàn toàn tính năng này:
 
 ```bash
 export CLAWHUB_DISABLE_TELEMETRY=1
 ```
 
-## Environment variables
+## Biến môi trường
 
-- `CLAWHUB_SITE`: Override the site URL.
-- `CLAWHUB_REGISTRY`: Override the registry API URL.
-- `CLAWHUB_CONFIG_PATH`: Override where the CLI stores the token/config.
-- `CLAWHUB_WORKDIR`: Override the default workdir.
-- `CLAWHUB_DISABLE_TELEMETRY=1`: Disable telemetry on `sync`.
+- `CLAWHUB_SITE`: Ghi đè URL trang web.
+- `CLAWHUB_REGISTRY`: Ghi đè URL API đăng ký.
+- `CLAWHUB_CONFIG_PATH`: Ghi đè nơi CLI lưu trữ token/cấu hình.
+- `CLAWHUB_WORKDIR`: Ghi đè thư mục làm việc mặc định.
+- `CLAWHUB_DISABLE_TELEMETRY=1`: Tắt telemetry khi `sync`.

@@ -20,16 +20,16 @@ title: "Khảo sát"
 ```bash
 # Telegram
 openclaw message poll --channel telegram --target 123456789 \
-  --poll-question "Gửi đi?" --poll-option "Có" --poll-option "Không"
+  --poll-question "Ship it?" --poll-option "Yes" --poll-option "No"
 openclaw message poll --channel telegram --target -1001234567890:topic:42 \
-  --poll-question "Chọn thời gian" --poll-option "10 giờ sáng" --poll-option "2 giờ chiều" \
+  --poll-question "Chọn thời gian" --poll-option "10am" --poll-option "2pm" \
   --poll-duration-seconds 300
 
 # WhatsApp
 openclaw message poll --target +15555550123 \
-  --poll-question "Ăn trưa hôm nay?" --poll-option "Có" --poll-option "Không" --poll-option "Có thể"
+  --poll-question "Trưa nay ăn gì?" --poll-option "Có" --poll-option "Không" --poll-option "Có thể"
 openclaw message poll --target 123456789@g.us \
-  --poll-question "Thời gian họp?" --poll-option "10 giờ sáng" --poll-option "2 giờ chiều" --poll-option "4 giờ chiều" --poll-multi
+  --poll-question "Thời gian họp?" --poll-option "10am" --poll-option "2pm" --poll-option "4pm" --poll-multi
 
 # Discord
 openclaw message poll --channel discord --target channel:123456789 \
@@ -39,7 +39,7 @@ openclaw message poll --channel discord --target channel:123456789 \
 
 # Microsoft Teams
 openclaw message poll --channel msteams --target conversation:19:abc@thread.tacv2 \
-  --poll-question "Ăn trưa?" --poll-option "Pizza" --poll-option "Sushi"
+  --poll-question "Trưa nay ăn gì?" --poll-option "Pizza" --poll-option "Sushi"
 ```
 
 Tùy chọn:
@@ -81,4 +81,4 @@ Sử dụng công cụ `message` với hành động `poll` (`to`, `pollQuestion
 
 Sử dụng `action: "poll"` để tạo khảo sát. Các trường khảo sát được truyền với `action: "send"` sẽ bị từ chối.
 
-Lưu ý: Discord không có chế độ “chọn chính xác N”; `pollMulti` ánh xạ đến chọn nhiều. Khảo sát Teams được hiển thị dưới dạng Adaptive Cards và yêu cầu gateway phải trực tuyến để ghi lại phiếu bầu trong `~/.openclaw/msteams-polls.json`.
+Lưu ý: Discord không có chế độ “chọn đúng N”; `pollMulti` ánh xạ đến chọn nhiều. Khảo sát Teams được hiển thị dưới dạng Adaptive Cards và yêu cầu gateway phải trực tuyến để ghi lại phiếu bầu trong `~/.openclaw/msteams-polls.json`.

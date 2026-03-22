@@ -1,31 +1,30 @@
 ---
-summary: "Heartbeat polling messages and notification rules"
+summary: "Thông điệp kiểm tra định kỳ và quy tắc thông báo"
 read_when:
-  - Adjusting heartbeat cadence or messaging
-  - Deciding between heartbeat and cron for scheduled tasks
-title: "Heartbeat"
+  - Điều chỉnh tần suất kiểm tra định kỳ hoặc thông điệp
+  - Quyết định giữa kiểm tra định kỳ và cron cho các tác vụ theo lịch
+title: "Kiểm tra định kỳ"
 ---
 
-# Heartbeat (Gateway)
+# Kiểm tra định kỳ (Gateway)
 
-> **Heartbeat vs Cron?** See [Cron vs Heartbeat](/automation/cron-vs-heartbeat) for guidance on when to use each.
+> **Kiểm tra định kỳ hay Cron?** Xem [Cron vs Kiểm tra định kỳ](/automation/cron-vs-heartbeat) để biết khi nào nên sử dụng từng loại.
 
-Heartbeat runs **periodic agent turns** in the main session so the model can
-surface anything that needs attention without spamming you.
+Kiểm tra định kỳ thực hiện **các lượt tác vụ định kỳ** trong phiên chính để mô hình có thể hiển thị những gì cần chú ý mà không làm phiền bạn.
 
-Troubleshooting: [/automation/troubleshooting](/automation/troubleshooting)
+Khắc phục sự cố: [/automation/troubleshooting](/automation/troubleshooting)
 
-## Quick start (beginner)
+## Bắt đầu nhanh (dành cho người mới)
 
-1. Leave heartbeats enabled (default is `30m`, or `1h` for Anthropic OAuth/setup-token) or set your own cadence.
-2. Create a tiny `HEARTBEAT.md` checklist in the agent workspace (optional but recommended).
-3. Decide where heartbeat messages should go (`target: "none"` is the default; set `target: "last"` to route to the last contact).
-4. Optional: enable heartbeat reasoning delivery for transparency.
-5. Optional: use lightweight bootstrap context if heartbeat runs only need `HEARTBEAT.md`.
-6. Optional: enable isolated sessions to avoid sending full conversation history each heartbeat.
-7. Optional: restrict heartbeats to active hours (local time).
+1. Giữ kiểm tra định kỳ được bật (mặc định là `30m`, hoặc `1h` cho Anthropic OAuth/setup-token) hoặc đặt tần suất riêng.
+2. Tạo một danh sách kiểm tra nhỏ `HEARTBEAT.md` trong không gian làm việc của tác vụ (không bắt buộc nhưng nên làm).
+3. Quyết định nơi thông điệp kiểm tra định kỳ sẽ được gửi (`target: "none"` là mặc định; đặt `target: "last"` để gửi đến liên hệ cuối cùng).
+4. Tùy chọn: bật tính năng gửi lý do kiểm tra định kỳ để minh bạch.
+5. Tùy chọn: sử dụng ngữ cảnh khởi động nhẹ nếu kiểm tra định kỳ chỉ cần `HEARTBEAT.md`.
+6. Tùy chọn: bật các phiên cách ly để tránh gửi toàn bộ lịch sử hội thoại mỗi lần kiểm tra định kỳ.
+7. Tùy chọn: giới hạn kiểm tra định kỳ trong giờ hoạt động (giờ địa phương).
 
-Example config:
+Ví dụ cấu hình:
 
 ```json5
 {
@@ -33,93 +32,80 @@ Example config:
     defaults: {
       heartbeat: {
         every: "30m",
-        target: "last", // explicit delivery to last contact (default is "none")
-        directPolicy: "allow", // default: allow direct/DM targets; set "block" to suppress
-        lightContext: true, // optional: only inject HEARTBEAT.md from bootstrap files
-        isolatedSession: true, // optional: fresh session each run (no conversation history)
+        target: "last", // gửi rõ ràng đến liên hệ cuối cùng (mặc định là "none")
+        directPolicy: "allow", // mặc định: cho phép gửi trực tiếp/DM; đặt "block" để chặn
+        lightContext: true, // tùy chọn: chỉ chèn HEARTBEAT.md từ các tệp khởi động
+        isolatedSession: true, // tùy chọn: phiên mới mỗi lần chạy (không có lịch sử hội thoại)
         // activeHours: { start: "08:00", end: "24:00" },
-        // includeReasoning: true, // optional: send separate `Reasoning:` message too
+        // includeReasoning: true, // tùy chọn: gửi thêm thông điệp `Reasoning:`
       },
     },
   },
 }
 ```
 
-## Defaults
+## Mặc định
 
-- Interval: `30m` (or `1h` when Anthropic OAuth/setup-token is the detected auth mode). Set `agents.defaults.heartbeat.every` or per-agent `agents.list[].heartbeat.every`; use `0m` to disable.
-- Prompt body (configurable via `agents.defaults.heartbeat.prompt`):
-  `Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.`
-- The heartbeat prompt is sent **verbatim** as the user message. The system
-  prompt includes a “Heartbeat” section and the run is flagged internally.
-- Active hours (`heartbeat.activeHours`) are checked in the configured timezone.
-  Outside the window, heartbeats are skipped until the next tick inside the window.
+- Khoảng thời gian: `30m` (hoặc `1h` khi phát hiện chế độ xác thực Anthropic OAuth/setup-token). Đặt `agents.defaults.heartbeat.every` hoặc cho từng tác vụ `agents.list[].heartbeat.every`; sử dụng `0m` để tắt.
+- Nội dung nhắc nhở (có thể cấu hình qua `agents.defaults.heartbeat.prompt`):
+  `Đọc HEARTBEAT.md nếu có (ngữ cảnh không gian làm việc). Thực hiện nghiêm ngặt. Không suy diễn hoặc lặp lại các tác vụ cũ từ các cuộc trò chuyện trước. Nếu không có gì cần chú ý, trả lời HEARTBEAT_OK.`
+- Lời nhắc kiểm tra định kỳ được gửi **nguyên văn** như thông điệp của người dùng. Lời nhắc hệ thống bao gồm phần “Kiểm tra định kỳ” và lượt chạy được đánh dấu nội bộ.
+- Giờ hoạt động (`heartbeat.activeHours`) được kiểm tra theo múi giờ đã cấu hình. Ngoài khung giờ này, kiểm tra định kỳ bị bỏ qua cho đến lần chạy tiếp theo trong khung giờ.
 
-## What the heartbeat prompt is for
+## Mục đích của lời nhắc kiểm tra định kỳ
 
-The default prompt is intentionally broad:
+Lời nhắc mặc định được thiết kế rộng rãi:
 
-- **Background tasks**: “Consider outstanding tasks” nudges the agent to review
-  follow-ups (inbox, calendar, reminders, queued work) and surface anything urgent.
-- **Human check-in**: “Checkup sometimes on your human during day time” nudges an
-  occasional lightweight “anything you need?” message, but avoids night-time spam
-  by using your configured local timezone (see [/concepts/timezone](/concepts/timezone)).
+- **Tác vụ nền**: “Xem xét các tác vụ còn lại” nhắc nhở tác vụ xem xét các công việc tiếp theo (hộp thư đến, lịch, nhắc nhở, công việc xếp hàng) và hiển thị bất kỳ điều gì khẩn cấp.
+- **Kiểm tra con người**: “Thỉnh thoảng kiểm tra con người của bạn trong giờ làm việc” nhắc nhở một thông điệp nhẹ nhàng “có cần gì không?”, nhưng tránh gửi vào ban đêm bằng cách sử dụng múi giờ địa phương đã cấu hình (xem [/concepts/timezone](/concepts/timezone)).
 
-If you want a heartbeat to do something very specific (e.g. “check Gmail PubSub
-stats” or “verify gateway health”), set `agents.defaults.heartbeat.prompt` (or
-`agents.list[].heartbeat.prompt`) to a custom body (sent verbatim).
+Nếu bạn muốn kiểm tra định kỳ thực hiện điều gì đó rất cụ thể (ví dụ: “kiểm tra thống kê Gmail PubSub” hoặc “xác minh tình trạng gateway”), đặt `agents.defaults.heartbeat.prompt` (hoặc `agents.list[].heartbeat.prompt`) thành nội dung tùy chỉnh (gửi nguyên văn).
 
-## Response contract
+## Hợp đồng phản hồi
 
-- If nothing needs attention, reply with **`HEARTBEAT_OK`**.
-- During heartbeat runs, OpenClaw treats `HEARTBEAT_OK` as an ack when it appears
-  at the **start or end** of the reply. The token is stripped and the reply is
-  dropped if the remaining content is **≤ `ackMaxChars`** (default: 300).
-- If `HEARTBEAT_OK` appears in the **middle** of a reply, it is not treated
-  specially.
-- For alerts, **do not** include `HEARTBEAT_OK`; return only the alert text.
+- Nếu không có gì cần chú ý, trả lời với **`HEARTBEAT_OK`**.
+- Trong các lần chạy kiểm tra định kỳ, OpenClaw coi `HEARTBEAT_OK` là một xác nhận khi nó xuất hiện ở **đầu hoặc cuối** của phản hồi. Token này bị loại bỏ và phản hồi bị loại bỏ nếu nội dung còn lại **≤ `ackMaxChars`** (mặc định: 300).
+- Nếu `HEARTBEAT_OK` xuất hiện ở **giữa** phản hồi, nó không được xử lý đặc biệt.
+- Đối với cảnh báo, **không** bao gồm `HEARTBEAT_OK`; chỉ trả về văn bản cảnh báo.
 
-Outside heartbeats, stray `HEARTBEAT_OK` at the start/end of a message is stripped
-and logged; a message that is only `HEARTBEAT_OK` is dropped.
+Ngoài các lần kiểm tra định kỳ, `HEARTBEAT_OK` lạc lõng ở đầu/cuối thông điệp sẽ bị loại bỏ và ghi lại; một thông điệp chỉ có `HEARTBEAT_OK` sẽ bị loại bỏ.
 
-## Config
+## Cấu hình
 
 ```json5
 {
   agents: {
     defaults: {
       heartbeat: {
-        every: "30m", // default: 30m (0m disables)
+        every: "30m", // mặc định: 30m (0m để tắt)
         model: "anthropic/claude-opus-4-6",
-        includeReasoning: false, // default: false (deliver separate Reasoning: message when available)
-        lightContext: false, // default: false; true keeps only HEARTBEAT.md from workspace bootstrap files
-        isolatedSession: false, // default: false; true runs each heartbeat in a fresh session (no conversation history)
-        target: "last", // default: none | options: last | none | <channel id> (core or plugin, e.g. "bluebubbles")
-        to: "+15551234567", // optional channel-specific override
-        accountId: "ops-bot", // optional multi-account channel id
-        prompt: "Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.",
-        ackMaxChars: 300, // max chars allowed after HEARTBEAT_OK
+        includeReasoning: false, // mặc định: false (gửi thông điệp Reasoning: riêng khi có)
+        lightContext: false, // mặc định: false; true chỉ giữ lại HEARTBEAT.md từ các tệp khởi động không gian làm việc
+        isolatedSession: false, // mặc định: false; true chạy mỗi lần kiểm tra định kỳ trong một phiên mới (không có lịch sử hội thoại)
+        target: "last", // mặc định: none | tùy chọn: last | none | <channel id> (core hoặc plugin, ví dụ: "bluebubbles")
+        to: "+15551234567", // tùy chọn ghi đè kênh cụ thể
+        accountId: "ops-bot", // tùy chọn id kênh đa tài khoản
+        prompt: "Đọc HEARTBEAT.md nếu có (ngữ cảnh không gian làm việc). Thực hiện nghiêm ngặt. Không suy diễn hoặc lặp lại các tác vụ cũ từ các cuộc trò chuyện trước. Nếu không có gì cần chú ý, trả lời HEARTBEAT_OK.",
+        ackMaxChars: 300, // số ký tự tối đa cho phép sau HEARTBEAT_OK
       },
     },
   },
 }
 ```
 
-### Scope and precedence
+### Phạm vi và thứ tự ưu tiên
 
-- `agents.defaults.heartbeat` sets global heartbeat behavior.
-- `agents.list[].heartbeat` merges on top; if any agent has a `heartbeat` block, **only those agents** run heartbeats.
-- `channels.defaults.heartbeat` sets visibility defaults for all channels.
-- `channels.<channel>.heartbeat` overrides channel defaults.
-- `channels.<channel>.accounts.<id>.heartbeat` (multi-account channels) overrides per-channel settings.
+- `agents.defaults.heartbeat` thiết lập hành vi kiểm tra định kỳ toàn cầu.
+- `agents.list[].heartbeat` hợp nhất lên trên; nếu bất kỳ tác vụ nào có khối `heartbeat`, **chỉ những tác vụ đó** thực hiện kiểm tra định kỳ.
+- `channels.defaults.heartbeat` thiết lập mặc định về khả năng hiển thị cho tất cả các kênh.
+- `channels.<channel>.heartbeat` ghi đè mặc định của kênh.
+- `channels.<channel>.accounts.<id>.heartbeat` (kênh đa tài khoản) ghi đè cài đặt theo kênh.
 
-### Per-agent heartbeats
+### Kiểm tra định kỳ theo tác vụ
 
-If any `agents.list[]` entry includes a `heartbeat` block, **only those agents**
-run heartbeats. The per-agent block merges on top of `agents.defaults.heartbeat`
-(so you can set shared defaults once and override per agent).
+Nếu bất kỳ mục `agents.list[]` nào bao gồm khối `heartbeat`, **chỉ những tác vụ đó** thực hiện kiểm tra định kỳ. Khối theo tác vụ hợp nhất lên trên `agents.defaults.heartbeat` (vì vậy bạn có thể thiết lập mặc định chung một lần và ghi đè theo từng tác vụ).
 
-Example: two agents, only the second agent runs heartbeats.
+Ví dụ: hai tác vụ, chỉ tác vụ thứ hai thực hiện kiểm tra định kỳ.
 
 ```json5
 {
@@ -127,7 +113,7 @@ Example: two agents, only the second agent runs heartbeats.
     defaults: {
       heartbeat: {
         every: "30m",
-        target: "last", // explicit delivery to last contact (default is "none")
+        target: "last", // gửi rõ ràng đến liên hệ cuối cùng (mặc định là "none")
       },
     },
     list: [
@@ -138,7 +124,7 @@ Example: two agents, only the second agent runs heartbeats.
           every: "1h",
           target: "whatsapp",
           to: "+15551234567",
-          prompt: "Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.",
+          prompt: "Đọc HEARTBEAT.md nếu có (ngữ cảnh không gian làm việc). Thực hiện nghiêm ngặt. Không suy diễn hoặc lặp lại các tác vụ cũ từ các cuộc trò chuyện trước. Nếu không có gì cần chú ý, trả lời HEARTBEAT_OK.",
         },
       },
     ],
@@ -146,9 +132,9 @@ Example: two agents, only the second agent runs heartbeats.
 }
 ```
 
-### Active hours example
+### Ví dụ về giờ hoạt động
 
-Restrict heartbeats to business hours in a specific timezone:
+Giới hạn kiểm tra định kỳ trong giờ làm việc tại một múi giờ cụ thể:
 
 ```json5
 {
@@ -156,11 +142,11 @@ Restrict heartbeats to business hours in a specific timezone:
     defaults: {
       heartbeat: {
         every: "30m",
-        target: "last", // explicit delivery to last contact (default is "none")
+        target: "last", // gửi rõ ràng đến liên hệ cuối cùng (mặc định là "none")
         activeHours: {
           start: "09:00",
           end: "22:00",
-          timezone: "America/New_York", // optional; uses your userTimezone if set, otherwise host tz
+          timezone: "America/New_York", // tùy chọn; sử dụng userTimezone của bạn nếu đã đặt, nếu không thì múi giờ của máy chủ
         },
       },
     },
@@ -168,21 +154,20 @@ Restrict heartbeats to business hours in a specific timezone:
 }
 ```
 
-Outside this window (before 9am or after 10pm Eastern), heartbeats are skipped. The next scheduled tick inside the window will run normally.
+Ngoài khung giờ này (trước 9 giờ sáng hoặc sau 10 giờ tối theo giờ miền Đông), kiểm tra định kỳ bị bỏ qua. Lần chạy tiếp theo trong khung giờ sẽ diễn ra bình thường.
 
-### 24/7 setup
+### Cài đặt 24/7
 
-If you want heartbeats to run all day, use one of these patterns:
+Nếu bạn muốn kiểm tra định kỳ chạy cả ngày, sử dụng một trong các mẫu sau:
 
-- Omit `activeHours` entirely (no time-window restriction; this is the default behavior).
-- Set a full-day window: `activeHours: { start: "00:00", end: "24:00" }`.
+- Bỏ qua `activeHours` hoàn toàn (không có giới hạn thời gian; đây là hành vi mặc định).
+- Đặt khung giờ cả ngày: `activeHours: { start: "00:00", end: "24:00" }`.
 
-Do not set the same `start` and `end` time (for example `08:00` to `08:00`).
-That is treated as a zero-width window, so heartbeats are always skipped.
+Không đặt cùng thời gian `start` và `end` (ví dụ `08:00` đến `08:00`). Điều này được coi là một khung giờ không có độ rộng, vì vậy kiểm tra định kỳ luôn bị bỏ qua.
 
-### Multi account example
+### Ví dụ về đa tài khoản
 
-Use `accountId` to target a specific account on multi-account channels like Telegram:
+Sử dụng `accountId` để nhắm mục tiêu một tài khoản cụ thể trên các kênh đa tài khoản như Telegram:
 
 ```json5
 {
@@ -193,7 +178,7 @@ Use `accountId` to target a specific account on multi-account channels like Tele
         heartbeat: {
           every: "1h",
           target: "telegram",
-          to: "12345678:topic:42", // optional: route to a specific topic/thread
+          to: "12345678:topic:42", // tùy chọn: gửi đến một chủ đề/cuộc trò chuyện cụ thể
           accountId: "ops-bot",
         },
       },
@@ -209,84 +194,84 @@ Use `accountId` to target a specific account on multi-account channels like Tele
 }
 ```
 
-### Field notes
+### Ghi chú trường
 
-- `every`: heartbeat interval (duration string; default unit = minutes).
-- `model`: optional model override for heartbeat runs (`provider/model`).
-- `includeReasoning`: when enabled, also deliver the separate `Reasoning:` message when available (same shape as `/reasoning on`).
-- `lightContext`: when true, heartbeat runs use lightweight bootstrap context and keep only `HEARTBEAT.md` from workspace bootstrap files.
-- `isolatedSession`: when true, each heartbeat runs in a fresh session with no prior conversation history. Uses the same isolation pattern as cron `sessionTarget: "isolated"`. Dramatically reduces per-heartbeat token cost. Combine with `lightContext: true` for maximum savings. Delivery routing still uses the main session context.
-- `session`: optional session key for heartbeat runs.
-  - `main` (default): agent main session.
-  - Explicit session key (copy from `openclaw sessions --json` or the [sessions CLI](/cli/sessions)).
-  - Session key formats: see [Sessions](/concepts/session) and [Groups](/channels/groups).
+- `every`: khoảng thời gian kiểm tra định kỳ (chuỗi thời lượng; đơn vị mặc định = phút).
+- `model`: ghi đè mô hình tùy chọn cho các lần chạy kiểm tra định kỳ (`provider/model`).
+- `includeReasoning`: khi bật, cũng gửi thông điệp `Reasoning:` riêng khi có (cùng hình dạng với `/reasoning on`).
+- `lightContext`: khi true, các lần chạy kiểm tra định kỳ sử dụng ngữ cảnh khởi động nhẹ và chỉ giữ lại `HEARTBEAT.md` từ các tệp khởi động không gian làm việc.
+- `isolatedSession`: khi true, mỗi lần kiểm tra định kỳ chạy trong một phiên mới không có lịch sử hội thoại trước đó. Sử dụng cùng một mẫu cách ly như cron `sessionTarget: "isolated"`. Giảm đáng kể chi phí token cho mỗi lần kiểm tra định kỳ. Kết hợp với `lightContext: true` để tiết kiệm tối đa. Định tuyến gửi vẫn sử dụng ngữ cảnh phiên chính.
+- `session`: khóa phiên tùy chọn cho các lần chạy kiểm tra định kỳ.
+  - `main` (mặc định): phiên chính của tác vụ.
+  - Khóa phiên rõ ràng (sao chép từ `openclaw sessions --json` hoặc [sessions CLI](/cli/sessions)).
+  - Định dạng khóa phiên: xem [Sessions](/concepts/session) và [Groups](/channels/groups).
 - `target`:
-  - `last`: deliver to the last used external channel.
-  - explicit channel: `whatsapp` / `telegram` / `discord` / `googlechat` / `slack` / `msteams` / `signal` / `imessage`.
-  - `none` (default): run the heartbeat but **do not deliver** externally.
-- `directPolicy`: controls direct/DM delivery behavior:
-  - `allow` (default): allow direct/DM heartbeat delivery.
-  - `block`: suppress direct/DM delivery (`reason=dm-blocked`).
-- `to`: optional recipient override (channel-specific id, e.g. E.164 for WhatsApp or a Telegram chat id). For Telegram topics/threads, use `<chatId>:topic:<messageThreadId>`.
-- `accountId`: optional account id for multi-account channels. When `target: "last"`, the account id applies to the resolved last channel if it supports accounts; otherwise it is ignored. If the account id does not match a configured account for the resolved channel, delivery is skipped.
-- `prompt`: overrides the default prompt body (not merged).
-- `ackMaxChars`: max chars allowed after `HEARTBEAT_OK` before delivery.
-- `suppressToolErrorWarnings`: when true, suppresses tool error warning payloads during heartbeat runs.
-- `activeHours`: restricts heartbeat runs to a time window. Object with `start` (HH:MM, inclusive; use `00:00` for start-of-day), `end` (HH:MM exclusive; `24:00` allowed for end-of-day), and optional `timezone`.
-  - Omitted or `"user"`: uses your `agents.defaults.userTimezone` if set, otherwise falls back to the host system timezone.
-  - `"local"`: always uses the host system timezone.
-  - Any IANA identifier (e.g. `America/New_York`): used directly; if invalid, falls back to the `"user"` behavior above.
-  - `start` and `end` must not be equal for an active window; equal values are treated as zero-width (always outside the window).
-  - Outside the active window, heartbeats are skipped until the next tick inside the window.
+  - `last`: gửi đến kênh bên ngoài được sử dụng cuối cùng.
+  - kênh rõ ràng: `whatsapp` / `telegram` / `discord` / `googlechat` / `slack` / `msteams` / `signal` / `imessage`.
+  - `none` (mặc định): chạy kiểm tra định kỳ nhưng **không gửi** ra bên ngoài.
+- `directPolicy`: kiểm soát hành vi gửi trực tiếp/DM:
+  - `allow` (mặc định): cho phép gửi trực tiếp/DM kiểm tra định kỳ.
+  - `block`: chặn gửi trực tiếp/DM (`reason=dm-blocked`).
+- `to`: ghi đè người nhận tùy chọn (id kênh cụ thể, ví dụ E.164 cho WhatsApp hoặc id cuộc trò chuyện Telegram). Đối với chủ đề/cuộc trò chuyện Telegram, sử dụng `<chatId>:topic:<messageThreadId>`.
+- `accountId`: id tài khoản tùy chọn cho các kênh đa tài khoản. Khi `target: "last"`, id tài khoản áp dụng cho kênh cuối cùng đã giải quyết nếu nó hỗ trợ tài khoản; nếu không thì bị bỏ qua. Nếu id tài khoản không khớp với tài khoản đã cấu hình cho kênh đã giải quyết, việc gửi bị bỏ qua.
+- `prompt`: ghi đè nội dung nhắc nhở mặc định (không hợp nhất).
+- `ackMaxChars`: số ký tự tối đa cho phép sau `HEARTBEAT_OK` trước khi gửi.
+- `suppressToolErrorWarnings`: khi true, chặn các cảnh báo lỗi công cụ trong các lần chạy kiểm tra định kỳ.
+- `activeHours`: giới hạn các lần chạy kiểm tra định kỳ trong một khung giờ. Đối tượng với `start` (HH:MM, bao gồm; sử dụng `00:00` cho đầu ngày), `end` (HH:MM không bao gồm; `24:00` cho phép cho cuối ngày), và `timezone` tùy chọn.
+  - Bỏ qua hoặc `"user"`: sử dụng `agents.defaults.userTimezone` của bạn nếu đã đặt, nếu không thì sử dụng múi giờ hệ thống máy chủ.
+  - `"local"`: luôn sử dụng múi giờ hệ thống máy chủ.
+  - Bất kỳ định danh IANA nào (ví dụ `America/New_York`): sử dụng trực tiếp; nếu không hợp lệ, sử dụng hành vi `"user"` ở trên.
+  - `start` và `end` không được bằng nhau cho một khung giờ hoạt động; các giá trị bằng nhau được coi là không có độ rộng (luôn ngoài khung giờ).
+  - Ngoài khung giờ hoạt động, các lần kiểm tra định kỳ bị bỏ qua cho đến lần chạy tiếp theo trong khung giờ.
 
-## Delivery behavior
+## Hành vi gửi
 
-- Heartbeats run in the agent’s main session by default (`agent:<id>:<mainKey>`),
-  or `global` when `session.scope = "global"`. Set `session` to override to a
-  specific channel session (Discord/WhatsApp/etc.).
-- `session` only affects the run context; delivery is controlled by `target` and `to`.
-- To deliver to a specific channel/recipient, set `target` + `to`. With
-  `target: "last"`, delivery uses the last external channel for that session.
-- Heartbeat deliveries allow direct/DM targets by default. Set `directPolicy: "block"` to suppress direct-target sends while still running the heartbeat turn.
-- If the main queue is busy, the heartbeat is skipped and retried later.
-- If `target` resolves to no external destination, the run still happens but no
-  outbound message is sent.
-- Heartbeat-only replies do **not** keep the session alive; the last `updatedAt`
-  is restored so idle expiry behaves normally.
+- Kiểm tra định kỳ chạy trong phiên chính của tác vụ theo mặc định (`agent:<id>:<mainKey>`),
+  hoặc `global` khi `session.scope = "global"`. Đặt `session` để ghi đè sang một
+  phiên kênh cụ thể (Discord/WhatsApp/v.v.).
+- `session` chỉ ảnh hưởng đến ngữ cảnh chạy; việc gửi được kiểm soát bởi `target` và `to`.
+- Để gửi đến một kênh/người nhận cụ thể, đặt `target` + `to`. Với
+  `target: "last"`, việc gửi sử dụng kênh bên ngoài cuối cùng cho phiên đó.
+- Việc gửi kiểm tra định kỳ cho phép các mục tiêu trực tiếp/DM theo mặc định. Đặt `directPolicy: "block"` để chặn gửi đến mục tiêu trực tiếp trong khi vẫn chạy lượt kiểm tra định kỳ.
+- Nếu hàng đợi chính bận, kiểm tra định kỳ bị bỏ qua và thử lại sau.
+- Nếu `target` không giải quyết được đến đích bên ngoài, lượt chạy vẫn diễn ra nhưng không có
+  thông điệp gửi ra ngoài.
+- Các phản hồi chỉ kiểm tra định kỳ **không** giữ phiên hoạt động; `updatedAt` cuối cùng
+  được khôi phục để hết hạn không hoạt động hoạt động bình thường.
 
-## Visibility controls
+## Kiểm soát khả năng hiển thị
 
-By default, `HEARTBEAT_OK` acknowledgments are suppressed while alert content is
-delivered. You can adjust this per channel or per account:
+Theo mặc định, các xác nhận `HEARTBEAT_OK` bị chặn trong khi nội dung cảnh báo được
+gửi. Bạn có thể điều chỉnh điều này theo kênh hoặc theo tài khoản:
 
 ```yaml
 channels:
   defaults:
     heartbeat:
-      showOk: false # Hide HEARTBEAT_OK (default)
-      showAlerts: true # Show alert messages (default)
-      useIndicator: true # Emit indicator events (default)
+      showOk: false # Ẩn HEARTBEAT_OK (mặc định)
+      showAlerts: true # Hiển thị thông điệp cảnh báo (mặc định)
+      useIndicator: true # Phát ra sự kiện chỉ báo (mặc định)
   telegram:
     heartbeat:
-      showOk: true # Show OK acknowledgments on Telegram
+      showOk: true # Hiển thị xác nhận OK trên Telegram
   whatsapp:
     accounts:
       work:
         heartbeat:
-          showAlerts: false # Suppress alert delivery for this account
+          showAlerts: false # Chặn gửi cảnh báo cho tài khoản này
 ```
 
-Precedence: per-account → per-channel → channel defaults → built-in defaults.
+Thứ tự ưu tiên: theo tài khoản → theo kênh → mặc định kênh → mặc định tích hợp sẵn.
 
-### What each flag does
+### Tác dụng của từng cờ
 
-- `showOk`: sends a `HEARTBEAT_OK` acknowledgment when the model returns an OK-only reply.
-- `showAlerts`: sends the alert content when the model returns a non-OK reply.
-- `useIndicator`: emits indicator events for UI status surfaces.
+- `showOk`: gửi xác nhận `HEARTBEAT_OK` khi mô hình trả về phản hồi chỉ OK.
+- `showAlerts`: gửi nội dung cảnh báo khi mô hình trả về phản hồi không OK.
+- `useIndicator`: phát ra sự kiện chỉ báo cho các bề mặt trạng thái giao diện người dùng.
 
-If **all three** are false, OpenClaw skips the heartbeat run entirely (no model call).
+Nếu **cả ba** đều là false, OpenClaw bỏ qua lượt chạy kiểm tra định kỳ hoàn toàn (không gọi mô hình).
 
-### Per-channel vs per-account examples
+### Ví dụ theo kênh so với theo tài khoản
 
 ```yaml
 channels:
@@ -297,97 +282,94 @@ channels:
       useIndicator: true
   slack:
     heartbeat:
-      showOk: true # all Slack accounts
+      showOk: true # tất cả các tài khoản Slack
     accounts:
       ops:
         heartbeat:
-          showAlerts: false # suppress alerts for the ops account only
+          showAlerts: false # chặn cảnh báo chỉ cho tài khoản ops
   telegram:
     heartbeat:
       showOk: true
 ```
 
-### Common patterns
+### Mẫu phổ biến
 
-| Goal                                     | Config                                                                                   |
-| ---------------------------------------- | ---------------------------------------------------------------------------------------- |
-| Default behavior (silent OKs, alerts on) | _(no config needed)_                                                                     |
-| Fully silent (no messages, no indicator) | `channels.defaults.heartbeat: { showOk: false, showAlerts: false, useIndicator: false }` |
-| Indicator-only (no messages)             | `channels.defaults.heartbeat: { showOk: false, showAlerts: false, useIndicator: true }`  |
-| OKs in one channel only                  | `channels.telegram.heartbeat: { showOk: true }`                                          |
+| Mục tiêu                                   | Cấu hình                                                                                   |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| Hành vi mặc định (OK im lặng, cảnh báo bật) | _(không cần cấu hình)_                                                                     |
+| Hoàn toàn im lặng (không thông điệp, không chỉ báo) | `channels.defaults.heartbeat: { showOk: false, showAlerts: false, useIndicator: false }` |
+| Chỉ chỉ báo (không thông điệp)             | `channels.defaults.heartbeat: { showOk: false, showAlerts: false, useIndicator: true }`  |
+| OK chỉ trong một kênh                      | `channels.telegram.heartbeat: { showOk: true }`                                          |
 
-## HEARTBEAT.md (optional)
+## HEARTBEAT.md (không bắt buộc)
 
-If a `HEARTBEAT.md` file exists in the workspace, the default prompt tells the
-agent to read it. Think of it as your “heartbeat checklist”: small, stable, and
-safe to include every 30 minutes.
+Nếu tệp `HEARTBEAT.md` tồn tại trong không gian làm việc, lời nhắc mặc định yêu cầu
+tác vụ đọc nó. Hãy coi nó như “danh sách kiểm tra định kỳ” của bạn: nhỏ, ổn định và
+an toàn để bao gồm mỗi 30 phút.
 
-If `HEARTBEAT.md` exists but is effectively empty (only blank lines and markdown
-headers like `# Heading`), OpenClaw skips the heartbeat run to save API calls.
-If the file is missing, the heartbeat still runs and the model decides what to do.
+Nếu `HEARTBEAT.md` tồn tại nhưng thực tế trống (chỉ có dòng trống và tiêu đề markdown
+như `# Heading`), OpenClaw bỏ qua lượt chạy kiểm tra định kỳ để tiết kiệm cuộc gọi API.
+Nếu tệp bị thiếu, kiểm tra định kỳ vẫn chạy và mô hình quyết định phải làm gì.
 
-Keep it tiny (short checklist or reminders) to avoid prompt bloat.
+Giữ nó nhỏ (danh sách kiểm tra ngắn hoặc nhắc nhở) để tránh phình to lời nhắc.
 
-Example `HEARTBEAT.md`:
+Ví dụ `HEARTBEAT.md`:
 
 ```md
-# Heartbeat checklist
+# Danh sách kiểm tra định kỳ
 
-- Quick scan: anything urgent in inboxes?
-- If it’s daytime, do a lightweight check-in if nothing else is pending.
-- If a task is blocked, write down _what is missing_ and ask Peter next time.
+- Quét nhanh: có gì khẩn cấp trong hộp thư đến không?
+- Nếu là ban ngày, thực hiện kiểm tra nhẹ nhàng nếu không có gì khác đang chờ.
+- Nếu một tác vụ bị chặn, ghi lại _những gì còn thiếu_ và hỏi Peter lần sau.
 ```
 
-### Can the agent update HEARTBEAT.md?
+### Tác vụ có thể cập nhật HEARTBEAT.md không?
 
-Yes — if you ask it to.
+Có — nếu bạn yêu cầu nó.
 
-`HEARTBEAT.md` is just a normal file in the agent workspace, so you can tell the
-agent (in a normal chat) something like:
+`HEARTBEAT.md` chỉ là một tệp bình thường trong không gian làm việc của tác vụ, vì vậy bạn có thể yêu cầu
+tác vụ (trong một cuộc trò chuyện bình thường) điều gì đó như:
 
-- “Update `HEARTBEAT.md` to add a daily calendar check.”
-- “Rewrite `HEARTBEAT.md` so it’s shorter and focused on inbox follow-ups.”
+- “Cập nhật `HEARTBEAT.md` để thêm kiểm tra lịch hàng ngày.”
+- “Viết lại `HEARTBEAT.md` để nó ngắn hơn và tập trung vào các công việc tiếp theo trong hộp thư đến.”
 
-If you want this to happen proactively, you can also include an explicit line in
-your heartbeat prompt like: “If the checklist becomes stale, update HEARTBEAT.md
-with a better one.”
+Nếu bạn muốn điều này xảy ra chủ động, bạn cũng có thể bao gồm một dòng rõ ràng trong
+lời nhắc kiểm tra định kỳ của bạn như: “Nếu danh sách kiểm tra trở nên lỗi thời, cập nhật HEARTBEAT.md
+với một danh sách tốt hơn.”
 
-Safety note: don’t put secrets (API keys, phone numbers, private tokens) into
-`HEARTBEAT.md` — it becomes part of the prompt context.
+Lưu ý an toàn: đừng đặt thông tin bí mật (khóa API, số điện thoại, token riêng tư) vào
+`HEARTBEAT.md` — nó trở thành một phần của ngữ cảnh lời nhắc.
 
-## Manual wake (on-demand)
+## Đánh thức thủ công (theo yêu cầu)
 
-You can enqueue a system event and trigger an immediate heartbeat with:
+Bạn có thể xếp hàng một sự kiện hệ thống và kích hoạt kiểm tra định kỳ ngay lập tức với:
 
 ```bash
-openclaw system event --text "Check for urgent follow-ups" --mode now
+openclaw system event --text "Kiểm tra các công việc khẩn cấp" --mode now
 ```
 
-If multiple agents have `heartbeat` configured, a manual wake runs each of those
-agent heartbeats immediately.
+Nếu nhiều tác vụ có cấu hình `heartbeat`, một lần đánh thức thủ công sẽ chạy ngay lập tức các kiểm tra định kỳ của những tác vụ đó.
 
-Use `--mode next-heartbeat` to wait for the next scheduled tick.
+Sử dụng `--mode next-heartbeat` để chờ lần chạy theo lịch tiếp theo.
 
-## Reasoning delivery (optional)
+## Gửi lý do (tùy chọn)
 
-By default, heartbeats deliver only the final “answer” payload.
+Theo mặc định, kiểm tra định kỳ chỉ gửi tải trọng “câu trả lời” cuối cùng.
 
-If you want transparency, enable:
+Nếu bạn muốn minh bạch, bật:
 
 - `agents.defaults.heartbeat.includeReasoning: true`
 
-When enabled, heartbeats will also deliver a separate message prefixed
-`Reasoning:` (same shape as `/reasoning on`). This can be useful when the agent
-is managing multiple sessions/codexes and you want to see why it decided to ping
-you — but it can also leak more internal detail than you want. Prefer keeping it
-off in group chats.
+Khi bật, kiểm tra định kỳ cũng sẽ gửi một thông điệp riêng biệt có tiền tố
+`Reasoning:` (cùng hình dạng với `/reasoning on`). Điều này có thể hữu ích khi tác vụ
+đang quản lý nhiều phiên/codex và bạn muốn biết lý do tại sao nó quyết định gửi thông điệp cho bạn — nhưng nó cũng có thể tiết lộ nhiều chi tiết nội bộ hơn bạn muốn. Nên giữ nó tắt trong các cuộc trò chuyện nhóm.
 
-## Cost awareness
+## Nhận thức về chi phí
 
-Heartbeats run full agent turns. Shorter intervals burn more tokens. To reduce cost:
+Kiểm tra định kỳ chạy toàn bộ lượt tác vụ. Khoảng thời gian ngắn hơn tiêu tốn nhiều token hơn. Để giảm chi phí:
 
-- Use `isolatedSession: true` to avoid sending full conversation history (~100K tokens down to ~2-5K per run).
-- Use `lightContext: true` to limit bootstrap files to just `HEARTBEAT.md`.
-- Set a cheaper `model` (e.g. `ollama/llama3.2:1b`).
-- Keep `HEARTBEAT.md` small.
-- Use `target: "none"` if you only want internal state updates.
+- Sử dụng `isolatedSession: true` để tránh gửi toàn bộ lịch sử hội thoại (~100K token giảm xuống còn ~2-5K mỗi lần chạy).
+- Sử dụng `lightContext: true` để giới hạn các tệp khởi động chỉ còn `HEARTBEAT.md`.
+- Đặt một mô hình rẻ hơn (ví dụ: `ollama/llama3.2:1b`).
+- Giữ `HEARTBEAT.md` nhỏ.
+- Sử dụng `target: "none"` nếu bạn chỉ muốn cập nhật trạng thái nội bộ.

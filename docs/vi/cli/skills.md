@@ -1,22 +1,22 @@
 ---
-summary: "CLI reference for `openclaw skills` (list/info/check) and skill eligibility"
+summary: "Tham khảo CLI cho `openclaw skills` (list/info/check) và điều kiện sử dụng skill"
 read_when:
-  - You want to see which skills are available and ready to run
-  - You want to debug missing binaries/env/config for skills
+  - Bạn muốn xem những skill nào có sẵn và sẵn sàng chạy
+  - Bạn muốn gỡ lỗi các binary/env/config bị thiếu cho skill
 title: "skills"
 ---
 
 # `openclaw skills`
 
-Inspect skills (bundled + workspace + managed overrides) and see what’s eligible vs missing requirements.
+Kiểm tra các skill (đi kèm + workspace + quản lý ghi đè) và xem những skill nào đủ điều kiện so với yêu cầu còn thiếu.
 
-Related:
+Liên quan:
 
-- Skills system: [Skills](/tools/skills)
-- Skills config: [Skills config](/tools/skills-config)
-- ClawHub installs: [ClawHub](/tools/clawhub)
+- Hệ thống Skills: [Skills](/tools/skills)
+- Cấu hình Skills: [Skills config](/tools/skills-config)
+- Cài đặt ClawHub: [ClawHub](/tools/clawhub)
 
-## Commands
+## Lệnh
 
 ```bash
 openclaw skills list

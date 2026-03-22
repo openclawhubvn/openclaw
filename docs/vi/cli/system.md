@@ -1,21 +1,20 @@
 ---
-summary: "CLI reference for `openclaw system` (system events, heartbeat, presence)"
+summary: "Tham khảo CLI cho `openclaw system` (sự kiện hệ thống, heartbeat, presence)"
 read_when:
-  - You want to enqueue a system event without creating a cron job
-  - You need to enable or disable heartbeats
-  - You want to inspect system presence entries
+  - Bạn muốn xếp hàng một sự kiện hệ thống mà không cần tạo cron job
+  - Bạn cần bật hoặc tắt heartbeat
+  - Bạn muốn kiểm tra các mục presence của hệ thống
 title: "system"
 ---
 
 # `openclaw system`
 
-System-level helpers for the Gateway: enqueue system events, control heartbeats,
-and view presence.
+Công cụ hỗ trợ cấp hệ thống cho Gateway: xếp hàng sự kiện hệ thống, kiểm soát heartbeat và xem presence.
 
-## Common commands
+## Lệnh thông dụng
 
 ```bash
-openclaw system event --text "Check for urgent follow-ups" --mode now
+openclaw system event --text "Kiểm tra các công việc cần theo dõi gấp" --mode now
 openclaw system heartbeat enable
 openclaw system heartbeat last
 openclaw system presence
@@ -23,38 +22,35 @@ openclaw system presence
 
 ## `system event`
 
-Enqueue a system event on the **main** session. The next heartbeat will inject
-it as a `System:` line in the prompt. Use `--mode now` to trigger the heartbeat
-immediately; `next-heartbeat` waits for the next scheduled tick.
+Xếp hàng một sự kiện hệ thống trên phiên **chính**. Heartbeat tiếp theo sẽ chèn nó như một dòng `System:` trong prompt. Sử dụng `--mode now` để kích hoạt heartbeat ngay lập tức; `next-heartbeat` sẽ chờ đến lần tick tiếp theo đã lên lịch.
 
-Flags:
+Các tùy chọn:
 
-- `--text <text>`: required system event text.
-- `--mode <mode>`: `now` or `next-heartbeat` (default).
-- `--json`: machine-readable output.
+- `--text <text>`: văn bản sự kiện hệ thống bắt buộc.
+- `--mode <mode>`: `now` hoặc `next-heartbeat` (mặc định).
+- `--json`: đầu ra có thể đọc được bằng máy.
 
 ## `system heartbeat last|enable|disable`
 
-Heartbeat controls:
+Kiểm soát heartbeat:
 
-- `last`: show the last heartbeat event.
-- `enable`: turn heartbeats back on (use this if they were disabled).
-- `disable`: pause heartbeats.
+- `last`: hiển thị sự kiện heartbeat cuối cùng.
+- `enable`: bật lại heartbeat (sử dụng nếu chúng đã bị tắt).
+- `disable`: tạm dừng heartbeat.
 
-Flags:
+Các tùy chọn:
 
-- `--json`: machine-readable output.
+- `--json`: đầu ra có thể đọc được bằng máy.
 
 ## `system presence`
 
-List the current system presence entries the Gateway knows about (nodes,
-instances, and similar status lines).
+Liệt kê các mục presence hiện tại mà Gateway biết đến (các node, instance và các dòng trạng thái tương tự).
 
-Flags:
+Các tùy chọn:
 
-- `--json`: machine-readable output.
+- `--json`: đầu ra có thể đọc được bằng máy.
 
-## Notes
+## Lưu ý
 
-- Requires a running Gateway reachable by your current config (local or remote).
-- System events are ephemeral and not persisted across restarts.
+- Yêu cầu Gateway đang chạy và có thể truy cập từ cấu hình hiện tại của bạn (cục bộ hoặc từ xa).
+- Các sự kiện hệ thống là tạm thời và không được lưu trữ qua các lần khởi động lại.

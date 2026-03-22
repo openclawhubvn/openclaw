@@ -1,32 +1,24 @@
 ---
-summary: "Agent workspace: location, layout, and backup strategy"
+summary: "Không gian làm việc của agent: vị trí, bố cục và chiến lược sao lưu"
 read_when:
-  - You need to explain the agent workspace or its file layout
-  - You want to back up or migrate an agent workspace
-title: "Agent Workspace"
+  - Bạn cần giải thích về không gian làm việc của agent hoặc bố cục file của nó
+  - Bạn muốn sao lưu hoặc di chuyển không gian làm việc của agent
+title: "Không gian làm việc của Agent"
 ---
 
-# Agent workspace
+# Không gian làm việc của Agent
 
-The workspace is the agent's home. It is the only working directory used for
-file tools and for workspace context. Keep it private and treat it as memory.
+Không gian làm việc là nơi lưu trữ chính của agent. Đây là thư mục làm việc duy nhất được sử dụng cho các công cụ file và ngữ cảnh không gian làm việc. Hãy giữ nó riêng tư và coi như bộ nhớ.
 
-This is separate from `~/.openclaw/`, which stores config, credentials, and
-sessions.
+Điều này tách biệt với `~/.openclaw/`, nơi lưu trữ cấu hình, thông tin xác thực và phiên làm việc.
 
-**Important:** the workspace is the **default cwd**, not a hard sandbox. Tools
-resolve relative paths against the workspace, but absolute paths can still reach
-elsewhere on the host unless sandboxing is enabled. If you need isolation, use
-[`agents.defaults.sandbox`](/gateway/sandboxing) (and/or per‑agent sandbox config).
-When sandboxing is enabled and `workspaceAccess` is not `"rw"`, tools operate
-inside a sandbox workspace under `~/.openclaw/sandboxes`, not your host workspace.
+**Quan trọng:** không gian làm việc là **thư mục làm việc mặc định**, không phải là một sandbox cứng. Các công cụ giải quyết đường dẫn tương đối so với không gian làm việc, nhưng đường dẫn tuyệt đối vẫn có thể truy cập các nơi khác trên máy chủ trừ khi sandboxing được kích hoạt. Nếu cần cách ly, hãy sử dụng [`agents.defaults.sandbox`](/gateway/sandboxing) (và/hoặc cấu hình sandbox cho từng agent). Khi sandboxing được kích hoạt và `workspaceAccess` không phải là `"rw"`, các công cụ hoạt động trong một không gian làm việc sandbox dưới `~/.openclaw/sandboxes`, không phải không gian làm việc trên máy chủ của bạn.
 
-## Default location
+## Vị trí mặc định
 
-- Default: `~/.openclaw/workspace`
-- If `OPENCLAW_PROFILE` is set and not `"default"`, the default becomes
-  `~/.openclaw/workspace-<profile>`.
-- Override in `~/.openclaw/openclaw.json`:
+- Mặc định: `~/.openclaw/workspace`
+- Nếu `OPENCLAW_PROFILE` được thiết lập và không phải là `"default"`, mặc định sẽ trở thành `~/.openclaw/workspace-<profile>`.
+- Ghi đè trong `~/.openclaw/openclaw.json`:
 
 ```json5
 {
@@ -36,133 +28,115 @@ inside a sandbox workspace under `~/.openclaw/sandboxes`, not your host workspac
 }
 ```
 
-`openclaw onboard`, `openclaw configure`, or `openclaw setup` will create the
-workspace and seed the bootstrap files if they are missing.
-Sandbox seed copies only accept regular in-workspace files; symlink/hardlink
-aliases that resolve outside the source workspace are ignored.
+`openclaw onboard`, `openclaw configure`, hoặc `openclaw setup` sẽ tạo không gian làm việc và khởi tạo các file bootstrap nếu chúng bị thiếu. Các bản sao sandbox chỉ chấp nhận các file thông thường trong không gian làm việc; các liên kết symlink/hardlink giải quyết ngoài không gian làm việc nguồn sẽ bị bỏ qua.
 
-If you already manage the workspace files yourself, you can disable bootstrap
-file creation:
+Nếu bạn đã tự quản lý các file trong không gian làm việc, bạn có thể tắt việc tạo file bootstrap:
 
 ```json5
 { agent: { skipBootstrap: true } }
 ```
 
-## Extra workspace folders
+## Thư mục không gian làm việc bổ sung
 
-Older installs may have created `~/openclaw`. Keeping multiple workspace
-directories around can cause confusing auth or state drift, because only one
-workspace is active at a time.
+Các cài đặt cũ có thể đã tạo `~/openclaw`. Giữ nhiều thư mục không gian làm việc có thể gây ra sự nhầm lẫn về xác thực hoặc trạng thái, vì chỉ có một không gian làm việc hoạt động tại một thời điểm.
 
-**Recommendation:** keep a single active workspace. If you no longer use the
-extra folders, archive or move them to Trash (for example `trash ~/openclaw`).
-If you intentionally keep multiple workspaces, make sure
-`agents.defaults.workspace` points to the active one.
+**Khuyến nghị:** giữ một không gian làm việc hoạt động duy nhất. Nếu bạn không còn sử dụng các thư mục bổ sung, hãy lưu trữ hoặc chuyển chúng vào Thùng rác (ví dụ `trash ~/openclaw`). Nếu bạn cố ý giữ nhiều không gian làm việc, hãy đảm bảo `agents.defaults.workspace` trỏ đến không gian hoạt động.
 
-`openclaw doctor` warns when it detects extra workspace directories.
+`openclaw doctor` sẽ cảnh báo khi phát hiện các thư mục không gian làm việc bổ sung.
 
-## Workspace file map (what each file means)
+## Bản đồ file không gian làm việc (ý nghĩa của từng file)
 
-These are the standard files OpenClaw expects inside the workspace:
+Đây là các file tiêu chuẩn mà OpenClaw mong đợi trong không gian làm việc:
 
 - `AGENTS.md`
-  - Operating instructions for the agent and how it should use memory.
-  - Loaded at the start of every session.
-  - Good place for rules, priorities, and "how to behave" details.
+  - Hướng dẫn hoạt động cho agent và cách sử dụng bộ nhớ.
+  - Được tải khi bắt đầu mỗi phiên.
+  - Nơi tốt để đặt quy tắc, ưu tiên và chi tiết "cách hành xử".
 
 - `SOUL.md`
-  - Persona, tone, and boundaries.
-  - Loaded every session.
+  - Nhân cách, giọng điệu và giới hạn.
+  - Được tải mỗi phiên.
 
 - `USER.md`
-  - Who the user is and how to address them.
-  - Loaded every session.
+  - Ai là người dùng và cách gọi họ.
+  - Được tải mỗi phiên.
 
 - `IDENTITY.md`
-  - The agent's name, vibe, and emoji.
-  - Created/updated during the bootstrap ritual.
+  - Tên, phong cách và biểu tượng cảm xúc của agent.
+  - Được tạo/cập nhật trong quá trình khởi tạo.
 
 - `TOOLS.md`
-  - Notes about your local tools and conventions.
-  - Does not control tool availability; it is only guidance.
+  - Ghi chú về các công cụ và quy ước địa phương.
+  - Không kiểm soát sự sẵn có của công cụ; chỉ là hướng dẫn.
 
 - `HEARTBEAT.md`
-  - Optional tiny checklist for heartbeat runs.
-  - Keep it short to avoid token burn.
+  - Danh sách kiểm tra nhỏ tùy chọn cho các lần chạy heartbeat.
+  - Giữ ngắn gọn để tránh tiêu tốn token.
 
 - `BOOT.md`
-  - Optional startup checklist executed on gateway restart when internal hooks are enabled.
-  - Keep it short; use the message tool for outbound sends.
+  - Danh sách kiểm tra khởi động tùy chọn thực thi khi khởi động lại gateway khi các hook nội bộ được kích hoạt.
+  - Giữ ngắn gọn; sử dụng công cụ tin nhắn để gửi đi.
 
 - `BOOTSTRAP.md`
-  - One-time first-run ritual.
-  - Only created for a brand-new workspace.
-  - Delete it after the ritual is complete.
+  - Nghi thức chạy lần đầu tiên.
+  - Chỉ được tạo cho một không gian làm việc hoàn toàn mới.
+  - Xóa nó sau khi nghi thức hoàn tất.
 
 - `memory/YYYY-MM-DD.md`
-  - Daily memory log (one file per day).
-  - Recommended to read today + yesterday on session start.
+  - Nhật ký bộ nhớ hàng ngày (một file mỗi ngày).
+  - Khuyến nghị đọc hôm nay + hôm qua khi bắt đầu phiên.
 
-- `MEMORY.md` (optional)
-  - Curated long-term memory.
-  - Only load in the main, private session (not shared/group contexts).
+- `MEMORY.md` (tùy chọn)
+  - Bộ nhớ dài hạn được chọn lọc.
+  - Chỉ tải trong phiên chính, riêng tư (không phải ngữ cảnh chia sẻ/nhóm).
 
-See [Memory](/concepts/memory) for the workflow and automatic memory flush.
+Xem [Memory](/concepts/memory) để biết quy trình làm việc và tự động xóa bộ nhớ.
 
-- `skills/` (optional)
-  - Workspace-specific skills.
-  - Overrides managed/bundled skills when names collide.
+- `skills/` (tùy chọn)
+  - Kỹ năng cụ thể cho không gian làm việc.
+  - Ghi đè kỹ năng được quản lý/gói khi tên trùng lặp.
 
-- `canvas/` (optional)
-  - Canvas UI files for node displays (for example `canvas/index.html`).
+- `canvas/` (tùy chọn)
+  - File giao diện Canvas cho hiển thị node (ví dụ `canvas/index.html`).
 
-If any bootstrap file is missing, OpenClaw injects a "missing file" marker into
-the session and continues. Large bootstrap files are truncated when injected;
-adjust limits with `agents.defaults.bootstrapMaxChars` (default: 20000) and
-`agents.defaults.bootstrapTotalMaxChars` (default: 150000).
-`openclaw setup` can recreate missing defaults without overwriting existing
-files.
+Nếu bất kỳ file bootstrap nào bị thiếu, OpenClaw sẽ chèn một dấu "thiếu file" vào phiên và tiếp tục. Các file bootstrap lớn bị cắt ngắn khi được chèn; điều chỉnh giới hạn với `agents.defaults.bootstrapMaxChars` (mặc định: 20000) và `agents.defaults.bootstrapTotalMaxChars` (mặc định: 150000). `openclaw setup` có thể tạo lại các mặc định bị thiếu mà không ghi đè các file hiện có.
 
-## What is NOT in the workspace
+## Những gì KHÔNG có trong không gian làm việc
 
-These live under `~/.openclaw/` and should NOT be committed to the workspace repo:
+Những thứ này nằm dưới `~/.openclaw/` và KHÔNG nên được cam kết vào kho lưu trữ không gian làm việc:
 
-- `~/.openclaw/openclaw.json` (config)
+- `~/.openclaw/openclaw.json` (cấu hình)
 - `~/.openclaw/credentials/` (OAuth tokens, API keys)
-- `~/.openclaw/agents/<agentId>/sessions/` (session transcripts + metadata)
-- `~/.openclaw/skills/` (managed skills)
+- `~/.openclaw/agents/<agentId>/sessions/` (bản ghi phiên + metadata)
+- `~/.openclaw/skills/` (kỹ năng được quản lý)
 
-If you need to migrate sessions or config, copy them separately and keep them
-out of version control.
+Nếu cần di chuyển phiên hoặc cấu hình, hãy sao chép chúng riêng biệt và giữ chúng ngoài kiểm soát phiên bản.
 
-## Git backup (recommended, private)
+## Sao lưu Git (khuyến nghị, riêng tư)
 
-Treat the workspace as private memory. Put it in a **private** git repo so it is
-backed up and recoverable.
+Xem không gian làm việc như bộ nhớ riêng tư. Đặt nó trong một kho git **riêng tư** để sao lưu và khôi phục.
 
-Run these steps on the machine where the Gateway runs (that is where the
-workspace lives).
+Thực hiện các bước này trên máy chạy Gateway (nơi không gian làm việc tồn tại).
 
-### 1) Initialize the repo
+### 1) Khởi tạo kho lưu trữ
 
-If git is installed, brand-new workspaces are initialized automatically. If this
-workspace is not already a repo, run:
+Nếu git đã được cài đặt, các không gian làm việc mới sẽ được khởi tạo tự động. Nếu không gian làm việc này chưa phải là một kho lưu trữ, hãy chạy:
 
 ```bash
 cd ~/.openclaw/workspace
 git init
 git add AGENTS.md SOUL.md TOOLS.md IDENTITY.md USER.md HEARTBEAT.md memory/
-git commit -m "Add agent workspace"
+git commit -m "Thêm không gian làm việc của agent"
 ```
 
-### 2) Add a private remote (beginner-friendly options)
+### 2) Thêm remote riêng tư (tùy chọn dễ sử dụng cho người mới bắt đầu)
 
-Option A: GitHub web UI
+Tùy chọn A: Giao diện web GitHub
 
-1. Create a new **private** repository on GitHub.
-2. Do not initialize with a README (avoids merge conflicts).
-3. Copy the HTTPS remote URL.
-4. Add the remote and push:
+1. Tạo một kho lưu trữ **riêng tư** mới trên GitHub.
+2. Không khởi tạo với README (tránh xung đột merge).
+3. Sao chép URL remote HTTPS.
+4. Thêm remote và đẩy:
 
 ```bash
 git branch -M main
@@ -170,19 +144,19 @@ git remote add origin <https-url>
 git push -u origin main
 ```
 
-Option B: GitHub CLI (`gh`)
+Tùy chọn B: GitHub CLI (`gh`)
 
 ```bash
 gh auth login
 gh repo create openclaw-workspace --private --source . --remote origin --push
 ```
 
-Option C: GitLab web UI
+Tùy chọn C: Giao diện web GitLab
 
-1. Create a new **private** repository on GitLab.
-2. Do not initialize with a README (avoids merge conflicts).
-3. Copy the HTTPS remote URL.
-4. Add the remote and push:
+1. Tạo một kho lưu trữ **riêng tư** mới trên GitLab.
+2. Không khởi tạo với README (tránh xung đột merge).
+3. Sao chép URL remote HTTPS.
+4. Thêm remote và đẩy:
 
 ```bash
 git branch -M main
@@ -190,27 +164,26 @@ git remote add origin <https-url>
 git push -u origin main
 ```
 
-### 3) Ongoing updates
+### 3) Cập nhật liên tục
 
 ```bash
 git status
 git add .
-git commit -m "Update memory"
+git commit -m "Cập nhật bộ nhớ"
 git push
 ```
 
-## Do not commit secrets
+## Không cam kết thông tin bí mật
 
-Even in a private repo, avoid storing secrets in the workspace:
+Ngay cả trong một kho lưu trữ riêng tư, tránh lưu trữ thông tin bí mật trong không gian làm việc:
 
-- API keys, OAuth tokens, passwords, or private credentials.
-- Anything under `~/.openclaw/`.
-- Raw dumps of chats or sensitive attachments.
+- API keys, OAuth tokens, mật khẩu, hoặc thông tin xác thực riêng tư.
+- Bất kỳ thứ gì dưới `~/.openclaw/`.
+- Bản ghi thô của các cuộc trò chuyện hoặc tệp đính kèm nhạy cảm.
 
-If you must store sensitive references, use placeholders and keep the real
-secret elsewhere (password manager, environment variables, or `~/.openclaw/`).
+Nếu bạn phải lưu trữ các tham chiếu nhạy cảm, hãy sử dụng các chỗ giữ chỗ và giữ bí mật thực sự ở nơi khác (trình quản lý mật khẩu, biến môi trường, hoặc `~/.openclaw/`).
 
-Suggested `.gitignore` starter:
+Đề xuất `.gitignore` khởi đầu:
 
 ```gitignore
 .DS_Store
@@ -220,17 +193,14 @@ Suggested `.gitignore` starter:
 **/secrets*
 ```
 
-## Moving the workspace to a new machine
+## Di chuyển không gian làm việc sang máy mới
 
-1. Clone the repo to the desired path (default `~/.openclaw/workspace`).
-2. Set `agents.defaults.workspace` to that path in `~/.openclaw/openclaw.json`.
-3. Run `openclaw setup --workspace <path>` to seed any missing files.
-4. If you need sessions, copy `~/.openclaw/agents/<agentId>/sessions/` from the
-   old machine separately.
+1. Clone kho lưu trữ đến đường dẫn mong muốn (mặc định `~/.openclaw/workspace`).
+2. Thiết lập `agents.defaults.workspace` đến đường dẫn đó trong `~/.openclaw/openclaw.json`.
+3. Chạy `openclaw setup --workspace <path>` để khởi tạo bất kỳ file nào bị thiếu.
+4. Nếu cần phiên, sao chép `~/.openclaw/agents/<agentId>/sessions/` từ máy cũ riêng biệt.
 
-## Advanced notes
+## Ghi chú nâng cao
 
-- Multi-agent routing can use different workspaces per agent. See
-  [Channel routing](/channels/channel-routing) for routing configuration.
-- If `agents.defaults.sandbox` is enabled, non-main sessions can use per-session sandbox
-  workspaces under `agents.defaults.sandbox.workspaceRoot`.
+- Định tuyến đa agent có thể sử dụng các không gian làm việc khác nhau cho từng agent. Xem [Định tuyến kênh](/channels/channel-routing) để biết cấu hình định tuyến.
+- Nếu `agents.defaults.sandbox` được kích hoạt, các phiên không phải chính có thể sử dụng các không gian làm việc sandbox cho từng phiên dưới `agents.defaults.sandbox.workspaceRoot`.

@@ -1,28 +1,24 @@
 ---
-summary: "Community-maintained OpenClaw plugins: browse, install, and submit your own"
+summary: "Plugin OpenClaw do cộng đồng phát triển: duyệt, cài đặt và gửi plugin của bạn"
 read_when:
-  - You want to find third-party OpenClaw plugins
-  - You want to publish or list your own plugin
-title: "Community Plugins"
+  - Bạn muốn tìm plugin OpenClaw từ bên thứ ba
+  - Bạn muốn xuất bản hoặc liệt kê plugin của mình
+title: "Plugin Cộng Đồng"
 ---
 
-# Community Plugins
+# Plugin Cộng Đồng
 
-Community plugins are third-party packages that extend OpenClaw with new
-channels, tools, providers, or other capabilities. They are built and maintained
-by the community, published on npm, and installable with a single command.
+Plugin cộng đồng là các gói từ bên thứ ba mở rộng OpenClaw với các kênh, công cụ, nhà cung cấp hoặc khả năng mới. Chúng được cộng đồng xây dựng và duy trì, xuất bản trên npm, và có thể cài đặt chỉ với một lệnh duy nhất.
 
 ```bash
 openclaw plugins install <npm-spec>
 ```
 
-## Listed plugins
+## Plugin được liệt kê
 
 ### Codex App Server Bridge
 
-Independent OpenClaw bridge for Codex App Server conversations. Bind a chat to
-a Codex thread, talk to it with plain text, and control it with chat-native
-commands for resume, planning, review, model selection, compaction, and more.
+Cầu nối độc lập của OpenClaw cho các cuộc trò chuyện trên Codex App Server. Kết nối một cuộc trò chuyện với một luồng Codex, giao tiếp bằng văn bản thuần túy và điều khiển bằng các lệnh gốc của chat cho việc tiếp tục, lập kế hoạch, đánh giá, chọn mô hình, nén và nhiều hơn nữa.
 
 - **npm:** `openclaw-codex-app-server`
 - **repo:** [github.com/pwrdrvr/openclaw-codex-app-server](https://github.com/pwrdrvr/openclaw-codex-app-server)
@@ -33,8 +29,7 @@ openclaw plugins install openclaw-codex-app-server
 
 ### DingTalk
 
-Enterprise robot integration using Stream mode. Supports text, images, and
-file messages via any DingTalk client.
+Tích hợp robot doanh nghiệp sử dụng chế độ Stream. Hỗ trợ tin nhắn văn bản, hình ảnh và tệp qua bất kỳ client DingTalk nào.
 
 - **npm:** `@largezhou/ddingtalk`
 - **repo:** [github.com/largezhou/openclaw-dingtalk](https://github.com/largezhou/openclaw-dingtalk)
@@ -45,9 +40,7 @@ openclaw plugins install @largezhou/ddingtalk
 
 ### Lossless Claw (LCM)
 
-Lossless Context Management plugin for OpenClaw. DAG-based conversation
-summarization with incremental compaction — preserves full context fidelity
-while reducing token usage.
+Plugin Quản lý Ngữ cảnh Không Mất Dữ Liệu cho OpenClaw. Tóm tắt cuộc trò chuyện dựa trên DAG với nén gia tăng — giữ nguyên độ trung thực của ngữ cảnh trong khi giảm sử dụng token.
 
 - **npm:** `@martian-engineering/lossless-claw`
 - **repo:** [github.com/Martian-Engineering/lossless-claw](https://github.com/Martian-Engineering/lossless-claw)
@@ -58,8 +51,7 @@ openclaw plugins install @martian-engineering/lossless-claw
 
 ### Opik
 
-Official plugin that exports agent traces to Opik. Monitor agent behavior,
-cost, tokens, errors, and more.
+Plugin chính thức xuất dữ liệu theo dõi agent sang Opik. Giám sát hành vi agent, chi phí, token, lỗi và nhiều hơn nữa.
 
 - **npm:** `@opik/opik-openclaw`
 - **repo:** [github.com/comet-ml/opik-openclaw](https://github.com/comet-ml/opik-openclaw)
@@ -70,9 +62,7 @@ openclaw plugins install @opik/opik-openclaw
 
 ### QQbot
 
-Connect OpenClaw to QQ via the QQ Bot API. Supports private chats, group
-mentions, channel messages, and rich media including voice, images, videos,
-and files.
+Kết nối OpenClaw với QQ qua API QQ Bot. Hỗ trợ chat riêng tư, nhắc nhóm, tin nhắn kênh và phương tiện phong phú bao gồm giọng nói, hình ảnh, video và tệp.
 
 - **npm:** `@sliverp/qqbot`
 - **repo:** [github.com/sliverp/qqbot](https://github.com/sliverp/qqbot)
@@ -83,9 +73,7 @@ openclaw plugins install @sliverp/qqbot
 
 ### wecom
 
-OpenClaw Enterprise WeCom Channel Plugin.
-A bot plugin powered by WeCom AI Bot WebSocket persistent connections,
-supports direct messages & group chats, streaming replies, and proactive messaging.
+Plugin Kênh WeCom Doanh Nghiệp OpenClaw. Plugin bot được hỗ trợ bởi kết nối WebSocket AI Bot của WeCom, hỗ trợ tin nhắn trực tiếp & chat nhóm, trả lời theo luồng và nhắn tin chủ động.
 
 - **npm:** `@wecom/wecom-openclaw-plugin`
 - **repo:** [github.com/WecomTeam/wecom-openclaw-plugin](https://github.com/WecomTeam/wecom-openclaw-plugin)
@@ -94,48 +82,47 @@ supports direct messages & group chats, streaming replies, and proactive messagi
 openclaw plugins install @wecom/wecom-openclaw-plugin
 ```
 
-## Submit your plugin
+## Gửi plugin của bạn
 
-We welcome community plugins that are useful, documented, and safe to operate.
+Chúng tôi hoan nghênh các plugin cộng đồng hữu ích, có tài liệu và an toàn để vận hành.
 
 <Steps>
-  <Step title="Publish to npm">
-    Your plugin must be installable via `openclaw plugins install \<npm-spec\>`.
-    See [Building Plugins](/plugins/building-plugins) for the full guide.
+  <Step title="Xuất bản lên npm">
+    Plugin của bạn phải có thể cài đặt qua `openclaw plugins install \<npm-spec\>`.
+    Xem [Xây dựng Plugin](/plugins/building-plugins) để biết hướng dẫn đầy đủ.
 
   </Step>
 
-  <Step title="Host on GitHub">
-    Source code must be in a public repository with setup docs and an issue
-    tracker.
+  <Step title="Lưu trữ trên GitHub">
+    Mã nguồn phải nằm trong một kho lưu trữ công khai với tài liệu thiết lập và hệ thống theo dõi vấn đề.
 
   </Step>
 
-  <Step title="Open a PR">
-    Add your plugin to this page with:
+  <Step title="Mở PR">
+    Thêm plugin của bạn vào trang này với:
 
-    - Plugin name
-    - npm package name
-    - GitHub repository URL
-    - One-line description
-    - Install command
+    - Tên plugin
+    - Tên gói npm
+    - URL kho lưu trữ GitHub
+    - Mô tả ngắn gọn
+    - Lệnh cài đặt
 
   </Step>
 </Steps>
 
-## Quality bar
+## Tiêu chuẩn chất lượng
 
-| Requirement          | Why                                           |
-| -------------------- | --------------------------------------------- |
-| Published on npm     | Users need `openclaw plugins install` to work |
-| Public GitHub repo   | Source review, issue tracking, transparency   |
-| Setup and usage docs | Users need to know how to configure it        |
-| Active maintenance   | Recent updates or responsive issue handling   |
+| Yêu cầu                | Lý do                                           |
+| ---------------------- | ----------------------------------------------- |
+| Xuất bản trên npm      | Người dùng cần `openclaw plugins install` để hoạt động |
+| Kho GitHub công khai   | Đánh giá mã nguồn, theo dõi vấn đề, minh bạch   |
+| Tài liệu thiết lập và sử dụng | Người dùng cần biết cách cấu hình nó        |
+| Bảo trì tích cực       | Cập nhật gần đây hoặc xử lý vấn đề nhanh chóng   |
 
-Low-effort wrappers, unclear ownership, or unmaintained packages may be declined.
+Các gói không rõ nguồn gốc, không được bảo trì hoặc có chất lượng thấp có thể bị từ chối.
 
-## Related
+## Liên quan
 
-- [Install and Configure Plugins](/tools/plugin) — how to install any plugin
-- [Building Plugins](/plugins/building-plugins) — create your own
-- [Plugin Manifest](/plugins/manifest) — manifest schema
+- [Cài đặt và Cấu hình Plugin](/tools/plugin) — cách cài đặt bất kỳ plugin nào
+- [Xây dựng Plugin](/plugins/building-plugins) — tạo plugin của riêng bạn
+- [Manifest Plugin](/plugins/manifest) — schema manifest

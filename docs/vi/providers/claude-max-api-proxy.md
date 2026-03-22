@@ -1,73 +1,71 @@
 ---
-summary: "Community proxy to expose Claude subscription credentials as an OpenAI-compatible endpoint"
+summary: "Proxy cộng đồng để sử dụng thông tin đăng ký Claude như một endpoint tương thích OpenAI"
 read_when:
-  - You want to use Claude Max subscription with OpenAI-compatible tools
-  - You want a local API server that wraps Claude Code CLI
-  - You want to evaluate subscription-based vs API-key-based Anthropic access
+  - Bạn muốn sử dụng gói Claude Max với các công cụ tương thích OpenAI
+  - Bạn cần một server API cục bộ để bao bọc Claude Code CLI
+  - Bạn muốn so sánh giữa truy cập dựa trên đăng ký và API-key của Anthropic
 title: "Claude Max API Proxy"
 ---
 
 # Claude Max API Proxy
 
-**claude-max-api-proxy** is a community tool that exposes your Claude Max/Pro subscription as an OpenAI-compatible API endpoint. This allows you to use your subscription with any tool that supports the OpenAI API format.
+**claude-max-api-proxy** là một công cụ cộng đồng giúp bạn sử dụng gói đăng ký Claude Max/Pro như một endpoint API tương thích với OpenAI. Điều này cho phép bạn sử dụng gói đăng ký với bất kỳ công cụ nào hỗ trợ định dạng API của OpenAI.
 
 <Warning>
-This path is technical compatibility only. Anthropic has blocked some subscription
-usage outside Claude Code in the past. You must decide for yourself whether to use
-it and verify Anthropic's current terms before relying on it.
+Đây chỉ là tương thích kỹ thuật. Anthropic đã từng chặn một số cách sử dụng đăng ký ngoài Claude Code. Bạn cần tự quyết định có sử dụng hay không và kiểm tra điều khoản hiện tại của Anthropic trước khi phụ thuộc vào nó.
 </Warning>
 
-## Why Use This?
+## Tại Sao Nên Sử Dụng?
 
-| Approach                | Cost                                                | Best For                                   |
-| ----------------------- | --------------------------------------------------- | ------------------------------------------ |
-| Anthropic API           | Pay per token (~$15/M input, $75/M output for Opus) | Production apps, high volume               |
-| Claude Max subscription | $200/month flat                                     | Personal use, development, unlimited usage |
+| Phương pháp             | Chi phí                                             | Phù hợp nhất cho                             |
+| ----------------------- | --------------------------------------------------- | -------------------------------------------- |
+| Anthropic API           | Trả theo token (~$15/M input, $75/M output cho Opus) | Ứng dụng sản xuất, khối lượng lớn            |
+| Đăng ký Claude Max      | $200/tháng cố định                                  | Sử dụng cá nhân, phát triển, không giới hạn  |
 
-If you have a Claude Max subscription and want to use it with OpenAI-compatible tools, this proxy may reduce cost for some workflows. API keys remain the clearer policy path for production use.
+Nếu bạn có gói đăng ký Claude Max và muốn sử dụng với các công cụ tương thích OpenAI, proxy này có thể giảm chi phí cho một số quy trình. API keys vẫn là lựa chọn rõ ràng hơn cho việc sử dụng sản xuất.
 
-## How It Works
+## Cách Hoạt Động
 
 ```
-Your App → claude-max-api-proxy → Claude Code CLI → Anthropic (via subscription)
-     (OpenAI format)              (converts format)      (uses your login)
+Ứng dụng của bạn → claude-max-api-proxy → Claude Code CLI → Anthropic (qua đăng ký)
+     (định dạng OpenAI)              (chuyển đổi định dạng)      (sử dụng đăng nhập của bạn)
 ```
 
-The proxy:
+Proxy này:
 
-1. Accepts OpenAI-format requests at `http://localhost:3456/v1/chat/completions`
-2. Converts them to Claude Code CLI commands
-3. Returns responses in OpenAI format (streaming supported)
+1. Nhận yêu cầu định dạng OpenAI tại `http://localhost:3456/v1/chat/completions`
+2. Chuyển đổi chúng thành lệnh Claude Code CLI
+3. Trả về phản hồi theo định dạng OpenAI (hỗ trợ streaming)
 
-## Installation
+## Cài Đặt
 
 ```bash
-# Requires Node.js 20+ and Claude Code CLI
+# Yêu cầu Node.js 20+ và Claude Code CLI
 npm install -g claude-max-api-proxy
 
-# Verify Claude CLI is authenticated
+# Xác minh Claude CLI đã được xác thực
 claude --version
 ```
 
-## Usage
+## Sử Dụng
 
-### Start the server
+### Khởi động server
 
 ```bash
 claude-max-api
-# Server runs at http://localhost:3456
+# Server chạy tại http://localhost:3456
 ```
 
-### Test it
+### Kiểm tra
 
 ```bash
-# Health check
+# Kiểm tra sức khỏe
 curl http://localhost:3456/health
 
-# List models
+# Liệt kê các mô hình
 curl http://localhost:3456/v1/models
 
-# Chat completion
+# Hoàn thành cuộc trò chuyện
 curl http://localhost:3456/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{
@@ -76,9 +74,9 @@ curl http://localhost:3456/v1/chat/completions \
   }'
 ```
 
-### With OpenClaw
+### Với OpenClaw
 
-You can point OpenClaw at the proxy as a custom OpenAI-compatible endpoint:
+Bạn có thể chỉ định OpenClaw sử dụng proxy như một endpoint tương thích OpenAI tùy chỉnh:
 
 ```json5
 {
@@ -94,17 +92,17 @@ You can point OpenClaw at the proxy as a custom OpenAI-compatible endpoint:
 }
 ```
 
-## Available Models
+## Các Mô Hình Có Sẵn
 
-| Model ID          | Maps To         |
-| ----------------- | --------------- |
-| `claude-opus-4`   | Claude Opus 4   |
-| `claude-sonnet-4` | Claude Sonnet 4 |
-| `claude-haiku-4`  | Claude Haiku 4  |
+| ID Mô Hình        | Tương ứng với     |
+| ----------------- | ----------------- |
+| `claude-opus-4`   | Claude Opus 4     |
+| `claude-sonnet-4` | Claude Sonnet 4   |
+| `claude-haiku-4`  | Claude Haiku 4    |
 
-## Auto-Start on macOS
+## Tự Động Khởi Động trên macOS
 
-Create a LaunchAgent to run the proxy automatically:
+Tạo một LaunchAgent để chạy proxy tự động:
 
 ```bash
 cat > ~/Library/LaunchAgents/com.claude-max-api.plist << 'EOF'
@@ -135,20 +133,20 @@ EOF
 launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.claude-max-api.plist
 ```
 
-## Links
+## Liên Kết
 
 - **npm:** [https://www.npmjs.com/package/claude-max-api-proxy](https://www.npmjs.com/package/claude-max-api-proxy)
 - **GitHub:** [https://github.com/atalovesyou/claude-max-api-proxy](https://github.com/atalovesyou/claude-max-api-proxy)
-- **Issues:** [https://github.com/atalovesyou/claude-max-api-proxy/issues](https://github.com/atalovesyou/claude-max-api-proxy/issues)
+- **Vấn đề:** [https://github.com/atalovesyou/claude-max-api-proxy/issues](https://github.com/atalovesyou/claude-max-api-proxy/issues)
 
-## Notes
+## Ghi Chú
 
-- This is a **community tool**, not officially supported by Anthropic or OpenClaw
-- Requires an active Claude Max/Pro subscription with Claude Code CLI authenticated
-- The proxy runs locally and does not send data to any third-party servers
-- Streaming responses are fully supported
+- Đây là một **công cụ cộng đồng**, không được hỗ trợ chính thức bởi Anthropic hay OpenClaw
+- Yêu cầu gói đăng ký Claude Max/Pro đang hoạt động với Claude Code CLI đã xác thực
+- Proxy chạy cục bộ và không gửi dữ liệu đến bất kỳ server bên thứ ba nào
+- Hỗ trợ đầy đủ phản hồi streaming
 
-## See Also
+## Xem Thêm
 
-- [Anthropic provider](/providers/anthropic) - Native OpenClaw integration with Claude setup-token or API keys
-- [OpenAI provider](/providers/openai) - For OpenAI/Codex subscriptions
+- [Nhà cung cấp Anthropic](/providers/anthropic) - Tích hợp OpenClaw gốc với Claude setup-token hoặc API keys
+- [Nhà cung cấp OpenAI](/providers/openai) - Cho các gói đăng ký OpenAI/Codex

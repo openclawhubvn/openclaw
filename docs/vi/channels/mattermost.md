@@ -1,46 +1,46 @@
 ---
-summary: "Mattermost bot setup and OpenClaw config"
+summary: "Thiết lập bot Mattermost và cấu hình OpenClaw"
 read_when:
-  - Setting up Mattermost
-  - Debugging Mattermost routing
+  - Thiết lập Mattermost
+  - Gỡ lỗi định tuyến Mattermost
 title: "Mattermost"
 ---
 
 # Mattermost (plugin)
 
-Status: supported via plugin (bot token + WebSocket events). Channels, groups, and DMs are supported.
-Mattermost is a self-hostable team messaging platform; see the official site at
-[mattermost.com](https://mattermost.com) for product details and downloads.
+Trạng thái: hỗ trợ qua plugin (bot token + sự kiện WebSocket). Hỗ trợ kênh, nhóm và tin nhắn trực tiếp (DM).
+Mattermost là nền tảng nhắn tin nhóm có thể tự host; xem chi tiết sản phẩm và tải xuống tại
+[trang chính thức của Mattermost](https://mattermost.com).
 
-## Plugin required
+## Yêu cầu plugin
 
-Mattermost ships as a plugin and is not bundled with the core install.
+Mattermost được cung cấp dưới dạng plugin và không đi kèm với cài đặt gốc.
 
-Install via CLI (npm registry):
+Cài đặt qua CLI (npm registry):
 
 ```bash
 openclaw plugins install @openclaw/mattermost
 ```
 
-Local checkout (when running from a git repo):
+Kiểm tra cục bộ (khi chạy từ repo git):
 
 ```bash
 openclaw plugins install ./extensions/mattermost
 ```
 
-If you choose Mattermost during setup and a git checkout is detected,
-OpenClaw will offer the local install path automatically.
+Nếu chọn Mattermost trong quá trình thiết lập và phát hiện có git checkout,
+OpenClaw sẽ tự động cung cấp đường dẫn cài đặt cục bộ.
 
-Details: [Plugins](/tools/plugin)
+Chi tiết: [Plugins](/tools/plugin)
 
-## Quick setup
+## Thiết lập nhanh
 
-1. Install the Mattermost plugin.
-2. Create a Mattermost bot account and copy the **bot token**.
-3. Copy the Mattermost **base URL** (e.g., `https://chat.example.com`).
-4. Configure OpenClaw and start the gateway.
+1. Cài đặt plugin Mattermost.
+2. Tạo tài khoản bot Mattermost và sao chép **bot token**.
+3. Sao chép **base URL** của Mattermost (ví dụ: `https://chat.example.com`).
+4. Cấu hình OpenClaw và khởi động gateway.
 
-Minimal config:
+Cấu hình tối thiểu:
 
 ```json5
 {
@@ -55,10 +55,10 @@ Minimal config:
 }
 ```
 
-## Native slash commands
+## Lệnh gạch chéo gốc
 
-Native slash commands are opt-in. When enabled, OpenClaw registers `oc_*` slash commands via
-the Mattermost API and receives callback POSTs on the gateway HTTP server.
+Lệnh gạch chéo gốc là tùy chọn. Khi bật, OpenClaw đăng ký các lệnh gạch chéo `oc_*` qua
+API của Mattermost và nhận các callback POST trên máy chủ HTTP của gateway.
 
 ```json5
 {
@@ -68,7 +68,7 @@ the Mattermost API and receives callback POSTs on the gateway HTTP server.
         native: true,
         nativeSkills: true,
         callbackPath: "/api/channels/mattermost/command",
-        // Use when Mattermost cannot reach the gateway directly (reverse proxy/public URL).
+        // Sử dụng khi Mattermost không thể truy cập trực tiếp vào gateway (reverse proxy/public URL).
         callbackUrl: "https://gateway.example.com/api/channels/mattermost/command",
       },
     },
@@ -76,42 +76,42 @@ the Mattermost API and receives callback POSTs on the gateway HTTP server.
 }
 ```
 
-Notes:
+Lưu ý:
 
-- `native: "auto"` defaults to disabled for Mattermost. Set `native: true` to enable.
-- If `callbackUrl` is omitted, OpenClaw derives one from gateway host/port + `callbackPath`.
-- For multi-account setups, `commands` can be set at the top level or under
-  `channels.mattermost.accounts.<id>.commands` (account values override top-level fields).
-- Command callbacks are validated with per-command tokens and fail closed when token checks fail.
-- Reachability requirement: the callback endpoint must be reachable from the Mattermost server.
-  - Do not set `callbackUrl` to `localhost` unless Mattermost runs on the same host/network namespace as OpenClaw.
-  - Do not set `callbackUrl` to your Mattermost base URL unless that URL reverse-proxies `/api/channels/mattermost/command` to OpenClaw.
-  - A quick check is `curl https://<gateway-host>/api/channels/mattermost/command`; a GET should return `405 Method Not Allowed` from OpenClaw, not `404`.
-- Mattermost egress allowlist requirement:
-  - If your callback targets private/tailnet/internal addresses, set Mattermost
-    `ServiceSettings.AllowedUntrustedInternalConnections` to include the callback host/domain.
-  - Use host/domain entries, not full URLs.
-    - Good: `gateway.tailnet-name.ts.net`
-    - Bad: `https://gateway.tailnet-name.ts.net`
+- `native: "auto"` mặc định là tắt cho Mattermost. Đặt `native: true` để bật.
+- Nếu bỏ qua `callbackUrl`, OpenClaw sẽ tự động tạo từ host/port của gateway + `callbackPath`.
+- Đối với thiết lập nhiều tài khoản, `commands` có thể được đặt ở cấp cao nhất hoặc dưới
+  `channels.mattermost.accounts.<id>.commands` (giá trị tài khoản ghi đè các trường cấp cao nhất).
+- Các callback lệnh được xác thực bằng token cho từng lệnh và sẽ thất bại nếu kiểm tra token thất bại.
+- Yêu cầu khả năng truy cập: endpoint callback phải có thể truy cập từ máy chủ Mattermost.
+  - Không đặt `callbackUrl` là `localhost` trừ khi Mattermost chạy trên cùng một host/network namespace với OpenClaw.
+  - Không đặt `callbackUrl` là URL cơ sở của Mattermost trừ khi URL đó reverse-proxies `/api/channels/mattermost/command` đến OpenClaw.
+  - Kiểm tra nhanh là `curl https://<gateway-host>/api/channels/mattermost/command`; một GET nên trả về `405 Method Not Allowed` từ OpenClaw, không phải `404`.
+- Yêu cầu danh sách cho phép egress của Mattermost:
+  - Nếu mục tiêu callback của bạn là địa chỉ private/tailnet/internal, đặt Mattermost
+    `ServiceSettings.AllowedUntrustedInternalConnections` để bao gồm host/domain của callback.
+  - Sử dụng các mục host/domain, không phải URL đầy đủ.
+    - Tốt: `gateway.tailnet-name.ts.net`
+    - Xấu: `https://gateway.tailnet-name.ts.net`
 
-## Environment variables (default account)
+## Biến môi trường (tài khoản mặc định)
 
-Set these on the gateway host if you prefer env vars:
+Đặt các biến này trên host của gateway nếu bạn thích sử dụng biến môi trường:
 
 - `MATTERMOST_BOT_TOKEN=...`
 - `MATTERMOST_URL=https://chat.example.com`
 
-Env vars apply only to the **default** account (`default`). Other accounts must use config values.
+Biến môi trường chỉ áp dụng cho tài khoản **mặc định** (`default`). Các tài khoản khác phải sử dụng giá trị cấu hình.
 
-## Chat modes
+## Chế độ chat
 
-Mattermost responds to DMs automatically. Channel behavior is controlled by `chatmode`:
+Mattermost tự động phản hồi các tin nhắn trực tiếp (DM). Hành vi trong kênh được kiểm soát bởi `chatmode`:
 
-- `oncall` (default): respond only when @mentioned in channels.
-- `onmessage`: respond to every channel message.
-- `onchar`: respond when a message starts with a trigger prefix.
+- `oncall` (mặc định): chỉ phản hồi khi được @mention trong kênh.
+- `onmessage`: phản hồi mọi tin nhắn trong kênh.
+- `onchar`: phản hồi khi tin nhắn bắt đầu bằng một tiền tố kích hoạt.
 
-Config example:
+Ví dụ cấu hình:
 
 ```json5
 {
@@ -124,23 +124,23 @@ Config example:
 }
 ```
 
-Notes:
+Lưu ý:
 
-- `onchar` still responds to explicit @mentions.
-- `channels.mattermost.requireMention` is honored for legacy configs but `chatmode` is preferred.
+- `onchar` vẫn phản hồi khi được @mention rõ ràng.
+- `channels.mattermost.requireMention` được tôn trọng cho cấu hình cũ nhưng `chatmode` được ưu tiên.
 
-## Threading and sessions
+## Luồng và phiên
 
-Use `channels.mattermost.replyToMode` to control whether channel and group replies stay in the
-main channel or start a thread under the triggering post.
+Sử dụng `channels.mattermost.replyToMode` để kiểm soát xem các phản hồi trong kênh và nhóm có ở lại trong
+kênh chính hay bắt đầu một luồng dưới bài đăng kích hoạt.
 
-- `off` (default): only reply in a thread when the inbound post is already in one.
-- `first`: for top-level channel/group posts, start a thread under that post and route the
-  conversation to a thread-scoped session.
-- `all`: same behavior as `first` for Mattermost today.
-- Direct messages ignore this setting and stay non-threaded.
+- `off` (mặc định): chỉ trả lời trong một luồng khi bài đăng đầu vào đã ở trong một luồng.
+- `first`: đối với các bài đăng cấp cao nhất trong kênh/nhóm, bắt đầu một luồng dưới bài đăng đó và định tuyến
+  cuộc trò chuyện đến một phiên có phạm vi luồng.
+- `all`: hành vi tương tự như `first` cho Mattermost hiện nay.
+- Tin nhắn trực tiếp bỏ qua cài đặt này và không có luồng.
 
-Config example:
+Ví dụ cấu hình:
 
 ```json5
 {
@@ -152,52 +152,52 @@ Config example:
 }
 ```
 
-Notes:
+Lưu ý:
 
-- Thread-scoped sessions use the triggering post id as the thread root.
-- `first` and `all` are currently equivalent because once Mattermost has a thread root,
-  follow-up chunks and media continue in that same thread.
+- Các phiên có phạm vi luồng sử dụng id bài đăng kích hoạt làm gốc luồng.
+- `first` và `all` hiện tại tương đương nhau vì một khi Mattermost có gốc luồng,
+  các phần tiếp theo và phương tiện tiếp tục trong cùng một luồng.
 
-## Access control (DMs)
+## Kiểm soát truy cập (DMs)
 
-- Default: `channels.mattermost.dmPolicy = "pairing"` (unknown senders get a pairing code).
-- Approve via:
+- Mặc định: `channels.mattermost.dmPolicy = "pairing"` (người gửi không xác định nhận mã ghép đôi).
+- Phê duyệt qua:
   - `openclaw pairing list mattermost`
   - `openclaw pairing approve mattermost <CODE>`
-- Public DMs: `channels.mattermost.dmPolicy="open"` plus `channels.mattermost.allowFrom=["*"]`.
+- Tin nhắn trực tiếp công khai: `channels.mattermost.dmPolicy="open"` cộng với `channels.mattermost.allowFrom=["*"]`.
 
-## Channels (groups)
+## Kênh (nhóm)
 
-- Default: `channels.mattermost.groupPolicy = "allowlist"` (mention-gated).
-- Allowlist senders with `channels.mattermost.groupAllowFrom` (user IDs recommended).
-- `@username` matching is mutable and only enabled when `channels.mattermost.dangerouslyAllowNameMatching: true`.
-- Open channels: `channels.mattermost.groupPolicy="open"` (mention-gated).
-- Runtime note: if `channels.mattermost` is completely missing, runtime falls back to `groupPolicy="allowlist"` for group checks (even if `channels.defaults.groupPolicy` is set).
+- Mặc định: `channels.mattermost.groupPolicy = "allowlist"` (được kiểm soát bởi mention).
+- Danh sách cho phép người gửi với `channels.mattermost.groupAllowFrom` (khuyến nghị sử dụng ID người dùng).
+- Khớp `@username` có thể thay đổi và chỉ được bật khi `channels.mattermost.dangerouslyAllowNameMatching: true`.
+- Kênh mở: `channels.mattermost.groupPolicy="open"` (được kiểm soát bởi mention).
+- Ghi chú runtime: nếu `channels.mattermost` hoàn toàn thiếu, runtime sẽ quay lại `groupPolicy="allowlist"` cho kiểm tra nhóm (ngay cả khi `channels.defaults.groupPolicy` được đặt).
 
-## Targets for outbound delivery
+## Mục tiêu cho việc gửi đi
 
-Use these target formats with `openclaw message send` or cron/webhooks:
+Sử dụng các định dạng mục tiêu này với `openclaw message send` hoặc cron/webhooks:
 
-- `channel:<id>` for a channel
-- `user:<id>` for a DM
-- `@username` for a DM (resolved via the Mattermost API)
+- `channel:<id>` cho một kênh
+- `user:<id>` cho một DM
+- `@username` cho một DM (được giải quyết qua API của Mattermost)
 
-Bare opaque IDs (like `64ifufp...`) are **ambiguous** in Mattermost (user ID vs channel ID).
+ID không rõ ràng (như `64ifufp...`) là **không rõ ràng** trong Mattermost (ID người dùng so với ID kênh).
 
-OpenClaw resolves them **user-first**:
+OpenClaw giải quyết chúng **ưu tiên người dùng**:
 
-- If the ID exists as a user (`GET /api/v4/users/<id>` succeeds), OpenClaw sends a **DM** by resolving the direct channel via `/api/v4/channels/direct`.
-- Otherwise the ID is treated as a **channel ID**.
+- Nếu ID tồn tại dưới dạng người dùng (`GET /api/v4/users/<id>` thành công), OpenClaw gửi một **DM** bằng cách giải quyết kênh trực tiếp qua `/api/v4/channels/direct`.
+- Nếu không, ID được coi là **ID kênh**.
 
-If you need deterministic behavior, always use the explicit prefixes (`user:<id>` / `channel:<id>`).
+Nếu cần hành vi xác định, luôn sử dụng các tiền tố rõ ràng (`user:<id>` / `channel:<id>`).
 
-## DM channel retry
+## Thử lại kênh DM
 
-When OpenClaw sends to a Mattermost DM target and needs to resolve the direct channel first, it
-retries transient direct-channel creation failures by default.
+Khi OpenClaw gửi đến mục tiêu DM của Mattermost và cần giải quyết kênh trực tiếp trước, nó
+thử lại các lỗi tạo kênh trực tiếp tạm thời theo mặc định.
 
-Use `channels.mattermost.dmChannelRetry` to tune that behavior globally for the Mattermost plugin,
-or `channels.mattermost.accounts.<id>.dmChannelRetry` for one account.
+Sử dụng `channels.mattermost.dmChannelRetry` để điều chỉnh hành vi đó toàn cầu cho plugin Mattermost,
+hoặc `channels.mattermost.accounts.<id>.dmChannelRetry` cho một tài khoản.
 
 ```json5
 {
@@ -214,38 +214,38 @@ or `channels.mattermost.accounts.<id>.dmChannelRetry` for one account.
 }
 ```
 
-Notes:
+Lưu ý:
 
-- This applies only to DM channel creation (`/api/v4/channels/direct`), not every Mattermost API call.
-- Retries apply to transient failures such as rate limits, 5xx responses, and network or timeout errors.
-- 4xx client errors other than `429` are treated as permanent and are not retried.
+- Điều này chỉ áp dụng cho việc tạo kênh DM (`/api/v4/channels/direct`), không phải mọi cuộc gọi API của Mattermost.
+- Thử lại áp dụng cho các lỗi tạm thời như giới hạn tốc độ, phản hồi 5xx và lỗi mạng hoặc timeout.
+- Các lỗi client 4xx khác ngoài `429` được coi là vĩnh viễn và không được thử lại.
 
-## Reactions (message tool)
+## Phản ứng (công cụ tin nhắn)
 
-- Use `message action=react` with `channel=mattermost`.
-- `messageId` is the Mattermost post id.
-- `emoji` accepts names like `thumbsup` or `:+1:` (colons are optional).
-- Set `remove=true` (boolean) to remove a reaction.
-- Reaction add/remove events are forwarded as system events to the routed agent session.
+- Sử dụng `message action=react` với `channel=mattermost`.
+- `messageId` là id bài đăng của Mattermost.
+- `emoji` chấp nhận các tên như `thumbsup` hoặc `:+1:` (dấu hai chấm là tùy chọn).
+- Đặt `remove=true` (boolean) để xóa một phản ứng.
+- Các sự kiện thêm/xóa phản ứng được chuyển tiếp dưới dạng sự kiện hệ thống đến phiên agent được định tuyến.
 
-Examples:
+Ví dụ:
 
 ```
 message action=react channel=mattermost target=channel:<channelId> messageId=<postId> emoji=thumbsup
 message action=react channel=mattermost target=channel:<channelId> messageId=<postId> emoji=thumbsup remove=true
 ```
 
-Config:
+Cấu hình:
 
-- `channels.mattermost.actions.reactions`: enable/disable reaction actions (default true).
-- Per-account override: `channels.mattermost.accounts.<id>.actions.reactions`.
+- `channels.mattermost.actions.reactions`: bật/tắt hành động phản ứng (mặc định là true).
+- Ghi đè theo tài khoản: `channels.mattermost.accounts.<id>.actions.reactions`.
 
-## Interactive buttons (message tool)
+## Nút tương tác (công cụ tin nhắn)
 
-Send messages with clickable buttons. When a user clicks a button, the agent receives the
-selection and can respond.
+Gửi tin nhắn với các nút có thể nhấp. Khi người dùng nhấp vào nút, agent nhận được
+lựa chọn và có thể phản hồi.
 
-Enable buttons by adding `inlineButtons` to the channel capabilities:
+Bật nút bằng cách thêm `inlineButtons` vào khả năng của kênh:
 
 ```json5
 {
@@ -257,75 +257,75 @@ Enable buttons by adding `inlineButtons` to the channel capabilities:
 }
 ```
 
-Use `message action=send` with a `buttons` parameter. Buttons are a 2D array (rows of buttons):
+Sử dụng `message action=send` với tham số `buttons`. Nút là một mảng 2D (các hàng của nút):
 
 ```
 message action=send channel=mattermost target=channel:<channelId> buttons=[[{"text":"Yes","callback_data":"yes"},{"text":"No","callback_data":"no"}]]
 ```
 
-Button fields:
+Các trường của nút:
 
-- `text` (required): display label.
-- `callback_data` (required): value sent back on click (used as the action ID).
-- `style` (optional): `"default"`, `"primary"`, or `"danger"`.
+- `text` (bắt buộc): nhãn hiển thị.
+- `callback_data` (bắt buộc): giá trị gửi lại khi nhấp (được sử dụng làm ID hành động).
+- `style` (tùy chọn): `"default"`, `"primary"`, hoặc `"danger"`.
 
-When a user clicks a button:
+Khi người dùng nhấp vào nút:
 
-1. All buttons are replaced with a confirmation line (e.g., "✓ **Yes** selected by @user").
-2. The agent receives the selection as an inbound message and responds.
+1. Tất cả các nút được thay thế bằng một dòng xác nhận (ví dụ: "✓ **Yes** được chọn bởi @user").
+2. Agent nhận được lựa chọn dưới dạng tin nhắn đầu vào và phản hồi.
 
-Notes:
+Lưu ý:
 
-- Button callbacks use HMAC-SHA256 verification (automatic, no config needed).
-- Mattermost strips callback data from its API responses (security feature), so all buttons
-  are removed on click — partial removal is not possible.
-- Action IDs containing hyphens or underscores are sanitized automatically
-  (Mattermost routing limitation).
+- Các callback của nút sử dụng xác minh HMAC-SHA256 (tự động, không cần cấu hình).
+- Mattermost loại bỏ dữ liệu callback khỏi các phản hồi API của nó (tính năng bảo mật), vì vậy tất cả các nút
+  bị xóa khi nhấp — không thể xóa một phần.
+- Các ID hành động chứa dấu gạch ngang hoặc gạch dưới được tự động làm sạch
+  (giới hạn định tuyến của Mattermost).
 
-Config:
+Cấu hình:
 
-- `channels.mattermost.capabilities`: array of capability strings. Add `"inlineButtons"` to
-  enable the buttons tool description in the agent system prompt.
-- `channels.mattermost.interactions.callbackBaseUrl`: optional external base URL for button
-  callbacks (for example `https://gateway.example.com`). Use this when Mattermost cannot
-  reach the gateway at its bind host directly.
-- In multi-account setups, you can also set the same field under
+- `channels.mattermost.capabilities`: mảng các chuỗi khả năng. Thêm `"inlineButtons"` để
+  bật mô tả công cụ nút trong lời nhắc hệ thống của agent.
+- `channels.mattermost.interactions.callbackBaseUrl`: URL cơ sở bên ngoài tùy chọn cho các callback của nút
+  (ví dụ `https://gateway.example.com`). Sử dụng điều này khi Mattermost không thể
+  truy cập vào gateway tại host bind của nó trực tiếp.
+- Trong các thiết lập nhiều tài khoản, bạn cũng có thể đặt cùng một trường dưới
   `channels.mattermost.accounts.<id>.interactions.callbackBaseUrl`.
-- If `interactions.callbackBaseUrl` is omitted, OpenClaw derives the callback URL from
-  `gateway.customBindHost` + `gateway.port`, then falls back to `http://localhost:<port>`.
-- Reachability rule: the button callback URL must be reachable from the Mattermost server.
-  `localhost` only works when Mattermost and OpenClaw run on the same host/network namespace.
-- If your callback target is private/tailnet/internal, add its host/domain to Mattermost
+- Nếu `interactions.callbackBaseUrl` bị bỏ qua, OpenClaw sẽ tự động tạo URL callback từ
+  `gateway.customBindHost` + `gateway.port`, sau đó quay lại `http://localhost:<port>`.
+- Quy tắc khả năng truy cập: URL callback của nút phải có thể truy cập từ máy chủ Mattermost.
+  `localhost` chỉ hoạt động khi Mattermost và OpenClaw chạy trên cùng một host/network namespace.
+- Nếu mục tiêu callback của bạn là private/tailnet/internal, thêm host/domain của nó vào Mattermost
   `ServiceSettings.AllowedUntrustedInternalConnections`.
 
-### Direct API integration (external scripts)
+### Tích hợp API trực tiếp (script bên ngoài)
 
-External scripts and webhooks can post buttons directly via the Mattermost REST API
-instead of going through the agent's `message` tool. Use `buildButtonAttachments()` from
-the extension when possible; if posting raw JSON, follow these rules:
+Các script bên ngoài và webhooks có thể đăng nút trực tiếp qua API REST của Mattermost
+thay vì thông qua công cụ `message` của agent. Sử dụng `buildButtonAttachments()` từ
+extension khi có thể; nếu đăng JSON thô, tuân theo các quy tắc sau:
 
-**Payload structure:**
+**Cấu trúc payload:**
 
 ```json5
 {
   channel_id: "<channelId>",
-  message: "Choose an option:",
+  message: "Chọn một tùy chọn:",
   props: {
     attachments: [
       {
         actions: [
           {
-            id: "mybutton01", // alphanumeric only — see below
-            type: "button", // required, or clicks are silently ignored
-            name: "Approve", // display label
-            style: "primary", // optional: "default", "primary", "danger"
+            id: "mybutton01", // chỉ chữ và số — xem bên dưới
+            type: "button", // bắt buộc, nếu không nhấp sẽ bị bỏ qua
+            name: "Approve", // nhãn hiển thị
+            style: "primary", // tùy chọn: "default", "primary", "danger"
             integration: {
               url: "https://gateway.example.com/mattermost/interactions/default",
               context: {
-                action_id: "mybutton01", // must match button id (for name lookup)
+                action_id: "mybutton01", // phải khớp với id của nút (để tra cứu tên)
                 action: "approve",
-                // ... any custom fields ...
-                _token: "<hmac>", // see HMAC section below
+                // ... bất kỳ trường tùy chỉnh nào ...
+                _token: "<hmac>", // xem phần HMAC bên dưới
               },
             },
           },
@@ -336,31 +336,31 @@ the extension when possible; if posting raw JSON, follow these rules:
 }
 ```
 
-**Critical rules:**
+**Quy tắc quan trọng:**
 
-1. Attachments go in `props.attachments`, not top-level `attachments` (silently ignored).
-2. Every action needs `type: "button"` — without it, clicks are swallowed silently.
-3. Every action needs an `id` field — Mattermost ignores actions without IDs.
-4. Action `id` must be **alphanumeric only** (`[a-zA-Z0-9]`). Hyphens and underscores break
-   Mattermost's server-side action routing (returns 404). Strip them before use.
-5. `context.action_id` must match the button's `id` so the confirmation message shows the
-   button name (e.g., "Approve") instead of a raw ID.
-6. `context.action_id` is required — the interaction handler returns 400 without it.
+1. Attachments đi vào `props.attachments`, không phải `attachments` cấp cao nhất (bị bỏ qua).
+2. Mỗi hành động cần `type: "button"` — nếu không có, nhấp sẽ bị bỏ qua.
+3. Mỗi hành động cần một trường `id` — Mattermost bỏ qua các hành động không có ID.
+4. ID hành động phải **chỉ chữ và số** (`[a-zA-Z0-9]`). Dấu gạch ngang và gạch dưới làm hỏng
+   định tuyến hành động của Mattermost (trả về 404). Loại bỏ chúng trước khi sử dụng.
+5. `context.action_id` phải khớp với `id` của nút để thông báo xác nhận hiển thị tên
+   nút (ví dụ: "Approve") thay vì ID thô.
+6. `context.action_id` là bắt buộc — trình xử lý tương tác trả về 400 nếu không có.
 
-**HMAC token generation:**
+**Tạo token HMAC:**
 
-The gateway verifies button clicks with HMAC-SHA256. External scripts must generate tokens
-that match the gateway's verification logic:
+Gateway xác minh các lần nhấp nút bằng HMAC-SHA256. Các script bên ngoài phải tạo token
+khớp với logic xác minh của gateway:
 
-1. Derive the secret from the bot token:
+1. Tạo secret từ bot token:
    `HMAC-SHA256(key="openclaw-mattermost-interactions", data=botToken)`
-2. Build the context object with all fields **except** `_token`.
-3. Serialize with **sorted keys** and **no spaces** (the gateway uses `JSON.stringify`
-   with sorted keys, which produces compact output).
-4. Sign: `HMAC-SHA256(key=secret, data=serializedContext)`
-5. Add the resulting hex digest as `_token` in the context.
+2. Xây dựng đối tượng context với tất cả các trường **trừ** `_token`.
+3. Tuần tự hóa với **các khóa được sắp xếp** và **không có khoảng trắng** (gateway sử dụng `JSON.stringify`
+   với các khóa được sắp xếp, tạo ra đầu ra gọn gàng).
+4. Ký: `HMAC-SHA256(key=secret, data=serializedContext)`
+5. Thêm mã băm hex kết quả làm `_token` trong context.
 
-Python example:
+Ví dụ Python:
 
 ```python
 import hmac, hashlib, json
@@ -377,28 +377,28 @@ token = hmac.new(secret.encode(), payload.encode(), hashlib.sha256).hexdigest()
 context = {**ctx, "_token": token}
 ```
 
-Common HMAC pitfalls:
+Các lỗi phổ biến của HMAC:
 
-- Python's `json.dumps` adds spaces by default (`{"key": "val"}`). Use
-  `separators=(",", ":")` to match JavaScript's compact output (`{"key":"val"}`).
-- Always sign **all** context fields (minus `_token`). The gateway strips `_token` then
-  signs everything remaining. Signing a subset causes silent verification failure.
-- Use `sort_keys=True` — the gateway sorts keys before signing, and Mattermost may
-  reorder context fields when storing the payload.
-- Derive the secret from the bot token (deterministic), not random bytes. The secret
-  must be the same across the process that creates buttons and the gateway that verifies.
+- `json.dumps` của Python thêm khoảng trắng theo mặc định (`{"key": "val"}`). Sử dụng
+  `separators=(",", ":")` để khớp với đầu ra gọn gàng của JavaScript (`{"key":"val"}`).
+- Luôn ký **tất cả** các trường context (trừ `_token`). Gateway loại bỏ `_token` rồi
+  ký tất cả những gì còn lại. Ký một phần gây ra lỗi xác minh im lặng.
+- Sử dụng `sort_keys=True` — gateway sắp xếp các khóa trước khi ký, và Mattermost có thể
+  sắp xếp lại các trường context khi lưu trữ payload.
+- Tạo secret từ bot token (xác định), không phải byte ngẫu nhiên. Secret
+  phải giống nhau trên quá trình tạo nút và gateway xác minh.
 
-## Directory adapter
+## Bộ điều hợp thư mục
 
-The Mattermost plugin includes a directory adapter that resolves channel and user names
-via the Mattermost API. This enables `#channel-name` and `@username` targets in
-`openclaw message send` and cron/webhook deliveries.
+Plugin Mattermost bao gồm một bộ điều hợp thư mục giải quyết tên kênh và người dùng
+qua API của Mattermost. Điều này cho phép `#channel-name` và `@username` làm mục tiêu trong
+`openclaw message send` và các giao hàng cron/webhook.
 
-No configuration is needed — the adapter uses the bot token from the account config.
+Không cần cấu hình — bộ điều hợp sử dụng bot token từ cấu hình tài khoản.
 
-## Multi-account
+## Nhiều tài khoản
 
-Mattermost supports multiple accounts under `channels.mattermost.accounts`:
+Mattermost hỗ trợ nhiều tài khoản dưới `channels.mattermost.accounts`:
 
 ```json5
 {
@@ -413,15 +413,15 @@ Mattermost supports multiple accounts under `channels.mattermost.accounts`:
 }
 ```
 
-## Troubleshooting
+## Gỡ lỗi
 
-- No replies in channels: ensure the bot is in the channel and mention it (oncall), use a trigger prefix (onchar), or set `chatmode: "onmessage"`.
-- Auth errors: check the bot token, base URL, and whether the account is enabled.
-- Multi-account issues: env vars only apply to the `default` account.
-- Buttons appear as white boxes: the agent may be sending malformed button data. Check that each button has both `text` and `callback_data` fields.
-- Buttons render but clicks do nothing: verify `AllowedUntrustedInternalConnections` in Mattermost server config includes `127.0.0.1 localhost`, and that `EnablePostActionIntegration` is `true` in ServiceSettings.
-- Buttons return 404 on click: the button `id` likely contains hyphens or underscores. Mattermost's action router breaks on non-alphanumeric IDs. Use `[a-zA-Z0-9]` only.
-- Gateway logs `invalid _token`: HMAC mismatch. Check that you sign all context fields (not a subset), use sorted keys, and use compact JSON (no spaces). See the HMAC section above.
-- Gateway logs `missing _token in context`: the `_token` field is not in the button's context. Ensure it is included when building the integration payload.
-- Confirmation shows raw ID instead of button name: `context.action_id` does not match the button's `id`. Set both to the same sanitized value.
-- Agent doesn't know about buttons: add `capabilities: ["inlineButtons"]` to the Mattermost channel config.
+- Không có phản hồi trong kênh: đảm bảo bot có trong kênh và mention nó (oncall), sử dụng tiền tố kích hoạt (onchar), hoặc đặt `chatmode: "onmessage"`.
+- Lỗi xác thực: kiểm tra bot token, base URL và xem tài khoản có được bật không.
+- Vấn đề nhiều tài khoản: biến môi trường chỉ áp dụng cho tài khoản `default`.
+- Nút xuất hiện dưới dạng hộp trắng: agent có thể đang gửi dữ liệu nút không hợp lệ. Kiểm tra rằng mỗi nút có cả trường `text` và `callback_data`.
+- Nút hiển thị nhưng nhấp không có tác dụng: xác minh `AllowedUntrustedInternalConnections` trong cấu hình máy chủ Mattermost bao gồm `127.0.0.1 localhost`, và rằng `EnablePostActionIntegration` là `true` trong ServiceSettings.
+- Nút trả về 404 khi nhấp: ID của nút có thể chứa dấu gạch ngang hoặc gạch dưới. Bộ định tuyến hành động của Mattermost bị lỗi với các ID không phải chữ và số. Sử dụng `[a-zA-Z0-9]` chỉ.
+- Gateway ghi `invalid _token`: không khớp HMAC. Kiểm tra rằng bạn ký tất cả các trường context (không phải một phần), sử dụng các khóa được sắp xếp, và sử dụng JSON gọn gàng (không có khoảng trắng). Xem phần HMAC ở trên.
+- Gateway ghi `missing _token in context`: trường `_token` không có trong context của nút. Đảm bảo nó được bao gồm khi xây dựng payload tích hợp.
+- Xác nhận hiển thị ID thô thay vì tên nút: `context.action_id` không khớp với `id` của nút. Đặt cả hai thành cùng một giá trị đã được làm sạch.
+- Agent không biết về nút: thêm `capabilities: ["inlineButtons"]` vào cấu hình kênh Mattermost.

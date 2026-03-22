@@ -1,17 +1,17 @@
 ---
-summary: "Install OpenClaw — installer script, npm/pnpm, from source, Docker, and more"
+summary: "Cài đặt OpenClaw — script cài đặt, npm/pnpm, từ source, Docker và nhiều hơn nữa"
 read_when:
-  - You need an install method other than the Getting Started quickstart
-  - You want to deploy to a cloud platform
-  - You need to update, migrate, or uninstall
-title: "Install"
+  - Bạn cần phương pháp cài đặt khác ngoài hướng dẫn nhanh trong phần Bắt đầu
+  - Bạn muốn triển khai lên nền tảng đám mây
+  - Bạn cần cập nhật, di chuyển, hoặc gỡ cài đặt
+title: "Cài đặt"
 ---
 
-# Install
+# Cài đặt
 
-## Recommended: installer script
+## Khuyến nghị: script cài đặt
 
-The fastest way to install. It detects your OS, installs Node if needed, installs OpenClaw, and launches onboarding.
+Cách nhanh nhất để cài đặt. Script này tự động phát hiện hệ điều hành, cài đặt Node nếu cần, cài đặt OpenClaw và khởi chạy quá trình onboarding.
 
 <Tabs>
   <Tab title="macOS / Linux / WSL2">
@@ -26,7 +26,7 @@ The fastest way to install. It detects your OS, installs Node if needed, install
   </Tab>
 </Tabs>
 
-To install without running onboarding:
+Để cài đặt mà không chạy onboarding:
 
 <Tabs>
   <Tab title="macOS / Linux / WSL2">
@@ -41,19 +41,19 @@ To install without running onboarding:
   </Tab>
 </Tabs>
 
-For all flags and CI/automation options, see [Installer internals](/install/installer).
+Để biết tất cả các cờ và tùy chọn CI/tự động hóa, xem [Installer internals](/install/installer).
 
-## System requirements
+## Yêu cầu hệ thống
 
-- **Node 24** (recommended) or Node 22.16+ — the installer script handles this automatically
-- **macOS, Linux, or Windows** — both native Windows and WSL2 are supported; WSL2 is more stable. See [Windows](/platforms/windows).
-- `pnpm` is only needed if you build from source
+- **Node 24** (khuyến nghị) hoặc Node 22.16+ — script cài đặt sẽ tự động xử lý điều này
+- **macOS, Linux, hoặc Windows** — hỗ trợ cả Windows gốc và WSL2; WSL2 ổn định hơn. Xem [Windows](/platforms/windows).
+- `pnpm` chỉ cần thiết nếu bạn build từ source
 
-## Alternative install methods
+## Phương pháp cài đặt thay thế
 
-### npm or pnpm
+### npm hoặc pnpm
 
-If you already manage Node yourself:
+Nếu bạn đã tự quản lý Node:
 
 <Tabs>
   <Tab title="npm">
@@ -70,14 +70,14 @@ If you already manage Node yourself:
     ```
 
     <Note>
-    pnpm requires explicit approval for packages with build scripts. Run `pnpm approve-builds -g` after the first install.
+    pnpm yêu cầu phê duyệt rõ ràng cho các package có script build. Chạy `pnpm approve-builds -g` sau lần cài đặt đầu tiên.
     </Note>
 
   </Tab>
 </Tabs>
 
-<Accordion title="Troubleshooting: sharp build errors (npm)">
-  If `sharp` fails due to a globally installed libvips:
+<Accordion title="Khắc phục sự cố: lỗi build sharp (npm)">
+  Nếu `sharp` gặp lỗi do libvips được cài đặt toàn cục:
 
 ```bash
 SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g openclaw@latest
@@ -85,9 +85,9 @@ SHARP_IGNORE_GLOBAL_LIBVIPS=1 npm install -g openclaw@latest
 
 </Accordion>
 
-### From source
+### Từ source
 
-For contributors or anyone who wants to run from a local checkout:
+Dành cho những người đóng góp hoặc ai muốn chạy từ bản checkout cục bộ:
 
 ```bash
 git clone https://github.com/openclaw/openclaw.git
@@ -97,49 +97,49 @@ pnpm link --global
 openclaw onboard --install-daemon
 ```
 
-Or skip the link and use `pnpm openclaw ...` from inside the repo. See [Setup](/start/setup) for full development workflows.
+Hoặc bỏ qua bước link và sử dụng `pnpm openclaw ...` từ trong repo. Xem [Setup](/start/setup) để biết quy trình phát triển đầy đủ.
 
-### Install from GitHub main
+### Cài đặt từ GitHub main
 
 ```bash
 npm install -g github:openclaw/openclaw#main
 ```
 
-### Containers and package managers
+### Containers và trình quản lý package
 
 <CardGroup cols={2}>
   <Card title="Docker" href="/install/docker" icon="container">
-    Containerized or headless deployments.
+    Triển khai container hoặc không có giao diện.
   </Card>
   <Card title="Podman" href="/install/podman" icon="container">
-    Rootless container alternative to Docker.
+    Giải pháp container không root thay thế Docker.
   </Card>
   <Card title="Nix" href="/install/nix" icon="snowflake">
-    Declarative install via Nix flake.
+    Cài đặt khai báo qua Nix flake.
   </Card>
   <Card title="Ansible" href="/install/ansible" icon="server">
-    Automated fleet provisioning.
+    Cung cấp tự động cho hệ thống.
   </Card>
   <Card title="Bun" href="/install/bun" icon="zap">
-    CLI-only usage via the Bun runtime.
+    Sử dụng chỉ CLI qua runtime Bun.
   </Card>
 </CardGroup>
 
-## Verify the install
+## Xác minh cài đặt
 
 ```bash
-openclaw --version      # confirm the CLI is available
-openclaw doctor         # check for config issues
-openclaw gateway status # verify the Gateway is running
+openclaw --version      # xác nhận CLI có sẵn
+openclaw doctor         # kiểm tra các vấn đề cấu hình
+openclaw gateway status # xác minh Gateway đang chạy
 ```
 
-## Hosting and deployment
+## Lưu trữ và triển khai
 
-Deploy OpenClaw on a cloud server or VPS:
+Triển khai OpenClaw trên máy chủ đám mây hoặc VPS:
 
 <CardGroup cols={3}>
-  <Card title="VPS" href="/vps">Any Linux VPS</Card>
-  <Card title="Docker VM" href="/install/docker-vm-runtime">Shared Docker steps</Card>
+  <Card title="VPS" href="/vps">Bất kỳ Linux VPS nào</Card>
+  <Card title="Docker VM" href="/install/docker-vm-runtime">Các bước Docker chia sẻ</Card>
   <Card title="Kubernetes" href="/install/kubernetes">K8s</Card>
   <Card title="Fly.io" href="/install/fly">Fly.io</Card>
   <Card title="Hetzner" href="/install/hetzner">Hetzner</Card>
@@ -150,34 +150,34 @@ Deploy OpenClaw on a cloud server or VPS:
   <Card title="Northflank" href="/install/northflank">Northflank</Card>
 </CardGroup>
 
-## Update, migrate, or uninstall
+## Cập nhật, di chuyển, hoặc gỡ cài đặt
 
 <CardGroup cols={3}>
-  <Card title="Updating" href="/install/updating" icon="refresh-cw">
-    Keep OpenClaw up to date.
+  <Card title="Cập nhật" href="/install/updating" icon="refresh-cw">
+    Giữ OpenClaw luôn cập nhật.
   </Card>
-  <Card title="Migrating" href="/install/migrating" icon="arrow-right">
-    Move to a new machine.
+  <Card title="Di chuyển" href="/install/migrating" icon="arrow-right">
+    Chuyển sang máy mới.
   </Card>
-  <Card title="Uninstall" href="/install/uninstall" icon="trash-2">
-    Remove OpenClaw completely.
+  <Card title="Gỡ cài đặt" href="/install/uninstall" icon="trash-2">
+    Gỡ bỏ hoàn toàn OpenClaw.
   </Card>
 </CardGroup>
 
-## Troubleshooting: `openclaw` not found
+## Khắc phục sự cố: `openclaw` không tìm thấy
 
-If the install succeeded but `openclaw` is not found in your terminal:
+Nếu cài đặt thành công nhưng `openclaw` không tìm thấy trong terminal:
 
 ```bash
-node -v           # Node installed?
-npm prefix -g     # Where are global packages?
-echo "$PATH"      # Is the global bin dir in PATH?
+node -v           # Node đã cài đặt chưa?
+npm prefix -g     # Các package toàn cục nằm ở đâu?
+echo "$PATH"      # Thư mục bin toàn cục có trong PATH không?
 ```
 
-If `$(npm prefix -g)/bin` is not in your `$PATH`, add it to your shell startup file (`~/.zshrc` or `~/.bashrc`):
+Nếu `$(npm prefix -g)/bin` không có trong `$PATH`, thêm nó vào file khởi động shell (`~/.zshrc` hoặc `~/.bashrc`):
 
 ```bash
 export PATH="$(npm prefix -g)/bin:$PATH"
 ```
 
-Then open a new terminal. See [Node setup](/install/node) for more details.
+Sau đó mở một terminal mới. Xem [Node setup](/install/node) để biết thêm chi tiết.

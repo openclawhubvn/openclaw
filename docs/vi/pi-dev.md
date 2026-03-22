@@ -1,25 +1,25 @@
 ---
-title: "Pi Development Workflow"
-summary: "Developer workflow for Pi integration: build, test, and live validation"
+title: "Quy trình phát triển Pi"
+summary: "Quy trình làm việc cho tích hợp Pi: xây dựng, kiểm thử và xác thực trực tiếp"
 read_when:
-  - Working on Pi integration code or tests
-  - Running Pi-specific lint, typecheck, and live test flows
+  - Đang làm việc với mã tích hợp Pi hoặc kiểm thử
+  - Chạy các quy trình lint, kiểm tra kiểu và kiểm thử trực tiếp dành riêng cho Pi
 ---
 
-# Pi Development Workflow
+# Quy trình phát triển Pi
 
-This guide summarizes a sane workflow for working on the pi integration in OpenClaw.
+Hướng dẫn này tóm tắt quy trình làm việc hợp lý khi phát triển tích hợp Pi trong OpenClaw.
 
-## Type Checking and Linting
+## Kiểm tra kiểu và Linting
 
-- Type check and build: `pnpm build`
+- Kiểm tra kiểu và xây dựng: `pnpm build`
 - Lint: `pnpm lint`
-- Format check: `pnpm format`
-- Full gate before pushing: `pnpm lint && pnpm build && pnpm test`
+- Kiểm tra định dạng: `pnpm format`
+- Kiểm tra toàn bộ trước khi đẩy mã: `pnpm lint && pnpm build && pnpm test`
 
-## Running Pi Tests
+## Chạy kiểm thử Pi
 
-Run the Pi-focused test set directly with Vitest:
+Chạy bộ kiểm thử tập trung vào Pi trực tiếp với Vitest:
 
 ```bash
 pnpm test -- \
@@ -31,13 +31,13 @@ pnpm test -- \
   "src/agents/pi-extensions/**/*.test.ts"
 ```
 
-To include the live provider exercise:
+Để bao gồm kiểm thử nhà cung cấp trực tiếp:
 
 ```bash
 OPENCLAW_LIVE_TEST=1 pnpm test -- src/agents/pi-embedded-runner-extraparams.live.test.ts
 ```
 
-This covers the main Pi unit suites:
+Điều này bao gồm các bộ kiểm thử chính của Pi:
 
 - `src/agents/pi-*.test.ts`
 - `src/agents/pi-embedded-*.test.ts`
@@ -46,35 +46,35 @@ This covers the main Pi unit suites:
 - `src/agents/pi-tool-definition-adapter.test.ts`
 - `src/agents/pi-extensions/*.test.ts`
 
-## Manual Testing
+## Kiểm thử thủ công
 
-Recommended flow:
+Quy trình đề xuất:
 
-- Run the gateway in dev mode:
+- Chạy gateway ở chế độ phát triển:
   - `pnpm gateway:dev`
-- Trigger the agent directly:
+- Kích hoạt agent trực tiếp:
   - `pnpm openclaw agent --message "Hello" --thinking low`
-- Use the TUI for interactive debugging:
+- Sử dụng TUI để gỡ lỗi tương tác:
   - `pnpm tui`
 
-For tool call behavior, prompt for a `read` or `exec` action so you can see tool streaming and payload handling.
+Đối với hành vi gọi công cụ, hãy yêu cầu hành động `read` hoặc `exec` để có thể thấy luồng công cụ và xử lý payload.
 
-## Clean Slate Reset
+## Đặt lại trạng thái
 
-State lives under the OpenClaw state directory. Default is `~/.openclaw`. If `OPENCLAW_STATE_DIR` is set, use that directory instead.
+Trạng thái được lưu trong thư mục trạng thái OpenClaw. Mặc định là `~/.openclaw`. Nếu `OPENCLAW_STATE_DIR` được thiết lập, sử dụng thư mục đó.
 
-To reset everything:
+Để đặt lại mọi thứ:
 
-- `openclaw.json` for config
-- `credentials/` for auth profiles and tokens
-- `agents/<agentId>/sessions/` for agent session history
-- `agents/<agentId>/sessions.json` for the session index
-- `sessions/` if legacy paths exist
-- `workspace/` if you want a blank workspace
+- `openclaw.json` cho cấu hình
+- `credentials/` cho hồ sơ xác thực và token
+- `agents/<agentId>/sessions/` cho lịch sử phiên của agent
+- `agents/<agentId>/sessions.json` cho chỉ mục phiên
+- `sessions/` nếu có đường dẫn cũ
+- `workspace/` nếu muốn workspace trống
 
-If you only want to reset sessions, delete `agents/<agentId>/sessions/` and `agents/<agentId>/sessions.json` for that agent. Keep `credentials/` if you do not want to reauthenticate.
+Nếu chỉ muốn đặt lại các phiên, xóa `agents/<agentId>/sessions/` và `agents/<agentId>/sessions.json` cho agent đó. Giữ `credentials/` nếu không muốn xác thực lại.
 
-## References
+## Tham khảo
 
-- [Testing](/help/testing)
-- [Getting Started](/start/getting-started)
+- [Kiểm thử](/help/testing)
+- [Bắt đầu](/start/getting-started)

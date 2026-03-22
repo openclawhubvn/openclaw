@@ -1,100 +1,97 @@
 ---
-summary: "Deploy OpenClaw on Railway with one-click template"
+summary: "Triển khai OpenClaw trên Railway với mẫu một lần nhấp"
 read_when:
-  - Deploying OpenClaw to Railway
-  - You want a one-click cloud deploy with browser-based setup
+  - Triển khai OpenClaw lên Railway
+  - Muốn triển khai đám mây một lần nhấp với thiết lập qua trình duyệt
 title: "Railway"
 ---
 
-Deploy OpenClaw on Railway with a one-click template and finish setup in your browser.
-This is the easiest “no terminal on the server” path: Railway runs the Gateway for you,
-and you configure everything via the `/setup` web wizard.
+Triển khai OpenClaw trên Railway với mẫu một lần nhấp và hoàn tất thiết lập trong trình duyệt. Đây là cách dễ nhất mà không cần dùng terminal trên máy chủ: Railway sẽ chạy Gateway cho bạn và bạn cấu hình mọi thứ qua trình hướng dẫn web `/setup`.
 
-## Quick checklist (new users)
+## Danh sách kiểm tra nhanh (dành cho người dùng mới)
 
-1. Click **Deploy on Railway** (below).
-2. Add a **Volume** mounted at `/data`.
-3. Set the required **Variables** (at least `SETUP_PASSWORD`).
-4. Enable **HTTP Proxy** on port `8080`.
-5. Open `https://<your-railway-domain>/setup` and finish the wizard.
+1. Nhấp vào **Deploy on Railway** (bên dưới).
+2. Thêm một **Volume** gắn tại `/data`.
+3. Thiết lập các **Biến** cần thiết (ít nhất là `SETUP_PASSWORD`).
+4. Kích hoạt **HTTP Proxy** trên cổng `8080`.
+5. Mở `https://<your-railway-domain>/setup` và hoàn tất trình hướng dẫn.
 
-## One-click deploy
+## Triển khai một lần nhấp
 
 <a href="https://railway.com/deploy/clawdbot-railway-template" target="_blank" rel="noreferrer">
   Deploy on Railway
 </a>
 
-After deploy, find your public URL in **Railway → your service → Settings → Domains**.
+Sau khi triển khai, tìm URL công khai của bạn trong **Railway → dịch vụ của bạn → Cài đặt → Tên miền**.
 
-Railway will either:
+Railway sẽ:
 
-- give you a generated domain (often `https://<something>.up.railway.app`), or
-- use your custom domain if you attached one.
+- cung cấp cho bạn một tên miền được tạo tự động (thường là `https://<something>.up.railway.app`), hoặc
+- sử dụng tên miền tùy chỉnh của bạn nếu bạn đã đính kèm một tên miền.
 
-Then open:
+Sau đó mở:
 
-- `https://<your-railway-domain>/setup` — web setup (password protected)
-- `https://<your-railway-domain>/openclaw` — Control UI
+- `https://<your-railway-domain>/setup` — thiết lập web (bảo vệ bằng mật khẩu)
+- `https://<your-railway-domain>/openclaw` — Giao diện điều khiển
 
-## What you get
+## Những gì bạn nhận được
 
-- Hosted OpenClaw Gateway + Control UI
-- Web setup at `/setup` (no terminal commands)
-- Persistent storage via Railway Volume (`/data`) so config/credentials/workspace survive redeploys
-- Backup export at `/setup/export` to migrate off Railway later
+- OpenClaw Gateway + Giao diện điều khiển được lưu trữ
+- Thiết lập web tại `/setup` (không cần lệnh terminal)
+- Lưu trữ dữ liệu bền vững qua Railway Volume (`/data`) để cấu hình/thông tin đăng nhập/workspace tồn tại sau khi triển khai lại
+- Xuất sao lưu tại `/setup/export` để di chuyển khỏi Railway sau này
 
-## Required Railway settings
+## Cài đặt cần thiết trên Railway
 
-### Public Networking
+### Mạng công cộng
 
-Enable **HTTP Proxy** for the service.
+Kích hoạt **HTTP Proxy** cho dịch vụ.
 
-- Port: `8080`
+- Cổng: `8080`
 
-### Volume (required)
+### Volume (bắt buộc)
 
-Attach a volume mounted at:
+Gắn một volume tại:
 
 - `/data`
 
-### Variables
+### Biến
 
-Set these variables on the service:
+Thiết lập các biến này trên dịch vụ:
 
-- `SETUP_PASSWORD` (required)
-- `PORT=8080` (required — must match the port in Public Networking)
-- `OPENCLAW_STATE_DIR=/data/.openclaw` (recommended)
-- `OPENCLAW_WORKSPACE_DIR=/data/workspace` (recommended)
-- `OPENCLAW_GATEWAY_TOKEN` (recommended; treat as an admin secret)
+- `SETUP_PASSWORD` (bắt buộc)
+- `PORT=8080` (bắt buộc — phải khớp với cổng trong Mạng công cộng)
+- `OPENCLAW_STATE_DIR=/data/.openclaw` (khuyến nghị)
+- `OPENCLAW_WORKSPACE_DIR=/data/workspace` (khuyến nghị)
+- `OPENCLAW_GATEWAY_TOKEN` (khuyến nghị; coi như một bí mật quản trị)
 
-## Setup flow
+## Quy trình thiết lập
 
-1. Visit `https://<your-railway-domain>/setup` and enter your `SETUP_PASSWORD`.
-2. Choose a model/auth provider and paste your key.
-3. (Optional) Add Telegram/Discord/Slack tokens.
-4. Click **Run setup**.
+1. Truy cập `https://<your-railway-domain>/setup` và nhập `SETUP_PASSWORD`.
+2. Chọn một mô hình/nhà cung cấp xác thực và dán khóa của bạn.
+3. (Tùy chọn) Thêm token Telegram/Discord/Slack.
+4. Nhấp vào **Run setup**.
 
-If Telegram DMs are set to pairing, web setup can approve the pairing code.
+Nếu Telegram DM được đặt để ghép đôi, thiết lập web có thể phê duyệt mã ghép đôi.
 
-## Connect a channel
+## Kết nối một kênh
 
-Paste your Telegram or Discord token into the `/setup` wizard. For setup
-instructions, see the channel docs:
+Dán token Telegram hoặc Discord của bạn vào trình hướng dẫn `/setup`. Để biết hướng dẫn thiết lập, xem tài liệu kênh:
 
-- [Telegram](/channels/telegram) (fastest — just a bot token)
+- [Telegram](/channels/telegram) (nhanh nhất — chỉ cần token bot)
 - [Discord](/channels/discord)
-- [All channels](/channels)
+- [Tất cả các kênh](/channels)
 
-## Backups & migration
+## Sao lưu & di chuyển
 
-Download a backup at:
+Tải xuống bản sao lưu tại:
 
 - `https://<your-railway-domain>/setup/export`
 
-This exports your OpenClaw state + workspace so you can migrate to another host without losing config or memory.
+Điều này xuất trạng thái OpenClaw + workspace của bạn để bạn có thể di chuyển sang máy chủ khác mà không mất cấu hình hoặc dữ liệu.
 
-## Next steps
+## Bước tiếp theo
 
-- Set up messaging channels: [Channels](/channels)
-- Configure the Gateway: [Gateway configuration](/gateway/configuration)
-- Keep OpenClaw up to date: [Updating](/install/updating)
+- Thiết lập các kênh nhắn tin: [Channels](/channels)
+- Cấu hình Gateway: [Gateway configuration](/gateway/configuration)
+- Giữ OpenClaw luôn cập nhật: [Updating](/install/updating)

@@ -1,20 +1,20 @@
 ---
-summary: "CLI reference for `openclaw security` (audit and fix common security footguns)"
+summary: "Tham khảo CLI cho `openclaw security` (kiểm tra và khắc phục các vấn đề bảo mật phổ biến)"
 read_when:
-  - You want to run a quick security audit on config/state
-  - You want to apply safe “fix” suggestions (chmod, tighten defaults)
+  - Bạn muốn thực hiện kiểm tra bảo mật nhanh trên cấu hình/trạng thái
+  - Bạn muốn áp dụng các đề xuất "sửa chữa" an toàn (chmod, thắt chặt mặc định)
 title: "security"
 ---
 
 # `openclaw security`
 
-Security tools (audit + optional fixes).
+Công cụ bảo mật (kiểm tra + sửa chữa tùy chọn).
 
-Related:
+Liên quan:
 
-- Security guide: [Security](/gateway/security)
+- Hướng dẫn bảo mật: [Security](/gateway/security)
 
-## Audit
+## Kiểm tra
 
 ```bash
 openclaw security audit
@@ -25,55 +25,54 @@ openclaw security audit --fix
 openclaw security audit --json
 ```
 
-The audit warns when multiple DM senders share the main session and recommends **secure DM mode**: `session.dmScope="per-channel-peer"` (or `per-account-channel-peer` for multi-account channels) for shared inboxes.
-This is for cooperative/shared inbox hardening. A single Gateway shared by mutually untrusted/adversarial operators is not a recommended setup; split trust boundaries with separate gateways (or separate OS users/hosts).
-It also emits `security.trust_model.multi_user_heuristic` when config suggests likely shared-user ingress (for example open DM/group policy, configured group targets, or wildcard sender rules), and reminds you that OpenClaw is a personal-assistant trust model by default.
-For intentional shared-user setups, the audit guidance is to sandbox all sessions, keep filesystem access workspace-scoped, and keep personal/private identities or credentials off that runtime.
-It also warns when small models (`<=300B`) are used without sandboxing and with web/browser tools enabled.
-For webhook ingress, it warns when `hooks.token` reuses the Gateway token, when `hooks.defaultSessionKey` is unset, when `hooks.allowedAgentIds` is unrestricted, when request `sessionKey` overrides are enabled, and when overrides are enabled without `hooks.allowedSessionKeyPrefixes`.
-It also warns when sandbox Docker settings are configured while sandbox mode is off, when `gateway.nodes.denyCommands` uses ineffective pattern-like/unknown entries (exact node command-name matching only, not shell-text filtering), when `gateway.nodes.allowCommands` explicitly enables dangerous node commands, when global `tools.profile="minimal"` is overridden by agent tool profiles, when open groups expose runtime/filesystem tools without sandbox/workspace guards, and when installed extension plugin tools may be reachable under permissive tool policy.
-It also flags `gateway.allowRealIpFallback=true` (header-spoofing risk if proxies are misconfigured) and `discovery.mdns.mode="full"` (metadata leakage via mDNS TXT records).
-It also warns when sandbox browser uses Docker `bridge` network without `sandbox.browser.cdpSourceRange`.
-It also flags dangerous sandbox Docker network modes (including `host` and `container:*` namespace joins).
-It also warns when existing sandbox browser Docker containers have missing/stale hash labels (for example pre-migration containers missing `openclaw.browserConfigEpoch`) and recommends `openclaw sandbox recreate --browser --all`.
-It also warns when npm-based plugin/hook install records are unpinned, missing integrity metadata, or drift from currently installed package versions.
-It warns when channel allowlists rely on mutable names/emails/tags instead of stable IDs (Discord, Slack, Google Chat, Microsoft Teams, Mattermost, IRC scopes where applicable).
-It warns when `gateway.auth.mode="none"` leaves Gateway HTTP APIs reachable without a shared secret (`/tools/invoke` plus any enabled `/v1/*` endpoint).
-Settings prefixed with `dangerous`/`dangerously` are explicit break-glass operator overrides; enabling one is not, by itself, a security vulnerability report.
-For the complete dangerous-parameter inventory, see the "Insecure or dangerous flags summary" section in [Security](/gateway/security).
+Kiểm tra sẽ cảnh báo khi nhiều người gửi DM chia sẻ phiên chính và đề xuất chế độ DM an toàn: `session.dmScope="per-channel-peer"` (hoặc `per-account-channel-peer` cho các kênh đa tài khoản) cho các hộp thư chung. Điều này nhằm tăng cường bảo mật cho hộp thư chung. Một Gateway duy nhất được chia sẻ bởi các nhà vận hành không tin tưởng lẫn nhau không phải là cấu hình được khuyến nghị; nên tách ranh giới tin cậy với các gateway riêng biệt (hoặc người dùng/hệ điều hành/host riêng biệt).
+Nó cũng phát hiện `security.trust_model.multi_user_heuristic` khi cấu hình cho thấy khả năng có người dùng chung (ví dụ chính sách DM/nhóm mở, mục tiêu nhóm được cấu hình, hoặc quy tắc người gửi wildcard), và nhắc nhở rằng OpenClaw mặc định là mô hình tin cậy trợ lý cá nhân.
+Đối với các cấu hình người dùng chung có chủ ý, hướng dẫn kiểm tra là sandbox tất cả các phiên, giữ quyền truy cập hệ thống tập tin trong phạm vi workspace, và giữ các danh tính hoặc thông tin đăng nhập cá nhân/riêng tư ngoài runtime đó.
+Nó cũng cảnh báo khi các mô hình nhỏ (`<=300B`) được sử dụng mà không có sandbox và với các công cụ web/trình duyệt được kích hoạt.
+Đối với webhook ingress, nó cảnh báo khi `hooks.token` tái sử dụng token Gateway, khi `hooks.defaultSessionKey` không được thiết lập, khi `hooks.allowedAgentIds` không bị giới hạn, khi các ghi đè `sessionKey` yêu cầu được kích hoạt, và khi các ghi đè được kích hoạt mà không có `hooks.allowedSessionKeyPrefixes`.
+Nó cũng cảnh báo khi cài đặt Docker sandbox được cấu hình trong khi chế độ sandbox tắt, khi `gateway.nodes.denyCommands` sử dụng các mục không hiệu quả/không xác định (chỉ khớp tên lệnh node chính xác, không lọc văn bản shell), khi `gateway.nodes.allowCommands` cho phép rõ ràng các lệnh node nguy hiểm, khi `tools.profile="minimal"` toàn cầu bị ghi đè bởi các profile công cụ agent, khi các nhóm mở phơi bày công cụ runtime/hệ thống tập tin mà không có bảo vệ sandbox/workspace, và khi các công cụ plugin mở rộng đã cài đặt có thể được truy cập dưới chính sách công cụ dễ dãi.
+Nó cũng đánh dấu `gateway.allowRealIpFallback=true` (nguy cơ giả mạo header nếu proxy bị cấu hình sai) và `discovery.mdns.mode="full"` (rò rỉ metadata qua mDNS TXT records).
+Nó cũng cảnh báo khi trình duyệt sandbox sử dụng mạng Docker `bridge` mà không có `sandbox.browser.cdpSourceRange`.
+Nó cũng đánh dấu các chế độ mạng Docker sandbox nguy hiểm (bao gồm `host` và `container:*` tham gia namespace).
+Nó cũng cảnh báo khi các container Docker trình duyệt sandbox hiện có thiếu/nhãn hash cũ (ví dụ các container trước khi di chuyển thiếu `openclaw.browserConfigEpoch`) và khuyến nghị `openclaw sandbox recreate --browser --all`.
+Nó cũng cảnh báo khi các bản ghi cài đặt plugin/hook dựa trên npm không được ghim, thiếu metadata toàn vẹn, hoặc lệch khỏi các phiên bản gói hiện tại.
+Nó cảnh báo khi danh sách cho phép kênh dựa vào tên/email/tag có thể thay đổi thay vì ID ổn định (Discord, Slack, Google Chat, Microsoft Teams, Mattermost, IRC nơi áp dụng).
+Nó cảnh báo khi `gateway.auth.mode="none"` để các API HTTP Gateway có thể truy cập mà không có bí mật chia sẻ (`/tools/invoke` cùng với bất kỳ endpoint `/v1/*` nào được kích hoạt).
+Các cài đặt có tiền tố `dangerous`/`dangerously` là các ghi đè operator phá vỡ kính rõ ràng; kích hoạt một không phải là báo cáo lỗ hổng bảo mật.
+Để xem toàn bộ danh sách tham số nguy hiểm, xem phần "Tóm tắt cờ không an toàn hoặc nguy hiểm" trong [Security](/gateway/security).
 
-SecretRef behavior:
+Hành vi SecretRef:
 
-- `security audit` resolves supported SecretRefs in read-only mode for its targeted paths.
-- If a SecretRef is unavailable in the current command path, audit continues and reports `secretDiagnostics` (instead of crashing).
-- `--token` and `--password` only override deep-probe auth for that command invocation; they do not rewrite config or SecretRef mappings.
+- `security audit` giải quyết các SecretRef được hỗ trợ ở chế độ chỉ đọc cho các đường dẫn mục tiêu của nó.
+- Nếu một SecretRef không có sẵn trong đường dẫn lệnh hiện tại, kiểm tra tiếp tục và báo cáo `secretDiagnostics` (thay vì bị lỗi).
+- `--token` và `--password` chỉ ghi đè xác thực kiểm tra sâu cho lần gọi lệnh đó; chúng không ghi đè cấu hình hoặc ánh xạ SecretRef.
 
-## JSON output
+## Đầu ra JSON
 
-Use `--json` for CI/policy checks:
+Sử dụng `--json` cho kiểm tra CI/chính sách:
 
 ```bash
 openclaw security audit --json | jq '.summary'
 openclaw security audit --deep --json | jq '.findings[] | select(.severity=="critical") | .checkId'
 ```
 
-If `--fix` and `--json` are combined, output includes both fix actions and final report:
+Nếu kết hợp `--fix` và `--json`, đầu ra bao gồm cả hành động sửa chữa và báo cáo cuối cùng:
 
 ```bash
 openclaw security audit --fix --json | jq '{fix: .fix.ok, summary: .report.summary}'
 ```
 
-## What `--fix` changes
+## Những gì `--fix` thay đổi
 
-`--fix` applies safe, deterministic remediations:
+`--fix` áp dụng các biện pháp khắc phục an toàn, xác định:
 
-- flips common `groupPolicy="open"` to `groupPolicy="allowlist"` (including account variants in supported channels)
-- sets `logging.redactSensitive` from `"off"` to `"tools"`
-- tightens permissions for state/config and common sensitive files (`credentials/*.json`, `auth-profiles.json`, `sessions.json`, session `*.jsonl`)
+- chuyển đổi `groupPolicy="open"` phổ biến thành `groupPolicy="allowlist"` (bao gồm các biến thể tài khoản trong các kênh được hỗ trợ)
+- đặt `logging.redactSensitive` từ `"off"` thành `"tools"`
+- thắt chặt quyền cho trạng thái/cấu hình và các tệp nhạy cảm phổ biến (`credentials/*.json`, `auth-profiles.json`, `sessions.json`, phiên `*.jsonl`)
 
-`--fix` does **not**:
+`--fix` không:
 
-- rotate tokens/passwords/API keys
-- disable tools (`gateway`, `cron`, `exec`, etc.)
-- change gateway bind/auth/network exposure choices
-- remove or rewrite plugins/skills
+- xoay vòng token/mật khẩu/API key
+- vô hiệu hóa công cụ (`gateway`, `cron`, `exec`, v.v.)
+- thay đổi lựa chọn phơi bày mạng/xác thực/gateway
+- xóa hoặc ghi đè plugin/kỹ năng

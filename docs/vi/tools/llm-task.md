@@ -1,22 +1,20 @@
 ---
-summary: "JSON-only LLM tasks for workflows (optional plugin tool)"
+summary: "Nhiệm vụ LLM chỉ sử dụng JSON cho quy trình làm việc (công cụ plugin tùy chọn)"
 read_when:
-  - You want a JSON-only LLM step inside workflows
-  - You need schema-validated LLM output for automation
-title: "LLM Task"
+  - Bạn muốn một bước LLM chỉ sử dụng JSON trong quy trình làm việc
+  - Bạn cần đầu ra LLM được xác thực theo schema cho tự động hóa
+title: "Nhiệm vụ LLM"
 ---
 
-# LLM Task
+# Nhiệm vụ LLM
 
-`llm-task` is an **optional plugin tool** that runs a JSON-only LLM task and
-returns structured output (optionally validated against JSON Schema).
+`llm-task` là một **công cụ plugin tùy chọn** thực hiện nhiệm vụ LLM chỉ sử dụng JSON và trả về đầu ra có cấu trúc (có thể được xác thực theo JSON Schema).
 
-This is ideal for workflow engines like Lobster: you can add a single LLM step
-without writing custom OpenClaw code for each workflow.
+Điều này lý tưởng cho các công cụ quy trình làm việc như Lobster: bạn có thể thêm một bước LLM mà không cần viết mã OpenClaw tùy chỉnh cho từng quy trình.
 
-## Enable the plugin
+## Kích hoạt plugin
 
-1. Enable the plugin:
+1. Kích hoạt plugin:
 
 ```json
 {
@@ -28,7 +26,7 @@ without writing custom OpenClaw code for each workflow.
 }
 ```
 
-2. Allowlist the tool (it is registered with `optional: true`):
+2. Cho phép công cụ (được đăng ký với `optional: true`):
 
 ```json
 {
@@ -43,7 +41,7 @@ without writing custom OpenClaw code for each workflow.
 }
 ```
 
-## Config (optional)
+## Cấu hình (tùy chọn)
 
 ```json
 {
@@ -65,30 +63,28 @@ without writing custom OpenClaw code for each workflow.
 }
 ```
 
-`allowedModels` is an allowlist of `provider/model` strings. If set, any request
-outside the list is rejected.
+`allowedModels` là danh sách cho phép các chuỗi `provider/model`. Nếu được thiết lập, bất kỳ yêu cầu nào ngoài danh sách này sẽ bị từ chối.
 
-## Tool parameters
+## Tham số công cụ
 
-- `prompt` (string, required)
-- `input` (any, optional)
-- `schema` (object, optional JSON Schema)
-- `provider` (string, optional)
-- `model` (string, optional)
-- `thinking` (string, optional)
-- `authProfileId` (string, optional)
-- `temperature` (number, optional)
-- `maxTokens` (number, optional)
-- `timeoutMs` (number, optional)
+- `prompt` (chuỗi, bắt buộc)
+- `input` (bất kỳ, tùy chọn)
+- `schema` (đối tượng, JSON Schema tùy chọn)
+- `provider` (chuỗi, tùy chọn)
+- `model` (chuỗi, tùy chọn)
+- `thinking` (chuỗi, tùy chọn)
+- `authProfileId` (chuỗi, tùy chọn)
+- `temperature` (số, tùy chọn)
+- `maxTokens` (số, tùy chọn)
+- `timeoutMs` (số, tùy chọn)
 
-`thinking` accepts the standard OpenClaw reasoning presets, such as `low` or `medium`.
+`thinking` chấp nhận các thiết lập lý luận tiêu chuẩn của OpenClaw, như `low` hoặc `medium`.
 
-## Output
+## Đầu ra
 
-Returns `details.json` containing the parsed JSON (and validates against
-`schema` when provided).
+Trả về `details.json` chứa JSON đã được phân tích (và xác thực theo `schema` nếu có).
 
-## Example: Lobster workflow step
+## Ví dụ: Bước quy trình làm việc Lobster
 
 ```lobster
 openclaw.invoke --tool llm-task --action json --args-json '{
@@ -110,10 +106,9 @@ openclaw.invoke --tool llm-task --action json --args-json '{
 }'
 ```
 
-## Safety notes
+## Lưu ý an toàn
 
-- The tool is **JSON-only** and instructs the model to output only JSON (no
-  code fences, no commentary).
-- No tools are exposed to the model for this run.
-- Treat output as untrusted unless you validate with `schema`.
-- Put approvals before any side-effecting step (send, post, exec).
+- Công cụ này **chỉ sử dụng JSON** và hướng dẫn mô hình chỉ xuất ra JSON (không có code fence, không có chú thích).
+- Không có công cụ nào được cung cấp cho mô hình trong lần chạy này.
+- Xem đầu ra là không đáng tin cậy trừ khi bạn xác thực với `schema`.
+- Đặt phê duyệt trước bất kỳ bước nào có thể gây ra tác động phụ (gửi, đăng, thực thi).

@@ -1,64 +1,61 @@
 ---
-summary: "iOS node app: connect to the Gateway, pairing, canvas, and troubleshooting"
+summary: "Ứng dụng node iOS: kết nối với Gateway, ghép đôi, canvas và xử lý sự cố"
 read_when:
-  - Pairing or reconnecting the iOS node
-  - Running the iOS app from source
-  - Debugging gateway discovery or canvas commands
-title: "iOS App"
+  - Ghép đôi hoặc kết nối lại node iOS
+  - Chạy ứng dụng iOS từ mã nguồn
+  - Gỡ lỗi phát hiện gateway hoặc lệnh canvas
+title: "Ứng dụng iOS"
 ---
 
-# iOS App (Node)
+# Ứng dụng iOS (Node)
 
-Availability: internal preview. The iOS app is not publicly distributed yet.
+Khả dụng: xem trước nội bộ. Ứng dụng iOS chưa được phân phối công khai.
 
-## What it does
+## Chức năng
 
-- Connects to a Gateway over WebSocket (LAN or tailnet).
-- Exposes node capabilities: Canvas, Screen snapshot, Camera capture, Location, Talk mode, Voice wake.
-- Receives `node.invoke` commands and reports node status events.
+- Kết nối với Gateway qua WebSocket (LAN hoặc tailnet).
+- Cung cấp khả năng của node: Canvas, chụp màn hình, chụp ảnh từ camera, định vị, chế độ nói, đánh thức bằng giọng nói.
+- Nhận lệnh `node.invoke` và báo cáo sự kiện trạng thái của node.
 
-## Requirements
+## Yêu cầu
 
-- Gateway running on another device (macOS, Linux, or Windows via WSL2).
-- Network path:
-  - Same LAN via Bonjour, **or**
-  - Tailnet via unicast DNS-SD (example domain: `openclaw.internal.`), **or**
-  - Manual host/port (fallback).
+- Gateway chạy trên thiết bị khác (macOS, Linux, hoặc Windows qua WSL2).
+- Đường dẫn mạng:
+  - Cùng LAN qua Bonjour, **hoặc**
+  - Tailnet qua unicast DNS-SD (ví dụ: `openclaw.internal.`), **hoặc**
+  - Host/port thủ công (dự phòng).
 
-## Quick start (pair + connect)
+## Bắt đầu nhanh (ghép đôi + kết nối)
 
-1. Start the Gateway:
+1. Khởi động Gateway:
 
 ```bash
 openclaw gateway --port 18789
 ```
 
-2. In the iOS app, open Settings and pick a discovered gateway (or enable Manual Host and enter host/port).
+2. Trong ứng dụng iOS, mở Cài đặt và chọn một gateway đã được phát hiện (hoặc bật Host Thủ công và nhập host/port).
 
-3. Approve the pairing request on the gateway host:
+3. Phê duyệt yêu cầu ghép đôi trên máy chủ gateway:
 
 ```bash
 openclaw devices list
 openclaw devices approve <requestId>
 ```
 
-If the app retries pairing with changed auth details (role/scopes/public key),
-the previous pending request is superseded and a new `requestId` is created.
-Run `openclaw devices list` again before approval.
+Nếu ứng dụng thử ghép đôi lại với thông tin xác thực thay đổi (vai trò/phạm vi/khóa công khai), yêu cầu đang chờ trước đó sẽ bị thay thế và một `requestId` mới được tạo. Chạy lại `openclaw devices list` trước khi phê duyệt.
 
-4. Verify connection:
+4. Xác minh kết nối:
 
 ```bash
 openclaw nodes status
 openclaw gateway call node.list --params "{}"
 ```
 
-## Relay-backed push for official builds
+## Đẩy qua relay cho các bản dựng chính thức
 
-Official distributed iOS builds use the external push relay instead of publishing the raw APNs
-token to the gateway.
+Các bản dựng iOS phân phối chính thức sử dụng relay đẩy bên ngoài thay vì công bố token APNs thô cho gateway.
 
-Gateway-side requirement:
+Yêu cầu phía Gateway:
 
 ```json5
 {
@@ -74,86 +71,77 @@ Gateway-side requirement:
 }
 ```
 
-How the flow works:
+Cách hoạt động của luồng:
 
-- The iOS app registers with the relay using App Attest and the app receipt.
-- The relay returns an opaque relay handle plus a registration-scoped send grant.
-- The iOS app fetches the paired gateway identity and includes it in relay registration, so the relay-backed registration is delegated to that specific gateway.
-- The app forwards that relay-backed registration to the paired gateway with `push.apns.register`.
-- The gateway uses that stored relay handle for `push.test`, background wakes, and wake nudges.
-- The gateway relay base URL must match the relay URL baked into the official/TestFlight iOS build.
-- If the app later connects to a different gateway or a build with a different relay base URL, it refreshes the relay registration instead of reusing the old binding.
+- Ứng dụng iOS đăng ký với relay bằng App Attest và biên lai ứng dụng.
+- Relay trả về một handle relay không rõ ràng cùng với quyền gửi theo phạm vi đăng ký.
+- Ứng dụng iOS lấy danh tính gateway đã ghép đôi và bao gồm nó trong đăng ký relay, do đó đăng ký dựa trên relay được ủy quyền cho gateway cụ thể đó.
+- Ứng dụng chuyển tiếp đăng ký dựa trên relay đó đến gateway đã ghép đôi với `push.apns.register`.
+- Gateway sử dụng handle relay đã lưu trữ đó cho `push.test`, đánh thức nền và đánh thức nhắc nhở.
+- URL cơ sở relay của gateway phải khớp với URL relay được tích hợp trong bản dựng iOS chính thức/TestFlight.
+- Nếu ứng dụng sau đó kết nối với một gateway khác hoặc một bản dựng có URL cơ sở relay khác, nó sẽ làm mới đăng ký relay thay vì sử dụng lại liên kết cũ.
 
-What the gateway does **not** need for this path:
+Những gì gateway **không** cần cho đường dẫn này:
 
-- No deployment-wide relay token.
-- No direct APNs key for official/TestFlight relay-backed sends.
+- Không cần token relay trên toàn bộ triển khai.
+- Không cần khóa APNs trực tiếp cho các gửi dựa trên relay chính thức/TestFlight.
 
-Expected operator flow:
+Luồng hoạt động dự kiến:
 
-1. Install the official/TestFlight iOS build.
-2. Set `gateway.push.apns.relay.baseUrl` on the gateway.
-3. Pair the app to the gateway and let it finish connecting.
-4. The app publishes `push.apns.register` automatically after it has an APNs token, the operator session is connected, and relay registration succeeds.
-5. After that, `push.test`, reconnect wakes, and wake nudges can use the stored relay-backed registration.
+1. Cài đặt bản dựng iOS chính thức/TestFlight.
+2. Đặt `gateway.push.apns.relay.baseUrl` trên gateway.
+3. Ghép đôi ứng dụng với gateway và để nó hoàn tất kết nối.
+4. Ứng dụng tự động công bố `push.apns.register` sau khi có token APNs, phiên hoạt động được kết nối và đăng ký relay thành công.
+5. Sau đó, `push.test`, đánh thức lại và đánh thức nhắc nhở có thể sử dụng đăng ký dựa trên relay đã lưu trữ.
 
-Compatibility note:
+Lưu ý về khả năng tương thích:
 
-- `OPENCLAW_APNS_RELAY_BASE_URL` still works as a temporary env override for the gateway.
+- `OPENCLAW_APNS_RELAY_BASE_URL` vẫn hoạt động như một ghi đè tạm thời cho gateway.
 
-## Authentication and trust flow
+## Luồng xác thực và tin cậy
 
-The relay exists to enforce two constraints that direct APNs-on-gateway cannot provide for
-official iOS builds:
+Relay tồn tại để thực thi hai ràng buộc mà APNs trực tiếp trên gateway không thể cung cấp cho các bản dựng iOS chính thức:
 
-- Only genuine OpenClaw iOS builds distributed through Apple can use the hosted relay.
-- A gateway can send relay-backed pushes only for iOS devices that paired with that specific
-  gateway.
+- Chỉ các bản dựng iOS OpenClaw chính hãng phân phối qua Apple mới có thể sử dụng relay được lưu trữ.
+- Một gateway chỉ có thể gửi các đẩy dựa trên relay cho các thiết bị iOS đã ghép đôi với gateway cụ thể đó.
 
-Hop by hop:
+Từng bước:
 
-1. `iOS app -> gateway`
-   - The app first pairs with the gateway through the normal Gateway auth flow.
-   - That gives the app an authenticated node session plus an authenticated operator session.
-   - The operator session is used to call `gateway.identity.get`.
+1. `Ứng dụng iOS -> gateway`
+   - Ứng dụng đầu tiên ghép đôi với gateway thông qua luồng xác thực Gateway thông thường.
+   - Điều đó cung cấp cho ứng dụng một phiên node đã xác thực cùng với một phiên hoạt động đã xác thực.
+   - Phiên hoạt động được sử dụng để gọi `gateway.identity.get`.
 
-2. `iOS app -> relay`
-   - The app calls the relay registration endpoints over HTTPS.
-   - Registration includes App Attest proof plus the app receipt.
-   - The relay validates the bundle ID, App Attest proof, and Apple receipt, and requires the
-     official/production distribution path.
-   - This is what blocks local Xcode/dev builds from using the hosted relay. A local build may be
-     signed, but it does not satisfy the official Apple distribution proof the relay expects.
+2. `Ứng dụng iOS -> relay`
+   - Ứng dụng gọi các điểm cuối đăng ký relay qua HTTPS.
+   - Đăng ký bao gồm bằng chứng App Attest cùng với biên lai ứng dụng.
+   - Relay xác thực ID gói, bằng chứng App Attest và biên lai Apple, và yêu cầu đường dẫn phân phối chính thức/sản xuất.
+   - Đây là điều ngăn chặn các bản dựng Xcode/dev cục bộ sử dụng relay được lưu trữ. Một bản dựng cục bộ có thể được ký, nhưng nó không đáp ứng bằng chứng phân phối chính thức của Apple mà relay mong đợi.
 
-3. `gateway identity delegation`
-   - Before relay registration, the app fetches the paired gateway identity from
-     `gateway.identity.get`.
-   - The app includes that gateway identity in the relay registration payload.
-   - The relay returns a relay handle and a registration-scoped send grant that are delegated to
-     that gateway identity.
+3. `ủy quyền danh tính gateway`
+   - Trước khi đăng ký relay, ứng dụng lấy danh tính gateway đã ghép đôi từ `gateway.identity.get`.
+   - Ứng dụng bao gồm danh tính gateway đó trong payload đăng ký relay.
+   - Relay trả về một handle relay và một quyền gửi theo phạm vi đăng ký được ủy quyền cho danh tính gateway đó.
 
 4. `gateway -> relay`
-   - The gateway stores the relay handle and send grant from `push.apns.register`.
-   - On `push.test`, reconnect wakes, and wake nudges, the gateway signs the send request with its
-     own device identity.
-   - The relay verifies both the stored send grant and the gateway signature against the delegated
-     gateway identity from registration.
-   - Another gateway cannot reuse that stored registration, even if it somehow obtains the handle.
+   - Gateway lưu trữ handle relay và quyền gửi từ `push.apns.register`.
+   - Trên `push.test`, đánh thức lại và đánh thức nhắc nhở, gateway ký yêu cầu gửi với danh tính thiết bị của chính nó.
+   - Relay xác minh cả quyền gửi đã lưu trữ và chữ ký gateway đối với danh tính gateway được ủy quyền từ đăng ký.
+   - Một gateway khác không thể sử dụng lại đăng ký đã lưu trữ đó, ngay cả khi nó bằng cách nào đó có được handle.
 
 5. `relay -> APNs`
-   - The relay owns the production APNs credentials and the raw APNs token for the official build.
-   - The gateway never stores the raw APNs token for relay-backed official builds.
-   - The relay sends the final push to APNs on behalf of the paired gateway.
+   - Relay sở hữu thông tin xác thực APNs sản xuất và token APNs thô cho bản dựng chính thức.
+   - Gateway không bao giờ lưu trữ token APNs thô cho các bản dựng chính thức dựa trên relay.
+   - Relay gửi đẩy cuối cùng đến APNs thay mặt cho gateway đã ghép đôi.
 
-Why this design was created:
+Tại sao thiết kế này được tạo ra:
 
-- To keep production APNs credentials out of user gateways.
-- To avoid storing raw official-build APNs tokens on the gateway.
-- To allow hosted relay usage only for official/TestFlight OpenClaw builds.
-- To prevent one gateway from sending wake pushes to iOS devices owned by a different gateway.
+- Để giữ thông tin xác thực APNs sản xuất ra khỏi các gateway của người dùng.
+- Để tránh lưu trữ token APNs thô của bản dựng chính thức trên gateway.
+- Để chỉ cho phép sử dụng relay được lưu trữ cho các bản dựng OpenClaw chính thức/TestFlight.
+- Để ngăn một gateway gửi đẩy đánh thức đến các thiết bị iOS thuộc sở hữu của một gateway khác.
 
-Local/manual builds remain on direct APNs. If you are testing those builds without the relay, the
-gateway still needs direct APNs credentials:
+Các bản dựng cục bộ/thủ công vẫn sử dụng APNs trực tiếp. Nếu bạn đang thử nghiệm các bản dựng đó mà không có relay, gateway vẫn cần thông tin xác thực APNs trực tiếp:
 
 ```bash
 export OPENCLAW_APNS_TEAM_ID="TEAMID"
@@ -161,37 +149,36 @@ export OPENCLAW_APNS_KEY_ID="KEYID"
 export OPENCLAW_APNS_PRIVATE_KEY_P8="$(cat /path/to/AuthKey_KEYID.p8)"
 ```
 
-## Discovery paths
+## Đường dẫn phát hiện
 
 ### Bonjour (LAN)
 
-The Gateway advertises `_openclaw-gw._tcp` on `local.`. The iOS app lists these automatically.
+Gateway quảng bá `_openclaw-gw._tcp` trên `local.`. Ứng dụng iOS tự động liệt kê các gateway này.
 
-### Tailnet (cross-network)
+### Tailnet (mạng chéo)
 
-If mDNS is blocked, use a unicast DNS-SD zone (choose a domain; example: `openclaw.internal.`) and Tailscale split DNS.
-See [Bonjour](/gateway/bonjour) for the CoreDNS example.
+Nếu mDNS bị chặn, sử dụng một vùng DNS-SD unicast (chọn một tên miền; ví dụ: `openclaw.internal.`) và Tailscale split DNS. Xem [Bonjour](/gateway/bonjour) cho ví dụ CoreDNS.
 
-### Manual host/port
+### Host/port thủ công
 
-In Settings, enable **Manual Host** and enter the gateway host + port (default `18789`).
+Trong Cài đặt, bật **Host Thủ công** và nhập host + port của gateway (mặc định `18789`).
 
 ## Canvas + A2UI
 
-The iOS node renders a WKWebView canvas. Use `node.invoke` to drive it:
+Node iOS hiển thị một canvas WKWebView. Sử dụng `node.invoke` để điều khiển:
 
 ```bash
 openclaw nodes invoke --node "iOS Node" --command canvas.navigate --params '{"url":"http://<gateway-host>:18789/__openclaw__/canvas/"}'
 ```
 
-Notes:
+Lưu ý:
 
-- The Gateway canvas host serves `/__openclaw__/canvas/` and `/__openclaw__/a2ui/`.
-- It is served from the Gateway HTTP server (same port as `gateway.port`, default `18789`).
-- The iOS node auto-navigates to A2UI on connect when a canvas host URL is advertised.
-- Return to the built-in scaffold with `canvas.navigate` and `{"url":""}`.
+- Máy chủ canvas Gateway phục vụ `/__openclaw__/canvas/` và `/__openclaw__/a2ui/`.
+- Nó được phục vụ từ máy chủ HTTP của Gateway (cùng cổng với `gateway.port`, mặc định `18789`).
+- Node iOS tự động điều hướng đến A2UI khi kết nối khi một URL máy chủ canvas được quảng bá.
+- Quay lại scaffold tích hợp với `canvas.navigate` và `{"url":""}`.
 
-### Canvas eval / snapshot
+### Đánh giá canvas / chụp nhanh
 
 ```bash
 openclaw nodes invoke --node "iOS Node" --command canvas.eval --params '{"javaScript":"(() => { const {ctx} = window.__openclaw; ctx.clearRect(0,0,innerWidth,innerHeight); ctx.lineWidth=6; ctx.strokeStyle=\"#ff2d55\"; ctx.beginPath(); ctx.moveTo(40,40); ctx.lineTo(innerWidth-40, innerHeight-40); ctx.stroke(); return \"ok\"; })()"}'
@@ -201,20 +188,20 @@ openclaw nodes invoke --node "iOS Node" --command canvas.eval --params '{"javaSc
 openclaw nodes invoke --node "iOS Node" --command canvas.snapshot --params '{"maxWidth":900,"format":"jpeg"}'
 ```
 
-## Voice wake + talk mode
+## Đánh thức bằng giọng nói + chế độ nói
 
-- Voice wake and talk mode are available in Settings.
-- iOS may suspend background audio; treat voice features as best-effort when the app is not active.
+- Đánh thức bằng giọng nói và chế độ nói có sẵn trong Cài đặt.
+- iOS có thể tạm dừng âm thanh nền; coi các tính năng giọng nói là nỗ lực tốt nhất khi ứng dụng không hoạt động.
 
-## Common errors
+## Lỗi thường gặp
 
-- `NODE_BACKGROUND_UNAVAILABLE`: bring the iOS app to the foreground (canvas/camera/screen commands require it).
-- `A2UI_HOST_NOT_CONFIGURED`: the Gateway did not advertise a canvas host URL; check `canvasHost` in [Gateway configuration](/gateway/configuration).
-- Pairing prompt never appears: run `openclaw devices list` and approve manually.
-- Reconnect fails after reinstall: the Keychain pairing token was cleared; re-pair the node.
+- `NODE_BACKGROUND_UNAVAILABLE`: đưa ứng dụng iOS lên nền trước (các lệnh canvas/camera/màn hình yêu cầu điều này).
+- `A2UI_HOST_NOT_CONFIGURED`: Gateway không quảng bá URL máy chủ canvas; kiểm tra `canvasHost` trong [Cấu hình Gateway](/gateway/configuration).
+- Không xuất hiện lời nhắc ghép đôi: chạy `openclaw devices list` và phê duyệt thủ công.
+- Kết nối lại thất bại sau khi cài đặt lại: token ghép đôi trong Keychain đã bị xóa; ghép đôi lại node.
 
-## Related docs
+## Tài liệu liên quan
 
-- [Pairing](/channels/pairing)
-- [Discovery](/gateway/discovery)
+- [Ghép đôi](/channels/pairing)
+- [Phát hiện](/gateway/discovery)
 - [Bonjour](/gateway/bonjour)

@@ -1,61 +1,55 @@
 ---
-summary: "LINE Messaging API plugin setup, config, and usage"
+summary: "Thiết lập, cấu hình và sử dụng plugin LINE Messaging API"
 read_when:
-  - You want to connect OpenClaw to LINE
-  - You need LINE webhook + credential setup
-  - You want LINE-specific message options
+  - Bạn muốn kết nối OpenClaw với LINE
+  - Bạn cần thiết lập webhook và thông tin xác thực LINE
+  - Bạn muốn tùy chọn tin nhắn đặc thù cho LINE
 title: LINE
 ---
 
 # LINE (plugin)
 
-LINE connects to OpenClaw via the LINE Messaging API. The plugin runs as a webhook
-receiver on the gateway and uses your channel access token + channel secret for
-authentication.
+LINE kết nối với OpenClaw thông qua LINE Messaging API. Plugin này hoạt động như một webhook receiver trên gateway và sử dụng channel access token cùng channel secret để xác thực.
 
-Status: supported via plugin. Direct messages, group chats, media, locations, Flex
-messages, template messages, and quick replies are supported. Reactions and threads
-are not supported.
+Trạng thái: hỗ trợ qua plugin. Hỗ trợ tin nhắn trực tiếp, trò chuyện nhóm, media, vị trí, tin nhắn Flex, tin nhắn mẫu và trả lời nhanh. Không hỗ trợ phản hồi và luồng hội thoại.
 
-## Plugin required
+## Yêu cầu plugin
 
-Install the LINE plugin:
+Cài đặt plugin LINE:
 
 ```bash
 openclaw plugins install @openclaw/line
 ```
 
-Local checkout (when running from a git repo):
+Kiểm tra cục bộ (khi chạy từ repo git):
 
 ```bash
 openclaw plugins install ./extensions/line
 ```
 
-## Setup
+## Thiết lập
 
-1. Create a LINE Developers account and open the Console:
+1. Tạo tài khoản LINE Developers và mở Console:
    [https://developers.line.biz/console/](https://developers.line.biz/console/)
-2. Create (or pick) a Provider and add a **Messaging API** channel.
-3. Copy the **Channel access token** and **Channel secret** from the channel settings.
-4. Enable **Use webhook** in the Messaging API settings.
-5. Set the webhook URL to your gateway endpoint (HTTPS required):
+2. Tạo (hoặc chọn) một Provider và thêm một kênh **Messaging API**.
+3. Sao chép **Channel access token** và **Channel secret** từ cài đặt kênh.
+4. Bật **Use webhook** trong cài đặt Messaging API.
+5. Đặt URL webhook đến endpoint của gateway (yêu cầu HTTPS):
 
 ```
 https://gateway-host/line/webhook
 ```
 
-The gateway responds to LINE’s webhook verification (GET) and inbound events (POST).
-If you need a custom path, set `channels.line.webhookPath` or
-`channels.line.accounts.<id>.webhookPath` and update the URL accordingly.
+Gateway sẽ phản hồi xác minh webhook của LINE (GET) và các sự kiện inbound (POST). Nếu cần đường dẫn tùy chỉnh, đặt `channels.line.webhookPath` hoặc `channels.line.accounts.<id>.webhookPath` và cập nhật URL tương ứng.
 
-Security note:
+Lưu ý bảo mật:
 
-- LINE signature verification is body-dependent (HMAC over the raw body), so OpenClaw applies strict pre-auth body limits and timeout before verification.
-- OpenClaw processes webhook events from the verified raw request bytes. Upstream middleware-transformed `req.body` values are ignored for signature-integrity safety.
+- Xác minh chữ ký của LINE phụ thuộc vào nội dung (HMAC trên nội dung gốc), do đó OpenClaw áp dụng giới hạn và thời gian chờ trước khi xác minh.
+- OpenClaw xử lý các sự kiện webhook từ byte yêu cầu gốc đã được xác minh. Các giá trị `req.body` đã được middleware biến đổi sẽ bị bỏ qua để đảm bảo tính toàn vẹn của chữ ký.
 
-## Configure
+## Cấu hình
 
-Minimal config:
+Cấu hình tối thiểu:
 
 ```json5
 {
@@ -70,12 +64,12 @@ Minimal config:
 }
 ```
 
-Env vars (default account only):
+Biến môi trường (chỉ tài khoản mặc định):
 
 - `LINE_CHANNEL_ACCESS_TOKEN`
 - `LINE_CHANNEL_SECRET`
 
-Token/secret files:
+Tệp token/secret:
 
 ```json5
 {
@@ -88,9 +82,9 @@ Token/secret files:
 }
 ```
 
-`tokenFile` and `secretFile` must point to regular files. Symlinks are rejected.
+`tokenFile` và `secretFile` phải trỏ đến các tệp thông thường. Symlinks bị từ chối.
 
-Multiple accounts:
+Nhiều tài khoản:
 
 ```json5
 {
@@ -108,69 +102,65 @@ Multiple accounts:
 }
 ```
 
-## Access control
+## Kiểm soát truy cập
 
-Direct messages default to pairing. Unknown senders get a pairing code and their
-messages are ignored until approved.
+Tin nhắn trực tiếp mặc định là pairing. Người gửi không xác định sẽ nhận mã pairing và tin nhắn của họ bị bỏ qua cho đến khi được chấp thuận.
 
 ```bash
 openclaw pairing list line
 openclaw pairing approve line <CODE>
 ```
 
-Allowlists and policies:
+Danh sách cho phép và chính sách:
 
 - `channels.line.dmPolicy`: `pairing | allowlist | open | disabled`
-- `channels.line.allowFrom`: allowlisted LINE user IDs for DMs
+- `channels.line.allowFrom`: danh sách cho phép ID người dùng LINE cho DMs
 - `channels.line.groupPolicy`: `allowlist | open | disabled`
-- `channels.line.groupAllowFrom`: allowlisted LINE user IDs for groups
-- Per-group overrides: `channels.line.groups.<groupId>.allowFrom`
-- Runtime note: if `channels.line` is completely missing, runtime falls back to `groupPolicy="allowlist"` for group checks (even if `channels.defaults.groupPolicy` is set).
+- `channels.line.groupAllowFrom`: danh sách cho phép ID người dùng LINE cho nhóm
+- Ghi đè theo nhóm: `channels.line.groups.<groupId>.allowFrom`
+- Lưu ý khi chạy: nếu `channels.line` hoàn toàn thiếu, runtime sẽ quay lại `groupPolicy="allowlist"` cho kiểm tra nhóm (ngay cả khi `channels.defaults.groupPolicy` đã được đặt).
 
-LINE IDs are case-sensitive. Valid IDs look like:
+ID LINE phân biệt chữ hoa chữ thường. ID hợp lệ trông như:
 
-- User: `U` + 32 hex chars
-- Group: `C` + 32 hex chars
-- Room: `R` + 32 hex chars
+- Người dùng: `U` + 32 ký tự hex
+- Nhóm: `C` + 32 ký tự hex
+- Phòng: `R` + 32 ký tự hex
 
-## Message behavior
+## Hành vi tin nhắn
 
-- Text is chunked at 5000 characters.
-- Markdown formatting is stripped; code blocks and tables are converted into Flex
-  cards when possible.
-- Streaming responses are buffered; LINE receives full chunks with a loading
-  animation while the agent works.
-- Media downloads are capped by `channels.line.mediaMaxMb` (default 10).
+- Văn bản được chia nhỏ ở 5000 ký tự.
+- Định dạng Markdown bị loại bỏ; các khối mã và bảng được chuyển thành thẻ Flex khi có thể.
+- Phản hồi streaming được đệm; LINE nhận các khối đầy đủ với hoạt ảnh tải trong khi agent làm việc.
+- Tải xuống media bị giới hạn bởi `channels.line.mediaMaxMb` (mặc định 10).
 
-## Channel data (rich messages)
+## Dữ liệu kênh (tin nhắn phong phú)
 
-Use `channelData.line` to send quick replies, locations, Flex cards, or template
-messages.
+Sử dụng `channelData.line` để gửi trả lời nhanh, vị trí, thẻ Flex hoặc tin nhắn mẫu.
 
 ```json5
 {
-  text: "Here you go",
+  text: "Đây là thông tin của bạn",
   channelData: {
     line: {
-      quickReplies: ["Status", "Help"],
+      quickReplies: ["Trạng thái", "Trợ giúp"],
       location: {
-        title: "Office",
+        title: "Văn phòng",
         address: "123 Main St",
         latitude: 35.681236,
         longitude: 139.767125,
       },
       flexMessage: {
-        altText: "Status card",
+        altText: "Thẻ trạng thái",
         contents: {
-          /* Flex payload */
+          /* Payload Flex */
         },
       },
       templateMessage: {
         type: "confirm",
-        text: "Proceed?",
-        confirmLabel: "Yes",
+        text: "Tiếp tục?",
+        confirmLabel: "Có",
         confirmData: "yes",
-        cancelLabel: "No",
+        cancelLabel: "Không",
         cancelData: "no",
       },
     },
@@ -178,17 +168,14 @@ messages.
 }
 ```
 
-The LINE plugin also ships a `/card` command for Flex message presets:
+Plugin LINE cũng cung cấp lệnh `/card` cho các mẫu tin nhắn Flex:
 
 ```
-/card info "Welcome" "Thanks for joining!"
+/card info "Chào mừng" "Cảm ơn bạn đã tham gia!"
 ```
 
-## Troubleshooting
+## Khắc phục sự cố
 
-- **Webhook verification fails:** ensure the webhook URL is HTTPS and the
-  `channelSecret` matches the LINE console.
-- **No inbound events:** confirm the webhook path matches `channels.line.webhookPath`
-  and that the gateway is reachable from LINE.
-- **Media download errors:** raise `channels.line.mediaMaxMb` if media exceeds the
-  default limit.
+- **Xác minh webhook thất bại:** đảm bảo URL webhook là HTTPS và `channelSecret` khớp với console LINE.
+- **Không có sự kiện inbound:** xác nhận đường dẫn webhook khớp với `channels.line.webhookPath` và gateway có thể truy cập từ LINE.
+- **Lỗi tải xuống media:** tăng `channels.line.mediaMaxMb` nếu media vượt quá giới hạn mặc định.

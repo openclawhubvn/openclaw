@@ -1,114 +1,108 @@
 ---
-summary: "Multi-agent routing: isolated agents, channel accounts, and bindings"
-title: Multi-Agent Routing
-read_when: "You want multiple isolated agents (workspaces + auth) in one gateway process."
+summary: "Định tuyến đa tác nhân: tác nhân cô lập, tài khoản kênh và liên kết"
+title: Định tuyến Đa Tác Nhân
+read_when: "Bạn muốn nhiều tác nhân cô lập (workspace + xác thực) trong một quá trình gateway."
 status: active
 ---
 
-# Multi-Agent Routing
+# Định tuyến Đa Tác Nhân
 
-Goal: multiple _isolated_ agents (separate workspace + `agentDir` + sessions), plus multiple channel accounts (e.g. two WhatsApps) in one running Gateway. Inbound is routed to an agent via bindings.
+Mục tiêu: nhiều tác nhân _cô lập_ (workspace riêng + `agentDir` + phiên), cùng với nhiều tài khoản kênh (ví dụ: hai WhatsApp) trong một Gateway đang chạy. Dữ liệu đầu vào được định tuyến đến một tác nhân thông qua liên kết.
 
-## What is "one agent"?
+## "Một tác nhân" là gì?
 
-An **agent** is a fully scoped brain with its own:
+Một **tác nhân** là một bộ não hoàn chỉnh với:
 
-- **Workspace** (files, AGENTS.md/SOUL.md/USER.md, local notes, persona rules).
-- **State directory** (`agentDir`) for auth profiles, model registry, and per-agent config.
-- **Session store** (chat history + routing state) under `~/.openclaw/agents/<agentId>/sessions`.
+- **Workspace** (tệp, AGENTS.md/SOUL.md/USER.md, ghi chú cục bộ, quy tắc persona).
+- **Thư mục trạng thái** (`agentDir`) cho hồ sơ xác thực, đăng ký mô hình và cấu hình từng tác nhân.
+- **Kho lưu trữ phiên** (lịch sử chat + trạng thái định tuyến) dưới `~/.openclaw/agents/<agentId>/sessions`.
 
-Auth profiles are **per-agent**. Each agent reads from its own:
+Hồ sơ xác thực là **theo từng tác nhân**. Mỗi tác nhân đọc từ:
 
 ```text
 ~/.openclaw/agents/<agentId>/agent/auth-profiles.json
 ```
 
-Main agent credentials are **not** shared automatically. Never reuse `agentDir`
-across agents (it causes auth/session collisions). If you want to share creds,
-copy `auth-profiles.json` into the other agent's `agentDir`.
+Thông tin xác thực chính của tác nhân **không** được chia sẻ tự động. Không bao giờ tái sử dụng `agentDir` giữa các tác nhân (nó gây ra xung đột xác thực/phiên). Nếu muốn chia sẻ thông tin xác thực, sao chép `auth-profiles.json` vào `agentDir` của tác nhân khác.
 
-Skills are per-agent via each workspace’s `skills/` folder, with shared skills
-available from `~/.openclaw/skills`. See [Skills: per-agent vs shared](/tools/skills#per-agent-vs-shared-skills).
+Kỹ năng là theo từng tác nhân thông qua thư mục `skills/` của mỗi workspace, với các kỹ năng chia sẻ có sẵn từ `~/.openclaw/skills`. Xem [Kỹ năng: theo tác nhân vs chia sẻ](/tools/skills#per-agent-vs-shared-skills).
 
-The Gateway can host **one agent** (default) or **many agents** side-by-side.
+Gateway có thể lưu trữ **một tác nhân** (mặc định) hoặc **nhiều tác nhân** cùng lúc.
 
-**Workspace note:** each agent’s workspace is the **default cwd**, not a hard
-sandbox. Relative paths resolve inside the workspace, but absolute paths can
-reach other host locations unless sandboxing is enabled. See
-[Sandboxing](/gateway/sandboxing).
+**Lưu ý về Workspace:** workspace của mỗi tác nhân là **thư mục làm việc mặc định**, không phải là một sandbox cứng. Đường dẫn tương đối được giải quyết bên trong workspace, nhưng đường dẫn tuyệt đối có thể truy cập các vị trí khác trên máy chủ trừ khi sandboxing được kích hoạt. Xem [Sandboxing](/gateway/sandboxing).
 
-## Paths (quick map)
+## Đường dẫn (bản đồ nhanh)
 
-- Config: `~/.openclaw/openclaw.json` (or `OPENCLAW_CONFIG_PATH`)
-- State dir: `~/.openclaw` (or `OPENCLAW_STATE_DIR`)
-- Workspace: `~/.openclaw/workspace` (or `~/.openclaw/workspace-<agentId>`)
-- Agent dir: `~/.openclaw/agents/<agentId>/agent` (or `agents.list[].agentDir`)
-- Sessions: `~/.openclaw/agents/<agentId>/sessions`
+- Cấu hình: `~/.openclaw/openclaw.json` (hoặc `OPENCLAW_CONFIG_PATH`)
+- Thư mục trạng thái: `~/.openclaw` (hoặc `OPENCLAW_STATE_DIR`)
+- Workspace: `~/.openclaw/workspace` (hoặc `~/.openclaw/workspace-<agentId>`)
+- Thư mục tác nhân: `~/.openclaw/agents/<agentId>/agent` (hoặc `agents.list[].agentDir`)
+- Phiên: `~/.openclaw/agents/<agentId>/sessions`
 
-### Single-agent mode (default)
+### Chế độ một tác nhân (mặc định)
 
-If you do nothing, OpenClaw runs a single agent:
+Nếu không làm gì, OpenClaw chạy một tác nhân duy nhất:
 
-- `agentId` defaults to **`main`**.
-- Sessions are keyed as `agent:main:<mainKey>`.
-- Workspace defaults to `~/.openclaw/workspace` (or `~/.openclaw/workspace-<profile>` when `OPENCLAW_PROFILE` is set).
-- State defaults to `~/.openclaw/agents/main/agent`.
+- `agentId` mặc định là **`main`**.
+- Các phiên được khóa với `agent:main:<mainKey>`.
+- Workspace mặc định là `~/.openclaw/workspace` (hoặc `~/.openclaw/workspace-<profile>` khi `OPENCLAW_PROFILE` được thiết lập).
+- Trạng thái mặc định là `~/.openclaw/agents/main/agent`.
 
-## Agent helper
+## Trợ giúp tác nhân
 
-Use the agent wizard to add a new isolated agent:
+Sử dụng trình hướng dẫn tác nhân để thêm một tác nhân cô lập mới:
 
 ```bash
 openclaw agents add work
 ```
 
-Then add `bindings` (or let the wizard do it) to route inbound messages.
+Sau đó thêm `bindings` (hoặc để trình hướng dẫn làm điều đó) để định tuyến tin nhắn đầu vào.
 
-Verify with:
+Xác minh với:
 
 ```bash
 openclaw agents list --bindings
 ```
 
-## Quick start
+## Bắt đầu nhanh
 
 <Steps>
-  <Step title="Create each agent workspace">
+  <Step title="Tạo workspace cho mỗi tác nhân">
 
-Use the wizard or create workspaces manually:
+Sử dụng trình hướng dẫn hoặc tạo workspace thủ công:
 
 ```bash
 openclaw agents add coding
 openclaw agents add social
 ```
 
-Each agent gets its own workspace with `SOUL.md`, `AGENTS.md`, and optional `USER.md`, plus a dedicated `agentDir` and session store under `~/.openclaw/agents/<agentId>`.
+Mỗi tác nhân có workspace riêng với `SOUL.md`, `AGENTS.md`, và `USER.md` tùy chọn, cùng với `agentDir` và kho lưu trữ phiên riêng dưới `~/.openclaw/agents/<agentId>`.
 
   </Step>
 
-  <Step title="Create channel accounts">
+  <Step title="Tạo tài khoản kênh">
 
-Create one account per agent on your preferred channels:
+Tạo một tài khoản cho mỗi tác nhân trên các kênh ưa thích:
 
-- Discord: one bot per agent, enable Message Content Intent, copy each token.
-- Telegram: one bot per agent via BotFather, copy each token.
-- WhatsApp: link each phone number per account.
+- Discord: một bot cho mỗi tác nhân, bật Message Content Intent, sao chép mỗi token.
+- Telegram: một bot cho mỗi tác nhân qua BotFather, sao chép mỗi token.
+- WhatsApp: liên kết mỗi số điện thoại cho mỗi tài khoản.
 
 ```bash
 openclaw channels login --channel whatsapp --account work
 ```
 
-See channel guides: [Discord](/channels/discord), [Telegram](/channels/telegram), [WhatsApp](/channels/whatsapp).
+Xem hướng dẫn kênh: [Discord](/channels/discord), [Telegram](/channels/telegram), [WhatsApp](/channels/whatsapp).
 
   </Step>
 
-  <Step title="Add agents, accounts, and bindings">
+  <Step title="Thêm tác nhân, tài khoản và liên kết">
 
-Add agents under `agents.list`, channel accounts under `channels.<channel>.accounts`, and connect them with `bindings` (examples below).
+Thêm tác nhân dưới `agents.list`, tài khoản kênh dưới `channels.<channel>.accounts`, và kết nối chúng với `bindings` (ví dụ dưới đây).
 
   </Step>
 
-  <Step title="Restart and verify">
+  <Step title="Khởi động lại và xác minh">
 
 ```bash
 openclaw gateway restart
@@ -119,23 +113,23 @@ openclaw channels status --probe
   </Step>
 </Steps>
 
-## Multiple agents = multiple people, multiple personalities
+## Nhiều tác nhân = nhiều người, nhiều tính cách
 
-With **multiple agents**, each `agentId` becomes a **fully isolated persona**:
+Với **nhiều tác nhân**, mỗi `agentId` trở thành một **persona cô lập hoàn toàn**:
 
-- **Different phone numbers/accounts** (per channel `accountId`).
-- **Different personalities** (per-agent workspace files like `AGENTS.md` and `SOUL.md`).
-- **Separate auth + sessions** (no cross-talk unless explicitly enabled).
+- **Số điện thoại/tài khoản khác nhau** (theo `accountId` kênh).
+- **Tính cách khác nhau** (tệp workspace theo tác nhân như `AGENTS.md` và `SOUL.md`).
+- **Xác thực + phiên riêng biệt** (không có giao tiếp chéo trừ khi được bật rõ ràng).
 
-This lets **multiple people** share one Gateway server while keeping their AI “brains” and data isolated.
+Điều này cho phép **nhiều người** chia sẻ một máy chủ Gateway trong khi giữ cho "bộ não" AI và dữ liệu của họ được cô lập.
 
-## One WhatsApp number, multiple people (DM split)
+## Một số WhatsApp, nhiều người (chia DM)
 
-You can route **different WhatsApp DMs** to different agents while staying on **one WhatsApp account**. Match on sender E.164 (like `+15551234567`) with `peer.kind: "direct"`. Replies still come from the same WhatsApp number (no per‑agent sender identity).
+Bạn có thể định tuyến **các DM WhatsApp khác nhau** đến các tác nhân khác nhau trong khi vẫn sử dụng **một tài khoản WhatsApp**. Khớp theo sender E.164 (như `+15551234567`) với `peer.kind: "direct"`. Phản hồi vẫn đến từ cùng một số WhatsApp (không có danh tính người gửi theo tác nhân).
 
-Important detail: direct chats collapse to the agent’s **main session key**, so true isolation requires **one agent per person**.
+Chi tiết quan trọng: các cuộc trò chuyện trực tiếp gộp lại thành khóa phiên **chính của tác nhân**, vì vậy sự cô lập thực sự yêu cầu **một tác nhân cho mỗi người**.
 
-Example:
+Ví dụ:
 
 ```json5
 {
@@ -164,61 +158,61 @@ Example:
 }
 ```
 
-Notes:
+Lưu ý:
 
-- DM access control is **global per WhatsApp account** (pairing/allowlist), not per agent.
-- For shared groups, bind the group to one agent or use [Broadcast groups](/channels/broadcast-groups).
+- Kiểm soát truy cập DM là **toàn cầu cho mỗi tài khoản WhatsApp** (ghép đôi/danh sách cho phép), không phải theo tác nhân.
+- Đối với các nhóm chia sẻ, liên kết nhóm với một tác nhân hoặc sử dụng [Nhóm phát sóng](/channels/broadcast-groups).
 
-## Routing rules (how messages pick an agent)
+## Quy tắc định tuyến (cách tin nhắn chọn tác nhân)
 
-Bindings are **deterministic** and **most-specific wins**:
+Liên kết là **xác định** và **cụ thể nhất thắng**:
 
-1. `peer` match (exact DM/group/channel id)
-2. `parentPeer` match (thread inheritance)
-3. `guildId + roles` (Discord role routing)
+1. Khớp `peer` (id DM/nhóm/kênh chính xác)
+2. Khớp `parentPeer` (kế thừa chuỗi)
+3. `guildId + roles` (định tuyến vai trò Discord)
 4. `guildId` (Discord)
 5. `teamId` (Slack)
-6. `accountId` match for a channel
-7. channel-level match (`accountId: "*"`)
-8. fallback to default agent (`agents.list[].default`, else first list entry, default: `main`)
+6. Khớp `accountId` cho một kênh
+7. Khớp cấp kênh (`accountId: "*"`)
+8. Dự phòng cho tác nhân mặc định (`agents.list[].default`, nếu không có thì mục đầu tiên trong danh sách, mặc định: `main`)
 
-If multiple bindings match in the same tier, the first one in config order wins.
-If a binding sets multiple match fields (for example `peer` + `guildId`), all specified fields are required (`AND` semantics).
+Nếu nhiều liên kết khớp trong cùng một cấp, liên kết đầu tiên theo thứ tự cấu hình sẽ thắng.
+Nếu một liên kết thiết lập nhiều trường khớp (ví dụ `peer` + `guildId`), tất cả các trường được chỉ định đều cần thiết (ngữ nghĩa `AND`).
 
-Important account-scope detail:
+Chi tiết quan trọng về phạm vi tài khoản:
 
-- A binding that omits `accountId` matches the default account only.
-- Use `accountId: "*"` for a channel-wide fallback across all accounts.
-- If you later add the same binding for the same agent with an explicit account id, OpenClaw upgrades the existing channel-only binding to account-scoped instead of duplicating it.
+- Một liên kết bỏ qua `accountId` chỉ khớp với tài khoản mặc định.
+- Sử dụng `accountId: "*"` cho một dự phòng toàn kênh trên tất cả các tài khoản.
+- Nếu sau đó bạn thêm cùng một liên kết cho cùng một tác nhân với một id tài khoản rõ ràng, OpenClaw nâng cấp liên kết chỉ dành cho kênh hiện có thành phạm vi tài khoản thay vì nhân đôi nó.
 
-## Multiple accounts / phone numbers
+## Nhiều tài khoản / số điện thoại
 
-Channels that support **multiple accounts** (e.g. WhatsApp) use `accountId` to identify
-each login. Each `accountId` can be routed to a different agent, so one server can host
-multiple phone numbers without mixing sessions.
+Các kênh hỗ trợ **nhiều tài khoản** (ví dụ: WhatsApp) sử dụng `accountId` để xác định
+mỗi lần đăng nhập. Mỗi `accountId` có thể được định tuyến đến một tác nhân khác nhau, vì vậy một máy chủ có thể lưu trữ
+nhiều số điện thoại mà không trộn lẫn các phiên.
 
-If you want a channel-wide default account when `accountId` is omitted, set
-`channels.<channel>.defaultAccount` (optional). When unset, OpenClaw falls back
-to `default` if present, otherwise the first configured account id (sorted).
+Nếu bạn muốn một tài khoản mặc định toàn kênh khi `accountId` bị bỏ qua, thiết lập
+`channels.<channel>.defaultAccount` (tùy chọn). Khi không được thiết lập, OpenClaw sẽ dự phòng
+đến `default` nếu có, nếu không thì id tài khoản đầu tiên được cấu hình (đã sắp xếp).
 
-Common channels supporting this pattern include:
+Các kênh phổ biến hỗ trợ mô hình này bao gồm:
 
 - `whatsapp`, `telegram`, `discord`, `slack`, `signal`, `imessage`
 - `irc`, `line`, `googlechat`, `mattermost`, `matrix`, `nextcloud-talk`
 - `bluebubbles`, `zalo`, `zalouser`, `nostr`, `feishu`
 
-## Concepts
+## Khái niệm
 
-- `agentId`: one “brain” (workspace, per-agent auth, per-agent session store).
-- `accountId`: one channel account instance (e.g. WhatsApp account `"personal"` vs `"biz"`).
-- `binding`: routes inbound messages to an `agentId` by `(channel, accountId, peer)` and optionally guild/team ids.
-- Direct chats collapse to `agent:<agentId>:<mainKey>` (per-agent “main”; `session.mainKey`).
+- `agentId`: một “bộ não” (workspace, xác thực theo tác nhân, kho lưu trữ phiên theo tác nhân).
+- `accountId`: một phiên bản tài khoản kênh (ví dụ: tài khoản WhatsApp `"personal"` vs `"biz"`).
+- `binding`: định tuyến tin nhắn đầu vào đến một `agentId` theo `(channel, accountId, peer)` và tùy chọn id guild/team.
+- Các cuộc trò chuyện trực tiếp gộp lại thành `agent:<agentId>:<mainKey>` (theo tác nhân “chính”; `session.mainKey`).
 
-## Platform examples
+## Ví dụ nền tảng
 
-### Discord bots per agent
+### Bot Discord theo tác nhân
 
-Each Discord bot account maps to a unique `accountId`. Bind each account to an agent and keep allowlists per bot.
+Mỗi tài khoản bot Discord ánh xạ đến một `accountId` duy nhất. Liên kết mỗi tài khoản với một tác nhân và giữ danh sách cho phép theo bot.
 
 ```json5
 {
@@ -262,12 +256,12 @@ Each Discord bot account maps to a unique `accountId`. Bind each account to an a
 }
 ```
 
-Notes:
+Lưu ý:
 
-- Invite each bot to the guild and enable Message Content Intent.
-- Tokens live in `channels.discord.accounts.<id>.token` (default account can use `DISCORD_BOT_TOKEN`).
+- Mời mỗi bot vào guild và bật Message Content Intent.
+- Token nằm trong `channels.discord.accounts.<id>.token` (tài khoản mặc định có thể sử dụng `DISCORD_BOT_TOKEN`).
 
-### Telegram bots per agent
+### Bot Telegram theo tác nhân
 
 ```json5
 {
@@ -299,14 +293,14 @@ Notes:
 }
 ```
 
-Notes:
+Lưu ý:
 
-- Create one bot per agent with BotFather and copy each token.
-- Tokens live in `channels.telegram.accounts.<id>.botToken` (default account can use `TELEGRAM_BOT_TOKEN`).
+- Tạo một bot cho mỗi tác nhân với BotFather và sao chép mỗi token.
+- Token nằm trong `channels.telegram.accounts.<id>.botToken` (tài khoản mặc định có thể sử dụng `TELEGRAM_BOT_TOKEN`).
 
-### WhatsApp numbers per agent
+### Số WhatsApp theo tác nhân
 
-Link each account before starting the gateway:
+Liên kết mỗi tài khoản trước khi khởi động gateway:
 
 ```bash
 openclaw channels login --channel whatsapp --account personal
@@ -335,12 +329,12 @@ openclaw channels login --channel whatsapp --account biz
     ],
   },
 
-  // Deterministic routing: first match wins (most-specific first).
+  // Định tuyến xác định: khớp đầu tiên thắng (cụ thể nhất trước).
   bindings: [
     { agentId: "home", match: { channel: "whatsapp", accountId: "personal" } },
     { agentId: "work", match: { channel: "whatsapp", accountId: "biz" } },
 
-    // Optional per-peer override (example: send a specific group to work agent).
+    // Ghi đè tùy chọn theo peer (ví dụ: gửi một nhóm cụ thể đến tác nhân công việc).
     {
       agentId: "work",
       match: {
@@ -351,7 +345,7 @@ openclaw channels login --channel whatsapp --account biz
     },
   ],
 
-  // Off by default: agent-to-agent messaging must be explicitly enabled + allowlisted.
+  // Tắt theo mặc định: nhắn tin giữa các tác nhân phải được bật rõ ràng + cho phép.
   tools: {
     agentToAgent: {
       enabled: false,
@@ -363,11 +357,11 @@ openclaw channels login --channel whatsapp --account biz
     whatsapp: {
       accounts: {
         personal: {
-          // Optional override. Default: ~/.openclaw/credentials/whatsapp/personal
+          // Ghi đè tùy chọn. Mặc định: ~/.openclaw/credentials/whatsapp/personal
           // authDir: "~/.openclaw/credentials/whatsapp/personal",
         },
         biz: {
-          // Optional override. Default: ~/.openclaw/credentials/whatsapp/biz
+          // Ghi đè tùy chọn. Mặc định: ~/.openclaw/credentials/whatsapp/biz
           // authDir: "~/.openclaw/credentials/whatsapp/biz",
         },
       },
@@ -376,9 +370,9 @@ openclaw channels login --channel whatsapp --account biz
 }
 ```
 
-## Example: WhatsApp daily chat + Telegram deep work
+## Ví dụ: Chat WhatsApp hàng ngày + Công việc sâu trên Telegram
 
-Split by channel: route WhatsApp to a fast everyday agent and Telegram to an Opus agent.
+Chia theo kênh: định tuyến WhatsApp đến một tác nhân nhanh hàng ngày và Telegram đến một tác nhân Opus.
 
 ```json5
 {
@@ -405,14 +399,14 @@ Split by channel: route WhatsApp to a fast everyday agent and Telegram to an Opu
 }
 ```
 
-Notes:
+Lưu ý:
 
-- If you have multiple accounts for a channel, add `accountId` to the binding (for example `{ channel: "whatsapp", accountId: "personal" }`).
-- To route a single DM/group to Opus while keeping the rest on chat, add a `match.peer` binding for that peer; peer matches always win over channel-wide rules.
+- Nếu bạn có nhiều tài khoản cho một kênh, thêm `accountId` vào liên kết (ví dụ `{ channel: "whatsapp", accountId: "personal" }`).
+- Để định tuyến một DM/nhóm duy nhất đến Opus trong khi giữ phần còn lại trên chat, thêm một liên kết `match.peer` cho peer đó; các khớp peer luôn thắng so với các quy tắc toàn kênh.
 
-## Example: same channel, one peer to Opus
+## Ví dụ: cùng kênh, một peer đến Opus
 
-Keep WhatsApp on the fast agent, but route one DM to Opus:
+Giữ WhatsApp trên tác nhân nhanh, nhưng định tuyến một DM đến Opus:
 
 ```json5
 {
@@ -442,12 +436,11 @@ Keep WhatsApp on the fast agent, but route one DM to Opus:
 }
 ```
 
-Peer bindings always win, so keep them above the channel-wide rule.
+Các liên kết peer luôn thắng, vì vậy hãy giữ chúng trên quy tắc toàn kênh.
 
-## Family agent bound to a WhatsApp group
+## Tác nhân gia đình liên kết với một nhóm WhatsApp
 
-Bind a dedicated family agent to a single WhatsApp group, with mention gating
-and a tighter tool policy:
+Liên kết một tác nhân gia đình chuyên dụng với một nhóm WhatsApp duy nhất, với việc kiểm soát nhắc nhở và chính sách công cụ chặt chẽ hơn:
 
 ```json5
 {
@@ -492,16 +485,16 @@ and a tighter tool policy:
 }
 ```
 
-Notes:
+Lưu ý:
 
-- Tool allow/deny lists are **tools**, not skills. If a skill needs to run a
-  binary, ensure `exec` is allowed and the binary exists in the sandbox.
-- For stricter gating, set `agents.list[].groupChat.mentionPatterns` and keep
-  group allowlists enabled for the channel.
+- Danh sách cho phép/cấm công cụ là **công cụ**, không phải kỹ năng. Nếu một kỹ năng cần chạy một
+  nhị phân, đảm bảo `exec` được cho phép và nhị phân tồn tại trong sandbox.
+- Để kiểm soát chặt chẽ hơn, thiết lập `agents.list[].groupChat.mentionPatterns` và giữ
+  danh sách cho phép nhóm được bật cho kênh.
 
-## Per-Agent Sandbox and Tool Configuration
+## Cấu hình Sandbox và Công cụ Theo Tác Nhân
 
-Each agent can have its own sandbox and tool restrictions:
+Mỗi tác nhân có thể có sandbox và hạn chế công cụ riêng:
 
 ```js
 {
@@ -511,24 +504,24 @@ Each agent can have its own sandbox and tool restrictions:
         id: "personal",
         workspace: "~/.openclaw/workspace-personal",
         sandbox: {
-          mode: "off",  // No sandbox for personal agent
+          mode: "off",  // Không có sandbox cho tác nhân cá nhân
         },
-        // No tool restrictions - all tools available
+        // Không có hạn chế công cụ - tất cả công cụ đều có sẵn
       },
       {
         id: "family",
         workspace: "~/.openclaw/workspace-family",
         sandbox: {
-          mode: "all",     // Always sandboxed
-          scope: "agent",  // One container per agent
+          mode: "all",     // Luôn được sandbox
+          scope: "agent",  // Một container cho mỗi tác nhân
           docker: {
-            // Optional one-time setup after container creation
+            // Thiết lập một lần tùy chọn sau khi tạo container
             setupCommand: "apt-get update && apt-get install -y git curl",
           },
         },
         tools: {
-          allow: ["read"],                    // Only read tool
-          deny: ["exec", "write", "edit", "apply_patch"],    // Deny others
+          allow: ["read"],                    // Chỉ công cụ đọc
+          deny: ["exec", "write", "edit", "apply_patch"],    // Cấm các công cụ khác
         },
       },
     ],
@@ -536,17 +529,17 @@ Each agent can have its own sandbox and tool restrictions:
 }
 ```
 
-Note: `setupCommand` lives under `sandbox.docker` and runs once on container creation.
-Per-agent `sandbox.docker.*` overrides are ignored when the resolved scope is `"shared"`.
+Lưu ý: `setupCommand` nằm dưới `sandbox.docker` và chạy một lần khi tạo container.
+Các ghi đè `sandbox.docker.*` theo tác nhân bị bỏ qua khi phạm vi được giải quyết là `"shared"`.
 
-**Benefits:**
+**Lợi ích:**
 
-- **Security isolation**: Restrict tools for untrusted agents
-- **Resource control**: Sandbox specific agents while keeping others on host
-- **Flexible policies**: Different permissions per agent
+- **Cô lập bảo mật**: Hạn chế công cụ cho các tác nhân không đáng tin cậy
+- **Kiểm soát tài nguyên**: Sandbox các tác nhân cụ thể trong khi giữ các tác nhân khác trên máy chủ
+- **Chính sách linh hoạt**: Quyền khác nhau cho từng tác nhân
 
-Note: `tools.elevated` is **global** and sender-based; it is not configurable per agent.
-If you need per-agent boundaries, use `agents.list[].tools` to deny `exec`.
-For group targeting, use `agents.list[].groupChat.mentionPatterns` so @mentions map cleanly to the intended agent.
+Lưu ý: `tools.elevated` là **toàn cầu** và dựa trên người gửi; nó không thể cấu hình theo tác nhân.
+Nếu bạn cần ranh giới theo tác nhân, sử dụng `agents.list[].tools` để cấm `exec`.
+Đối với mục tiêu nhóm, sử dụng `agents.list[].groupChat.mentionPatterns` để các @mentions ánh xạ rõ ràng đến tác nhân dự định.
 
-See [Multi-Agent Sandbox & Tools](/tools/multi-agent-sandbox-tools) for detailed examples.
+Xem [Sandbox & Công cụ Đa Tác Nhân](/tools/multi-agent-sandbox-tools) để biết ví dụ chi tiết.

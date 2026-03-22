@@ -1,32 +1,32 @@
 ---
-title: "TOOLS.md Template"
-summary: "Workspace template for TOOLS.md"
+title: "Mẫu TOOLS.md"
+summary: "Mẫu workspace cho TOOLS.md"
 read_when:
-  - Bootstrapping a workspace manually
+  - Tự tạo workspace thủ công
 ---
 
-# TOOLS.md - Local Notes
+# TOOLS.md - Ghi chú cá nhân
 
-Skills define _how_ tools work. This file is for _your_ specifics — the stuff that's unique to your setup.
+Skills xác định _cách_ công cụ hoạt động. File này dành cho _các chi tiết_ của bạn — những thứ đặc biệt cho cấu hình của bạn.
 
-## What Goes Here
+## Nội dung nên có
 
-Things like:
+Những thứ như:
 
-- Camera names and locations
-- SSH hosts and aliases
-- Preferred voices for TTS
-- Speaker/room names
-- Device nicknames
-- Anything environment-specific
+- Tên và vị trí camera
+- Máy chủ SSH và bí danh
+- Giọng nói ưa thích cho TTS
+- Tên loa/phòng
+- Biệt danh thiết bị
+- Bất kỳ thứ gì đặc thù cho môi trường
 
-## Examples
+## Ví dụ
 
 ```markdown
 ### Cameras
 
-- living-room → Main area, 180° wide angle
-- front-door → Entrance, motion-triggered
+- living-room → Khu vực chính, góc rộng 180°
+- front-door → Lối vào, kích hoạt khi có chuyển động
 
 ### SSH
 
@@ -34,14 +34,14 @@ Things like:
 
 ### TTS
 
-- Preferred voice: "Nova" (warm, slightly British)
-- Default speaker: Kitchen HomePod
+- Giọng nói ưa thích: "Nova" (ấm áp, hơi Anh)
+- Loa mặc định: Kitchen HomePod
 ```
 
-## Why Separate?
+## Tại sao tách riêng?
 
-Skills are shared. Your setup is yours. Keeping them apart means you can update skills without losing your notes, and share skills without leaking your infrastructure.
+Skills được chia sẻ. Cấu hình của bạn là của bạn. Giữ chúng riêng biệt giúp bạn có thể cập nhật skills mà không mất ghi chú, và chia sẻ skills mà không làm lộ hạ tầng của mình.
 
 ---
 
-Add whatever helps you do your job. This is your cheat sheet.
+Thêm bất cứ gì giúp bạn làm việc hiệu quả. Đây là bảng ghi nhớ của bạn.

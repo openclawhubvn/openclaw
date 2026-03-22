@@ -1,61 +1,61 @@
 ---
-summary: "End-to-end guide for running OpenClaw as a personal assistant with safety cautions"
+summary: "Hướng dẫn chi tiết để chạy OpenClaw như một trợ lý cá nhân với các lưu ý an toàn"
 read_when:
-  - Onboarding a new assistant instance
-  - Reviewing safety/permission implications
-title: "Personal Assistant Setup"
+  - Khi khởi tạo một instance trợ lý mới
+  - Khi xem xét các tác động về an toàn/quyền hạn
+title: "Thiết lập Trợ lý Cá nhân"
 ---
 
-# Building a personal assistant with OpenClaw
+# Xây dựng trợ lý cá nhân với OpenClaw
 
-OpenClaw is a self-hosted gateway that connects WhatsApp, Telegram, Discord, iMessage, and more to AI agents. This guide covers the "personal assistant" setup: a dedicated WhatsApp number that behaves like your always-on AI assistant.
+OpenClaw là một gateway tự lưu trữ, kết nối WhatsApp, Telegram, Discord, iMessage và nhiều hơn nữa với các tác nhân AI. Hướng dẫn này bao gồm thiết lập "trợ lý cá nhân": một số WhatsApp chuyên dụng hoạt động như trợ lý AI luôn sẵn sàng.
 
-## ⚠️ Safety first
+## ⚠️ An toàn là trên hết
 
-You’re putting an agent in a position to:
+Bạn đang đặt một tác nhân vào vị trí có thể:
 
-- run commands on your machine (depending on your tool policy)
-- read/write files in your workspace
-- send messages back out via WhatsApp/Telegram/Discord/Mattermost (plugin)
+- chạy lệnh trên máy của bạn (tùy thuộc vào chính sách công cụ)
+- đọc/ghi tệp trong workspace của bạn
+- gửi tin nhắn qua WhatsApp/Telegram/Discord/Mattermost (plugin)
 
-Start conservative:
+Bắt đầu một cách thận trọng:
 
-- Always set `channels.whatsapp.allowFrom` (never run open-to-the-world on your personal Mac).
-- Use a dedicated WhatsApp number for the assistant.
-- Heartbeats now default to every 30 minutes. Disable until you trust the setup by setting `agents.defaults.heartbeat.every: "0m"`.
+- Luôn đặt `channels.whatsapp.allowFrom` (không bao giờ chạy mở cho toàn thế giới trên Mac cá nhân).
+- Sử dụng một số WhatsApp riêng cho trợ lý.
+- Heartbeats mặc định là mỗi 30 phút. Vô hiệu hóa cho đến khi bạn tin tưởng thiết lập bằng cách đặt `agents.defaults.heartbeat.every: "0m"`.
 
-## Prerequisites
+## Yêu cầu trước
 
-- OpenClaw installed and onboarded — see [Getting Started](/start/getting-started) if you haven't done this yet
-- A second phone number (SIM/eSIM/prepaid) for the assistant
+- Đã cài đặt và khởi tạo OpenClaw — xem [Bắt đầu](/start/getting-started) nếu bạn chưa làm điều này
+- Một số điện thoại thứ hai (SIM/eSIM/trả trước) cho trợ lý
 
-## The two-phone setup (recommended)
+## Thiết lập hai điện thoại (khuyến nghị)
 
-You want this:
+Bạn cần điều này:
 
 ```mermaid
 flowchart TB
-    A["<b>Your Phone (personal)<br></b><br>Your WhatsApp<br>+1-555-YOU"] -- message --> B["<b>Second Phone (assistant)<br></b><br>Assistant WA<br>+1-555-ASSIST"]
-    B -- linked via QR --> C["<b>Your Mac (openclaw)<br></b><br>AI agent"]
+    A["<b>Điện thoại của bạn (cá nhân)<br></b><br>WhatsApp của bạn<br>+1-555-YOU"] -- tin nhắn --> B["<b>Điện thoại thứ hai (trợ lý)<br></b><br>Trợ lý WA<br>+1-555-ASSIST"]
+    B -- liên kết qua QR --> C["<b>Mac của bạn (openclaw)<br></b><br>Tác nhân AI"]
 ```
 
-If you link your personal WhatsApp to OpenClaw, every message to you becomes “agent input”. That’s rarely what you want.
+Nếu bạn liên kết WhatsApp cá nhân với OpenClaw, mọi tin nhắn gửi đến bạn sẽ trở thành “đầu vào của tác nhân”. Điều này hiếm khi là điều bạn muốn.
 
-## 5-minute quick start
+## Bắt đầu nhanh trong 5 phút
 
-1. Pair WhatsApp Web (shows QR; scan with the assistant phone):
+1. Ghép đôi WhatsApp Web (hiển thị QR; quét bằng điện thoại trợ lý):
 
 ```bash
 openclaw channels login
 ```
 
-2. Start the Gateway (leave it running):
+2. Khởi động Gateway (để nó chạy):
 
 ```bash
 openclaw gateway --port 18789
 ```
 
-3. Put a minimal config in `~/.openclaw/openclaw.json`:
+3. Đặt cấu hình tối thiểu trong `~/.openclaw/openclaw.json`:
 
 ```json5
 {
@@ -63,26 +63,26 @@ openclaw gateway --port 18789
 }
 ```
 
-Now message the assistant number from your allowlisted phone.
+Bây giờ hãy nhắn tin đến số trợ lý từ điện thoại đã được cho phép.
 
-When onboarding finishes, we auto-open the dashboard and print a clean (non-tokenized) link. If it prompts for auth, paste the token from `gateway.auth.token` into Control UI settings. To reopen later: `openclaw dashboard`.
+Khi hoàn tất khởi tạo, chúng tôi tự động mở dashboard và in ra một liên kết sạch (không có token). Nếu được yêu cầu xác thực, dán token từ `gateway.auth.token` vào cài đặt Control UI. Để mở lại sau: `openclaw dashboard`.
 
-## Give the agent a workspace (AGENTS)
+## Cung cấp workspace cho tác nhân (AGENTS)
 
-OpenClaw reads operating instructions and “memory” from its workspace directory.
+OpenClaw đọc hướng dẫn hoạt động và “bộ nhớ” từ thư mục workspace của nó.
 
-By default, OpenClaw uses `~/.openclaw/workspace` as the agent workspace, and will create it (plus starter `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`) automatically on setup/first agent run. `BOOTSTRAP.md` is only created when the workspace is brand new (it should not come back after you delete it). `MEMORY.md` is optional (not auto-created); when present, it is loaded for normal sessions. Subagent sessions only inject `AGENTS.md` and `TOOLS.md`.
+Mặc định, OpenClaw sử dụng `~/.openclaw/workspace` làm workspace cho tác nhân và sẽ tự động tạo nó (cùng với các tệp khởi đầu `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`) khi thiết lập/chạy tác nhân lần đầu. `BOOTSTRAP.md` chỉ được tạo khi workspace hoàn toàn mới (nó sẽ không xuất hiện lại sau khi bạn xóa nó). `MEMORY.md` là tùy chọn (không tự động tạo); khi có, nó được tải cho các phiên bình thường. Các phiên subagent chỉ chèn `AGENTS.md` và `TOOLS.md`.
 
-Tip: treat this folder like OpenClaw’s “memory” and make it a git repo (ideally private) so your `AGENTS.md` + memory files are backed up. If git is installed, brand-new workspaces are auto-initialized.
+Mẹo: coi thư mục này như “bộ nhớ” của OpenClaw và biến nó thành một repo git (tốt nhất là riêng tư) để các tệp `AGENTS.md` + bộ nhớ của bạn được sao lưu. Nếu git được cài đặt, các workspace hoàn toàn mới sẽ được tự động khởi tạo.
 
 ```bash
 openclaw setup
 ```
 
-Full workspace layout + backup guide: [Agent workspace](/concepts/agent-workspace)
-Memory workflow: [Memory](/concepts/memory)
+Hướng dẫn bố trí workspace đầy đủ + sao lưu: [Agent workspace](/concepts/agent-workspace)
+Quy trình làm việc với bộ nhớ: [Memory](/concepts/memory)
 
-Optional: choose a different workspace with `agents.defaults.workspace` (supports `~`).
+Tùy chọn: chọn một workspace khác với `agents.defaults.workspace` (hỗ trợ `~`).
 
 ```json5
 {
@@ -92,7 +92,7 @@ Optional: choose a different workspace with `agents.defaults.workspace` (support
 }
 ```
 
-If you already ship your own workspace files from a repo, you can disable bootstrap file creation entirely:
+Nếu bạn đã có các tệp workspace của riêng mình từ một repo, bạn có thể vô hiệu hóa hoàn toàn việc tạo tệp bootstrap:
 
 ```json5
 {
@@ -102,15 +102,15 @@ If you already ship your own workspace files from a repo, you can disable bootst
 }
 ```
 
-## The config that turns it into "an assistant"
+## Cấu hình biến nó thành "một trợ lý"
 
-OpenClaw defaults to a good assistant setup, but you’ll usually want to tune:
+OpenClaw mặc định thiết lập trợ lý tốt, nhưng bạn thường muốn điều chỉnh:
 
-- persona/instructions in `SOUL.md`
-- thinking defaults (if desired)
-- heartbeats (once you trust it)
+- nhân vật/hướng dẫn trong `SOUL.md`
+- mặc định suy nghĩ (nếu muốn)
+- heartbeats (khi bạn tin tưởng nó)
 
-Example:
+Ví dụ:
 
 ```json5
 {
@@ -120,7 +120,7 @@ Example:
     workspace: "~/.openclaw/workspace",
     thinkingDefault: "high",
     timeoutSeconds: 1800,
-    // Start with 0; enable later.
+    // Bắt đầu với 0; kích hoạt sau.
     heartbeat: { every: "0m" },
   },
   channels: {
@@ -148,24 +148,24 @@ Example:
 }
 ```
 
-## Sessions and memory
+## Phiên và bộ nhớ
 
-- Session files: `~/.openclaw/agents/<agentId>/sessions/{{SessionId}}.jsonl`
-- Session metadata (token usage, last route, etc): `~/.openclaw/agents/<agentId>/sessions/sessions.json` (legacy: `~/.openclaw/sessions/sessions.json`)
-- `/new` or `/reset` starts a fresh session for that chat (configurable via `resetTriggers`). If sent alone, the agent replies with a short hello to confirm the reset.
-- `/compact [instructions]` compacts the session context and reports the remaining context budget.
+- Tệp phiên: `~/.openclaw/agents/<agentId>/sessions/{{SessionId}}.jsonl`
+- Metadata phiên (sử dụng token, tuyến cuối, v.v.): `~/.openclaw/agents/<agentId>/sessions/sessions.json` (cũ: `~/.openclaw/sessions/sessions.json`)
+- `/new` hoặc `/reset` bắt đầu một phiên mới cho cuộc trò chuyện đó (có thể cấu hình qua `resetTriggers`). Nếu gửi một mình, tác nhân sẽ trả lời với một lời chào ngắn để xác nhận việc đặt lại.
+- `/compact [instructions]` nén ngữ cảnh phiên và báo cáo ngân sách ngữ cảnh còn lại.
 
-## Heartbeats (proactive mode)
+## Heartbeats (chế độ chủ động)
 
-By default, OpenClaw runs a heartbeat every 30 minutes with the prompt:
-`Read HEARTBEAT.md if it exists (workspace context). Follow it strictly. Do not infer or repeat old tasks from prior chats. If nothing needs attention, reply HEARTBEAT_OK.`
-Set `agents.defaults.heartbeat.every: "0m"` to disable.
+Mặc định, OpenClaw chạy một heartbeat mỗi 30 phút với lời nhắc:
+`Đọc HEARTBEAT.md nếu nó tồn tại (ngữ cảnh workspace). Tuân thủ nghiêm ngặt. Không suy diễn hoặc lặp lại các nhiệm vụ cũ từ các cuộc trò chuyện trước. Nếu không có gì cần chú ý, trả lời HEARTBEAT_OK.`
+Đặt `agents.defaults.heartbeat.every: "0m"` để vô hiệu hóa.
 
-- If `HEARTBEAT.md` exists but is effectively empty (only blank lines and markdown headers like `# Heading`), OpenClaw skips the heartbeat run to save API calls.
-- If the file is missing, the heartbeat still runs and the model decides what to do.
-- If the agent replies with `HEARTBEAT_OK` (optionally with short padding; see `agents.defaults.heartbeat.ackMaxChars`), OpenClaw suppresses outbound delivery for that heartbeat.
-- By default, heartbeat delivery to DM-style `user:<id>` targets is allowed. Set `agents.defaults.heartbeat.directPolicy: "block"` to suppress direct-target delivery while keeping heartbeat runs active.
-- Heartbeats run full agent turns — shorter intervals burn more tokens.
+- Nếu `HEARTBEAT.md` tồn tại nhưng thực tế trống (chỉ có dòng trống và tiêu đề markdown như `# Heading`), OpenClaw bỏ qua chạy heartbeat để tiết kiệm các cuộc gọi API.
+- Nếu tệp bị thiếu, heartbeat vẫn chạy và mô hình quyết định phải làm gì.
+- Nếu tác nhân trả lời với `HEARTBEAT_OK` (có thể có đệm ngắn; xem `agents.defaults.heartbeat.ackMaxChars`), OpenClaw ngăn chặn việc gửi đi cho heartbeat đó.
+- Mặc định, việc gửi heartbeat đến các mục tiêu kiểu DM `user:<id>` được cho phép. Đặt `agents.defaults.heartbeat.directPolicy: "block"` để ngăn chặn việc gửi trực tiếp trong khi vẫn giữ các lần chạy heartbeat hoạt động.
+- Heartbeats chạy toàn bộ lượt tác nhân — khoảng thời gian ngắn hơn tiêu tốn nhiều token hơn.
 
 ```json5
 {
@@ -175,42 +175,42 @@ Set `agents.defaults.heartbeat.every: "0m"` to disable.
 }
 ```
 
-## Media in and out
+## Media vào và ra
 
-Inbound attachments (images/audio/docs) can be surfaced to your command via templates:
+Các tệp đính kèm đầu vào (hình ảnh/âm thanh/tài liệu) có thể được đưa vào lệnh của bạn qua các mẫu:
 
-- `{{MediaPath}}` (local temp file path)
+- `{{MediaPath}}` (đường dẫn tệp tạm thời cục bộ)
 - `{{MediaUrl}}` (pseudo-URL)
-- `{{Transcript}}` (if audio transcription is enabled)
+- `{{Transcript}}` (nếu bật chuyển đổi âm thanh thành văn bản)
 
-Outbound attachments from the agent: include `MEDIA:<path-or-url>` on its own line (no spaces). Example:
+Các tệp đính kèm đầu ra từ tác nhân: bao gồm `MEDIA:<path-or-url>` trên một dòng riêng (không có khoảng trắng). Ví dụ:
 
 ```
-Here’s the screenshot.
+Đây là ảnh chụp màn hình.
 MEDIA:https://example.com/screenshot.png
 ```
 
-OpenClaw extracts these and sends them as media alongside the text.
+OpenClaw sẽ trích xuất và gửi chúng như media kèm theo văn bản.
 
-## Operations checklist
+## Danh sách kiểm tra hoạt động
 
 ```bash
-openclaw status          # local status (creds, sessions, queued events)
-openclaw status --all    # full diagnosis (read-only, pasteable)
-openclaw status --deep   # adds gateway health probes (Telegram + Discord)
-openclaw health --json   # gateway health snapshot (WS)
+openclaw status          # trạng thái cục bộ (thông tin đăng nhập, phiên, sự kiện trong hàng đợi)
+openclaw status --all    # chẩn đoán đầy đủ (chỉ đọc, có thể dán)
+openclaw status --deep   # thêm kiểm tra sức khỏe gateway (Telegram + Discord)
+openclaw health --json   # ảnh chụp sức khỏe gateway (WS)
 ```
 
-Logs live under `/tmp/openclaw/` (default: `openclaw-YYYY-MM-DD.log`).
+Nhật ký nằm dưới `/tmp/openclaw/` (mặc định: `openclaw-YYYY-MM-DD.log`).
 
-## Next steps
+## Bước tiếp theo
 
 - WebChat: [WebChat](/web/webchat)
-- Gateway ops: [Gateway runbook](/gateway)
-- Cron + wakeups: [Cron jobs](/automation/cron-jobs)
-- macOS menu bar companion: [OpenClaw macOS app](/platforms/macos)
-- iOS node app: [iOS app](/platforms/ios)
-- Android node app: [Android app](/platforms/android)
-- Windows status: [Windows (WSL2)](/platforms/windows)
-- Linux status: [Linux app](/platforms/linux)
-- Security: [Security](/gateway/security)
+- Vận hành Gateway: [Sổ tay Gateway](/gateway)
+- Cron + đánh thức: [Công việc Cron](/automation/cron-jobs)
+- Ứng dụng đồng hành trên thanh menu macOS: [Ứng dụng OpenClaw macOS](/platforms/macos)
+- Ứng dụng node iOS: [Ứng dụng iOS](/platforms/ios)
+- Ứng dụng node Android: [Ứng dụng Android](/platforms/android)
+- Trạng thái Windows: [Windows (WSL2)](/platforms/windows)
+- Trạng thái Linux: [Ứng dụng Linux](/platforms/linux)
+- Bảo mật: [Bảo mật](/gateway/security)

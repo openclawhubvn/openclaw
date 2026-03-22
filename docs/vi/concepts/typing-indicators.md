@@ -1,41 +1,36 @@
 ---
-summary: "When OpenClaw shows typing indicators and how to tune them"
+summary: "Khi nào OpenClaw hiển thị chỉ báo đang gõ và cách điều chỉnh chúng"
 read_when:
-  - Changing typing indicator behavior or defaults
-title: "Typing Indicators"
+  - Thay đổi hành vi hoặc mặc định của chỉ báo đang gõ
+title: "Chỉ báo đang gõ"
 ---
 
-# Typing indicators
+# Chỉ báo đang gõ
 
-Typing indicators are sent to the chat channel while a run is active. Use
-`agents.defaults.typingMode` to control **when** typing starts and `typingIntervalSeconds`
-to control **how often** it refreshes.
+Chỉ báo đang gõ được gửi đến kênh chat khi một phiên chạy đang hoạt động. Sử dụng `agents.defaults.typingMode` để kiểm soát **khi nào** bắt đầu gõ và `typingIntervalSeconds` để kiểm soát **tần suất** làm mới.
 
-## Defaults
+## Mặc định
 
-When `agents.defaults.typingMode` is **unset**, OpenClaw keeps the legacy behavior:
+Khi `agents.defaults.typingMode` **không được đặt**, OpenClaw giữ hành vi cũ:
 
-- **Direct chats**: typing starts immediately once the model loop begins.
-- **Group chats with a mention**: typing starts immediately.
-- **Group chats without a mention**: typing starts only when message text begins streaming.
-- **Heartbeat runs**: typing is disabled.
+- **Chat trực tiếp**: bắt đầu gõ ngay khi vòng lặp mô hình bắt đầu.
+- **Chat nhóm có nhắc đến**: bắt đầu gõ ngay lập tức.
+- **Chat nhóm không có nhắc đến**: chỉ bắt đầu gõ khi văn bản tin nhắn bắt đầu truyền.
+- **Chạy nhịp tim**: gõ bị vô hiệu hóa.
 
-## Modes
+## Các chế độ
 
-Set `agents.defaults.typingMode` to one of:
+Đặt `agents.defaults.typingMode` thành một trong các giá trị sau:
 
-- `never` — no typing indicator, ever.
-- `instant` — start typing **as soon as the model loop begins**, even if the run
-  later returns only the silent reply token.
-- `thinking` — start typing on the **first reasoning delta** (requires
-  `reasoningLevel: "stream"` for the run).
-- `message` — start typing on the **first non-silent text delta** (ignores
-  the `NO_REPLY` silent token).
+- `never` — không bao giờ có chỉ báo đang gõ.
+- `instant` — bắt đầu gõ **ngay khi vòng lặp mô hình bắt đầu**, ngay cả khi phiên chạy sau đó chỉ trả về token trả lời im lặng.
+- `thinking` — bắt đầu gõ khi có **delta suy luận đầu tiên** (yêu cầu `reasoningLevel: "stream"` cho phiên chạy).
+- `message` — bắt đầu gõ khi có **delta văn bản không im lặng đầu tiên** (bỏ qua token im lặng `NO_REPLY`).
 
-Order of “how early it fires”:
+Thứ tự “bắt đầu sớm nhất”:
 `never` → `message` → `thinking` → `instant`
 
-## Configuration
+## Cấu hình
 
 ```json5
 {
@@ -46,7 +41,7 @@ Order of “how early it fires”:
 }
 ```
 
-You can override mode or cadence per session:
+Bạn có thể ghi đè chế độ hoặc tần suất cho mỗi phiên:
 
 ```json5
 {
@@ -57,12 +52,9 @@ You can override mode or cadence per session:
 }
 ```
 
-## Notes
+## Lưu ý
 
-- `message` mode won’t show typing for silent-only replies (e.g. the `NO_REPLY`
-  token used to suppress output).
-- `thinking` only fires if the run streams reasoning (`reasoningLevel: "stream"`).
-  If the model doesn’t emit reasoning deltas, typing won’t start.
-- Heartbeats never show typing, regardless of mode.
-- `typingIntervalSeconds` controls the **refresh cadence**, not the start time.
-  The default is 6 seconds.
+- Chế độ `message` sẽ không hiển thị gõ cho các phản hồi chỉ im lặng (ví dụ: token `NO_REPLY` được sử dụng để ngăn chặn đầu ra).
+- `thinking` chỉ kích hoạt nếu phiên chạy truyền suy luận (`reasoningLevel: "stream"`). Nếu mô hình không phát ra delta suy luận, gõ sẽ không bắt đầu.
+- Nhịp tim không bao giờ hiển thị gõ, bất kể chế độ nào.
+- `typingIntervalSeconds` kiểm soát **tần suất làm mới**, không phải thời gian bắt đầu. Mặc định là 6 giây.

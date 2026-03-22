@@ -1,21 +1,19 @@
 ---
-summary: "Platform support overview (Gateway + companion apps)"
+summary: "Tổng quan hỗ trợ nền tảng (Gateway + ứng dụng đi kèm)"
 read_when:
-  - Looking for OS support or install paths
-  - Deciding where to run the Gateway
-title: "Platforms"
+  - Tìm kiếm hỗ trợ hệ điều hành hoặc đường dẫn cài đặt
+  - Quyết định nơi chạy Gateway
+title: "Nền tảng"
 ---
 
-# Platforms
+# Nền tảng
 
-OpenClaw core is written in TypeScript. **Node is the recommended runtime**.
-Bun is not recommended for the Gateway (WhatsApp/Telegram bugs).
+OpenClaw core được viết bằng TypeScript. **Node là runtime được khuyến nghị**.
+Bun không được khuyến nghị cho Gateway (lỗi WhatsApp/Telegram).
 
-Companion apps exist for macOS (menu bar app) and mobile nodes (iOS/Android). Windows and
-Linux companion apps are planned, but the Gateway is fully supported today.
-Native companion apps for Windows are also planned; the Gateway is recommended via WSL2.
+Có các ứng dụng đi kèm cho macOS (ứng dụng thanh menu) và các node di động (iOS/Android). Ứng dụng đi kèm cho Windows và Linux đang được lên kế hoạch, nhưng Gateway hiện đã được hỗ trợ đầy đủ. Các ứng dụng đi kèm gốc cho Windows cũng đang được lên kế hoạch; khuyến nghị sử dụng Gateway qua WSL2.
 
-## Choose your OS
+## Chọn hệ điều hành của bạn
 
 - macOS: [macOS](/platforms/macos)
 - iOS: [iOS](/platforms/ios)
@@ -25,30 +23,30 @@ Native companion apps for Windows are also planned; the Gateway is recommended v
 
 ## VPS & hosting
 
-- VPS hub: [VPS hosting](/vps)
+- Trung tâm VPS: [VPS hosting](/vps)
 - Fly.io: [Fly.io](/install/fly)
 - Hetzner (Docker): [Hetzner](/install/hetzner)
 - GCP (Compute Engine): [GCP](/install/gcp)
 - Azure (Linux VM): [Azure](/install/azure)
-- exe.dev (VM + HTTPS proxy): [exe.dev](/install/exe-dev)
+- exe.dev (VM + proxy HTTPS): [exe.dev](/install/exe-dev)
 
-## Common links
+## Liên kết thông dụng
 
-- Install guide: [Getting Started](/start/getting-started)
-- Gateway runbook: [Gateway](/gateway)
-- Gateway configuration: [Configuration](/gateway/configuration)
-- Service status: `openclaw gateway status`
+- Hướng dẫn cài đặt: [Bắt đầu](/start/getting-started)
+- Sổ tay Gateway: [Gateway](/gateway)
+- Cấu hình Gateway: [Cấu hình](/gateway/configuration)
+- Trạng thái dịch vụ: `openclaw gateway status`
 
-## Gateway service install (CLI)
+## Cài đặt dịch vụ Gateway (CLI)
 
-Use one of these (all supported):
+Sử dụng một trong các cách sau (tất cả đều được hỗ trợ):
 
-- Wizard (recommended): `openclaw onboard --install-daemon`
-- Direct: `openclaw gateway install`
-- Configure flow: `openclaw configure` → select **Gateway service**
-- Repair/migrate: `openclaw doctor` (offers to install or fix the service)
+- Trình hướng dẫn (khuyến nghị): `openclaw onboard --install-daemon`
+- Trực tiếp: `openclaw gateway install`
+- Cấu hình luồng: `openclaw configure` → chọn **Dịch vụ Gateway**
+- Sửa chữa/di chuyển: `openclaw doctor` (đề xuất cài đặt hoặc sửa dịch vụ)
 
-The service target depends on OS:
+Mục tiêu dịch vụ phụ thuộc vào hệ điều hành:
 
-- macOS: LaunchAgent (`ai.openclaw.gateway` or `ai.openclaw.<profile>`; legacy `com.openclaw.*`)
-- Linux/WSL2: systemd user service (`openclaw-gateway[-<profile>].service`)
+- macOS: LaunchAgent (`ai.openclaw.gateway` hoặc `ai.openclaw.<profile>`; legacy `com.openclaw.*`)
+- Linux/WSL2: dịch vụ người dùng systemd (`openclaw-gateway[-<profile>].service`)

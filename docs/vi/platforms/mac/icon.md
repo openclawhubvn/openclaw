@@ -1,31 +1,31 @@
 ---
-summary: "Menu bar icon states and animations for OpenClaw on macOS"
+summary: "Trạng thái và hoạt ảnh của biểu tượng thanh menu cho OpenClaw trên macOS"
 read_when:
-  - Changing menu bar icon behavior
-title: "Menu Bar Icon"
+  - Thay đổi hành vi biểu tượng thanh menu
+title: "Biểu Tượng Thanh Menu"
 ---
 
-# Menu Bar Icon States
+# Trạng Thái Biểu Tượng Thanh Menu
 
-Author: steipete · Updated: 2025-12-06 · Scope: macOS app (`apps/macos`)
+Tác giả: steipete · Cập nhật: 2025-12-06 · Phạm vi: Ứng dụng macOS (`apps/macos`)
 
-- **Idle:** Normal icon animation (blink, occasional wiggle).
-- **Paused:** Status item uses `appearsDisabled`; no motion.
-- **Voice trigger (big ears):** Voice wake detector calls `AppState.triggerVoiceEars(ttl: nil)` when the wake word is heard, keeping `earBoostActive=true` while the utterance is captured. Ears scale up (1.9x), get circular ear holes for readability, then drop via `stopVoiceEars()` after 1s of silence. Only fired from the in-app voice pipeline.
-- **Working (agent running):** `AppState.isWorking=true` drives a “tail/leg scurry” micro-motion: faster leg wiggle and slight offset while work is in-flight. Currently toggled around WebChat agent runs; add the same toggle around other long tasks when you wire them.
+- **Nhàn rỗi:** Biểu tượng có hoạt ảnh bình thường (nhấp nháy, thỉnh thoảng lắc nhẹ).
+- **Tạm dừng:** Mục trạng thái sử dụng `appearsDisabled`; không có chuyển động.
+- **Kích hoạt giọng nói (tai lớn):** Bộ phát hiện giọng nói gọi `AppState.triggerVoiceEars(ttl: nil)` khi nghe từ kích hoạt, giữ `earBoostActive=true` trong khi thu âm. Tai phóng to (1.9x), có lỗ tai tròn để dễ đọc, sau đó dừng qua `stopVoiceEars()` sau 1 giây im lặng. Chỉ kích hoạt từ đường dẫn giọng nói trong ứng dụng.
+- **Đang làm việc (agent đang chạy):** `AppState.isWorking=true` kích hoạt chuyển động nhỏ “đuôi/chân chạy”: chân lắc nhanh hơn và lệch nhẹ khi công việc đang diễn ra. Hiện tại được bật tắt xung quanh các lần chạy agent WebChat; thêm bật tắt tương tự cho các tác vụ dài khác khi kết nối.
 
-Wiring points
+Điểm kết nối
 
-- Voice wake: runtime/tester call `AppState.triggerVoiceEars(ttl: nil)` on trigger and `stopVoiceEars()` after 1s of silence to match the capture window.
-- Agent activity: set `AppStateStore.shared.setWorking(true/false)` around work spans (already done in WebChat agent call). Keep spans short and reset in `defer` blocks to avoid stuck animations.
+- Kích hoạt giọng nói: gọi `AppState.triggerVoiceEars(ttl: nil)` khi kích hoạt và `stopVoiceEars()` sau 1 giây im lặng để khớp với cửa sổ thu âm.
+- Hoạt động của agent: đặt `AppStateStore.shared.setWorking(true/false)` xung quanh các khoảng thời gian làm việc (đã thực hiện trong cuộc gọi agent WebChat). Giữ khoảng thời gian ngắn và đặt lại trong các khối `defer` để tránh hoạt ảnh bị kẹt.
 
-Shapes & sizes
+Hình dạng & kích thước
 
-- Base icon drawn in `CritterIconRenderer.makeIcon(blink:legWiggle:earWiggle:earScale:earHoles:)`.
-- Ear scale defaults to `1.0`; voice boost sets `earScale=1.9` and toggles `earHoles=true` without changing overall frame (18×18 pt template image rendered into a 36×36 px Retina backing store).
-- Scurry uses leg wiggle up to ~1.0 with a small horizontal jiggle; it’s additive to any existing idle wiggle.
+- Biểu tượng cơ bản được vẽ trong `CritterIconRenderer.makeIcon(blink:legWiggle:earWiggle:earScale:earHoles:)`.
+- Tỷ lệ tai mặc định là `1.0`; tăng cường giọng nói đặt `earScale=1.9` và bật `earHoles=true` mà không thay đổi khung tổng thể (hình ảnh mẫu 18×18 pt được hiển thị vào kho lưu trữ Retina 36×36 px).
+- Chạy nhanh sử dụng chân lắc lên đến ~1.0 với một chút lắc ngang; nó được cộng thêm vào bất kỳ lắc nhàn rỗi nào hiện có.
 
-Behavioral notes
+Ghi chú hành vi
 
-- No external CLI/broker toggle for ears/working; keep it internal to the app’s own signals to avoid accidental flapping.
-- Keep TTLs short (&lt;10s) so the icon returns to baseline quickly if a job hangs.
+- Không có bật tắt CLI/broker bên ngoài cho tai/đang làm việc; giữ nội bộ trong các tín hiệu của ứng dụng để tránh nhấp nháy không mong muốn.
+- Giữ TTL ngắn (&lt;10 giây) để biểu tượng nhanh chóng trở về trạng thái ban đầu nếu một công việc bị treo.

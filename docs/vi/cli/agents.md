@@ -1,20 +1,20 @@
 ---
-summary: "CLI reference for `openclaw agents` (list/add/delete/bindings/bind/unbind/set identity)"
+summary: "Tham khảo CLI cho `openclaw agents` (liệt kê/thêm/xóa/ràng buộc/kết nối/hủy kết nối/đặt danh tính)"
 read_when:
-  - You want multiple isolated agents (workspaces + routing + auth)
+  - Bạn muốn có nhiều agent độc lập (workspaces + định tuyến + xác thực)
 title: "agents"
 ---
 
 # `openclaw agents`
 
-Manage isolated agents (workspaces + auth + routing).
+Quản lý các agent độc lập (workspaces + xác thực + định tuyến).
 
-Related:
+Liên quan:
 
-- Multi-agent routing: [Multi-Agent Routing](/concepts/multi-agent)
-- Agent workspace: [Agent workspace](/concepts/agent-workspace)
+- Định tuyến đa agent: [Định tuyến Đa Agent](/concepts/multi-agent)
+- Workspace của agent: [Workspace của Agent](/concepts/agent-workspace)
 
-## Examples
+## Ví dụ
 
 ```bash
 openclaw agents list
@@ -27,11 +27,11 @@ openclaw agents set-identity --agent main --avatar avatars/openclaw.png
 openclaw agents delete work
 ```
 
-## Routing bindings
+## Ràng buộc định tuyến
 
-Use routing bindings to pin inbound channel traffic to a specific agent.
+Sử dụng ràng buộc định tuyến để gán lưu lượng kênh đầu vào cho một agent cụ thể.
 
-List bindings:
+Liệt kê ràng buộc:
 
 ```bash
 openclaw agents bindings
@@ -39,70 +39,70 @@ openclaw agents bindings --agent work
 openclaw agents bindings --json
 ```
 
-Add bindings:
+Thêm ràng buộc:
 
 ```bash
 openclaw agents bind --agent work --bind telegram:ops --bind discord:guild-a
 ```
 
-If you omit `accountId` (`--bind <channel>`), OpenClaw resolves it from channel defaults and plugin setup hooks when available.
+Nếu bạn bỏ qua `accountId` (`--bind <channel>`), OpenClaw sẽ tự động xác định từ các thiết lập mặc định của kênh và plugin khi có sẵn.
 
-### Binding scope behavior
+### Hành vi phạm vi ràng buộc
 
-- A binding without `accountId` matches the channel default account only.
-- `accountId: "*"` is the channel-wide fallback (all accounts) and is less specific than an explicit account binding.
-- If the same agent already has a matching channel binding without `accountId`, and you later bind with an explicit or resolved `accountId`, OpenClaw upgrades that existing binding in place instead of adding a duplicate.
+- Một ràng buộc không có `accountId` chỉ khớp với tài khoản mặc định của kênh.
+- `accountId: "*"` là phương án dự phòng cho toàn bộ kênh (tất cả tài khoản) và ít cụ thể hơn so với ràng buộc tài khoản rõ ràng.
+- Nếu cùng một agent đã có ràng buộc kênh khớp mà không có `accountId`, và sau đó bạn ràng buộc với `accountId` rõ ràng hoặc đã xác định, OpenClaw sẽ nâng cấp ràng buộc hiện có thay vì thêm bản sao.
 
-Example:
+Ví dụ:
 
 ```bash
-# initial channel-only binding
+# ràng buộc chỉ kênh ban đầu
 openclaw agents bind --agent work --bind telegram
 
-# later upgrade to account-scoped binding
+# sau đó nâng cấp lên ràng buộc theo tài khoản
 openclaw agents bind --agent work --bind telegram:ops
 ```
 
-After the upgrade, routing for that binding is scoped to `telegram:ops`. If you also want default-account routing, add it explicitly (for example `--bind telegram:default`).
+Sau khi nâng cấp, định tuyến cho ràng buộc đó sẽ được giới hạn cho `telegram:ops`. Nếu bạn cũng muốn định tuyến tài khoản mặc định, hãy thêm nó rõ ràng (ví dụ `--bind telegram:default`).
 
-Remove bindings:
+Xóa ràng buộc:
 
 ```bash
 openclaw agents unbind --agent work --bind telegram:ops
 openclaw agents unbind --agent work --all
 ```
 
-## Identity files
+## Tệp danh tính
 
-Each agent workspace can include an `IDENTITY.md` at the workspace root:
+Mỗi workspace của agent có thể bao gồm một `IDENTITY.md` tại thư mục gốc của workspace:
 
-- Example path: `~/.openclaw/workspace/IDENTITY.md`
-- `set-identity --from-identity` reads from the workspace root (or an explicit `--identity-file`)
+- Đường dẫn ví dụ: `~/.openclaw/workspace/IDENTITY.md`
+- `set-identity --from-identity` đọc từ thư mục gốc của workspace (hoặc một `--identity-file` cụ thể)
 
-Avatar paths resolve relative to the workspace root.
+Đường dẫn avatar được xác định tương đối so với thư mục gốc của workspace.
 
-## Set identity
+## Đặt danh tính
 
-`set-identity` writes fields into `agents.list[].identity`:
+`set-identity` ghi các trường vào `agents.list[].identity`:
 
 - `name`
 - `theme`
 - `emoji`
-- `avatar` (workspace-relative path, http(s) URL, or data URI)
+- `avatar` (đường dẫn tương đối workspace, URL http(s), hoặc data URI)
 
-Load from `IDENTITY.md`:
+Tải từ `IDENTITY.md`:
 
 ```bash
 openclaw agents set-identity --workspace ~/.openclaw/workspace --from-identity
 ```
 
-Override fields explicitly:
+Ghi đè các trường rõ ràng:
 
 ```bash
 openclaw agents set-identity --agent main --name "OpenClaw" --emoji "🦞" --avatar avatars/openclaw.png
 ```
 
-Config sample:
+Mẫu cấu hình:
 
 ```json5
 {

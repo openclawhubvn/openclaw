@@ -1,35 +1,35 @@
 ---
-summary: "Bun workflow (experimental): installs and gotchas vs pnpm"
+summary: "Quy trình Bun (thử nghiệm): cài đặt và lưu ý so với pnpm"
 read_when:
-  - You want the fastest local dev loop (bun + watch)
-  - You hit Bun install/patch/lifecycle script issues
-title: "Bun (Experimental)"
+  - Bạn muốn vòng lặp phát triển local nhanh nhất (bun + watch)
+  - Bạn gặp vấn đề với Bun install/patch/lifecycle script
+title: "Bun (Thử nghiệm)"
 ---
 
-# Bun (Experimental)
+# Bun (Thử nghiệm)
 
 <Warning>
-Bun is **not recommended for gateway runtime** (known issues with WhatsApp and Telegram). Use Node for production.
+Bun **không được khuyến nghị cho runtime gateway** (có vấn đề đã biết với WhatsApp và Telegram). Sử dụng Node cho môi trường sản xuất.
 </Warning>
 
-Bun is an optional local runtime for running TypeScript directly (`bun run ...`, `bun --watch ...`). The default package manager remains `pnpm`, which is fully supported and used by docs tooling. Bun cannot use `pnpm-lock.yaml` and will ignore it.
+Bun là một runtime tùy chọn để chạy trực tiếp TypeScript (`bun run ...`, `bun --watch ...`). Trình quản lý gói mặc định vẫn là `pnpm`, được hỗ trợ đầy đủ và sử dụng bởi công cụ tài liệu. Bun không thể sử dụng `pnpm-lock.yaml` và sẽ bỏ qua nó.
 
-## Install
+## Cài đặt
 
 <Steps>
-  <Step title="Install dependencies">
+  <Step title="Cài đặt các phụ thuộc">
     ```sh
     bun install
     ```
 
-    `bun.lock` / `bun.lockb` are gitignored, so there is no repo churn. To skip lockfile writes entirely:
+    `bun.lock` / `bun.lockb` được gitignore, nên không gây thay đổi trong repo. Để bỏ qua việc ghi lockfile hoàn toàn:
 
     ```sh
     bun install --no-save
     ```
 
   </Step>
-  <Step title="Build and test">
+  <Step title="Xây dựng và kiểm tra">
     ```sh
     bun run build
     bun run vitest run
@@ -37,19 +37,19 @@ Bun is an optional local runtime for running TypeScript directly (`bun run ...`,
   </Step>
 </Steps>
 
-## Lifecycle Scripts
+## Script Vòng đời
 
-Bun blocks dependency lifecycle scripts unless explicitly trusted. For this repo, the commonly blocked scripts are not required:
+Bun chặn các script vòng đời phụ thuộc trừ khi được tin tưởng rõ ràng. Đối với repo này, các script thường bị chặn không cần thiết:
 
-- `@whiskeysockets/baileys` `preinstall` -- checks Node major >= 20 (OpenClaw defaults to Node 24 and still supports Node 22 LTS, currently `22.16+`)
-- `protobufjs` `postinstall` -- emits warnings about incompatible version schemes (no build artifacts)
+- `@whiskeysockets/baileys` `preinstall` -- kiểm tra Node major >= 20 (OpenClaw mặc định Node 24 và vẫn hỗ trợ Node 22 LTS, hiện tại là `22.16+`)
+- `protobufjs` `postinstall` -- phát cảnh báo về các phiên bản không tương thích (không có build artifacts)
 
-If you hit a runtime issue that requires these scripts, trust them explicitly:
+Nếu gặp vấn đề runtime cần các script này, hãy tin tưởng chúng rõ ràng:
 
 ```sh
 bun pm trust @whiskeysockets/baileys protobufjs
 ```
 
-## Caveats
+## Lưu ý
 
-Some scripts still hardcode pnpm (for example `docs:build`, `ui:*`, `protocol:check`). Run those via pnpm for now.
+Một số script vẫn cứng nhắc sử dụng pnpm (ví dụ `docs:build`, `ui:*`, `protocol:check`). Hiện tại, hãy chạy chúng qua pnpm.

@@ -1,93 +1,93 @@
 ---
-title: "Session Pruning"
-summary: "Session pruning: tool-result trimming to reduce context bloat"
+title: "Tỉa Bớt Phiên Làm Việc"
+summary: "Tỉa bớt kết quả công cụ để giảm tải ngữ cảnh"
 read_when:
-  - You want to reduce LLM context growth from tool outputs
-  - You are tuning agents.defaults.contextPruning
+  - Bạn muốn giảm sự phát triển ngữ cảnh LLM từ kết quả công cụ
+  - Bạn đang điều chỉnh agents.defaults.contextPruning
 ---
 
-# Session Pruning
+# Tỉa Bớt Phiên Làm Việc
 
-Session pruning trims **old tool results** from the in-memory context right before each LLM call. It does **not** rewrite the on-disk session history (`*.jsonl`).
+Tỉa bớt phiên làm việc giúp loại bỏ **kết quả công cụ cũ** khỏi ngữ cảnh trong bộ nhớ ngay trước mỗi lần gọi LLM. Nó **không** viết lại lịch sử phiên trên đĩa (`*.jsonl`).
 
-## When it runs
+## Khi nào nó hoạt động
 
-- When `mode: "cache-ttl"` is enabled and the last Anthropic call for the session is older than `ttl`.
-- Only affects the messages sent to the model for that request.
-- Only active for Anthropic API calls (and OpenRouter Anthropic models).
-- For best results, match `ttl` to your model `cacheRetention` policy (`short` = 5m, `long` = 1h).
-- After a prune, the TTL window resets so subsequent requests keep cache until `ttl` expires again.
+- Khi `mode: "cache-ttl"` được kích hoạt và lần gọi Anthropic cuối cùng cho phiên đã cũ hơn `ttl`.
+- Chỉ ảnh hưởng đến các tin nhắn gửi đến mô hình cho yêu cầu đó.
+- Chỉ hoạt động cho các cuộc gọi API Anthropic (và các mô hình OpenRouter Anthropic).
+- Để đạt kết quả tốt nhất, hãy khớp `ttl` với chính sách `cacheRetention` của mô hình (`short` = 5 phút, `long` = 1 giờ).
+- Sau khi tỉa, cửa sổ TTL được đặt lại để các yêu cầu tiếp theo giữ cache cho đến khi `ttl` hết hạn lần nữa.
 
-## Smart defaults (Anthropic)
+## Mặc định thông minh (Anthropic)
 
-- **OAuth or setup-token** profiles: enable `cache-ttl` pruning and set heartbeat to `1h`.
-- **API key** profiles: enable `cache-ttl` pruning, set heartbeat to `30m`, and default `cacheRetention: "short"` on Anthropic models.
-- If you set any of these values explicitly, OpenClaw does **not** override them.
+- Hồ sơ **OAuth hoặc setup-token**: kích hoạt tỉa `cache-ttl` và đặt nhịp tim là `1 giờ`.
+- Hồ sơ **API key**: kích hoạt tỉa `cache-ttl`, đặt nhịp tim là `30 phút`, và mặc định `cacheRetention: "short"` trên các mô hình Anthropic.
+- Nếu bạn đặt bất kỳ giá trị nào trong số này một cách rõ ràng, OpenClaw sẽ **không** ghi đè chúng.
 
-## What this improves (cost + cache behavior)
+## Cải thiện gì (chi phí + hành vi cache)
 
-- **Why prune:** Anthropic prompt caching only applies within the TTL. If a session goes idle past the TTL, the next request re-caches the full prompt unless you trim it first.
-- **What gets cheaper:** pruning reduces the **cacheWrite** size for that first request after the TTL expires.
-- **Why the TTL reset matters:** once pruning runs, the cache window resets, so follow‑up requests can reuse the freshly cached prompt instead of re-caching the full history again.
-- **What it does not do:** pruning doesn’t add tokens or “double” costs; it only changes what gets cached on that first post‑TTL request.
+- **Tại sao tỉa:** Cache prompt của Anthropic chỉ áp dụng trong TTL. Nếu một phiên không hoạt động quá TTL, yêu cầu tiếp theo sẽ cache lại toàn bộ prompt trừ khi bạn tỉa nó trước.
+- **Cái gì rẻ hơn:** tỉa bớt giảm kích thước **cacheWrite** cho yêu cầu đầu tiên sau khi TTL hết hạn.
+- **Tại sao việc đặt lại TTL quan trọng:** một khi tỉa bớt chạy, cửa sổ cache được đặt lại, vì vậy các yêu cầu tiếp theo có thể tái sử dụng prompt đã cache mới thay vì cache lại toàn bộ lịch sử.
+- **Nó không làm gì:** tỉa bớt không thêm token hoặc "nhân đôi" chi phí; nó chỉ thay đổi những gì được cache trong yêu cầu đầu tiên sau TTL.
 
-## What can be pruned
+## Những gì có thể được tỉa
 
-- Only `toolResult` messages.
-- User + assistant messages are **never** modified.
-- The last `keepLastAssistants` assistant messages are protected; tool results after that cutoff are not pruned.
-- If there aren’t enough assistant messages to establish the cutoff, pruning is skipped.
-- Tool results containing **image blocks** are skipped (never trimmed/cleared).
+- Chỉ các tin nhắn `toolResult`.
+- Tin nhắn người dùng + trợ lý **không bao giờ** bị sửa đổi.
+- Các tin nhắn trợ lý cuối cùng `keepLastAssistants` được bảo vệ; kết quả công cụ sau đó không bị tỉa.
+- Nếu không có đủ tin nhắn trợ lý để thiết lập điểm cắt, tỉa bớt bị bỏ qua.
+- Kết quả công cụ chứa **khối hình ảnh** bị bỏ qua (không bao giờ bị tỉa/xóa).
 
-## Context window estimation
+## Ước lượng cửa sổ ngữ cảnh
 
-Pruning uses an estimated context window (chars ≈ tokens × 4). The base window is resolved in this order:
+Tỉa bớt sử dụng một cửa sổ ngữ cảnh ước lượng (ký tự ≈ token × 4). Cửa sổ cơ bản được xác định theo thứ tự sau:
 
-1. `models.providers.*.models[].contextWindow` override.
-2. Model definition `contextWindow` (from the model registry).
-3. Default `200000` tokens.
+1. Ghi đè `models.providers.*.models[].contextWindow`.
+2. Định nghĩa mô hình `contextWindow` (từ registry mô hình).
+3. Mặc định `200000` token.
 
-If `agents.defaults.contextTokens` is set, it is treated as a cap (min) on the resolved window.
+Nếu `agents.defaults.contextTokens` được đặt, nó được coi là giới hạn (tối thiểu) trên cửa sổ đã xác định.
 
-## Mode
+## Chế độ
 
 ### cache-ttl
 
-- Pruning only runs if the last Anthropic call is older than `ttl` (default `5m`).
-- When it runs: same soft-trim + hard-clear behavior as before.
+- Tỉa bớt chỉ chạy nếu lần gọi Anthropic cuối cùng cũ hơn `ttl` (mặc định `5 phút`).
+- Khi nó chạy: cùng hành vi tỉa mềm + xóa cứng như trước.
 
-## Soft vs hard pruning
+## Tỉa mềm và tỉa cứng
 
-- **Soft-trim**: only for oversized tool results.
-  - Keeps head + tail, inserts `...`, and appends a note with the original size.
-  - Skips results with image blocks.
-- **Hard-clear**: replaces the entire tool result with `hardClear.placeholder`.
+- **Tỉa mềm**: chỉ dành cho kết quả công cụ quá lớn.
+  - Giữ đầu + đuôi, chèn `...`, và thêm ghi chú với kích thước gốc.
+  - Bỏ qua kết quả có khối hình ảnh.
+- **Xóa cứng**: thay thế toàn bộ kết quả công cụ bằng `hardClear.placeholder`.
 
-## Tool selection
+## Lựa chọn công cụ
 
-- `tools.allow` / `tools.deny` support `*` wildcards.
-- Deny wins.
-- Matching is case-insensitive.
-- Empty allow list => all tools allowed.
+- `tools.allow` / `tools.deny` hỗ trợ ký tự đại diện `*`.
+- Deny thắng.
+- So khớp không phân biệt chữ hoa chữ thường.
+- Danh sách cho phép trống => tất cả công cụ được phép.
 
-## Interaction with other limits
+## Tương tác với các giới hạn khác
 
-- Built-in tools already truncate their own output; session pruning is an extra layer that prevents long-running chats from accumulating too much tool output in the model context.
-- Compaction is separate: compaction summarizes and persists, pruning is transient per request. See [/concepts/compaction](/concepts/compaction).
+- Công cụ tích hợp sẵn đã tự cắt ngắn đầu ra của chúng; tỉa bớt phiên là một lớp bổ sung ngăn chặn các cuộc trò chuyện kéo dài tích lũy quá nhiều đầu ra công cụ trong ngữ cảnh mô hình.
+- Nén là riêng biệt: nén tóm tắt và lưu trữ, tỉa bớt là tạm thời cho mỗi yêu cầu. Xem [/concepts/compaction](/concepts/compaction).
 
-## Defaults (when enabled)
+## Mặc định (khi được kích hoạt)
 
-- `ttl`: `"5m"`
+- `ttl`: `"5 phút"`
 - `keepLastAssistants`: `3`
 - `softTrimRatio`: `0.3`
 - `hardClearRatio`: `0.5`
 - `minPrunableToolChars`: `50000`
 - `softTrim`: `{ maxChars: 4000, headChars: 1500, tailChars: 1500 }`
-- `hardClear`: `{ enabled: true, placeholder: "[Old tool result content cleared]" }`
+- `hardClear`: `{ enabled: true, placeholder: "[Nội dung kết quả công cụ cũ đã bị xóa]" }`
 
-## Examples
+## Ví dụ
 
-Default (off):
+Mặc định (tắt):
 
 ```json5
 {
@@ -95,7 +95,7 @@ Default (off):
 }
 ```
 
-Enable TTL-aware pruning:
+Kích hoạt tỉa bớt theo TTL:
 
 ```json5
 {
@@ -103,7 +103,7 @@ Enable TTL-aware pruning:
 }
 ```
 
-Restrict pruning to specific tools:
+Giới hạn tỉa bớt cho các công cụ cụ thể:
 
 ```json5
 {
@@ -118,4 +118,4 @@ Restrict pruning to specific tools:
 }
 ```
 
-See config reference: [Gateway Configuration](/gateway/configuration)
+Xem tham khảo cấu hình: [Cấu hình Gateway](/gateway/configuration)

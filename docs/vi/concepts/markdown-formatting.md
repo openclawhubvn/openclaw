@@ -1,50 +1,45 @@
 ---
-summary: "Markdown formatting pipeline for outbound channels"
+summary: "Quy trình định dạng Markdown cho các kênh outbound"
 read_when:
-  - You are changing markdown formatting or chunking for outbound channels
-  - You are adding a new channel formatter or style mapping
-  - You are debugging formatting regressions across channels
-title: "Markdown Formatting"
+  - Bạn đang thay đổi định dạng hoặc chia nhỏ Markdown cho các kênh outbound
+  - Bạn đang thêm một bộ định dạng kênh mới hoặc ánh xạ kiểu dáng
+  - Bạn đang gỡ lỗi các vấn đề định dạng trên các kênh
+title: "Định dạng Markdown"
 ---
 
-# Markdown formatting
+# Định dạng Markdown
 
-OpenClaw formats outbound Markdown by converting it into a shared intermediate
-representation (IR) before rendering channel-specific output. The IR keeps the
-source text intact while carrying style/link spans so chunking and rendering can
-stay consistent across channels.
+OpenClaw định dạng Markdown outbound bằng cách chuyển đổi nó thành một biểu diễn trung gian chung (IR) trước khi tạo ra đầu ra cụ thể cho từng kênh. IR giữ nguyên văn bản gốc trong khi mang theo các đoạn định dạng/liên kết để việc chia nhỏ và hiển thị có thể nhất quán trên các kênh.
 
-## Goals
+## Mục tiêu
 
-- **Consistency:** one parse step, multiple renderers.
-- **Safe chunking:** split text before rendering so inline formatting never
-  breaks across chunks.
-- **Channel fit:** map the same IR to Slack mrkdwn, Telegram HTML, and Signal
-  style ranges without re-parsing Markdown.
+- **Nhất quán:** một bước phân tích, nhiều bộ hiển thị.
+- **Chia nhỏ an toàn:** chia nhỏ văn bản trước khi hiển thị để định dạng nội tuyến không bị phá vỡ giữa các đoạn.
+- **Phù hợp với kênh:** ánh xạ cùng một IR tới Slack mrkdwn, Telegram HTML và Signal style ranges mà không cần phân tích lại Markdown.
 
-## Pipeline
+## Quy trình
 
-1. **Parse Markdown -> IR**
-   - IR is plain text plus style spans (bold/italic/strike/code/spoiler) and link spans.
-   - Offsets are UTF-16 code units so Signal style ranges align with its API.
-   - Tables are parsed only when a channel opts into table conversion.
-2. **Chunk IR (format-first)**
-   - Chunking happens on the IR text before rendering.
-   - Inline formatting does not split across chunks; spans are sliced per chunk.
-3. **Render per channel**
-   - **Slack:** mrkdwn tokens (bold/italic/strike/code), links as `<url|label>`.
-   - **Telegram:** HTML tags (`<b>`, `<i>`, `<s>`, `<code>`, `<pre><code>`, `<a href>`).
-   - **Signal:** plain text + `text-style` ranges; links become `label (url)` when label differs.
+1. **Phân tích Markdown -> IR**
+   - IR là văn bản thuần túy cộng với các đoạn định dạng (đậm/nghiêng/gạch ngang/mã/spoiler) và các đoạn liên kết.
+   - Các vị trí là đơn vị mã UTF-16 để các phạm vi kiểu dáng của Signal phù hợp với API của nó.
+   - Bảng chỉ được phân tích khi một kênh chọn chuyển đổi bảng.
+2. **Chia nhỏ IR (ưu tiên định dạng)**
+   - Việc chia nhỏ diễn ra trên văn bản IR trước khi hiển thị.
+   - Định dạng nội tuyến không bị chia nhỏ giữa các đoạn; các đoạn được cắt theo từng đoạn.
+3. **Hiển thị theo từng kênh**
+   - **Slack:** các token mrkdwn (đậm/nghiêng/gạch ngang/mã), liên kết dưới dạng `<url|label>`.
+   - **Telegram:** thẻ HTML (`<b>`, `<i>`, `<s>`, `<code>`, `<pre><code>`, `<a href>`).
+   - **Signal:** văn bản thuần túy + phạm vi `text-style`; liên kết trở thành `label (url)` khi nhãn khác biệt.
 
-## IR example
+## Ví dụ về IR
 
-Input Markdown:
+Markdown đầu vào:
 
 ```markdown
 Hello **world** — see [docs](https://docs.openclaw.ai).
 ```
 
-IR (schematic):
+IR (sơ đồ):
 
 ```json
 {
@@ -54,23 +49,20 @@ IR (schematic):
 }
 ```
 
-## Where it is used
+## Nơi sử dụng
 
-- Slack, Telegram, and Signal outbound adapters render from the IR.
-- Other channels (WhatsApp, iMessage, Microsoft Teams, Discord) still use plain text or
-  their own formatting rules, with Markdown table conversion applied before
-  chunking when enabled.
+- Các bộ điều hợp outbound của Slack, Telegram và Signal hiển thị từ IR.
+- Các kênh khác (WhatsApp, iMessage, Microsoft Teams, Discord) vẫn sử dụng văn bản thuần túy hoặc quy tắc định dạng riêng, với chuyển đổi bảng Markdown được áp dụng trước khi chia nhỏ khi được kích hoạt.
 
-## Table handling
+## Xử lý bảng
 
-Markdown tables are not consistently supported across chat clients. Use
-`markdown.tables` to control conversion per channel (and per account).
+Bảng Markdown không được hỗ trợ nhất quán trên các ứng dụng chat. Sử dụng `markdown.tables` để kiểm soát chuyển đổi theo từng kênh (và từng tài khoản).
 
-- `code`: render tables as code blocks (default for most channels).
-- `bullets`: convert each row into bullet points (default for Signal + WhatsApp).
-- `off`: disable table parsing and conversion; raw table text passes through.
+- `code`: hiển thị bảng dưới dạng khối mã (mặc định cho hầu hết các kênh).
+- `bullets`: chuyển đổi mỗi hàng thành các điểm đầu dòng (mặc định cho Signal + WhatsApp).
+- `off`: tắt phân tích và chuyển đổi bảng; văn bản bảng thô được truyền qua.
 
-Config keys:
+Các khóa cấu hình:
 
 ```yaml
 channels:
@@ -83,48 +75,36 @@ channels:
           tables: off
 ```
 
-## Chunking rules
+## Quy tắc chia nhỏ
 
-- Chunk limits come from channel adapters/config and are applied to the IR text.
-- Code fences are preserved as a single block with a trailing newline so channels
-  render them correctly.
-- List prefixes and blockquote prefixes are part of the IR text, so chunking
-  does not split mid-prefix.
-- Inline styles (bold/italic/strike/inline-code/spoiler) are never split across
-  chunks; the renderer reopens styles inside each chunk.
+- Giới hạn chia nhỏ đến từ bộ điều hợp/cấu hình kênh và được áp dụng cho văn bản IR.
+- Các hàng rào mã được giữ nguyên dưới dạng một khối duy nhất với một dòng mới ở cuối để các kênh hiển thị chúng đúng cách.
+- Các tiền tố danh sách và tiền tố blockquote là một phần của văn bản IR, vì vậy việc chia nhỏ không tách giữa tiền tố.
+- Các kiểu nội tuyến (đậm/nghiêng/gạch ngang/mã nội tuyến/spoiler) không bao giờ bị chia nhỏ giữa các đoạn; bộ hiển thị mở lại các kiểu bên trong mỗi đoạn.
 
-If you need more on chunking behavior across channels, see
-[Streaming + chunking](/concepts/streaming).
+Nếu cần thêm thông tin về hành vi chia nhỏ trên các kênh, xem [Streaming + chunking](/concepts/streaming).
 
-## Link policy
+## Chính sách liên kết
 
-- **Slack:** `[label](url)` -> `<url|label>`; bare URLs remain bare. Autolink
-  is disabled during parse to avoid double-linking.
-- **Telegram:** `[label](url)` -> `<a href="url">label</a>` (HTML parse mode).
-- **Signal:** `[label](url)` -> `label (url)` unless label matches the URL.
+- **Slack:** `[label](url)` -> `<url|label>`; URL trần vẫn giữ nguyên. Tự động liên kết bị tắt trong quá trình phân tích để tránh liên kết kép.
+- **Telegram:** `[label](url)` -> `<a href="url">label</a>` (chế độ phân tích HTML).
+- **Signal:** `[label](url)` -> `label (url)` trừ khi nhãn khớp với URL.
 
 ## Spoilers
 
-Spoiler markers (`||spoiler||`) are parsed only for Signal, where they map to
-SPOILER style ranges. Other channels treat them as plain text.
+Các dấu spoiler (`||spoiler||`) chỉ được phân tích cho Signal, nơi chúng ánh xạ tới các phạm vi kiểu SPOILER. Các kênh khác coi chúng là văn bản thuần túy.
 
-## How to add or update a channel formatter
+## Cách thêm hoặc cập nhật bộ định dạng kênh
 
-1. **Parse once:** use the shared `markdownToIR(...)` helper with channel-appropriate
-   options (autolink, heading style, blockquote prefix).
-2. **Render:** implement a renderer with `renderMarkdownWithMarkers(...)` and a
-   style marker map (or Signal style ranges).
-3. **Chunk:** call `chunkMarkdownIR(...)` before rendering; render each chunk.
-4. **Wire adapter:** update the channel outbound adapter to use the new chunker
-   and renderer.
-5. **Test:** add or update format tests and an outbound delivery test if the
-   channel uses chunking.
+1. **Phân tích một lần:** sử dụng hàm trợ giúp `markdownToIR(...)` với các tùy chọn phù hợp với kênh (tự động liên kết, kiểu tiêu đề, tiền tố blockquote).
+2. **Hiển thị:** triển khai một bộ hiển thị với `renderMarkdownWithMarkers(...)` và một bản đồ đánh dấu kiểu (hoặc phạm vi kiểu Signal).
+3. **Chia nhỏ:** gọi `chunkMarkdownIR(...)` trước khi hiển thị; hiển thị từng đoạn.
+4. **Kết nối bộ điều hợp:** cập nhật bộ điều hợp outbound của kênh để sử dụng bộ chia nhỏ và bộ hiển thị mới.
+5. **Kiểm tra:** thêm hoặc cập nhật các bài kiểm tra định dạng và kiểm tra phân phối outbound nếu kênh sử dụng chia nhỏ.
 
-## Common gotchas
+## Những lưu ý thường gặp
 
-- Slack angle-bracket tokens (`<@U123>`, `<#C123>`, `<https://...>`) must be
-  preserved; escape raw HTML safely.
-- Telegram HTML requires escaping text outside tags to avoid broken markup.
-- Signal style ranges depend on UTF-16 offsets; do not use code point offsets.
-- Preserve trailing newlines for fenced code blocks so closing markers land on
-  their own line.
+- Các token dấu ngoặc nhọn của Slack (`<@U123>`, `<#C123>`, `<https://...>`) phải được giữ nguyên; thoát HTML thô một cách an toàn.
+- HTML của Telegram yêu cầu thoát văn bản ngoài các thẻ để tránh hỏng đánh dấu.
+- Các phạm vi kiểu Signal phụ thuộc vào các vị trí UTF-16; không sử dụng các vị trí điểm mã.
+- Giữ nguyên các dòng mới ở cuối cho các khối mã có hàng rào để các dấu đóng nằm trên dòng riêng của chúng.

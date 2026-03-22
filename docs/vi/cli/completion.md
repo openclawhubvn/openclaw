@@ -1,16 +1,16 @@
 ---
-summary: "CLI reference for `openclaw completion` (generate/install shell completion scripts)"
+summary: "Tham khảo CLI cho `openclaw completion` (tạo/cài đặt script hoàn thành shell)"
 read_when:
-  - You want shell completions for zsh/bash/fish/PowerShell
-  - You need to cache completion scripts under OpenClaw state
+  - Bạn muốn có tính năng hoàn thành lệnh cho zsh/bash/fish/PowerShell
+  - Bạn cần lưu trữ script hoàn thành dưới trạng thái OpenClaw
 title: "completion"
 ---
 
 # `openclaw completion`
 
-Generate shell completion scripts and optionally install them into your shell profile.
+Tạo script hoàn thành lệnh cho shell và tùy chọn cài đặt chúng vào profile shell của bạn.
 
-## Usage
+## Cách sử dụng
 
 ```bash
 openclaw completion
@@ -21,15 +21,15 @@ openclaw completion --write-state
 openclaw completion --shell bash --write-state
 ```
 
-## Options
+## Tùy chọn
 
-- `-s, --shell <shell>`: shell target (`zsh`, `bash`, `powershell`, `fish`; default: `zsh`)
-- `-i, --install`: install completion by adding a source line to your shell profile
-- `--write-state`: write completion script(s) to `$OPENCLAW_STATE_DIR/completions` without printing to stdout
-- `-y, --yes`: skip install confirmation prompts
+- `-s, --shell <shell>`: shell mục tiêu (`zsh`, `bash`, `powershell`, `fish`; mặc định: `zsh`)
+- `-i, --install`: cài đặt hoàn thành bằng cách thêm một dòng nguồn vào profile shell của bạn
+- `--write-state`: ghi script hoàn thành vào `$OPENCLAW_STATE_DIR/completions` mà không in ra stdout
+- `-y, --yes`: bỏ qua các thông báo xác nhận khi cài đặt
 
-## Notes
+## Lưu ý
 
-- `--install` writes a small "OpenClaw Completion" block into your shell profile and points it at the cached script.
-- Without `--install` or `--write-state`, the command prints the script to stdout.
-- Completion generation eagerly loads command trees so nested subcommands are included.
+- `--install` ghi một khối "OpenClaw Completion" nhỏ vào profile shell của bạn và trỏ đến script đã lưu trữ.
+- Nếu không có `--install` hoặc `--write-state`, lệnh sẽ in script ra stdout.
+- Quá trình tạo hoàn thành sẽ tải trước cây lệnh để bao gồm các lệnh con lồng nhau.

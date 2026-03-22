@@ -1,32 +1,32 @@
 ---
-summary: "iMessage via BlueBubbles macOS server (REST send/receive, typing, reactions, pairing, advanced actions)."
+summary: "iMessage qua máy chủ BlueBubbles trên macOS (gửi/nhận REST, trạng thái gõ, phản ứng, ghép nối, hành động nâng cao)."
 read_when:
-  - Setting up BlueBubbles channel
-  - Troubleshooting webhook pairing
-  - Configuring iMessage on macOS
+  - Thiết lập kênh BlueBubbles
+  - Khắc phục sự cố ghép nối webhook
+  - Cấu hình iMessage trên macOS
 title: "BlueBubbles"
 ---
 
 # BlueBubbles (macOS REST)
 
-Status: bundled plugin that talks to the BlueBubbles macOS server over HTTP. **Recommended for iMessage integration** due to its richer API and easier setup compared to the legacy imsg channel.
+Trạng thái: plugin đi kèm giao tiếp với máy chủ BlueBubbles trên macOS qua HTTP. **Được khuyến nghị cho tích hợp iMessage** nhờ API phong phú hơn và dễ thiết lập hơn so với kênh imsg cũ.
 
-## Overview
+## Tổng quan
 
-- Runs on macOS via the BlueBubbles helper app ([bluebubbles.app](https://bluebubbles.app)).
-- Recommended/tested: macOS Sequoia (15). macOS Tahoe (26) works; edit is currently broken on Tahoe, and group icon updates may report success but not sync.
-- OpenClaw talks to it through its REST API (`GET /api/v1/ping`, `POST /message/text`, `POST /chat/:id/*`).
-- Incoming messages arrive via webhooks; outgoing replies, typing indicators, read receipts, and tapbacks are REST calls.
-- Attachments and stickers are ingested as inbound media (and surfaced to the agent when possible).
-- Pairing/allowlist works the same way as other channels (`/channels/pairing` etc) with `channels.bluebubbles.allowFrom` + pairing codes.
-- Reactions are surfaced as system events just like Slack/Telegram so agents can "mention" them before replying.
-- Advanced features: edit, unsend, reply threading, message effects, group management.
+- Chạy trên macOS qua ứng dụng hỗ trợ BlueBubbles ([bluebubbles.app](https://bluebubbles.app)).
+- Khuyến nghị/đã thử nghiệm: macOS Sequoia (15). macOS Tahoe (26) hoạt động; chỉnh sửa hiện tại bị lỗi trên Tahoe, và cập nhật biểu tượng nhóm có thể báo thành công nhưng không đồng bộ.
+- OpenClaw giao tiếp với nó qua REST API (`GET /api/v1/ping`, `POST /message/text`, `POST /chat/:id/*`).
+- Tin nhắn đến qua webhooks; trả lời đi, chỉ báo gõ, biên nhận đã đọc và tapbacks là các cuộc gọi REST.
+- Tệp đính kèm và nhãn dán được xử lý như phương tiện đầu vào (và hiển thị cho agent khi có thể).
+- Ghép nối/danh sách cho phép hoạt động giống như các kênh khác (`/channels/pairing` v.v.) với `channels.bluebubbles.allowFrom` + mã ghép nối.
+- Phản ứng được hiển thị như sự kiện hệ thống giống như Slack/Telegram để agent có thể "đề cập" trước khi trả lời.
+- Tính năng nâng cao: chỉnh sửa, hủy gửi, trả lời theo chuỗi, hiệu ứng tin nhắn, quản lý nhóm.
 
-## Quick start
+## Bắt đầu nhanh
 
-1. Install the BlueBubbles server on your Mac (follow the instructions at [bluebubbles.app/install](https://bluebubbles.app/install)).
-2. In the BlueBubbles config, enable the web API and set a password.
-3. Run `openclaw onboard` and select BlueBubbles, or configure manually:
+1. Cài đặt máy chủ BlueBubbles trên máy Mac (làm theo hướng dẫn tại [bluebubbles.app/install](https://bluebubbles.app/install)).
+2. Trong cấu hình BlueBubbles, bật web API và đặt mật khẩu.
+3. Chạy `openclaw onboard` và chọn BlueBubbles, hoặc cấu hình thủ công:
 
    ```json5
    {
@@ -41,26 +41,26 @@ Status: bundled plugin that talks to the BlueBubbles macOS server over HTTP. **R
    }
    ```
 
-4. Point BlueBubbles webhooks to your gateway (example: `https://your-gateway-host:3000/bluebubbles-webhook?password=<password>`).
-5. Start the gateway; it will register the webhook handler and start pairing.
+4. Chỉ định webhooks của BlueBubbles đến gateway của bạn (ví dụ: `https://your-gateway-host:3000/bluebubbles-webhook?password=<password>`).
+5. Khởi động gateway; nó sẽ đăng ký trình xử lý webhook và bắt đầu ghép nối.
 
-Security note:
+Lưu ý bảo mật:
 
-- Always set a webhook password.
-- Webhook authentication is always required. OpenClaw rejects BlueBubbles webhook requests unless they include a password/guid that matches `channels.bluebubbles.password` (for example `?password=<password>` or `x-password`), regardless of loopback/proxy topology.
-- Password authentication is checked before reading/parsing full webhook bodies.
+- Luôn đặt mật khẩu webhook.
+- Xác thực webhook luôn được yêu cầu. OpenClaw từ chối các yêu cầu webhook của BlueBubbles trừ khi chúng bao gồm mật khẩu/guid khớp với `channels.bluebubbles.password` (ví dụ `?password=<password>` hoặc `x-password`), bất kể cấu trúc loopback/proxy.
+- Xác thực mật khẩu được kiểm tra trước khi đọc/parse toàn bộ nội dung webhook.
 
-## Keeping Messages.app alive (VM / headless setups)
+## Giữ Messages.app hoạt động (VM / thiết lập không có màn hình)
 
-Some macOS VM / always-on setups can end up with Messages.app going “idle” (incoming events stop until the app is opened/foregrounded). A simple workaround is to **poke Messages every 5 minutes** using an AppleScript + LaunchAgent.
+Một số thiết lập macOS VM / luôn bật có thể khiến Messages.app trở nên "nhàn rỗi" (sự kiện đến dừng lại cho đến khi ứng dụng được mở/đưa lên trước). Một cách khắc phục đơn giản là **chạm vào Messages mỗi 5 phút** bằng AppleScript + LaunchAgent.
 
-### 1) Save the AppleScript
+### 1) Lưu AppleScript
 
-Save this as:
+Lưu như sau:
 
 - `~/Scripts/poke-messages.scpt`
 
-Example script (non-interactive; does not steal focus):
+Ví dụ script (không tương tác; không chiếm tiêu điểm):
 
 ```applescript
 try
@@ -69,17 +69,17 @@ try
       launch
     end if
 
-    -- Touch the scripting interface to keep the process responsive.
+    -- Chạm vào giao diện scripting để giữ cho quá trình phản hồi.
     set _chatCount to (count of chats)
   end tell
 on error
-  -- Ignore transient failures (first-run prompts, locked session, etc).
+  -- Bỏ qua các lỗi tạm thời (nhắc nhở lần đầu, phiên bị khóa, v.v.).
 end try
 ```
 
-### 2) Install a LaunchAgent
+### 2) Cài đặt LaunchAgent
 
-Save this as:
+Lưu như sau:
 
 - `~/Library/LaunchAgents/com.user.poke-messages.plist`
 
@@ -112,12 +112,12 @@ Save this as:
 </plist>
 ```
 
-Notes:
+Ghi chú:
 
-- This runs **every 300 seconds** and **on login**.
-- The first run may trigger macOS **Automation** prompts (`osascript` → Messages). Approve them in the same user session that runs the LaunchAgent.
+- Chạy **mỗi 300 giây** và **khi đăng nhập**.
+- Lần chạy đầu tiên có thể kích hoạt nhắc nhở **Tự động hóa** của macOS (`osascript` → Messages). Phê duyệt chúng trong cùng phiên người dùng chạy LaunchAgent.
 
-Load it:
+Tải nó:
 
 ```bash
 launchctl unload ~/Library/LaunchAgents/com.user.poke-messages.plist 2>/dev/null || true
@@ -126,51 +126,51 @@ launchctl load ~/Library/LaunchAgents/com.user.poke-messages.plist
 
 ## Onboarding
 
-BlueBubbles is available in interactive onboarding:
+BlueBubbles có sẵn trong quá trình onboarding tương tác:
 
 ```
 openclaw onboard
 ```
 
-The wizard prompts for:
+Trình hướng dẫn sẽ yêu cầu:
 
-- **Server URL** (required): BlueBubbles server address (e.g., `http://192.168.1.100:1234`)
-- **Password** (required): API password from BlueBubbles Server settings
-- **Webhook path** (optional): Defaults to `/bluebubbles-webhook`
-- **DM policy**: pairing, allowlist, open, or disabled
-- **Allow list**: Phone numbers, emails, or chat targets
+- **Server URL** (bắt buộc): Địa chỉ máy chủ BlueBubbles (ví dụ: `http://192.168.1.100:1234`)
+- **Password** (bắt buộc): Mật khẩu API từ cài đặt máy chủ BlueBubbles
+- **Webhook path** (tùy chọn): Mặc định là `/bluebubbles-webhook`
+- **DM policy**: pairing, allowlist, open, hoặc disabled
+- **Allow list**: Số điện thoại, email, hoặc mục tiêu chat
 
-You can also add BlueBubbles via CLI:
+Bạn cũng có thể thêm BlueBubbles qua CLI:
 
 ```
 openclaw channels add bluebubbles --http-url http://192.168.1.100:1234 --password <password>
 ```
 
-## Access control (DMs + groups)
+## Kiểm soát truy cập (DMs + nhóm)
 
 DMs:
 
-- Default: `channels.bluebubbles.dmPolicy = "pairing"`.
-- Unknown senders receive a pairing code; messages are ignored until approved (codes expire after 1 hour).
-- Approve via:
+- Mặc định: `channels.bluebubbles.dmPolicy = "pairing"`.
+- Người gửi không xác định nhận mã ghép nối; tin nhắn bị bỏ qua cho đến khi được phê duyệt (mã hết hạn sau 1 giờ).
+- Phê duyệt qua:
   - `openclaw pairing list bluebubbles`
   - `openclaw pairing approve bluebubbles <CODE>`
-- Pairing is the default token exchange. Details: [Pairing](/channels/pairing)
+- Ghép nối là trao đổi token mặc định. Chi tiết: [Pairing](/channels/pairing)
 
-Groups:
+Nhóm:
 
-- `channels.bluebubbles.groupPolicy = open | allowlist | disabled` (default: `allowlist`).
-- `channels.bluebubbles.groupAllowFrom` controls who can trigger in groups when `allowlist` is set.
+- `channels.bluebubbles.groupPolicy = open | allowlist | disabled` (mặc định: `allowlist`).
+- `channels.bluebubbles.groupAllowFrom` kiểm soát ai có thể kích hoạt trong nhóm khi `allowlist` được đặt.
 
-### Mention gating (groups)
+### Kiểm soát đề cập (nhóm)
 
-BlueBubbles supports mention gating for group chats, matching iMessage/WhatsApp behavior:
+BlueBubbles hỗ trợ kiểm soát đề cập cho các cuộc trò chuyện nhóm, tương tự như hành vi của iMessage/WhatsApp:
 
-- Uses `agents.list[].groupChat.mentionPatterns` (or `messages.groupChat.mentionPatterns`) to detect mentions.
-- When `requireMention` is enabled for a group, the agent only responds when mentioned.
-- Control commands from authorized senders bypass mention gating.
+- Sử dụng `agents.list[].groupChat.mentionPatterns` (hoặc `messages.groupChat.mentionPatterns`) để phát hiện đề cập.
+- Khi `requireMention` được bật cho một nhóm, agent chỉ phản hồi khi được đề cập.
+- Các lệnh điều khiển từ người gửi được ủy quyền bỏ qua kiểm soát đề cập.
 
-Per-group configuration:
+Cấu hình theo nhóm:
 
 ```json5
 {
@@ -179,169 +179,169 @@ Per-group configuration:
       groupPolicy: "allowlist",
       groupAllowFrom: ["+15555550123"],
       groups: {
-        "*": { requireMention: true }, // default for all groups
-        "iMessage;-;chat123": { requireMention: false }, // override for specific group
+        "*": { requireMention: true }, // mặc định cho tất cả các nhóm
+        "iMessage;-;chat123": { requireMention: false }, // ghi đè cho nhóm cụ thể
       },
     },
   },
 }
 ```
 
-### Command gating
+### Kiểm soát lệnh
 
-- Control commands (e.g., `/config`, `/model`) require authorization.
-- Uses `allowFrom` and `groupAllowFrom` to determine command authorization.
-- Authorized senders can run control commands even without mentioning in groups.
+- Các lệnh điều khiển (ví dụ: `/config`, `/model`) yêu cầu ủy quyền.
+- Sử dụng `allowFrom` và `groupAllowFrom` để xác định ủy quyền lệnh.
+- Người gửi được ủy quyền có thể chạy các lệnh điều khiển ngay cả khi không được đề cập trong nhóm.
 
-## Typing + read receipts
+## Trạng thái gõ + biên nhận đã đọc
 
-- **Typing indicators**: Sent automatically before and during response generation.
-- **Read receipts**: Controlled by `channels.bluebubbles.sendReadReceipts` (default: `true`).
-- **Typing indicators**: OpenClaw sends typing start events; BlueBubbles clears typing automatically on send or timeout (manual stop via DELETE is unreliable).
+- **Chỉ báo gõ**: Gửi tự động trước và trong khi tạo phản hồi.
+- **Biên nhận đã đọc**: Kiểm soát bởi `channels.bluebubbles.sendReadReceipts` (mặc định: `true`).
+- **Chỉ báo gõ**: OpenClaw gửi sự kiện bắt đầu gõ; BlueBubbles tự động xóa trạng thái gõ khi gửi hoặc hết thời gian (dừng thủ công qua DELETE không đáng tin cậy).
 
 ```json5
 {
   channels: {
     bluebubbles: {
-      sendReadReceipts: false, // disable read receipts
+      sendReadReceipts: false, // tắt biên nhận đã đọc
     },
   },
 }
 ```
 
-## Advanced actions
+## Hành động nâng cao
 
-BlueBubbles supports advanced message actions when enabled in config:
+BlueBubbles hỗ trợ các hành động tin nhắn nâng cao khi được bật trong cấu hình:
 
 ```json5
 {
   channels: {
     bluebubbles: {
       actions: {
-        reactions: true, // tapbacks (default: true)
-        edit: true, // edit sent messages (macOS 13+, broken on macOS 26 Tahoe)
-        unsend: true, // unsend messages (macOS 13+)
-        reply: true, // reply threading by message GUID
-        sendWithEffect: true, // message effects (slam, loud, etc.)
-        renameGroup: true, // rename group chats
-        setGroupIcon: true, // set group chat icon/photo (flaky on macOS 26 Tahoe)
-        addParticipant: true, // add participants to groups
-        removeParticipant: true, // remove participants from groups
-        leaveGroup: true, // leave group chats
-        sendAttachment: true, // send attachments/media
+        reactions: true, // tapbacks (mặc định: true)
+        edit: true, // chỉnh sửa tin nhắn đã gửi (macOS 13+, lỗi trên macOS 26 Tahoe)
+        unsend: true, // hủy gửi tin nhắn (macOS 13+)
+        reply: true, // trả lời theo chuỗi bằng GUID tin nhắn
+        sendWithEffect: true, // hiệu ứng tin nhắn (slam, loud, v.v.)
+        renameGroup: true, // đổi tên nhóm chat
+        setGroupIcon: true, // đặt biểu tượng/ảnh nhóm chat (không ổn định trên macOS 26 Tahoe)
+        addParticipant: true, // thêm thành viên vào nhóm
+        removeParticipant: true, // xóa thành viên khỏi nhóm
+        leaveGroup: true, // rời nhóm chat
+        sendAttachment: true, // gửi tệp đính kèm/phương tiện
       },
     },
   },
 }
 ```
 
-Available actions:
+Các hành động có sẵn:
 
-- **react**: Add/remove tapback reactions (`messageId`, `emoji`, `remove`)
-- **edit**: Edit a sent message (`messageId`, `text`)
-- **unsend**: Unsend a message (`messageId`)
-- **reply**: Reply to a specific message (`messageId`, `text`, `to`)
-- **sendWithEffect**: Send with iMessage effect (`text`, `to`, `effectId`)
-- **renameGroup**: Rename a group chat (`chatGuid`, `displayName`)
-- **setGroupIcon**: Set a group chat's icon/photo (`chatGuid`, `media`) — flaky on macOS 26 Tahoe (API may return success but the icon does not sync).
-- **addParticipant**: Add someone to a group (`chatGuid`, `address`)
-- **removeParticipant**: Remove someone from a group (`chatGuid`, `address`)
-- **leaveGroup**: Leave a group chat (`chatGuid`)
-- **sendAttachment**: Send media/files (`to`, `buffer`, `filename`, `asVoice`)
-  - Voice memos: set `asVoice: true` with **MP3** or **CAF** audio to send as an iMessage voice message. BlueBubbles converts MP3 → CAF when sending voice memos.
+- **react**: Thêm/xóa phản ứng tapback (`messageId`, `emoji`, `remove`)
+- **edit**: Chỉnh sửa tin nhắn đã gửi (`messageId`, `text`)
+- **unsend**: Hủy gửi tin nhắn (`messageId`)
+- **reply**: Trả lời một tin nhắn cụ thể (`messageId`, `text`, `to`)
+- **sendWithEffect**: Gửi với hiệu ứng iMessage (`text`, `to`, `effectId`)
+- **renameGroup**: Đổi tên nhóm chat (`chatGuid`, `displayName`)
+- **setGroupIcon**: Đặt biểu tượng/ảnh nhóm chat (`chatGuid`, `media`) — không ổn định trên macOS 26 Tahoe (API có thể trả về thành công nhưng biểu tượng không đồng bộ).
+- **addParticipant**: Thêm ai đó vào nhóm (`chatGuid`, `address`)
+- **removeParticipant**: Xóa ai đó khỏi nhóm (`chatGuid`, `address`)
+- **leaveGroup**: Rời nhóm chat (`chatGuid`)
+- **sendAttachment**: Gửi phương tiện/tệp (`to`, `buffer`, `filename`, `asVoice`)
+  - Ghi âm: đặt `asVoice: true` với âm thanh **MP3** hoặc **CAF** để gửi dưới dạng tin nhắn thoại iMessage. BlueBubbles chuyển đổi MP3 → CAF khi gửi ghi âm.
 
-### Message IDs (short vs full)
+### ID tin nhắn (ngắn vs đầy đủ)
 
-OpenClaw may surface _short_ message IDs (e.g., `1`, `2`) to save tokens.
+OpenClaw có thể hiển thị ID tin nhắn _ngắn_ (ví dụ: `1`, `2`) để tiết kiệm token.
 
-- `MessageSid` / `ReplyToId` can be short IDs.
-- `MessageSidFull` / `ReplyToIdFull` contain the provider full IDs.
-- Short IDs are in-memory; they can expire on restart or cache eviction.
-- Actions accept short or full `messageId`, but short IDs will error if no longer available.
+- `MessageSid` / `ReplyToId` có thể là ID ngắn.
+- `MessageSidFull` / `ReplyToIdFull` chứa ID đầy đủ của nhà cung cấp.
+- ID ngắn là trong bộ nhớ; chúng có thể hết hạn khi khởi động lại hoặc xóa bộ nhớ cache.
+- Hành động chấp nhận ID ngắn hoặc đầy đủ `messageId`, nhưng ID ngắn sẽ báo lỗi nếu không còn khả dụng.
 
-Use full IDs for durable automations and storage:
+Sử dụng ID đầy đủ cho tự động hóa và lưu trữ bền vững:
 
-- Templates: `{{MessageSidFull}}`, `{{ReplyToIdFull}}`
-- Context: `MessageSidFull` / `ReplyToIdFull` in inbound payloads
+- Mẫu: `{{MessageSidFull}}`, `{{ReplyToIdFull}}`
+- Ngữ cảnh: `MessageSidFull` / `ReplyToIdFull` trong payload đầu vào
 
-See [Configuration](/gateway/configuration) for template variables.
+Xem [Cấu hình](/gateway/configuration) để biết biến mẫu.
 
-## Block streaming
+## Phân phối theo khối
 
-Control whether responses are sent as a single message or streamed in blocks:
+Kiểm soát xem phản hồi được gửi dưới dạng một tin nhắn duy nhất hay được phân phối theo khối:
 
 ```json5
 {
   channels: {
     bluebubbles: {
-      blockStreaming: true, // enable block streaming (off by default)
+      blockStreaming: true, // bật phân phối theo khối (tắt theo mặc định)
     },
   },
 }
 ```
 
-## Media + limits
+## Phương tiện + giới hạn
 
-- Inbound attachments are downloaded and stored in the media cache.
-- Media cap via `channels.bluebubbles.mediaMaxMb` for inbound and outbound media (default: 8 MB).
-- Outbound text is chunked to `channels.bluebubbles.textChunkLimit` (default: 4000 chars).
+- Tệp đính kèm đầu vào được tải xuống và lưu trữ trong bộ nhớ cache phương tiện.
+- Giới hạn phương tiện qua `channels.bluebubbles.mediaMaxMb` cho phương tiện đầu vào và đầu ra (mặc định: 8 MB).
+- Văn bản đầu ra được chia nhỏ thành `channels.bluebubbles.textChunkLimit` (mặc định: 4000 ký tự).
 
-## Configuration reference
+## Tham khảo cấu hình
 
-Full configuration: [Configuration](/gateway/configuration)
+Cấu hình đầy đủ: [Cấu hình](/gateway/configuration)
 
-Provider options:
+Tùy chọn nhà cung cấp:
 
-- `channels.bluebubbles.enabled`: Enable/disable the channel.
-- `channels.bluebubbles.serverUrl`: BlueBubbles REST API base URL.
-- `channels.bluebubbles.password`: API password.
-- `channels.bluebubbles.webhookPath`: Webhook endpoint path (default: `/bluebubbles-webhook`).
-- `channels.bluebubbles.dmPolicy`: `pairing | allowlist | open | disabled` (default: `pairing`).
-- `channels.bluebubbles.allowFrom`: DM allowlist (handles, emails, E.164 numbers, `chat_id:*`, `chat_guid:*`).
-- `channels.bluebubbles.groupPolicy`: `open | allowlist | disabled` (default: `allowlist`).
-- `channels.bluebubbles.groupAllowFrom`: Group sender allowlist.
-- `channels.bluebubbles.groups`: Per-group config (`requireMention`, etc.).
-- `channels.bluebubbles.sendReadReceipts`: Send read receipts (default: `true`).
-- `channels.bluebubbles.blockStreaming`: Enable block streaming (default: `false`; required for streaming replies).
-- `channels.bluebubbles.textChunkLimit`: Outbound chunk size in chars (default: 4000).
-- `channels.bluebubbles.chunkMode`: `length` (default) splits only when exceeding `textChunkLimit`; `newline` splits on blank lines (paragraph boundaries) before length chunking.
-- `channels.bluebubbles.mediaMaxMb`: Inbound/outbound media cap in MB (default: 8).
-- `channels.bluebubbles.mediaLocalRoots`: Explicit allowlist of absolute local directories permitted for outbound local media paths. Local path sends are denied by default unless this is configured. Per-account override: `channels.bluebubbles.accounts.<accountId>.mediaLocalRoots`.
-- `channels.bluebubbles.historyLimit`: Max group messages for context (0 disables).
-- `channels.bluebubbles.dmHistoryLimit`: DM history limit.
-- `channels.bluebubbles.actions`: Enable/disable specific actions.
-- `channels.bluebubbles.accounts`: Multi-account configuration.
+- `channels.bluebubbles.enabled`: Bật/tắt kênh.
+- `channels.bluebubbles.serverUrl`: URL cơ sở REST API của BlueBubbles.
+- `channels.bluebubbles.password`: Mật khẩu API.
+- `channels.bluebubbles.webhookPath`: Đường dẫn endpoint webhook (mặc định: `/bluebubbles-webhook`).
+- `channels.bluebubbles.dmPolicy`: `pairing | allowlist | open | disabled` (mặc định: `pairing`).
+- `channels.bluebubbles.allowFrom`: Danh sách cho phép DM (handles, emails, số E.164, `chat_id:*`, `chat_guid:*`).
+- `channels.bluebubbles.groupPolicy`: `open | allowlist | disabled` (mặc định: `allowlist`).
+- `channels.bluebubbles.groupAllowFrom`: Danh sách cho phép người gửi nhóm.
+- `channels.bluebubbles.groups`: Cấu hình theo nhóm (`requireMention`, v.v.).
+- `channels.bluebubbles.sendReadReceipts`: Gửi biên nhận đã đọc (mặc định: `true`).
+- `channels.bluebubbles.blockStreaming`: Bật phân phối theo khối (mặc định: `false`; cần thiết cho phản hồi phân phối).
+- `channels.bluebubbles.textChunkLimit`: Kích thước khối văn bản đầu ra tính bằng ký tự (mặc định: 4000).
+- `channels.bluebubbles.chunkMode`: `length` (mặc định) chỉ chia khi vượt quá `textChunkLimit`; `newline` chia theo dòng trống (ranh giới đoạn) trước khi chia theo độ dài.
+- `channels.bluebubbles.mediaMaxMb`: Giới hạn phương tiện đầu vào/đầu ra tính bằng MB (mặc định: 8).
+- `channels.bluebubbles.mediaLocalRoots`: Danh sách cho phép rõ ràng các thư mục cục bộ tuyệt đối được phép cho các đường dẫn phương tiện cục bộ đầu ra. Gửi đường dẫn cục bộ bị từ chối theo mặc định trừ khi được cấu hình. Ghi đè theo tài khoản: `channels.bluebubbles.accounts.<accountId>.mediaLocalRoots`.
+- `channels.bluebubbles.historyLimit`: Giới hạn tin nhắn nhóm tối đa cho ngữ cảnh (0 vô hiệu hóa).
+- `channels.bluebubbles.dmHistoryLimit`: Giới hạn lịch sử DM.
+- `channels.bluebubbles.actions`: Bật/tắt các hành động cụ thể.
+- `channels.bluebubbles.accounts`: Cấu hình đa tài khoản.
 
-Related global options:
+Tùy chọn toàn cầu liên quan:
 
-- `agents.list[].groupChat.mentionPatterns` (or `messages.groupChat.mentionPatterns`).
+- `agents.list[].groupChat.mentionPatterns` (hoặc `messages.groupChat.mentionPatterns`).
 - `messages.responsePrefix`.
 
-## Addressing / delivery targets
+## Địa chỉ / mục tiêu phân phối
 
-Prefer `chat_guid` for stable routing:
+Ưu tiên `chat_guid` để định tuyến ổn định:
 
-- `chat_guid:iMessage;-;+15555550123` (preferred for groups)
+- `chat_guid:iMessage;-;+15555550123` (ưu tiên cho nhóm)
 - `chat_id:123`
 - `chat_identifier:...`
-- Direct handles: `+15555550123`, `user@example.com`
-  - If a direct handle does not have an existing DM chat, OpenClaw will create one via `POST /api/v1/chat/new`. This requires the BlueBubbles Private API to be enabled.
+- Handles trực tiếp: `+15555550123`, `user@example.com`
+  - Nếu một handle trực tiếp không có cuộc trò chuyện DM hiện có, OpenClaw sẽ tạo một cuộc trò chuyện qua `POST /api/v1/chat/new`. Điều này yêu cầu API riêng của BlueBubbles được bật.
 
-## Security
+## Bảo mật
 
-- Webhook requests are authenticated by comparing `guid`/`password` query params or headers against `channels.bluebubbles.password`. Requests from `localhost` are also accepted.
-- Keep the API password and webhook endpoint secret (treat them like credentials).
-- Localhost trust means a same-host reverse proxy can unintentionally bypass the password. If you proxy the gateway, require auth at the proxy and configure `gateway.trustedProxies`. See [Gateway security](/gateway/security#reverse-proxy-configuration).
-- Enable HTTPS + firewall rules on the BlueBubbles server if exposing it outside your LAN.
+- Các yêu cầu webhook được xác thực bằng cách so sánh các tham số truy vấn hoặc tiêu đề `guid`/`password` với `channels.bluebubbles.password`. Các yêu cầu từ `localhost` cũng được chấp nhận.
+- Giữ bí mật mật khẩu API và endpoint webhook (xem chúng như thông tin đăng nhập).
+- Tin tưởng localhost có nghĩa là một proxy ngược cùng máy chủ có thể vô tình bỏ qua mật khẩu. Nếu bạn proxy gateway, yêu cầu xác thực tại proxy và cấu hình `gateway.trustedProxies`. Xem [Bảo mật Gateway](/gateway/security#reverse-proxy-configuration).
+- Bật HTTPS + quy tắc tường lửa trên máy chủ BlueBubbles nếu bạn mở nó ra ngoài mạng LAN của mình.
 
-## Troubleshooting
+## Khắc phục sự cố
 
-- If typing/read events stop working, check the BlueBubbles webhook logs and verify the gateway path matches `channels.bluebubbles.webhookPath`.
-- Pairing codes expire after one hour; use `openclaw pairing list bluebubbles` and `openclaw pairing approve bluebubbles <code>`.
-- Reactions require the BlueBubbles private API (`POST /api/v1/message/react`); ensure the server version exposes it.
-- Edit/unsend require macOS 13+ and a compatible BlueBubbles server version. On macOS 26 (Tahoe), edit is currently broken due to private API changes.
-- Group icon updates can be flaky on macOS 26 (Tahoe): the API may return success but the new icon does not sync.
-- OpenClaw auto-hides known-broken actions based on the BlueBubbles server's macOS version. If edit still appears on macOS 26 (Tahoe), disable it manually with `channels.bluebubbles.actions.edit=false`.
-- For status/health info: `openclaw status --all` or `openclaw status --deep`.
+- Nếu sự kiện gõ/đọc ngừng hoạt động, kiểm tra nhật ký webhook của BlueBubbles và xác minh đường dẫn gateway khớp với `channels.bluebubbles.webhookPath`.
+- Mã ghép nối hết hạn sau một giờ; sử dụng `openclaw pairing list bluebubbles` và `openclaw pairing approve bluebubbles <code>`.
+- Phản ứng yêu cầu API riêng của BlueBubbles (`POST /api/v1/message/react`); đảm bảo phiên bản máy chủ cung cấp nó.
+- Chỉnh sửa/hủy gửi yêu cầu macOS 13+ và phiên bản máy chủ BlueBubbles tương thích. Trên macOS 26 (Tahoe), chỉnh sửa hiện tại bị lỗi do thay đổi API riêng.
+- Cập nhật biểu tượng nhóm có thể không ổn định trên macOS 26 (Tahoe): API có thể trả về thành công nhưng biểu tượng mới không đồng bộ.
+- OpenClaw tự động ẩn các hành động đã biết bị lỗi dựa trên phiên bản macOS của máy chủ BlueBubbles. Nếu chỉnh sửa vẫn xuất hiện trên macOS 26 (Tahoe), tắt nó thủ công với `channels.bluebubbles.actions.edit=false`.
+- Để biết thông tin trạng thái/sức khỏe: `openclaw status --all` hoặc `openclaw status --deep`.
 
-For general channel workflow reference, see [Channels](/channels) and the [Plugins](/tools/plugin) guide.
+Để tham khảo quy trình làm việc của kênh chung, xem [Channels](/channels) và hướng dẫn [Plugins](/tools/plugin).

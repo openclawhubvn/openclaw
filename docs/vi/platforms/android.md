@@ -1,94 +1,94 @@
 ---
-summary: "Android app (node): connection runbook + Connect/Chat/Voice/Canvas command surface"
+summary: "Ứng dụng Android (node): hướng dẫn kết nối + bề mặt lệnh Connect/Chat/Voice/Canvas"
 read_when:
-  - Pairing or reconnecting the Android node
-  - Debugging Android gateway discovery or auth
-  - Verifying chat history parity across clients
-title: "Android App"
+  - Ghép đôi hoặc kết nối lại node Android
+  - Gỡ lỗi phát hiện hoặc xác thực gateway Android
+  - Xác minh lịch sử chat đồng bộ trên các client
+title: "Ứng dụng Android"
 ---
 
-# Android App (Node)
+# Ứng dụng Android (Node)
 
-> **Note:** The Android app has not been publicly released yet. The source code is available in the [OpenClaw repository](https://github.com/openclaw/openclaw) under `apps/android`. You can build it yourself using Java 17 and the Android SDK (`./gradlew :app:assemblePlayDebug`). See [apps/android/README.md](https://github.com/openclaw/openclaw/blob/main/apps/android/README.md) for build instructions.
+> **Lưu ý:** Ứng dụng Android chưa được phát hành công khai. Mã nguồn có sẵn trong [kho OpenClaw](https://github.com/openclaw/openclaw) dưới `apps/android`. Bạn có thể tự xây dựng bằng Java 17 và Android SDK (`./gradlew :app:assemblePlayDebug`). Xem [apps/android/README.md](https://github.com/openclaw/openclaw/blob/main/apps/android/README.md) để biết hướng dẫn xây dựng.
 
-## Support snapshot
+## Hỗ trợ snapshot
 
-- Role: companion node app (Android does not host the Gateway).
-- Gateway required: yes (run it on macOS, Linux, or Windows via WSL2).
-- Install: [Getting Started](/start/getting-started) + [Pairing](/channels/pairing).
-- Gateway: [Runbook](/gateway) + [Configuration](/gateway/configuration).
-  - Protocols: [Gateway protocol](/gateway/protocol) (nodes + control plane).
+- Vai trò: ứng dụng node đồng hành (Android không lưu trữ Gateway).
+- Yêu cầu Gateway: có (chạy trên macOS, Linux, hoặc Windows qua WSL2).
+- Cài đặt: [Bắt đầu](/start/getting-started) + [Ghép đôi](/channels/pairing).
+- Gateway: [Hướng dẫn](/gateway) + [Cấu hình](/gateway/configuration).
+  - Giao thức: [Giao thức Gateway](/gateway/protocol) (nodes + control plane).
 
-## System control
+## Kiểm soát hệ thống
 
-System control (launchd/systemd) lives on the Gateway host. See [Gateway](/gateway).
+Kiểm soát hệ thống (launchd/systemd) nằm trên máy chủ Gateway. Xem [Gateway](/gateway).
 
-## Connection Runbook
+## Hướng dẫn kết nối
 
-Android node app ⇄ (mDNS/NSD + WebSocket) ⇄ **Gateway**
+Ứng dụng node Android ⇄ (mDNS/NSD + WebSocket) ⇄ **Gateway**
 
-Android connects directly to the Gateway WebSocket (default `ws://<host>:18789`) and uses device pairing (`role: node`).
+Android kết nối trực tiếp đến Gateway WebSocket (mặc định `ws://<host>:18789`) và sử dụng ghép đôi thiết bị (`role: node`).
 
-### Prerequisites
+### Điều kiện tiên quyết
 
-- You can run the Gateway on the “master” machine.
-- Android device/emulator can reach the gateway WebSocket:
-  - Same LAN with mDNS/NSD, **or**
-  - Same Tailscale tailnet using Wide-Area Bonjour / unicast DNS-SD (see below), **or**
-  - Manual gateway host/port (fallback)
-- You can run the CLI (`openclaw`) on the gateway machine (or via SSH).
+- Có thể chạy Gateway trên máy "chủ".
+- Thiết bị/emulator Android có thể truy cập WebSocket của gateway:
+  - Cùng mạng LAN với mDNS/NSD, **hoặc**
+  - Cùng mạng Tailscale sử dụng Wide-Area Bonjour / unicast DNS-SD (xem bên dưới), **hoặc**
+  - Thủ công nhập host/port của gateway (dự phòng)
+- Có thể chạy CLI (`openclaw`) trên máy gateway (hoặc qua SSH).
 
-### 1) Start the Gateway
+### 1) Khởi động Gateway
 
 ```bash
 openclaw gateway --port 18789 --verbose
 ```
 
-Confirm in logs you see something like:
+Xác nhận trong log bạn thấy điều gì đó như:
 
 - `listening on ws://0.0.0.0:18789`
 
-For tailnet-only setups (recommended for Vienna ⇄ London), bind the gateway to the tailnet IP:
+Đối với thiết lập chỉ tailnet (khuyến nghị cho Vienna ⇄ London), gán gateway vào IP tailnet:
 
-- Set `gateway.bind: "tailnet"` in `~/.openclaw/openclaw.json` on the gateway host.
-- Restart the Gateway / macOS menubar app.
+- Đặt `gateway.bind: "tailnet"` trong `~/.openclaw/openclaw.json` trên máy chủ gateway.
+- Khởi động lại Gateway / ứng dụng menubar macOS.
 
-### 2) Verify discovery (optional)
+### 2) Xác minh phát hiện (tùy chọn)
 
-From the gateway machine:
+Từ máy gateway:
 
 ```bash
 dns-sd -B _openclaw-gw._tcp local.
 ```
 
-More debugging notes: [Bonjour](/gateway/bonjour).
+Thêm ghi chú gỡ lỗi: [Bonjour](/gateway/bonjour).
 
-#### Tailnet (Vienna ⇄ London) discovery via unicast DNS-SD
+#### Phát hiện Tailnet (Vienna ⇄ London) qua unicast DNS-SD
 
-Android NSD/mDNS discovery won’t cross networks. If your Android node and the gateway are on different networks but connected via Tailscale, use Wide-Area Bonjour / unicast DNS-SD instead:
+Phát hiện NSD/mDNS của Android sẽ không vượt qua các mạng. Nếu node Android và gateway ở trên các mạng khác nhau nhưng kết nối qua Tailscale, sử dụng Wide-Area Bonjour / unicast DNS-SD thay thế:
 
-1. Set up a DNS-SD zone (example `openclaw.internal.`) on the gateway host and publish `_openclaw-gw._tcp` records.
-2. Configure Tailscale split DNS for your chosen domain pointing at that DNS server.
+1. Thiết lập một vùng DNS-SD (ví dụ `openclaw.internal.`) trên máy chủ gateway và công bố các bản ghi `_openclaw-gw._tcp`.
+2. Cấu hình Tailscale split DNS cho miền đã chọn trỏ vào máy chủ DNS đó.
 
-Details and example CoreDNS config: [Bonjour](/gateway/bonjour).
+Chi tiết và cấu hình CoreDNS ví dụ: [Bonjour](/gateway/bonjour).
 
-### 3) Connect from Android
+### 3) Kết nối từ Android
 
-In the Android app:
+Trong ứng dụng Android:
 
-- The app keeps its gateway connection alive via a **foreground service** (persistent notification).
-- Open the **Connect** tab.
-- Use **Setup Code** or **Manual** mode.
-- If discovery is blocked, use manual host/port (and TLS/token/password when required) in **Advanced controls**.
+- Ứng dụng giữ kết nối gateway thông qua một **dịch vụ nền** (thông báo liên tục).
+- Mở tab **Connect**.
+- Sử dụng **Setup Code** hoặc chế độ **Manual**.
+- Nếu phát hiện bị chặn, sử dụng host/port thủ công (và TLS/token/mật khẩu khi cần) trong **Advanced controls**.
 
-After the first successful pairing, Android auto-reconnects on launch:
+Sau lần ghép đôi thành công đầu tiên, Android tự động kết nối lại khi khởi động:
 
-- Manual endpoint (if enabled), otherwise
-- The last discovered gateway (best-effort).
+- Điểm cuối thủ công (nếu được bật), nếu không
+- Gateway cuối cùng được phát hiện (nỗ lực tốt nhất).
 
-### 4) Approve pairing (CLI)
+### 4) Phê duyệt ghép đôi (CLI)
 
-On the gateway machine:
+Trên máy gateway:
 
 ```bash
 openclaw devices list
@@ -96,68 +96,68 @@ openclaw devices approve <requestId>
 openclaw devices reject <requestId>
 ```
 
-Pairing details: [Pairing](/channels/pairing).
+Chi tiết ghép đôi: [Ghép đôi](/channels/pairing).
 
-### 5) Verify the node is connected
+### 5) Xác minh node đã kết nối
 
-- Via nodes status:
+- Qua trạng thái nodes:
 
   ```bash
   openclaw nodes status
   ```
 
-- Via Gateway:
+- Qua Gateway:
 
   ```bash
   openclaw gateway call node.list --params "{}"
   ```
 
-### 6) Chat + history
+### 6) Chat + lịch sử
 
-The Android Chat tab supports session selection (default `main`, plus other existing sessions):
+Tab Chat của Android hỗ trợ lựa chọn phiên (mặc định `main`, cùng với các phiên khác đã tồn tại):
 
-- History: `chat.history`
-- Send: `chat.send`
-- Push updates (best-effort): `chat.subscribe` → `event:"chat"`
+- Lịch sử: `chat.history`
+- Gửi: `chat.send`
+- Cập nhật đẩy (nỗ lực tốt nhất): `chat.subscribe` → `event:"chat"`
 
 ### 7) Canvas + camera
 
-#### Gateway Canvas Host (recommended for web content)
+#### Máy chủ Canvas Gateway (khuyến nghị cho nội dung web)
 
-If you want the node to show real HTML/CSS/JS that the agent can edit on disk, point the node at the Gateway canvas host.
+Nếu muốn node hiển thị HTML/CSS/JS thực mà agent có thể chỉnh sửa trên đĩa, hãy trỏ node vào máy chủ canvas của Gateway.
 
-Note: nodes load canvas from the Gateway HTTP server (same port as `gateway.port`, default `18789`).
+Lưu ý: nodes tải canvas từ máy chủ HTTP của Gateway (cùng cổng với `gateway.port`, mặc định `18789`).
 
-1. Create `~/.openclaw/workspace/canvas/index.html` on the gateway host.
+1. Tạo `~/.openclaw/workspace/canvas/index.html` trên máy chủ gateway.
 
-2. Navigate the node to it (LAN):
+2. Điều hướng node đến đó (LAN):
 
 ```bash
 openclaw nodes invoke --node "<Android Node>" --command canvas.navigate --params '{"url":"http://<gateway-hostname>.local:18789/__openclaw__/canvas/"}'
 ```
 
-Tailnet (optional): if both devices are on Tailscale, use a MagicDNS name or tailnet IP instead of `.local`, e.g. `http://<gateway-magicdns>:18789/__openclaw__/canvas/`.
+Tailnet (tùy chọn): nếu cả hai thiết bị đều trên Tailscale, sử dụng tên MagicDNS hoặc IP tailnet thay vì `.local`, ví dụ `http://<gateway-magicdns>:18789/__openclaw__/canvas/`.
 
-This server injects a live-reload client into HTML and reloads on file changes.
-The A2UI host lives at `http://<gateway-host>:18789/__openclaw__/a2ui/`.
+Máy chủ này chèn một client tải lại trực tiếp vào HTML và tải lại khi có thay đổi tệp.
+Máy chủ A2UI nằm tại `http://<gateway-host>:18789/__openclaw__/a2ui/`.
 
-Canvas commands (foreground only):
+Lệnh Canvas (chỉ nền trước):
 
-- `canvas.eval`, `canvas.snapshot`, `canvas.navigate` (use `{"url":""}` or `{"url":"/"}` to return to the default scaffold). `canvas.snapshot` returns `{ format, base64 }` (default `format="jpeg"`).
-- A2UI: `canvas.a2ui.push`, `canvas.a2ui.reset` (`canvas.a2ui.pushJSONL` legacy alias)
+- `canvas.eval`, `canvas.snapshot`, `canvas.navigate` (sử dụng `{"url":""}` hoặc `{"url":"/"}` để quay lại scaffold mặc định). `canvas.snapshot` trả về `{ format, base64 }` (mặc định `format="jpeg"`).
+- A2UI: `canvas.a2ui.push`, `canvas.a2ui.reset` (`canvas.a2ui.pushJSONL` alias cũ)
 
-Camera commands (foreground only; permission-gated):
+Lệnh Camera (chỉ nền trước; có quyền):
 
 - `camera.snap` (jpg)
 - `camera.clip` (mp4)
 
-See [Camera node](/nodes/camera) for parameters and CLI helpers.
+Xem [Node Camera](/nodes/camera) để biết tham số và trợ giúp CLI.
 
-### 8) Voice + expanded Android command surface
+### 8) Voice + bề mặt lệnh Android mở rộng
 
-- Voice: Android uses a single mic on/off flow in the Voice tab with transcript capture and TTS playback (ElevenLabs when configured, system TTS fallback). Voice stops when the app leaves the foreground.
-- Voice wake/talk-mode toggles are currently removed from Android UX/runtime.
-- Additional Android command families (availability depends on device + permissions):
+- Voice: Android sử dụng một luồng mic bật/tắt duy nhất trong tab Voice với ghi âm và phát lại TTS (ElevenLabs khi được cấu hình, hệ thống TTS dự phòng). Voice dừng khi ứng dụng rời khỏi nền trước.
+- Các công tắc wake/talk-mode của Voice hiện đã bị loại bỏ khỏi UX/runtime của Android.
+- Các nhóm lệnh Android bổ sung (tùy thuộc vào thiết bị + quyền):
   - `device.status`, `device.info`, `device.permissions`, `device.health`
   - `notifications.list`, `notifications.actions`
   - `photos.latest`

@@ -1,46 +1,44 @@
 ---
-summary: "Synology Chat webhook setup and OpenClaw config"
+summary: "Cài đặt webhook Synology Chat và cấu hình OpenClaw"
 read_when:
-  - Setting up Synology Chat with OpenClaw
-  - Debugging Synology Chat webhook routing
+  - Cài đặt Synology Chat với OpenClaw
+  - Khắc phục sự cố định tuyến webhook Synology Chat
 title: "Synology Chat"
 ---
 
 # Synology Chat (plugin)
 
-Status: supported via plugin as a direct-message channel using Synology Chat webhooks.
-The plugin accepts inbound messages from Synology Chat outgoing webhooks and sends replies
-through a Synology Chat incoming webhook.
+Trạng thái: được hỗ trợ qua plugin như một kênh tin nhắn trực tiếp sử dụng webhooks của Synology Chat. Plugin này nhận tin nhắn từ các outgoing webhook của Synology Chat và gửi phản hồi qua incoming webhook của Synology Chat.
 
-## Plugin required
+## Yêu cầu plugin
 
-Synology Chat is plugin-based and not part of the default core channel install.
+Synology Chat dựa trên plugin và không phải là một phần của cài đặt kênh mặc định.
 
-Install from a local checkout:
+Cài đặt từ bản sao cục bộ:
 
 ```bash
 openclaw plugins install ./extensions/synology-chat
 ```
 
-Details: [Plugins](/tools/plugin)
+Chi tiết: [Plugins](/tools/plugin)
 
-## Quick setup
+## Cài đặt nhanh
 
-1. Install and enable the Synology Chat plugin.
-   - `openclaw onboard` now shows Synology Chat in the same channel setup list as `openclaw channels add`.
-   - Non-interactive setup: `openclaw channels add --channel synology-chat --token <token> --url <incoming-webhook-url>`
-2. In Synology Chat integrations:
-   - Create an incoming webhook and copy its URL.
-   - Create an outgoing webhook with your secret token.
-3. Point the outgoing webhook URL to your OpenClaw gateway:
-   - `https://gateway-host/webhook/synology` by default.
-   - Or your custom `channels.synology-chat.webhookPath`.
-4. Finish setup in OpenClaw.
-   - Guided: `openclaw onboard`
-   - Direct: `openclaw channels add --channel synology-chat --token <token> --url <incoming-webhook-url>`
-5. Restart gateway and send a DM to the Synology Chat bot.
+1. Cài đặt và kích hoạt plugin Synology Chat.
+   - `openclaw onboard` hiện hiển thị Synology Chat trong danh sách cài đặt kênh như `openclaw channels add`.
+   - Cài đặt không tương tác: `openclaw channels add --channel synology-chat --token <token> --url <incoming-webhook-url>`
+2. Trong phần tích hợp của Synology Chat:
+   - Tạo một incoming webhook và sao chép URL của nó.
+   - Tạo một outgoing webhook với secret token của bạn.
+3. Trỏ URL của outgoing webhook đến gateway của OpenClaw:
+   - Mặc định là `https://gateway-host/webhook/synology`.
+   - Hoặc `channels.synology-chat.webhookPath` tùy chỉnh của bạn.
+4. Hoàn tất cài đặt trong OpenClaw.
+   - Hướng dẫn: `openclaw onboard`
+   - Trực tiếp: `openclaw channels add --channel synology-chat --token <token> --url <incoming-webhook-url>`
+5. Khởi động lại gateway và gửi tin nhắn trực tiếp đến bot Synology Chat.
 
-Minimal config:
+Cấu hình tối thiểu:
 
 ```json5
 {
@@ -59,47 +57,46 @@ Minimal config:
 }
 ```
 
-## Environment variables
+## Biến môi trường
 
-For the default account, you can use env vars:
+Đối với tài khoản mặc định, bạn có thể sử dụng các biến môi trường:
 
 - `SYNOLOGY_CHAT_TOKEN`
 - `SYNOLOGY_CHAT_INCOMING_URL`
 - `SYNOLOGY_NAS_HOST`
-- `SYNOLOGY_ALLOWED_USER_IDS` (comma-separated)
+- `SYNOLOGY_ALLOWED_USER_IDS` (phân tách bằng dấu phẩy)
 - `SYNOLOGY_RATE_LIMIT`
 - `OPENCLAW_BOT_NAME`
 
-Config values override env vars.
+Giá trị cấu hình sẽ ghi đè các biến môi trường.
 
-## DM policy and access control
+## Chính sách DM và kiểm soát truy cập
 
-- `dmPolicy: "allowlist"` is the recommended default.
-- `allowedUserIds` accepts a list (or comma-separated string) of Synology user IDs.
-- In `allowlist` mode, an empty `allowedUserIds` list is treated as misconfiguration and the webhook route will not start (use `dmPolicy: "open"` for allow-all).
-- `dmPolicy: "open"` allows any sender.
-- `dmPolicy: "disabled"` blocks DMs.
-- Pairing approvals work with:
+- `dmPolicy: "allowlist"` là mặc định được khuyến nghị.
+- `allowedUserIds` chấp nhận danh sách (hoặc chuỗi phân tách bằng dấu phẩy) các ID người dùng Synology.
+- Trong chế độ `allowlist`, danh sách `allowedUserIds` trống được coi là cấu hình sai và tuyến webhook sẽ không khởi động (sử dụng `dmPolicy: "open"` để cho phép tất cả).
+- `dmPolicy: "open"` cho phép bất kỳ người gửi nào.
+- `dmPolicy: "disabled"` chặn tin nhắn trực tiếp.
+- Phê duyệt ghép đôi hoạt động với:
   - `openclaw pairing list synology-chat`
   - `openclaw pairing approve synology-chat <CODE>`
 
-## Outbound delivery
+## Gửi đi
 
-Use numeric Synology Chat user IDs as targets.
+Sử dụng ID người dùng Synology Chat dạng số làm mục tiêu.
 
-Examples:
+Ví dụ:
 
 ```bash
 openclaw message send --channel synology-chat --target 123456 --text "Hello from OpenClaw"
 openclaw message send --channel synology-chat --target synology-chat:123456 --text "Hello again"
 ```
 
-Media sends are supported by URL-based file delivery.
+Gửi media được hỗ trợ qua việc chuyển file dựa trên URL.
 
-## Multi-account
+## Nhiều tài khoản
 
-Multiple Synology Chat accounts are supported under `channels.synology-chat.accounts`.
-Each account can override token, incoming URL, webhook path, DM policy, and limits.
+Hỗ trợ nhiều tài khoản Synology Chat dưới `channels.synology-chat.accounts`. Mỗi tài khoản có thể ghi đè token, URL incoming, đường dẫn webhook, chính sách DM và giới hạn.
 
 ```json5
 {
@@ -124,9 +121,9 @@ Each account can override token, incoming URL, webhook path, DM policy, and limi
 }
 ```
 
-## Security notes
+## Ghi chú bảo mật
 
-- Keep `token` secret and rotate it if leaked.
-- Keep `allowInsecureSsl: false` unless you explicitly trust a self-signed local NAS cert.
-- Inbound webhook requests are token-verified and rate-limited per sender.
-- Prefer `dmPolicy: "allowlist"` for production.
+- Giữ bí mật `token` và thay đổi nó nếu bị lộ.
+- Giữ `allowInsecureSsl: false` trừ khi bạn tin tưởng vào chứng chỉ NAS tự ký cục bộ.
+- Các yêu cầu webhook inbound được xác minh bằng token và giới hạn tốc độ theo từng người gửi.
+- Ưu tiên `dmPolicy: "allowlist"` cho môi trường sản xuất.

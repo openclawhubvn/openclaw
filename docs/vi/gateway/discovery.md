@@ -1,123 +1,123 @@
 ---
-summary: "Node discovery and transports (Bonjour, Tailscale, SSH) for finding the gateway"
+summary: "Khám phá node và các phương thức truyền tải (Bonjour, Tailscale, SSH) để tìm gateway"
 read_when:
-  - Implementing or changing Bonjour discovery/advertising
-  - Adjusting remote connection modes (direct vs SSH)
-  - Designing node discovery + pairing for remote nodes
-title: "Discovery and Transports"
+  - Thực hiện hoặc thay đổi khám phá/quảng cáo Bonjour
+  - Điều chỉnh chế độ kết nối từ xa (trực tiếp vs SSH)
+  - Thiết kế khám phá node + ghép nối cho các node từ xa
+title: "Khám phá và Phương thức truyền tải"
 ---
 
-# Discovery & transports
+# Khám phá & Phương thức truyền tải
 
-OpenClaw has two distinct problems that look similar on the surface:
+OpenClaw có hai vấn đề riêng biệt nhưng trông giống nhau:
 
-1. **Operator remote control**: the macOS menu bar app controlling a gateway running elsewhere.
-2. **Node pairing**: iOS/Android (and future nodes) finding a gateway and pairing securely.
+1. **Điều khiển từ xa của người vận hành**: ứng dụng thanh menu macOS điều khiển một gateway chạy ở nơi khác.
+2. **Ghép nối node**: iOS/Android (và các node trong tương lai) tìm một gateway và ghép nối an toàn.
 
-The design goal is to keep all network discovery/advertising in the **Node Gateway** (`openclaw gateway`) and keep clients (mac app, iOS) as consumers.
+Mục tiêu thiết kế là giữ tất cả việc khám phá/quảng cáo mạng trong **Node Gateway** (`openclaw gateway`) và giữ các client (ứng dụng mac, iOS) như là người tiêu thụ.
 
-## Terms
+## Thuật ngữ
 
-- **Gateway**: a single long-running gateway process that owns state (sessions, pairing, node registry) and runs channels. Most setups use one per host; isolated multi-gateway setups are possible.
-- **Gateway WS (control plane)**: the WebSocket endpoint on `127.0.0.1:18789` by default; can be bound to LAN/tailnet via `gateway.bind`.
-- **Direct WS transport**: a LAN/tailnet-facing Gateway WS endpoint (no SSH).
-- **SSH transport (fallback)**: remote control by forwarding `127.0.0.1:18789` over SSH.
-- **Legacy TCP bridge (deprecated/removed)**: older node transport (see [Bridge protocol](/gateway/bridge-protocol)); no longer advertised for discovery.
+- **Gateway**: một tiến trình gateway chạy lâu dài, quản lý trạng thái (phiên, ghép nối, đăng ký node) và chạy các kênh. Hầu hết các thiết lập sử dụng một gateway cho mỗi máy chủ; có thể thiết lập nhiều gateway cô lập.
+- **Gateway WS (mặt phẳng điều khiển)**: điểm cuối WebSocket trên `127.0.0.1:18789` mặc định; có thể được gán cho LAN/tailnet qua `gateway.bind`.
+- **Phương thức WS trực tiếp**: một điểm cuối Gateway WS hướng LAN/tailnet (không có SSH).
+- **Phương thức SSH (dự phòng)**: điều khiển từ xa bằng cách chuyển tiếp `127.0.0.1:18789` qua SSH.
+- **Cầu nối TCP cũ (đã ngừng sử dụng/loại bỏ)**: phương thức node cũ (xem [Giao thức Bridge](/gateway/bridge-protocol)); không còn được quảng cáo để khám phá.
 
-Protocol details:
+Chi tiết giao thức:
 
-- [Gateway protocol](/gateway/protocol)
-- [Bridge protocol (legacy)](/gateway/bridge-protocol)
+- [Giao thức Gateway](/gateway/protocol)
+- [Giao thức Bridge (cũ)](/gateway/bridge-protocol)
 
-## Why we keep both "direct" and SSH
+## Tại sao giữ cả "trực tiếp" và SSH
 
-- **Direct WS** is the best UX on the same network and within a tailnet:
-  - auto-discovery on LAN via Bonjour
-  - pairing tokens + ACLs owned by the gateway
-  - no shell access required; protocol surface can stay tight and auditable
-- **SSH** remains the universal fallback:
-  - works anywhere you have SSH access (even across unrelated networks)
-  - survives multicast/mDNS issues
-  - requires no new inbound ports besides SSH
+- **WS trực tiếp** mang lại trải nghiệm người dùng tốt nhất trên cùng mạng và trong một tailnet:
+  - tự động khám phá trên LAN qua Bonjour
+  - token ghép nối + ACLs do gateway sở hữu
+  - không cần truy cập shell; bề mặt giao thức có thể giữ chặt và có thể kiểm tra
+- **SSH** vẫn là phương thức dự phòng phổ quát:
+  - hoạt động ở bất kỳ đâu có truy cập SSH (ngay cả trên các mạng không liên quan)
+  - vượt qua các vấn đề multicast/mDNS
+  - không yêu cầu cổng vào mới ngoài SSH
 
-## Discovery inputs (how clients learn where the gateway is)
+## Đầu vào khám phá (cách các client biết vị trí gateway)
 
-### 1) Bonjour / mDNS (LAN only)
+### 1) Bonjour / mDNS (chỉ LAN)
 
-Bonjour is best-effort and does not cross networks. It is only used for “same LAN” convenience.
+Bonjour là nỗ lực tốt nhất và không vượt qua các mạng. Chỉ được sử dụng cho sự tiện lợi "cùng LAN".
 
-Target direction:
+Hướng mục tiêu:
 
-- The **gateway** advertises its WS endpoint via Bonjour.
-- Clients browse and show a “pick a gateway” list, then store the chosen endpoint.
+- **Gateway** quảng cáo điểm cuối WS của nó qua Bonjour.
+- Các client duyệt và hiển thị danh sách "chọn một gateway", sau đó lưu trữ điểm cuối đã chọn.
 
-Troubleshooting and beacon details: [Bonjour](/gateway/bonjour).
+Chi tiết khắc phục sự cố và beacon: [Bonjour](/gateway/bonjour).
 
-#### Service beacon details
+#### Chi tiết beacon dịch vụ
 
-- Service types:
-  - `_openclaw-gw._tcp` (gateway transport beacon)
-- TXT keys (non-secret):
+- Loại dịch vụ:
+  - `_openclaw-gw._tcp` (beacon truyền tải gateway)
+- Khóa TXT (không bí mật):
   - `role=gateway`
   - `lanHost=<hostname>.local`
-  - `sshPort=22` (or whatever is advertised)
+  - `sshPort=22` (hoặc bất kỳ cổng nào được quảng cáo)
   - `gatewayPort=18789` (Gateway WS + HTTP)
-  - `gatewayTls=1` (only when TLS is enabled)
-  - `gatewayTlsSha256=<sha256>` (only when TLS is enabled and fingerprint is available)
-  - `canvasPort=<port>` (canvas host port; currently the same as `gatewayPort` when the canvas host is enabled)
-  - `cliPath=<path>` (optional; absolute path to a runnable `openclaw` entrypoint or binary)
-  - `tailnetDns=<magicdns>` (optional hint; auto-detected when Tailscale is available)
+  - `gatewayTls=1` (chỉ khi TLS được bật)
+  - `gatewayTlsSha256=<sha256>` (chỉ khi TLS được bật và có sẵn dấu vân tay)
+  - `canvasPort=<port>` (cổng máy chủ canvas; hiện tại giống như `gatewayPort` khi máy chủ canvas được bật)
+  - `cliPath=<path>` (tùy chọn; đường dẫn tuyệt đối đến một điểm vào hoặc nhị phân `openclaw` có thể chạy)
+  - `tailnetDns=<magicdns>` (gợi ý tùy chọn; tự động phát hiện khi Tailscale có sẵn)
 
-Security notes:
+Ghi chú bảo mật:
 
-- Bonjour/mDNS TXT records are **unauthenticated**. Clients must treat TXT values as UX hints only.
-- Routing (host/port) should prefer the **resolved service endpoint** (SRV + A/AAAA) over TXT-provided `lanHost`, `tailnetDns`, or `gatewayPort`.
-- TLS pinning must never allow an advertised `gatewayTlsSha256` to override a previously stored pin.
-- iOS/Android nodes should treat discovery-based direct connects as **TLS-only** and require an explicit “trust this fingerprint” confirmation before storing a first-time pin (out-of-band verification).
+- Bản ghi TXT Bonjour/mDNS **không được xác thực**. Các client phải coi giá trị TXT chỉ là gợi ý UX.
+- Định tuyến (host/port) nên ưu tiên **điểm cuối dịch vụ đã giải quyết** (SRV + A/AAAA) hơn `lanHost`, `tailnetDns`, hoặc `gatewayPort` được cung cấp bởi TXT.
+- Ghim TLS không bao giờ được phép cho phép một `gatewayTlsSha256` được quảng cáo ghi đè một ghim đã lưu trước đó.
+- Các node iOS/Android nên coi các kết nối trực tiếp dựa trên khám phá là **chỉ TLS** và yêu cầu xác nhận "tin tưởng dấu vân tay này" rõ ràng trước khi lưu một ghim lần đầu (xác minh ngoài băng).
 
-Disable/override:
+Vô hiệu hóa/ghi đè:
 
-- `OPENCLAW_DISABLE_BONJOUR=1` disables advertising.
-- `gateway.bind` in `~/.openclaw/openclaw.json` controls the Gateway bind mode.
-- `OPENCLAW_SSH_PORT` overrides the SSH port advertised in TXT (defaults to 22).
-- `OPENCLAW_TAILNET_DNS` publishes a `tailnetDns` hint (MagicDNS).
-- `OPENCLAW_CLI_PATH` overrides the advertised CLI path.
+- `OPENCLAW_DISABLE_BONJOUR=1` vô hiệu hóa quảng cáo.
+- `gateway.bind` trong `~/.openclaw/openclaw.json` kiểm soát chế độ bind Gateway.
+- `OPENCLAW_SSH_PORT` ghi đè cổng SSH được quảng cáo trong TXT (mặc định là 22).
+- `OPENCLAW_TAILNET_DNS` công bố một gợi ý `tailnetDns` (MagicDNS).
+- `OPENCLAW_CLI_PATH` ghi đè đường dẫn CLI được quảng cáo.
 
-### 2) Tailnet (cross-network)
+### 2) Tailnet (xuyên mạng)
 
-For London/Vienna style setups, Bonjour won’t help. The recommended “direct” target is:
+Đối với các thiết lập kiểu London/Vienna, Bonjour sẽ không giúp ích. Mục tiêu "trực tiếp" được khuyến nghị là:
 
-- Tailscale MagicDNS name (preferred) or a stable tailnet IP.
+- Tên MagicDNS của Tailscale (ưu tiên) hoặc một IP tailnet ổn định.
 
-If the gateway can detect it is running under Tailscale, it publishes `tailnetDns` as an optional hint for clients (including wide-area beacons).
+Nếu gateway có thể phát hiện nó đang chạy dưới Tailscale, nó sẽ công bố `tailnetDns` như một gợi ý tùy chọn cho các client (bao gồm cả beacon diện rộng).
 
-### 3) Manual / SSH target
+### 3) Mục tiêu Thủ công / SSH
 
-When there is no direct route (or direct is disabled), clients can always connect via SSH by forwarding the loopback gateway port.
+Khi không có tuyến đường trực tiếp (hoặc trực tiếp bị vô hiệu hóa), các client luôn có thể kết nối qua SSH bằng cách chuyển tiếp cổng gateway loopback.
 
-See [Remote access](/gateway/remote).
+Xem [Truy cập từ xa](/gateway/remote).
 
-## Transport selection (client policy)
+## Lựa chọn phương thức truyền tải (chính sách client)
 
-Recommended client behavior:
+Hành vi client được khuyến nghị:
 
-1. If a paired direct endpoint is configured and reachable, use it.
-2. Else, if Bonjour finds a gateway on LAN, offer a one-tap “Use this gateway” choice and save it as the direct endpoint.
-3. Else, if a tailnet DNS/IP is configured, try direct.
-4. Else, fall back to SSH.
+1. Nếu một điểm cuối trực tiếp đã ghép nối được cấu hình và có thể truy cập, sử dụng nó.
+2. Nếu Bonjour tìm thấy một gateway trên LAN, cung cấp lựa chọn "Sử dụng gateway này" chỉ với một lần nhấn và lưu nó làm điểm cuối trực tiếp.
+3. Nếu một DNS/IP tailnet được cấu hình, thử trực tiếp.
+4. Nếu không, quay lại SSH.
 
-## Pairing + auth (direct transport)
+## Ghép nối + xác thực (phương thức trực tiếp)
 
-The gateway is the source of truth for node/client admission.
+Gateway là nguồn xác thực cho việc chấp nhận node/client.
 
-- Pairing requests are created/approved/rejected in the gateway (see [Gateway pairing](/gateway/pairing)).
-- The gateway enforces:
-  - auth (token / keypair)
-  - scopes/ACLs (the gateway is not a raw proxy to every method)
-  - rate limits
+- Yêu cầu ghép nối được tạo/phê duyệt/từ chối trong gateway (xem [Ghép nối Gateway](/gateway/pairing)).
+- Gateway thực thi:
+  - xác thực (token / cặp khóa)
+  - phạm vi/ACLs (gateway không phải là proxy thô cho mọi phương thức)
+  - giới hạn tốc độ
 
-## Responsibilities by component
+## Trách nhiệm theo thành phần
 
-- **Gateway**: advertises discovery beacons, owns pairing decisions, and hosts the WS endpoint.
-- **macOS app**: helps you pick a gateway, shows pairing prompts, and uses SSH only as a fallback.
-- **iOS/Android nodes**: browse Bonjour as a convenience and connect to the paired Gateway WS.
+- **Gateway**: quảng cáo beacon khám phá, sở hữu quyết định ghép nối, và lưu trữ điểm cuối WS.
+- **Ứng dụng macOS**: giúp chọn một gateway, hiển thị lời nhắc ghép nối, và chỉ sử dụng SSH như một phương thức dự phòng.
+- **Node iOS/Android**: duyệt Bonjour như một tiện ích và kết nối với Gateway WS đã ghép nối.

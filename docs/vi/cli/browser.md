@@ -1,29 +1,29 @@
 ---
-summary: "CLI reference for `openclaw browser` (profiles, tabs, actions, Chrome MCP, and CDP)"
+summary: "Tham khảo CLI cho `openclaw browser` (hồ sơ, tab, hành động, Chrome MCP và CDP)"
 read_when:
-  - You use `openclaw browser` and want examples for common tasks
-  - You want to control a browser running on another machine via a node host
-  - You want to attach to your local signed-in Chrome via Chrome MCP
+  - Bạn sử dụng `openclaw browser` và muốn có ví dụ cho các tác vụ thường gặp
+  - Bạn muốn điều khiển trình duyệt chạy trên máy khác thông qua node host
+  - Bạn muốn kết nối với Chrome đã đăng nhập trên máy của mình qua Chrome MCP
 title: "browser"
 ---
 
 # `openclaw browser`
 
-Manage OpenClaw’s browser control server and run browser actions (tabs, snapshots, screenshots, navigation, clicks, typing).
+Quản lý máy chủ điều khiển trình duyệt của OpenClaw và thực hiện các hành động trên trình duyệt (tab, snapshot, chụp màn hình, điều hướng, nhấp chuột, nhập liệu).
 
-Related:
+Liên quan:
 
-- Browser tool + API: [Browser tool](/tools/browser)
+- Công cụ trình duyệt + API: [Công cụ trình duyệt](/tools/browser)
 
-## Common flags
+## Các cờ thông dụng
 
-- `--url <gatewayWsUrl>`: Gateway WebSocket URL (defaults to config).
-- `--token <token>`: Gateway token (if required).
-- `--timeout <ms>`: request timeout (ms).
-- `--browser-profile <name>`: choose a browser profile (default from config).
-- `--json`: machine-readable output (where supported).
+- `--url <gatewayWsUrl>`: URL WebSocket của Gateway (mặc định từ cấu hình).
+- `--token <token>`: Token của Gateway (nếu cần).
+- `--timeout <ms>`: thời gian chờ yêu cầu (ms).
+- `--browser-profile <name>`: chọn hồ sơ trình duyệt (mặc định từ cấu hình).
+- `--json`: đầu ra có thể đọc được bằng máy (nếu hỗ trợ).
 
-## Quick start (local)
+## Bắt đầu nhanh (local)
 
 ```bash
 openclaw browser profiles
@@ -32,13 +32,13 @@ openclaw browser --browser-profile openclaw open https://example.com
 openclaw browser --browser-profile openclaw snapshot
 ```
 
-## Profiles
+## Hồ sơ
 
-Profiles are named browser routing configs. In practice:
+Hồ sơ là các cấu hình định tuyến trình duyệt được đặt tên. Trong thực tế:
 
-- `openclaw`: launches or attaches to a dedicated OpenClaw-managed Chrome instance (isolated user data dir).
-- `user`: controls your existing signed-in Chrome session via Chrome DevTools MCP.
-- custom CDP profiles: point at a local or remote CDP endpoint.
+- `openclaw`: khởi chạy hoặc kết nối với một phiên bản Chrome do OpenClaw quản lý (thư mục dữ liệu người dùng riêng biệt).
+- `user`: điều khiển phiên Chrome đã đăng nhập của bạn thông qua Chrome DevTools MCP.
+- hồ sơ CDP tùy chỉnh: trỏ đến một điểm cuối CDP cục bộ hoặc từ xa.
 
 ```bash
 openclaw browser profiles
@@ -47,13 +47,13 @@ openclaw browser create-profile --name chrome-live --driver existing-session
 openclaw browser delete-profile --name work
 ```
 
-Use a specific profile:
+Sử dụng một hồ sơ cụ thể:
 
 ```bash
 openclaw browser --browser-profile work tabs
 ```
 
-## Tabs
+## Tab
 
 ```bash
 openclaw browser tabs
@@ -62,7 +62,7 @@ openclaw browser focus <targetId>
 openclaw browser close <targetId>
 ```
 
-## Snapshot / screenshot / actions
+## Snapshot / chụp màn hình / hành động
 
 Snapshot:
 
@@ -70,13 +70,13 @@ Snapshot:
 openclaw browser snapshot
 ```
 
-Screenshot:
+Chụp màn hình:
 
 ```bash
 openclaw browser screenshot
 ```
 
-Navigate/click/type (ref-based UI automation):
+Điều hướng/nhấp chuột/nhập liệu (tự động hóa giao diện dựa trên tham chiếu):
 
 ```bash
 openclaw browser navigate https://example.com
@@ -84,9 +84,9 @@ openclaw browser click <ref>
 openclaw browser type <ref> "hello"
 ```
 
-## Existing Chrome via MCP
+## Chrome hiện có qua MCP
 
-Use the built-in `user` profile, or create your own `existing-session` profile:
+Sử dụng hồ sơ `user` tích hợp sẵn, hoặc tạo hồ sơ `existing-session` của riêng bạn:
 
 ```bash
 openclaw browser --browser-profile user tabs
@@ -95,12 +95,12 @@ openclaw browser create-profile --name brave-live --driver existing-session --us
 openclaw browser --browser-profile chrome-live tabs
 ```
 
-This path is host-only. For Docker, headless servers, Browserless, or other remote setups, use a CDP profile instead.
+Đường dẫn này chỉ dành cho host. Đối với Docker, máy chủ không giao diện, Browserless, hoặc các thiết lập từ xa khác, hãy sử dụng hồ sơ CDP.
 
-## Remote browser control (node host proxy)
+## Điều khiển trình duyệt từ xa (proxy node host)
 
-If the Gateway runs on a different machine than the browser, run a **node host** on the machine that has Chrome/Brave/Edge/Chromium. The Gateway will proxy browser actions to that node (no separate browser control server required).
+Nếu Gateway chạy trên máy khác với trình duyệt, hãy chạy một **node host** trên máy có Chrome/Brave/Edge/Chromium. Gateway sẽ proxy các hành động trình duyệt đến node đó (không cần máy chủ điều khiển trình duyệt riêng biệt).
 
-Use `gateway.nodes.browser.mode` to control auto-routing and `gateway.nodes.browser.node` to pin a specific node if multiple are connected.
+Sử dụng `gateway.nodes.browser.mode` để điều khiển định tuyến tự động và `gateway.nodes.browser.node` để ghim một node cụ thể nếu có nhiều node được kết nối.
 
-Security + remote setup: [Browser tool](/tools/browser), [Remote access](/gateway/remote), [Tailscale](/gateway/tailscale), [Security](/gateway/security)
+Bảo mật + thiết lập từ xa: [Công cụ trình duyệt](/tools/browser), [Truy cập từ xa](/gateway/remote), [Tailscale](/gateway/tailscale), [Bảo mật](/gateway/security)

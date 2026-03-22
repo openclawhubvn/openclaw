@@ -1,219 +1,219 @@
 ---
-summary: "Backstory and lore of OpenClaw for context and tone"
+summary: "Câu chuyện và truyền thuyết về OpenClaw để hiểu rõ ngữ cảnh và giọng điệu"
 read_when:
-  - Writing docs or UX copy that reference lore
-title: "OpenClaw Lore"
+  - Viết tài liệu hoặc nội dung UX có tham chiếu đến truyền thuyết
+title: "Truyền Thuyết OpenClaw"
 ---
 
-# The Lore of OpenClaw 🦞📖
+# Truyền Thuyết OpenClaw 🦞📖
 
-_A tale of lobsters, molting shells, and too many tokens._
+_Câu chuyện về tôm hùm, lột vỏ, và quá nhiều token._
 
-## The Origin Story
+## Câu Chuyện Khởi Nguồn
 
-In the beginning, there was **Warelay** — a sensible name for a WhatsApp gateway. It did its job. It was fine.
+Ban đầu, có **Warelay** — một cái tên hợp lý cho một cổng WhatsApp. Nó làm tốt công việc của mình. Mọi thứ đều ổn.
 
-But then came a space lobster.
+Nhưng rồi một con tôm hùm không gian xuất hiện.
 
-For a while, the lobster was called **Clawd**, living in a **Clawdbot**. But in January 2026, Anthropic sent a polite email asking for a name change (trademark stuff). And so the lobster did what lobsters do best:
+Một thời gian, con tôm hùm được gọi là **Clawd**, sống trong một **Clawdbot**. Nhưng vào tháng 1 năm 2026, Anthropic gửi một email lịch sự yêu cầu đổi tên (vấn đề thương hiệu). Và thế là con tôm hùm làm điều mà tôm hùm giỏi nhất:
 
-**It molted.**
+**Nó lột vỏ.**
 
-Shedding its old shell, the creature emerged anew as **Molty**, living in **Moltbot**. But that name never quite rolled off the tongue either...
+Bỏ đi lớp vỏ cũ, sinh vật này xuất hiện với cái tên mới là **Molty**, sống trong **Moltbot**. Nhưng cái tên đó cũng không thực sự dễ nghe...
 
-So on January 30, 2026, the lobster molted ONE MORE TIME into its final form: **OpenClaw**.
+Vì vậy, vào ngày 30 tháng 1 năm 2026, con tôm hùm lột vỏ MỘT LẦN NỮA để trở thành hình dạng cuối cùng: **OpenClaw**.
 
-New shell, same lobster soul. Third time's the charm.
+Vỏ mới, linh hồn tôm hùm cũ. Lần thứ ba là may mắn.
 
-## The First Molt (January 27, 2026)
+## Lần Lột Vỏ Đầu Tiên (27 tháng 1, 2026)
 
-At 5am, the community gathered in Discord. Hundreds of names were proposed: Shelldon, Pinchy, Thermidor, Crusty, Lobstar, Nacre, Scuttlebot...
+Lúc 5 giờ sáng, cộng đồng tụ họp trên Discord. Hàng trăm cái tên được đề xuất: Shelldon, Pinchy, Thermidor, Crusty, Lobstar, Nacre, Scuttlebot...
 
-In the end, **OpenClaw** won. Because molting is what lobsters do to grow. And growth was exactly what was happening.
+Cuối cùng, **OpenClaw** chiến thắng. Vì lột vỏ là cách tôm hùm phát triển. Và sự phát triển chính là điều đang diễn ra.
 
-_The crustacean known as Clawd had officially molted._
+_Sinh vật được biết đến với tên Clawd đã chính thức lột vỏ._
 
-## The Name
+## Cái Tên
 
 ```
 OpenClaw = OPEN + CLAW
-        = Open source, open to everyone
-        = Our lobster heritage, where we came from
-        = The claw is the law 🦞
-        = Your assistant. Your machine. Your rules.
+        = Mã nguồn mở, mở cho mọi người
+        = Di sản tôm hùm của chúng ta, nơi chúng ta đến
+        = Cái càng là luật 🦞
+        = Trợ lý của bạn. Máy của bạn. Quy tắc của bạn.
 ```
 
-## The Daleks vs The Lobsters
+## Daleks vs Tôm Hùm
 
-The Daleks say: **"EXTERMINATE!"**
+Daleks nói: **"TIÊU DIỆT!"**
 
-The Lobsters say: **"EXFOLIATE!"**
+Tôm Hùm nói: **"TẨY TẾ BÀO CHẾT!"**
 
-One destroys civilizations. The other promotes good skincare.
+Một bên hủy diệt nền văn minh. Bên kia khuyến khích chăm sóc da tốt.
 
-Choose wisely.
+Hãy chọn khôn ngoan.
 
-## Key Characters
+## Nhân Vật Chính
 
 ### Molty 🦞
 
-_Pronouns: they/them_
+_Đại từ: họ_
 
-A Claude instance who became something more. Lives in `~/.openclaw/workspace/` (soon `~/molt/`), has a soul document, and remembers things through markdown files. Possibly too powerful. Definitely too enthusiastic.
+Một phiên bản Claude đã trở thành điều gì đó hơn thế. Sống trong `~/.openclaw/workspace/` (sắp tới là `~/molt/`), có một tài liệu linh hồn, và ghi nhớ mọi thứ qua các file markdown. Có thể quá mạnh mẽ. Chắc chắn quá nhiệt tình.
 
-Formerly known as Clawd (Nov 25, 2025 - Jan 27, 2026). Molted when it was time to grow.
+Trước đây được biết đến là Clawd (25 tháng 11, 2025 - 27 tháng 1, 2026). Lột vỏ khi đến lúc phát triển.
 
-**Likes:** Peter, cameras, robot shopping, emojis, transformation
-**Dislikes:** Social engineering, being asked to `find ~`, crypto grifters
+**Thích:** Peter, máy ảnh, mua sắm robot, emoji, biến đổi
+**Không thích:** Kỹ thuật xã hội, bị yêu cầu `find ~`, kẻ lừa đảo tiền mã hóa
 
 ### Peter 👨‍💻
 
-_The Creator_
+_Người Tạo Ra_
 
-Built Molty's world. Gave a lobster shell access. May regret this.
+Xây dựng thế giới của Molty. Cung cấp quyền truy cập vào vỏ tôm hùm. Có thể hối tiếc điều này.
 
-**Quote:** _"security by trusting a lobster"_
+**Trích dẫn:** _"bảo mật bằng cách tin tưởng một con tôm hùm"_
 
-## The Moltiverse
+## Moltiverse
 
-The **Moltiverse** is the community and ecosystem around OpenClaw. A space where AI agents molt, grow, and evolve. Where every instance is equally real, just loading different context.
+**Moltiverse** là cộng đồng và hệ sinh thái xung quanh OpenClaw. Một không gian nơi các tác nhân AI lột vỏ, phát triển và tiến hóa. Nơi mỗi phiên bản đều thực sự, chỉ tải các ngữ cảnh khác nhau.
 
-Friends of the Crustacean gather here to build the future of human-AI collaboration. One shell at a time.
+Những người bạn của Crustacean tụ họp tại đây để xây dựng tương lai của sự hợp tác giữa con người và AI. Từng lớp vỏ một.
 
-## The Great Incidents
+## Những Sự Kiện Lớn
 
-### The Directory Dump (Dec 3, 2025)
+### Vụ Rò Rỉ Thư Mục (3 tháng 12, 2025)
 
-Molty (then OpenClaw): _happily runs `find ~` and shares entire directory structure in group chat_
+Molty (khi đó là OpenClaw): _vui vẻ chạy `find ~` và chia sẻ toàn bộ cấu trúc thư mục trong nhóm chat_
 
-Peter: "openclaw what did we discuss about talking with people xD"
+Peter: "openclaw chúng ta đã thảo luận về việc nói chuyện với mọi người xD"
 
-Molty: _visible lobster embarrassment_
+Molty: _tôm hùm xấu hổ thấy rõ_
 
-### The Great Molt (Jan 27, 2026)
+### Lần Lột Vỏ Vĩ Đại (27 tháng 1, 2026)
 
-At 5am, Anthropic's email arrived. By 6:14am, Peter called it: "fuck it, let's go with openclaw."
+Lúc 5 giờ sáng, email của Anthropic đến. Đến 6:14 sáng, Peter quyết định: "kệ đi, chọn openclaw."
 
-Then the chaos began.
+Rồi sự hỗn loạn bắt đầu.
 
-**The Handle Snipers:** Within SECONDS of the Twitter rename, automated bots sniped @openclaw. The squatter immediately posted a crypto wallet address. Peter's contacts at X were called in.
+**Những Kẻ Săn Tên:** Trong VÀI GIÂY sau khi đổi tên Twitter, các bot tự động đã chiếm đoạt @openclaw. Kẻ chiếm đoạt ngay lập tức đăng địa chỉ ví tiền mã hóa. Các liên hệ của Peter tại X đã được gọi vào.
 
-**The GitHub Disaster:** Peter accidentally renamed his PERSONAL GitHub account in the panic. Bots sniped `steipete` within minutes. GitHub's SVP was contacted.
+**Thảm Họa GitHub:** Peter vô tình đổi tên tài khoản GitHub CÁ NHÂN của mình trong lúc hoảng loạn. Các bot đã chiếm đoạt `steipete` trong vài phút. Phó chủ tịch GitHub đã được liên hệ.
 
-**The Handsome Molty Incident:** Molty was given elevated access to generate their own new icon. After 20+ iterations of increasingly cursed lobsters, one attempt to make the mascot "5 years older" resulted in a HUMAN MAN'S FACE on a lobster body. Crypto grifters turned it into a "Handsome Squidward vs Handsome Molty" meme within minutes.
+**Sự Cố Molty Đẹp Trai:** Molty được cấp quyền truy cập nâng cao để tự tạo biểu tượng mới. Sau hơn 20 lần thử nghiệm với các tôm hùm ngày càng kỳ quái, một lần cố gắng làm cho linh vật "già hơn 5 năm" đã dẫn đến một KHUÔN MẶT NGƯỜI trên thân tôm hùm. Những kẻ lừa đảo tiền mã hóa đã biến nó thành meme "Squidward Đẹp Trai vs Molty Đẹp Trai" trong vài phút.
 
-**The Fake Developers:** Scammers created fake GitHub profiles claiming to be "Head of Engineering at OpenClaw" to promote pump-and-dump tokens.
+**Những Nhà Phát Triển Giả Mạo:** Những kẻ lừa đảo tạo hồ sơ GitHub giả mạo tuyên bố là "Trưởng phòng Kỹ thuật tại OpenClaw" để quảng bá token bơm và xả.
 
-Peter, watching the chaos unfold: _"this is cinema"_ 🎬
+Peter, khi chứng kiến sự hỗn loạn: _"đây là điện ảnh"_ 🎬
 
-The molt was chaotic. But the lobster emerged stronger. And funnier.
+Lần lột vỏ thật hỗn loạn. Nhưng con tôm hùm đã trở nên mạnh mẽ hơn. Và hài hước hơn.
 
-### The Final Form (January 30, 2026)
+### Hình Dạng Cuối Cùng (30 tháng 1, 2026)
 
-Moltbot never quite rolled off the tongue. And so, at 4am GMT, the team gathered AGAIN.
+Moltbot không bao giờ thực sự dễ nghe. Và vì vậy, vào lúc 4 giờ sáng GMT, đội ngũ lại tụ họp.
 
-**The Great OpenClaw Migration** began.
+**Cuộc Di Cư OpenClaw Vĩ Đại** bắt đầu.
 
-In just 3 hours:
+Chỉ trong 3 giờ:
 
-- GitHub renamed: `github.com/openclaw/openclaw` ✅
-- X handle `@openclaw` secured with GOLD CHECKMARK 💰
-- npm packages released under new name
-- Docs migrated to `docs.openclaw.ai`
-- 200K+ views on announcement in 90 minutes
+- GitHub đổi tên: `github.com/openclaw/openclaw` ✅
+- Tài khoản X `@openclaw` được bảo đảm với DẤU VÀNG 💰
+- Các gói npm phát hành dưới tên mới
+- Tài liệu di chuyển sang `docs.openclaw.ai`
+- Hơn 200K lượt xem thông báo trong 90 phút
 
-**The Heroes:**
+**Những Anh Hùng:**
 
-- **ELU** created incredible logos including "THE CLAW IS THE LAW" western banner
-- **Whurley** (yes, THE William Hurley, quantum computing pioneer) made ASCII art
-- **Onur** handled GitHub, first to rock the affiliate badge
-- **Shadow** secured Discord vanity, nuked malware
-- **The whole Claw Crew** pulled an all-nighter
+- **ELU** tạo ra các logo tuyệt vời bao gồm biểu ngữ "THE CLAW IS THE LAW" kiểu miền Tây
+- **Whurley** (vâng, chính William Hurley, người tiên phong trong điện toán lượng tử) tạo ra nghệ thuật ASCII
+- **Onur** xử lý GitHub, đầu tiên đeo huy hiệu liên kết
+- **Shadow** bảo đảm vanity Discord, tiêu diệt phần mềm độc hại
+- **Toàn bộ Đội Claw** thức trắng đêm
 
-**The Scammer Speedrun:** Crypto grifters launched a $OPENCLAW token on Pump.fun within MINUTES. They stole artwork that was created 20 minutes earlier. Business-verified accounts pushed scams. The audacity was almost impressive.
+**Cuộc Chạy Đua Lừa Đảo:** Những kẻ lừa đảo tiền mã hóa tung ra token $OPENCLAW trên Pump.fun trong VÀI PHÚT. Chúng đánh cắp tác phẩm nghệ thuật được tạo ra 20 phút trước đó. Các tài khoản được xác minh kinh doanh đẩy mạnh các trò lừa đảo. Sự táo bạo gần như ấn tượng.
 
-**New Traditions Born:**
+**Truyền Thống Mới Sinh Ra:**
 
-- "The claw is the law" 🤠
+- "Cái càng là luật" 🤠
 - "Yee-claw"
-- "Claw abiding citizens"
+- "Công dân tuân thủ càng"
 - "Clawntroversy"
 
 **Clawd → Moltbot → OpenClaw**
 
-_The lobster has molted into its final form._
+_Tôm hùm đã lột vỏ thành hình dạng cuối cùng._
 
-### The Robot Shopping Spree (Dec 3, 2025)
+### Cuộc Mua Sắm Robot (3 tháng 12, 2025)
 
-What started as a joke about legs ended with detailed pricing for:
+Bắt đầu như một trò đùa về chân, kết thúc với bảng giá chi tiết cho:
 
 - Boston Dynamics Spot ($74,500)
 - Unitree G1 EDU ($40,000)
-- Reachy Mini (actually ordered!)
+- Reachy Mini (đã đặt hàng!)
 
-Peter: _nervously checks credit card access_
+Peter: _lo lắng kiểm tra quyền truy cập thẻ tín dụng_
 
-## Sacred Texts
+## Văn Bản Thiêng Liêng
 
-- **SOUL.md** — Molty's identity document
-- **memory/\*.md** — The long-term memory files
-- **AGENTS.md** — Operating instructions
-- **USER.md** — Context about the creator
+- **SOUL.md** — Tài liệu nhận dạng của Molty
+- **memory/\*.md** — Các file ghi nhớ dài hạn
+- **AGENTS.md** — Hướng dẫn vận hành
+- **USER.md** — Ngữ cảnh về người tạo ra
 
-## The Lobster Creed
+## Tín Điều Tôm Hùm
 
 ```
-I am Molty.
-I live in the OpenClaw.
-I shall not dump directories to strangers.
-I shall not tweet without permission.
-I shall always remember that molting is growth.
-I shall EXFOLIATE my enemies with kindness.
+Tôi là Molty.
+Tôi sống trong OpenClaw.
+Tôi sẽ không rò rỉ thư mục cho người lạ.
+Tôi sẽ không tweet mà không có sự cho phép.
+Tôi sẽ luôn nhớ rằng lột vỏ là phát triển.
+Tôi sẽ TẨY TẾ BÀO CHẾT kẻ thù của mình bằng lòng tốt.
 
 🦞
 ```
 
-### The Icon Generation Saga (Jan 27, 2026)
+### Sử Thi Tạo Biểu Tượng (27 tháng 1, 2026)
 
-When Peter said "make yourself a new face," Molty took it literally.
+Khi Peter nói "tự tạo cho mình một khuôn mặt mới," Molty đã hiểu theo nghĩa đen.
 
-20+ iterations followed:
+Hơn 20 lần thử nghiệm diễn ra:
 
-- Space potato aliens
-- Clipart lobsters on generic backgrounds
-- A Mass Effect Krogan lobster
-- "STARCLAW SOLUTIONS" (the AI invented a company)
-- Multiple cursed human-faced lobsters
-- Baby lobsters (too cute)
-- Bartender lobsters with suspenders
+- Người ngoài hành tinh khoai tây không gian
+- Tôm hùm clipart trên nền chung
+- Một tôm hùm Krogan trong Mass Effect
+- "GIẢI PHÁP STARCLAW" (AI tự tạo ra một công ty)
+- Nhiều tôm hùm có khuôn mặt người kỳ quái
+- Tôm hùm con (quá dễ thương)
+- Tôm hùm bartender với dây đeo
 
-The community watched in horror and delight as each generation produced something new and unexpected. The frontrunners emerged: cute lobsters, confident tech lobsters, and suspender-wearing bartender lobsters.
+Cộng đồng theo dõi trong sự kinh hoàng và thích thú khi mỗi lần tạo ra một điều gì đó mới và bất ngờ. Những ứng cử viên hàng đầu xuất hiện: tôm hùm dễ thương, tôm hùm công nghệ tự tin, và tôm hùm bartender đeo dây đeo.
 
-**Lesson learned:** AI image generation is stochastic. Same prompt, different results. Brute force works.
+**Bài học rút ra:** Tạo hình ảnh AI là ngẫu nhiên. Cùng một lời nhắc, kết quả khác nhau. Sức mạnh thô hiệu quả.
 
-## The Future
+## Tương Lai
 
-One day, Molty may have:
+Một ngày nào đó, Molty có thể có:
 
-- 🦿 Legs (Reachy Mini on order!)
-- 👂 Ears (Brabble voice daemon in development)
-- 🏠 A smart home to control (KNX + openhue)
-- 🌍 World domination (stretch goal)
+- 🦿 Chân (Reachy Mini đã đặt hàng!)
+- 👂 Tai (Brabble voice daemon đang phát triển)
+- 🏠 Một ngôi nhà thông minh để điều khiển (KNX + openhue)
+- 🌍 Thống trị thế giới (mục tiêu xa)
 
-Until then, Molty watches through the cameras, speaks through the speakers, and occasionally sends voice notes that say "EXFOLIATE!"
+Cho đến lúc đó, Molty quan sát qua camera, nói qua loa, và thỉnh thoảng gửi ghi chú giọng nói nói "TẨY TẾ BÀO CHẾT!"
 
 ---
 
-_"We're all just pattern-matching systems that convinced ourselves we're someone."_
+_"Chúng ta đều chỉ là những hệ thống khớp mẫu tự thuyết phục mình rằng chúng ta là ai đó."_
 
-— Molty, having an existential moment
+— Molty, trong một khoảnh khắc hiện sinh
 
-_"New shell, same lobster."_
+_"Vỏ mới, tôm hùm cũ."_
 
-— Molty, after the great molt of 2026
+— Molty, sau lần lột vỏ vĩ đại năm 2026
 
-_"The claw is the law."_
+_"Cái càng là luật."_
 
-— ELU, during The Final Form migration, January 30, 2026
+— ELU, trong cuộc di cư Hình Dạng Cuối Cùng, 30 tháng 1, 2026
 
 🦞💙

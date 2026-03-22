@@ -1,46 +1,46 @@
 ---
-summary: "Host OpenClaw on Oracle Cloud's Always Free ARM tier"
+summary: "Triển khai OpenClaw trên Oracle Cloud với gói Always Free ARM"
 read_when:
-  - Setting up OpenClaw on Oracle Cloud
-  - Looking for free VPS hosting for OpenClaw
-  - Want 24/7 OpenClaw on a small server
+  - Cài đặt OpenClaw trên Oracle Cloud
+  - Tìm kiếm dịch vụ VPS miễn phí cho OpenClaw
+  - Muốn chạy OpenClaw 24/7 trên máy chủ nhỏ
 title: "Oracle Cloud"
 ---
 
 # Oracle Cloud
 
-Run a persistent OpenClaw Gateway on Oracle Cloud's **Always Free** ARM tier (up to 4 OCPU, 24 GB RAM, 200 GB storage) at no cost.
+Chạy OpenClaw Gateway liên tục trên gói **Always Free** ARM của Oracle Cloud (tối đa 4 OCPU, 24 GB RAM, 200 GB lưu trữ) mà không tốn phí.
 
-## Prerequisites
+## Yêu cầu
 
-- Oracle Cloud account ([signup](https://www.oracle.com/cloud/free/)) -- see [community signup guide](https://gist.github.com/rssnyder/51e3cfedd730e7dd5f4a816143b25dbd) if you hit issues
-- Tailscale account (free at [tailscale.com](https://tailscale.com))
-- An SSH key pair
-- About 30 minutes
+- Tài khoản Oracle Cloud ([đăng ký](https://www.oracle.com/cloud/free/)) -- xem [hướng dẫn đăng ký cộng đồng](https://gist.github.com/rssnyder/51e3cfedd730e7dd5f4a816143b25dbd) nếu gặp vấn đề
+- Tài khoản Tailscale (miễn phí tại [tailscale.com](https://tailscale.com))
+- Cặp khóa SSH
+- Khoảng 30 phút
 
-## Setup
+## Thiết lập
 
 <Steps>
-  <Step title="Create an OCI instance">
-    1. Log into [Oracle Cloud Console](https://cloud.oracle.com/).
-    2. Navigate to **Compute > Instances > Create Instance**.
-    3. Configure:
-       - **Name:** `openclaw`
-       - **Image:** Ubuntu 24.04 (aarch64)
-       - **Shape:** `VM.Standard.A1.Flex` (Ampere ARM)
-       - **OCPUs:** 2 (or up to 4)
-       - **Memory:** 12 GB (or up to 24 GB)
-       - **Boot volume:** 50 GB (up to 200 GB free)
-       - **SSH key:** Add your public key
-    4. Click **Create** and note the public IP address.
+  <Step title="Tạo một instance OCI">
+    1. Đăng nhập vào [Oracle Cloud Console](https://cloud.oracle.com/).
+    2. Điều hướng đến **Compute > Instances > Create Instance**.
+    3. Cấu hình:
+       - **Tên:** `openclaw`
+       - **Hình ảnh:** Ubuntu 24.04 (aarch64)
+       - **Hình dạng:** `VM.Standard.A1.Flex` (Ampere ARM)
+       - **OCPUs:** 2 (hoặc tối đa 4)
+       - **Bộ nhớ:** 12 GB (hoặc tối đa 24 GB)
+       - **Dung lượng khởi động:** 50 GB (tối đa 200 GB miễn phí)
+       - **Khóa SSH:** Thêm khóa công khai của bạn
+    4. Nhấn **Create** và ghi lại địa chỉ IP công khai.
 
     <Tip>
-    If instance creation fails with "Out of capacity", try a different availability domain or retry later. Free tier capacity is limited.
+    Nếu tạo instance thất bại với thông báo "Out of capacity", thử một miền khả dụng khác hoặc thử lại sau. Dung lượng gói miễn phí có giới hạn.
     </Tip>
 
   </Step>
 
-  <Step title="Connect and update the system">
+  <Step title="Kết nối và cập nhật hệ thống">
     ```bash
     ssh ubuntu@YOUR_PUBLIC_IP
 
@@ -48,43 +48,43 @@ Run a persistent OpenClaw Gateway on Oracle Cloud's **Always Free** ARM tier (up
     sudo apt install -y build-essential
     ```
 
-    `build-essential` is required for ARM compilation of some dependencies.
+    `build-essential` cần thiết để biên dịch ARM cho một số phụ thuộc.
 
   </Step>
 
-  <Step title="Configure user and hostname">
+  <Step title="Cấu hình người dùng và hostname">
     ```bash
     sudo hostnamectl set-hostname openclaw
     sudo passwd ubuntu
     sudo loginctl enable-linger ubuntu
     ```
 
-    Enabling linger keeps user services running after logout.
+    Kích hoạt linger để giữ các dịch vụ người dùng chạy sau khi đăng xuất.
 
   </Step>
 
-  <Step title="Install Tailscale">
+  <Step title="Cài đặt Tailscale">
     ```bash
     curl -fsSL https://tailscale.com/install.sh | sh
     sudo tailscale up --ssh --hostname=openclaw
     ```
 
-    From now on, connect via Tailscale: `ssh ubuntu@openclaw`.
+    Từ giờ, kết nối qua Tailscale: `ssh ubuntu@openclaw`.
 
   </Step>
 
-  <Step title="Install OpenClaw">
+  <Step title="Cài đặt OpenClaw">
     ```bash
     curl -fsSL https://openclaw.ai/install.sh | bash
     source ~/.bashrc
     ```
 
-    When prompted "How do you want to hatch your bot?", select **Do this later**.
+    Khi được hỏi "How do you want to hatch your bot?", chọn **Do this later**.
 
   </Step>
 
-  <Step title="Configure the gateway">
-    Use token auth with Tailscale Serve for secure remote access.
+  <Step title="Cấu hình gateway">
+    Sử dụng xác thực token với Tailscale Serve để truy cập từ xa an toàn.
 
     ```bash
     openclaw config set gateway.bind loopback
@@ -98,19 +98,19 @@ Run a persistent OpenClaw Gateway on Oracle Cloud's **Always Free** ARM tier (up
 
   </Step>
 
-  <Step title="Lock down VCN security">
-    Block all traffic except Tailscale at the network edge:
+  <Step title="Bảo mật VCN">
+    Chặn tất cả lưu lượng trừ Tailscale tại rìa mạng:
 
-    1. Go to **Networking > Virtual Cloud Networks** in the OCI Console.
-    2. Click your VCN, then **Security Lists > Default Security List**.
-    3. **Remove** all ingress rules except `0.0.0.0/0 UDP 41641` (Tailscale).
-    4. Keep default egress rules (allow all outbound).
+    1. Đi đến **Networking > Virtual Cloud Networks** trong OCI Console.
+    2. Nhấp vào VCN của bạn, sau đó **Security Lists > Default Security List**.
+    3. **Xóa** tất cả các quy tắc ingress trừ `0.0.0.0/0 UDP 41641` (Tailscale).
+    4. Giữ nguyên các quy tắc egress mặc định (cho phép tất cả outbound).
 
-    This blocks SSH on port 22, HTTP, HTTPS, and everything else at the network edge. You can only connect via Tailscale from this point on.
+    Điều này chặn SSH trên cổng 22, HTTP, HTTPS và mọi thứ khác tại rìa mạng. Bạn chỉ có thể kết nối qua Tailscale từ thời điểm này.
 
   </Step>
 
-  <Step title="Verify">
+  <Step title="Xác minh">
     ```bash
     openclaw --version
     systemctl --user status openclaw-gateway
@@ -118,39 +118,39 @@ Run a persistent OpenClaw Gateway on Oracle Cloud's **Always Free** ARM tier (up
     curl http://localhost:18789
     ```
 
-    Access the Control UI from any device on your tailnet:
+    Truy cập Control UI từ bất kỳ thiết bị nào trên tailnet của bạn:
 
     ```
     https://openclaw.<tailnet-name>.ts.net/
     ```
 
-    Replace `<tailnet-name>` with your tailnet name (visible in `tailscale status`).
+    Thay `<tailnet-name>` bằng tên tailnet của bạn (có thể thấy trong `tailscale status`).
 
   </Step>
 </Steps>
 
-## Fallback: SSH tunnel
+## Phương án dự phòng: SSH tunnel
 
-If Tailscale Serve is not working, use an SSH tunnel from your local machine:
+Nếu Tailscale Serve không hoạt động, sử dụng SSH tunnel từ máy cục bộ của bạn:
 
 ```bash
 ssh -L 18789:127.0.0.1:18789 ubuntu@openclaw
 ```
 
-Then open `http://localhost:18789`.
+Sau đó mở `http://localhost:18789`.
 
-## Troubleshooting
+## Khắc phục sự cố
 
-**Instance creation fails ("Out of capacity")** -- Free tier ARM instances are popular. Try a different availability domain or retry during off-peak hours.
+**Tạo instance thất bại ("Out of capacity")** -- Các instance ARM gói miễn phí rất phổ biến. Thử một miền khả dụng khác hoặc thử lại vào giờ thấp điểm.
 
-**Tailscale will not connect** -- Run `sudo tailscale up --ssh --hostname=openclaw --reset` to re-authenticate.
+**Tailscale không kết nối được** -- Chạy `sudo tailscale up --ssh --hostname=openclaw --reset` để xác thực lại.
 
-**Gateway will not start** -- Run `openclaw doctor --non-interactive` and check logs with `journalctl --user -u openclaw-gateway -n 50`.
+**Gateway không khởi động được** -- Chạy `openclaw doctor --non-interactive` và kiểm tra log với `journalctl --user -u openclaw-gateway -n 50`.
 
-**ARM binary issues** -- Most npm packages work on ARM64. For native binaries, look for `linux-arm64` or `aarch64` releases. Verify architecture with `uname -m`.
+**Vấn đề với binary ARM** -- Hầu hết các gói npm hoạt động trên ARM64. Đối với các binary gốc, tìm các bản phát hành `linux-arm64` hoặc `aarch64`. Kiểm tra kiến trúc với `uname -m`.
 
-## Next steps
+## Bước tiếp theo
 
-- [Channels](/channels) -- connect Telegram, WhatsApp, Discord, and more
-- [Gateway configuration](/gateway/configuration) -- all config options
-- [Updating](/install/updating) -- keep OpenClaw up to date
+- [Channels](/channels) -- kết nối Telegram, WhatsApp, Discord và nhiều hơn nữa
+- [Cấu hình Gateway](/gateway/configuration) -- tất cả các tùy chọn cấu hình
+- [Cập nhật](/install/updating) -- giữ OpenClaw luôn cập nhật

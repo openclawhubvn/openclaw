@@ -1,33 +1,33 @@
 ---
-summary: "Invoke a single tool directly via the Gateway HTTP endpoint"
+summary: "Gọi trực tiếp một công cụ qua endpoint HTTP của Gateway"
 read_when:
-  - Calling tools without running a full agent turn
-  - Building automations that need tool policy enforcement
-title: "Tools Invoke API"
+  - Gọi công cụ mà không cần chạy toàn bộ agent
+  - Xây dựng tự động hóa cần thực thi chính sách công cụ
+title: "API Gọi Công Cụ"
 ---
 
-# Tools Invoke (HTTP)
+# Gọi Công Cụ (HTTP)
 
-OpenClaw’s Gateway exposes a simple HTTP endpoint for invoking a single tool directly. It is always enabled, but gated by Gateway auth and tool policy.
+Gateway của OpenClaw cung cấp một endpoint HTTP đơn giản để gọi trực tiếp một công cụ. Endpoint này luôn được kích hoạt, nhưng được bảo vệ bởi xác thực Gateway và chính sách công cụ.
 
 - `POST /tools/invoke`
-- Same port as the Gateway (WS + HTTP multiplex): `http://<gateway-host>:<port>/tools/invoke`
+- Cùng cổng với Gateway (WS + HTTP multiplex): `http://<gateway-host>:<port>/tools/invoke`
 
-Default max payload size is 2 MB.
+Kích thước payload tối đa mặc định là 2 MB.
 
-## Authentication
+## Xác thực
 
-Uses the Gateway auth configuration. Send a bearer token:
+Sử dụng cấu hình xác thực của Gateway. Gửi một bearer token:
 
 - `Authorization: Bearer <token>`
 
-Notes:
+Lưu ý:
 
-- When `gateway.auth.mode="token"`, use `gateway.auth.token` (or `OPENCLAW_GATEWAY_TOKEN`).
-- When `gateway.auth.mode="password"`, use `gateway.auth.password` (or `OPENCLAW_GATEWAY_PASSWORD`).
-- If `gateway.auth.rateLimit` is configured and too many auth failures occur, the endpoint returns `429` with `Retry-After`.
+- Khi `gateway.auth.mode="token"`, sử dụng `gateway.auth.token` (hoặc `OPENCLAW_GATEWAY_TOKEN`).
+- Khi `gateway.auth.mode="password"`, sử dụng `gateway.auth.password` (hoặc `OPENCLAW_GATEWAY_PASSWORD`).
+- Nếu `gateway.auth.rateLimit` được cấu hình và xảy ra quá nhiều lỗi xác thực, endpoint sẽ trả về `429` với `Retry-After`.
 
-## Request body
+## Nội dung yêu cầu
 
 ```json
 {
@@ -39,64 +39,64 @@ Notes:
 }
 ```
 
-Fields:
+Các trường:
 
-- `tool` (string, required): tool name to invoke.
-- `action` (string, optional): mapped into args if the tool schema supports `action` and the args payload omitted it.
-- `args` (object, optional): tool-specific arguments.
-- `sessionKey` (string, optional): target session key. If omitted or `"main"`, the Gateway uses the configured main session key (honors `session.mainKey` and default agent, or `global` in global scope).
-- `dryRun` (boolean, optional): reserved for future use; currently ignored.
+- `tool` (chuỗi, bắt buộc): tên công cụ cần gọi.
+- `action` (chuỗi, tùy chọn): được ánh xạ vào args nếu schema công cụ hỗ trợ `action` và payload args không có.
+- `args` (đối tượng, tùy chọn): các tham số cụ thể cho công cụ.
+- `sessionKey` (chuỗi, tùy chọn): khóa phiên mục tiêu. Nếu bỏ qua hoặc `"main"`, Gateway sử dụng khóa phiên chính đã cấu hình (tuân theo `session.mainKey` và agent mặc định, hoặc `global` trong phạm vi toàn cầu).
+- `dryRun` (boolean, tùy chọn): dành cho sử dụng trong tương lai; hiện tại bị bỏ qua.
 
-## Policy + routing behavior
+## Hành vi chính sách + định tuyến
 
-Tool availability is filtered through the same policy chain used by Gateway agents:
+Khả dụng của công cụ được lọc qua chuỗi chính sách tương tự được sử dụng bởi các agent của Gateway:
 
 - `tools.profile` / `tools.byProvider.profile`
 - `tools.allow` / `tools.byProvider.allow`
 - `agents.<id>.tools.allow` / `agents.<id>.tools.byProvider.allow`
-- group policies (if the session key maps to a group or channel)
-- subagent policy (when invoking with a subagent session key)
+- chính sách nhóm (nếu khóa phiên ánh xạ tới một nhóm hoặc kênh)
+- chính sách subagent (khi gọi với khóa phiên subagent)
 
-If a tool is not allowed by policy, the endpoint returns **404**.
+Nếu một công cụ không được phép bởi chính sách, endpoint sẽ trả về **404**.
 
-Gateway HTTP also applies a hard deny list by default (even if session policy allows the tool):
+Gateway HTTP cũng áp dụng danh sách từ chối mặc định (ngay cả khi chính sách phiên cho phép công cụ):
 
 - `sessions_spawn`
 - `sessions_send`
 - `gateway`
 - `whatsapp_login`
 
-You can customize this deny list via `gateway.tools`:
+Bạn có thể tùy chỉnh danh sách từ chối này qua `gateway.tools`:
 
 ```json5
 {
   gateway: {
     tools: {
-      // Additional tools to block over HTTP /tools/invoke
+      // Các công cụ bổ sung để chặn qua HTTP /tools/invoke
       deny: ["browser"],
-      // Remove tools from the default deny list
+      // Loại bỏ công cụ khỏi danh sách từ chối mặc định
       allow: ["gateway"],
     },
   },
 }
 ```
 
-To help group policies resolve context, you can optionally set:
+Để hỗ trợ chính sách nhóm giải quyết ngữ cảnh, bạn có thể tùy chọn thiết lập:
 
-- `x-openclaw-message-channel: <channel>` (example: `slack`, `telegram`)
-- `x-openclaw-account-id: <accountId>` (when multiple accounts exist)
+- `x-openclaw-message-channel: <channel>` (ví dụ: `slack`, `telegram`)
+- `x-openclaw-account-id: <accountId>` (khi có nhiều tài khoản)
 
-## Responses
+## Phản hồi
 
 - `200` → `{ ok: true, result }`
-- `400` → `{ ok: false, error: { type, message } }` (invalid request or tool input error)
-- `401` → unauthorized
-- `429` → auth rate-limited (`Retry-After` set)
-- `404` → tool not available (not found or not allowlisted)
-- `405` → method not allowed
-- `500` → `{ ok: false, error: { type, message } }` (unexpected tool execution error; sanitized message)
+- `400` → `{ ok: false, error: { type, message } }` (yêu cầu không hợp lệ hoặc lỗi đầu vào công cụ)
+- `401` → không được phép
+- `429` → giới hạn tốc độ xác thực (`Retry-After` được thiết lập)
+- `404` → công cụ không khả dụng (không tìm thấy hoặc không có trong danh sách cho phép)
+- `405` → phương thức không được phép
+- `500` → `{ ok: false, error: { type, message } }` (lỗi thực thi công cụ không mong đợi; thông báo đã được làm sạch)
 
-## Example
+## Ví dụ
 
 ```bash
 curl -sS http://127.0.0.1:18789/tools/invoke \

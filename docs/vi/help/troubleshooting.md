@@ -1,18 +1,18 @@
 ---
-summary: "Symptom first troubleshooting hub for OpenClaw"
+summary: "Trung tâm xử lý sự cố theo triệu chứng cho OpenClaw"
 read_when:
-  - OpenClaw is not working and you need the fastest path to a fix
-  - You want a triage flow before diving into deep runbooks
-title: "General Troubleshooting"
+  - OpenClaw không hoạt động và cần tìm cách khắc phục nhanh nhất
+  - Muốn có quy trình phân loại trước khi đi sâu vào tài liệu chi tiết
+title: "Xử lý sự cố chung"
 ---
 
-# Troubleshooting
+# Xử lý sự cố
 
-If you only have 2 minutes, use this page as a triage front door.
+Nếu chỉ có 2 phút, hãy sử dụng trang này như một điểm khởi đầu để phân loại sự cố.
 
-## First 60 seconds
+## 60 giây đầu tiên
 
-Run this exact ladder in order:
+Thực hiện theo thứ tự các lệnh sau:
 
 ```bash
 openclaw status
@@ -24,34 +24,33 @@ openclaw channels status --probe
 openclaw logs --follow
 ```
 
-Good output in one line:
+Kết quả tốt trong một dòng:
 
-- `openclaw status` → shows configured channels and no obvious auth errors.
-- `openclaw status --all` → full report is present and shareable.
-- `openclaw gateway probe` → expected gateway target is reachable (`Reachable: yes`). `RPC: limited - missing scope: operator.read` is degraded diagnostics, not a connect failure.
-- `openclaw gateway status` → `Runtime: running` and `RPC probe: ok`.
-- `openclaw doctor` → no blocking config/service errors.
-- `openclaw channels status --probe` → channels report `connected` or `ready`.
-- `openclaw logs --follow` → steady activity, no repeating fatal errors.
+- `openclaw status` → hiển thị các kênh đã cấu hình và không có lỗi xác thực rõ ràng.
+- `openclaw status --all` → báo cáo đầy đủ có sẵn và có thể chia sẻ.
+- `openclaw gateway probe` → mục tiêu gateway mong đợi có thể truy cập (`Reachable: yes`). `RPC: limited - missing scope: operator.read` là chẩn đoán suy giảm, không phải lỗi kết nối.
+- `openclaw gateway status` → `Runtime: running` và `RPC probe: ok`.
+- `openclaw doctor` → không có lỗi cấu hình/dịch vụ chặn.
+- `openclaw channels status --probe` → các kênh báo cáo `connected` hoặc `ready`.
+- `openclaw logs --follow` → hoạt động ổn định, không có lỗi nghiêm trọng lặp lại.
 
 ## Anthropic long context 429
 
-If you see:
+Nếu thấy:
 `HTTP 429: rate_limit_error: Extra usage is required for long context requests`,
-go to [/gateway/troubleshooting#anthropic-429-extra-usage-required-for-long-context](/gateway/troubleshooting#anthropic-429-extra-usage-required-for-long-context).
+hãy truy cập [/gateway/troubleshooting#anthropic-429-extra-usage-required-for-long-context](/gateway/troubleshooting#anthropic-429-extra-usage-required-for-long-context).
 
-## Plugin install fails with missing openclaw extensions
+## Cài đặt plugin thất bại do thiếu openclaw extensions
 
-If install fails with `package.json missing openclaw.extensions`, the plugin package
-is using an old shape that OpenClaw no longer accepts.
+Nếu cài đặt thất bại với lỗi `package.json missing openclaw.extensions`, gói plugin đang sử dụng cấu trúc cũ mà OpenClaw không còn chấp nhận.
 
-Fix in the plugin package:
+Khắc phục trong gói plugin:
 
-1. Add `openclaw.extensions` to `package.json`.
-2. Point entries at built runtime files (usually `./dist/index.js`).
-3. Republish the plugin and run `openclaw plugins install <npm-spec>` again.
+1. Thêm `openclaw.extensions` vào `package.json`.
+2. Chỉ định các mục nhập đến các file runtime đã xây dựng (thường là `./dist/index.js`).
+3. Xuất bản lại plugin và chạy `openclaw plugins install <npm-spec>` lại.
 
-Example:
+Ví dụ:
 
 ```json
 {
@@ -63,32 +62,32 @@ Example:
 }
 ```
 
-Reference: [Plugin architecture](/plugins/architecture)
+Tham khảo: [Kiến trúc Plugin](/plugins/architecture)
 
-## Decision tree
+## Cây quyết định
 
 ```mermaid
 flowchart TD
-  A[OpenClaw is not working] --> B{What breaks first}
-  B --> C[No replies]
-  B --> D[Dashboard or Control UI will not connect]
-  B --> E[Gateway will not start or service not running]
-  B --> F[Channel connects but messages do not flow]
-  B --> G[Cron or heartbeat did not fire or did not deliver]
-  B --> H[Node is paired but camera canvas screen exec fails]
-  B --> I[Browser tool fails]
+  A[OpenClaw không hoạt động] --> B{Điều gì bị hỏng đầu tiên}
+  B --> C[Không có phản hồi]
+  B --> D[Dashboard hoặc Control UI không kết nối được]
+  B --> E[Gateway không khởi động hoặc dịch vụ không chạy]
+  B --> F[Kênh kết nối nhưng tin nhắn không truyền]
+  B --> G[Cron hoặc heartbeat không kích hoạt hoặc không gửi]
+  B --> H[Node đã ghép đôi nhưng công cụ camera canvas không thực thi]
+  B --> I[Công cụ trình duyệt thất bại]
 
-  C --> C1[/No replies section/]
-  D --> D1[/Control UI section/]
-  E --> E1[/Gateway section/]
-  F --> F1[/Channel flow section/]
-  G --> G1[/Automation section/]
-  H --> H1[/Node tools section/]
-  I --> I1[/Browser section/]
+  C --> C1[/Phần không có phản hồi/]
+  D --> D1[/Phần Control UI/]
+  E --> E1[/Phần Gateway/]
+  F --> F1[/Phần luồng kênh/]
+  G --> G1[/Phần tự động hóa/]
+  H --> H1[/Phần công cụ Node/]
+  I --> I1[/Phần trình duyệt/]
 ```
 
 <AccordionGroup>
-  <Accordion title="No replies">
+  <Accordion title="Không có phản hồi">
     ```bash
     openclaw status
     openclaw gateway status
@@ -97,20 +96,20 @@ flowchart TD
     openclaw logs --follow
     ```
 
-    Good output looks like:
+    Kết quả tốt trông như:
 
     - `Runtime: running`
     - `RPC probe: ok`
-    - Your channel shows connected/ready in `channels status --probe`
-    - Sender appears approved (or DM policy is open/allowlist)
+    - Kênh của bạn hiển thị kết nối/sẵn sàng trong `channels status --probe`
+    - Người gửi được phê duyệt (hoặc chính sách DM mở/danh sách cho phép)
 
-    Common log signatures:
+    Các dấu hiệu nhật ký phổ biến:
 
-    - `drop guild message (mention required` → mention gating blocked the message in Discord.
-    - `pairing request` → sender is unapproved and waiting for DM pairing approval.
-    - `blocked` / `allowlist` in channel logs → sender, room, or group is filtered.
+    - `drop guild message (mention required` → chặn tin nhắn trong Discord do yêu cầu nhắc đến.
+    - `pairing request` → người gửi chưa được phê duyệt và đang chờ phê duyệt ghép đôi DM.
+    - `blocked` / `allowlist` trong nhật ký kênh → người gửi, phòng, hoặc nhóm bị lọc.
 
-    Deep pages:
+    Các trang chi tiết:
 
     - [/gateway/troubleshooting#no-replies](/gateway/troubleshooting#no-replies)
     - [/channels/troubleshooting](/channels/troubleshooting)
@@ -118,7 +117,7 @@ flowchart TD
 
   </Accordion>
 
-  <Accordion title="Dashboard or Control UI will not connect">
+  <Accordion title="Dashboard hoặc Control UI không kết nối được">
     ```bash
     openclaw status
     openclaw gateway status
@@ -127,20 +126,20 @@ flowchart TD
     openclaw channels status --probe
     ```
 
-    Good output looks like:
+    Kết quả tốt trông như:
 
-    - `Dashboard: http://...` is shown in `openclaw gateway status`
+    - `Dashboard: http://...` được hiển thị trong `openclaw gateway status`
     - `RPC probe: ok`
-    - No auth loop in logs
+    - Không có vòng lặp xác thực trong nhật ký
 
-    Common log signatures:
+    Các dấu hiệu nhật ký phổ biến:
 
-    - `device identity required` → HTTP/non-secure context cannot complete device auth.
-    - `AUTH_TOKEN_MISMATCH` with retry hints (`canRetryWithDeviceToken=true`) → one trusted device-token retry may occur automatically.
-    - repeated `unauthorized` after that retry → wrong token/password, auth mode mismatch, or stale paired device token.
-    - `gateway connect failed:` → UI is targeting the wrong URL/port or unreachable gateway.
+    - `device identity required` → HTTP/ngữ cảnh không bảo mật không thể hoàn tất xác thực thiết bị.
+    - `AUTH_TOKEN_MISMATCH` với gợi ý thử lại (`canRetryWithDeviceToken=true`) → một lần thử lại với token thiết bị đáng tin cậy có thể tự động xảy ra.
+    - lặp lại `unauthorized` sau lần thử lại đó → token/mật khẩu sai, chế độ xác thực không khớp, hoặc token thiết bị ghép đôi đã cũ.
+    - `gateway connect failed:` → UI đang nhắm đến URL/cổng sai hoặc gateway không thể truy cập.
 
-    Deep pages:
+    Các trang chi tiết:
 
     - [/gateway/troubleshooting#dashboard-control-ui-connectivity](/gateway/troubleshooting#dashboard-control-ui-connectivity)
     - [/web/control-ui](/web/control-ui)
@@ -148,7 +147,7 @@ flowchart TD
 
   </Accordion>
 
-  <Accordion title="Gateway will not start or service installed but not running">
+  <Accordion title="Gateway không khởi động hoặc dịch vụ đã cài đặt nhưng không chạy">
     ```bash
     openclaw status
     openclaw gateway status
@@ -157,19 +156,19 @@ flowchart TD
     openclaw channels status --probe
     ```
 
-    Good output looks like:
+    Kết quả tốt trông như:
 
     - `Service: ... (loaded)`
     - `Runtime: running`
     - `RPC probe: ok`
 
-    Common log signatures:
+    Các dấu hiệu nhật ký phổ biến:
 
-    - `Gateway start blocked: set gateway.mode=local` → gateway mode is unset/remote.
-    - `refusing to bind gateway ... without auth` → non-loopback bind without token/password.
-    - `another gateway instance is already listening` or `EADDRINUSE` → port already taken.
+    - `Gateway start blocked: set gateway.mode=local` → chế độ gateway chưa được đặt/cách xa.
+    - `refusing to bind gateway ... without auth` → không thể kết nối không vòng lặp mà không có token/mật khẩu.
+    - `another gateway instance is already listening` hoặc `EADDRINUSE` → cổng đã bị chiếm.
 
-    Deep pages:
+    Các trang chi tiết:
 
     - [/gateway/troubleshooting#gateway-service-not-running](/gateway/troubleshooting#gateway-service-not-running)
     - [/gateway/background-process](/gateway/background-process)
@@ -177,7 +176,7 @@ flowchart TD
 
   </Accordion>
 
-  <Accordion title="Channel connects but messages do not flow">
+  <Accordion title="Kênh kết nối nhưng tin nhắn không truyền">
     ```bash
     openclaw status
     openclaw gateway status
@@ -186,26 +185,26 @@ flowchart TD
     openclaw channels status --probe
     ```
 
-    Good output looks like:
+    Kết quả tốt trông như:
 
-    - Channel transport is connected.
-    - Pairing/allowlist checks pass.
-    - Mentions are detected where required.
+    - Kênh vận chuyển đã kết nối.
+    - Kiểm tra ghép đôi/danh sách cho phép thành công.
+    - Nhắc đến được phát hiện khi cần thiết.
 
-    Common log signatures:
+    Các dấu hiệu nhật ký phổ biến:
 
-    - `mention required` → group mention gating blocked processing.
-    - `pairing` / `pending` → DM sender is not approved yet.
-    - `not_in_channel`, `missing_scope`, `Forbidden`, `401/403` → channel permission token issue.
+    - `mention required` → chặn xử lý do yêu cầu nhắc đến nhóm.
+    - `pairing` / `pending` → người gửi DM chưa được phê duyệt.
+    - `not_in_channel`, `missing_scope`, `Forbidden`, `401/403` → vấn đề với token quyền kênh.
 
-    Deep pages:
+    Các trang chi tiết:
 
     - [/gateway/troubleshooting#channel-connected-messages-not-flowing](/gateway/troubleshooting#channel-connected-messages-not-flowing)
     - [/channels/troubleshooting](/channels/troubleshooting)
 
   </Accordion>
 
-  <Accordion title="Cron or heartbeat did not fire or did not deliver">
+  <Accordion title="Cron hoặc heartbeat không kích hoạt hoặc không gửi">
     ```bash
     openclaw status
     openclaw gateway status
@@ -215,20 +214,20 @@ flowchart TD
     openclaw logs --follow
     ```
 
-    Good output looks like:
+    Kết quả tốt trông như:
 
-    - `cron.status` shows enabled with a next wake.
-    - `cron runs` shows recent `ok` entries.
-    - Heartbeat is enabled and not outside active hours.
+    - `cron.status` hiển thị đã bật với lần thức dậy tiếp theo.
+    - `cron runs` hiển thị các mục `ok` gần đây.
+    - Heartbeat đã bật và không nằm ngoài giờ hoạt động.
 
-    Common log signatures:
+    Các dấu hiệu nhật ký phổ biến:
 
-    - `cron: scheduler disabled; jobs will not run automatically` → cron is disabled.
-    - `heartbeat skipped` with `reason=quiet-hours` → outside configured active hours.
-    - `requests-in-flight` → main lane busy; heartbeat wake was deferred.
-    - `unknown accountId` → heartbeat delivery target account does not exist.
+    - `cron: scheduler disabled; jobs will not run automatically` → cron bị vô hiệu hóa.
+    - `heartbeat skipped` với `reason=quiet-hours` → ngoài giờ hoạt động đã cấu hình.
+    - `requests-in-flight` → làn chính bận; thức dậy heartbeat bị hoãn.
+    - `unknown accountId` → tài khoản mục tiêu gửi heartbeat không tồn tại.
 
-    Deep pages:
+    Các trang chi tiết:
 
     - [/gateway/troubleshooting#cron-and-heartbeat-delivery](/gateway/troubleshooting#cron-and-heartbeat-delivery)
     - [/automation/troubleshooting](/automation/troubleshooting)
@@ -236,7 +235,7 @@ flowchart TD
 
   </Accordion>
 
-  <Accordion title="Node is paired but tool fails camera canvas screen exec">
+  <Accordion title="Node đã ghép đôi nhưng công cụ thất bại khi thực thi camera canvas">
     ```bash
     openclaw status
     openclaw gateway status
@@ -245,20 +244,20 @@ flowchart TD
     openclaw logs --follow
     ```
 
-    Good output looks like:
+    Kết quả tốt trông như:
 
-    - Node is listed as connected and paired for role `node`.
-    - Capability exists for the command you are invoking.
-    - Permission state is granted for the tool.
+    - Node được liệt kê là đã kết nối và ghép đôi cho vai trò `node`.
+    - Có khả năng cho lệnh bạn đang gọi.
+    - Trạng thái quyền được cấp cho công cụ.
 
-    Common log signatures:
+    Các dấu hiệu nhật ký phổ biến:
 
-    - `NODE_BACKGROUND_UNAVAILABLE` → bring node app to foreground.
-    - `*_PERMISSION_REQUIRED` → OS permission was denied/missing.
-    - `SYSTEM_RUN_DENIED: approval required` → exec approval is pending.
-    - `SYSTEM_RUN_DENIED: allowlist miss` → command not on exec allowlist.
+    - `NODE_BACKGROUND_UNAVAILABLE` → đưa ứng dụng node lên nền trước.
+    - `*_PERMISSION_REQUIRED` → quyền hệ điều hành bị từ chối/thiếu.
+    - `SYSTEM_RUN_DENIED: approval required` → phê duyệt thực thi đang chờ.
+    - `SYSTEM_RUN_DENIED: allowlist miss` → lệnh không có trong danh sách cho phép thực thi.
 
-    Deep pages:
+    Các trang chi tiết:
 
     - [/gateway/troubleshooting#node-paired-tool-fails](/gateway/troubleshooting#node-paired-tool-fails)
     - [/nodes/troubleshooting](/nodes/troubleshooting)
@@ -266,7 +265,7 @@ flowchart TD
 
   </Accordion>
 
-  <Accordion title="Browser tool fails">
+  <Accordion title="Công cụ trình duyệt thất bại">
     ```bash
     openclaw status
     openclaw gateway status
@@ -275,19 +274,19 @@ flowchart TD
     openclaw doctor
     ```
 
-    Good output looks like:
+    Kết quả tốt trông như:
 
-    - Browser status shows `running: true` and a chosen browser/profile.
-    - `openclaw` starts, or `user` can see local Chrome tabs.
+    - Trạng thái trình duyệt hiển thị `running: true` và trình duyệt/hồ sơ đã chọn.
+    - `openclaw` khởi động, hoặc `user` có thể thấy các tab Chrome cục bộ.
 
-    Common log signatures:
+    Các dấu hiệu nhật ký phổ biến:
 
-    - `Failed to start Chrome CDP on port` → local browser launch failed.
-    - `browser.executablePath not found` → configured binary path is wrong.
-    - `No Chrome tabs found for profile="user"` → the Chrome MCP attach profile has no open local Chrome tabs.
-    - `Browser attachOnly is enabled ... not reachable` → attach-only profile has no live CDP target.
+    - `Failed to start Chrome CDP on port` → khởi động trình duyệt cục bộ thất bại.
+    - `browser.executablePath not found` → đường dẫn nhị phân cấu hình sai.
+    - `No Chrome tabs found for profile="user"` → hồ sơ đính kèm Chrome MCP không có tab Chrome cục bộ mở.
+    - `Browser attachOnly is enabled ... not reachable` → hồ sơ chỉ đính kèm không có mục tiêu CDP đang hoạt động.
 
-    Deep pages:
+    Các trang chi tiết:
 
     - [/gateway/troubleshooting#browser-tool-fails](/gateway/troubleshooting#browser-tool-fails)
     - [/tools/browser-linux-troubleshooting](/tools/browser-linux-troubleshooting)

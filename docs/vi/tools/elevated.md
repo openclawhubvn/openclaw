@@ -1,42 +1,39 @@
 ---
-summary: "Elevated exec mode: run commands on the gateway host from a sandboxed agent"
+summary: "Chế độ nâng cao: chạy lệnh trên máy chủ gateway từ agent bị cô lập"
 read_when:
-  - Adjusting elevated mode defaults, allowlists, or slash command behavior
-  - Understanding how sandboxed agents can access the host
-title: "Elevated Mode"
+  - Điều chỉnh mặc định chế độ nâng cao, danh sách cho phép, hoặc hành vi lệnh gạch chéo
+  - Hiểu cách agent bị cô lập có thể truy cập máy chủ
+title: "Chế độ Nâng Cao"
 ---
 
-# Elevated Mode
+# Chế độ Nâng Cao
 
-When an agent runs inside a sandbox, its `exec` commands are confined to the
-sandbox environment. **Elevated mode** lets the agent break out and run commands
-on the gateway host instead, with configurable approval gates.
+Khi một agent chạy trong môi trường cô lập, các lệnh `exec` của nó bị giới hạn trong môi trường đó. **Chế độ nâng cao** cho phép agent thoát ra và chạy lệnh trên máy chủ gateway, với các cổng phê duyệt có thể cấu hình.
 
 <Info>
-  Elevated mode only changes behavior when the agent is **sandboxed**. For
-  unsandboxed agents, exec already runs on the host.
+  Chế độ nâng cao chỉ thay đổi hành vi khi agent đang **bị cô lập**. Đối với các agent không bị cô lập, `exec` đã chạy trên máy chủ.
 </Info>
 
-## Directives
+## Chỉ thị
 
-Control elevated mode per-session with slash commands:
+Điều khiển chế độ nâng cao theo từng phiên với các lệnh gạch chéo:
 
-| Directive        | What it does                                        |
-| ---------------- | --------------------------------------------------- |
-| `/elevated on`   | Run on the gateway host, keep exec approvals        |
-| `/elevated ask`  | Same as `on` (alias)                                |
-| `/elevated full` | Run on the gateway host **and** skip exec approvals |
-| `/elevated off`  | Return to sandbox-confined execution                |
+| Chỉ thị          | Chức năng                                               |
+| ---------------- | ------------------------------------------------------- |
+| `/elevated on`   | Chạy trên máy chủ gateway, giữ lại phê duyệt exec       |
+| `/elevated ask`  | Giống như `on` (tên khác)                              |
+| `/elevated full` | Chạy trên máy chủ gateway **và** bỏ qua phê duyệt exec  |
+| `/elevated off`  | Quay lại thực thi bị giới hạn trong môi trường cô lập   |
 
-Also available as `/elev on|off|ask|full`.
+Cũng có thể sử dụng dưới dạng `/elev on|off|ask|full`.
 
-Send `/elevated` with no argument to see the current level.
+Gửi `/elevated` không có tham số để xem mức hiện tại.
 
-## How it works
+## Cách hoạt động
 
 <Steps>
-  <Step title="Check availability">
-    Elevated must be enabled in config and the sender must be on the allowlist:
+  <Step title="Kiểm tra khả dụng">
+    Chế độ nâng cao phải được bật trong cấu hình và người gửi phải có trong danh sách cho phép:
 
     ```json5
     {
@@ -54,61 +51,59 @@ Send `/elevated` with no argument to see the current level.
 
   </Step>
 
-  <Step title="Set the level">
-    Send a directive-only message to set the session default:
+  <Step title="Thiết lập mức độ">
+    Gửi một tin nhắn chỉ có chỉ thị để thiết lập mặc định cho phiên:
 
     ```
     /elevated full
     ```
 
-    Or use it inline (applies to that message only):
+    Hoặc sử dụng trong dòng (áp dụng cho tin nhắn đó):
 
     ```
-    /elevated on run the deployment script
+    /elevated on chạy script triển khai
     ```
 
   </Step>
 
-  <Step title="Commands run on the host">
-    With elevated active, `exec` calls route to the gateway host instead of the
-    sandbox. In `full` mode, exec approvals are skipped. In `on`/`ask` mode,
-    configured approval rules still apply.
+  <Step title="Lệnh chạy trên máy chủ">
+    Khi chế độ nâng cao hoạt động, các cuộc gọi `exec` được chuyển đến máy chủ gateway thay vì môi trường cô lập. Trong chế độ `full`, phê duyệt exec bị bỏ qua. Trong chế độ `on`/`ask`, các quy tắc phê duyệt đã cấu hình vẫn áp dụng.
   </Step>
 </Steps>
 
-## Resolution order
+## Thứ tự giải quyết
 
-1. **Inline directive** on the message (applies only to that message)
-2. **Session override** (set by sending a directive-only message)
-3. **Global default** (`agents.defaults.elevatedDefault` in config)
+1. **Chỉ thị trong dòng** trên tin nhắn (chỉ áp dụng cho tin nhắn đó)
+2. **Ghi đè phiên** (được thiết lập bằng cách gửi một tin nhắn chỉ có chỉ thị)
+3. **Mặc định toàn cầu** (`agents.defaults.elevatedDefault` trong cấu hình)
 
-## Availability and allowlists
+## Khả dụng và danh sách cho phép
 
-- **Global gate**: `tools.elevated.enabled` (must be `true`)
-- **Sender allowlist**: `tools.elevated.allowFrom` with per-channel lists
-- **Per-agent gate**: `agents.list[].tools.elevated.enabled` (can only further restrict)
-- **Per-agent allowlist**: `agents.list[].tools.elevated.allowFrom` (sender must match both global + per-agent)
-- **Discord fallback**: if `tools.elevated.allowFrom.discord` is omitted, `channels.discord.allowFrom` is used as fallback
-- **All gates must pass**; otherwise elevated is treated as unavailable
+- **Cổng toàn cầu**: `tools.elevated.enabled` (phải là `true`)
+- **Danh sách cho phép người gửi**: `tools.elevated.allowFrom` với danh sách theo kênh
+- **Cổng theo agent**: `agents.list[].tools.elevated.enabled` (chỉ có thể hạn chế thêm)
+- **Danh sách cho phép theo agent**: `agents.list[].tools.elevated.allowFrom` (người gửi phải khớp cả toàn cầu + theo agent)
+- **Dự phòng Discord**: nếu `tools.elevated.allowFrom.discord` bị bỏ qua, `channels.discord.allowFrom` được sử dụng làm dự phòng
+- **Tất cả các cổng phải thông qua**; nếu không, chế độ nâng cao được coi là không khả dụng
 
-Allowlist entry formats:
+Định dạng mục danh sách cho phép:
 
-| Prefix                  | Matches                         |
-| ----------------------- | ------------------------------- |
-| (none)                  | Sender ID, E.164, or From field |
-| `name:`                 | Sender display name             |
-| `username:`             | Sender username                 |
-| `tag:`                  | Sender tag                      |
-| `id:`, `from:`, `e164:` | Explicit identity targeting     |
+| Tiền tố                 | Khớp với                          |
+| ----------------------- | --------------------------------- |
+| (không có)              | ID người gửi, E.164, hoặc trường From |
+| `name:`                 | Tên hiển thị của người gửi        |
+| `username:`             | Tên người dùng của người gửi      |
+| `tag:`                  | Thẻ của người gửi                 |
+| `id:`, `from:`, `e164:` | Nhắm mục tiêu danh tính cụ thể    |
 
-## What elevated does not control
+## Những gì chế độ nâng cao không kiểm soát
 
-- **Tool policy**: if `exec` is denied by tool policy, elevated cannot override it
-- **Separate from `/exec`**: the `/exec` directive adjusts per-session exec defaults for authorized senders and does not require elevated mode
+- **Chính sách công cụ**: nếu `exec` bị từ chối bởi chính sách công cụ, chế độ nâng cao không thể ghi đè
+- **Riêng biệt với `/exec`**: chỉ thị `/exec` điều chỉnh mặc định exec theo phiên cho người gửi được ủy quyền và không yêu cầu chế độ nâng cao
 
-## Related
+## Liên quan
 
-- [Exec tool](/tools/exec) — shell command execution
-- [Exec approvals](/tools/exec-approvals) — approval and allowlist system
-- [Sandboxing](/gateway/sandboxing) — sandbox configuration
-- [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated)
+- [Công cụ Exec](/tools/exec) — thực thi lệnh shell
+- [Phê duyệt Exec](/tools/exec-approvals) — hệ thống phê duyệt và danh sách cho phép
+- [Cô lập](/gateway/sandboxing) — cấu hình môi trường cô lập
+- [Cô lập vs Chính sách Công cụ vs Nâng Cao](/gateway/sandbox-vs-tool-policy-vs-elevated)

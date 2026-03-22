@@ -1,158 +1,157 @@
 ---
-summary: "OAuth in OpenClaw: token exchange, storage, and multi-account patterns"
+summary: "OAuth trong OpenClaw: trao đổi token, lưu trữ và mô hình đa tài khoản"
 read_when:
-  - You want to understand OpenClaw OAuth end-to-end
-  - You hit token invalidation / logout issues
-  - You want setup-token or OAuth auth flows
-  - You want multiple accounts or profile routing
+  - Bạn muốn hiểu toàn diện về OAuth trong OpenClaw
+  - Bạn gặp vấn đề về token bị vô hiệu hóa hoặc đăng xuất
+  - Bạn muốn thiết lập token hoặc luồng xác thực OAuth
+  - Bạn muốn sử dụng nhiều tài khoản hoặc định tuyến hồ sơ
 title: "OAuth"
 ---
 
 # OAuth
 
-OpenClaw supports “subscription auth” via OAuth for providers that offer it (notably **OpenAI Codex (ChatGPT OAuth)**). For Anthropic subscriptions, use the **setup-token** flow. Anthropic subscription use outside Claude Code has been restricted for some users in the past, so treat it as a user-choice risk and verify current Anthropic policy yourself. OpenAI Codex OAuth is explicitly supported for use in external tools like OpenClaw. This page explains:
+OpenClaw hỗ trợ "xác thực đăng ký" qua OAuth cho các nhà cung cấp có hỗ trợ (đặc biệt là **OpenAI Codex (ChatGPT OAuth)**). Đối với đăng ký Anthropic, sử dụng luồng **setup-token**. Việc sử dụng đăng ký Anthropic ngoài Claude Code đã bị hạn chế cho một số người dùng trước đây, vì vậy hãy coi đó là rủi ro do người dùng lựa chọn và tự xác minh chính sách hiện tại của Anthropic. OpenAI Codex OAuth được hỗ trợ rõ ràng để sử dụng trong các công cụ bên ngoài như OpenClaw. Trang này giải thích:
 
-For Anthropic in production, API key auth is the safer recommended path over subscription setup-token auth.
+Đối với Anthropic trong môi trường sản xuất, xác thực bằng khóa API là con đường an toàn hơn được khuyến nghị so với xác thực bằng setup-token.
 
-- how the OAuth **token exchange** works (PKCE)
-- where tokens are **stored** (and why)
-- how to handle **multiple accounts** (profiles + per-session overrides)
+- cách thức hoạt động của **trao đổi token** OAuth (PKCE)
+- nơi lưu trữ token **(và lý do)**
+- cách xử lý **nhiều tài khoản** (hồ sơ + ghi đè theo phiên)
 
-OpenClaw also supports **provider plugins** that ship their own OAuth or API‑key
-flows. Run them via:
+OpenClaw cũng hỗ trợ **plugin nhà cung cấp** có luồng OAuth hoặc API-key riêng. Chạy chúng qua:
 
 ```bash
 openclaw models auth login --provider <id>
 ```
 
-## The token sink (why it exists)
+## Token sink (tại sao nó tồn tại)
 
-OAuth providers commonly mint a **new refresh token** during login/refresh flows. Some providers (or OAuth clients) can invalidate older refresh tokens when a new one is issued for the same user/app.
+Các nhà cung cấp OAuth thường tạo ra một **refresh token mới** trong quá trình đăng nhập/làm mới. Một số nhà cung cấp (hoặc client OAuth) có thể vô hiệu hóa các refresh token cũ hơn khi một token mới được phát hành cho cùng một người dùng/ứng dụng.
 
-Practical symptom:
+Triệu chứng thực tế:
 
-- you log in via OpenClaw _and_ via Claude Code / Codex CLI → one of them randomly gets “logged out” later
+- bạn đăng nhập qua OpenClaw _và_ qua Claude Code / Codex CLI → một trong số đó ngẫu nhiên bị "đăng xuất" sau đó
 
-To reduce that, OpenClaw treats `auth-profiles.json` as a **token sink**:
+Để giảm thiểu điều đó, OpenClaw coi `auth-profiles.json` như một **token sink**:
 
-- the runtime reads credentials from **one place**
-- we can keep multiple profiles and route them deterministically
+- runtime đọc thông tin xác thực từ **một nơi**
+- chúng ta có thể giữ nhiều hồ sơ và định tuyến chúng một cách xác định
 
-## Storage (where tokens live)
+## Lưu trữ (nơi token tồn tại)
 
-Secrets are stored **per-agent**:
+Thông tin bí mật được lưu trữ **theo từng agent**:
 
-- Auth profiles (OAuth + API keys + optional value-level refs): `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
-- Legacy compatibility file: `~/.openclaw/agents/<agentId>/agent/auth.json`
-  (static `api_key` entries are scrubbed when discovered)
+- Hồ sơ xác thực (OAuth + API keys + tham chiếu cấp giá trị tùy chọn): `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
+- Tệp tương thích cũ: `~/.openclaw/agents/<agentId>/agent/auth.json`
+  (các mục `api_key` tĩnh sẽ bị xóa khi phát hiện)
 
-Legacy import-only file (still supported, but not the main store):
+Tệp chỉ nhập cũ (vẫn được hỗ trợ, nhưng không phải là nơi lưu trữ chính):
 
-- `~/.openclaw/credentials/oauth.json` (imported into `auth-profiles.json` on first use)
+- `~/.openclaw/credentials/oauth.json` (được nhập vào `auth-profiles.json` khi sử dụng lần đầu)
 
-All of the above also respect `$OPENCLAW_STATE_DIR` (state dir override). Full reference: [/gateway/configuration](/gateway/configuration-reference#auth-storage)
+Tất cả các tệp trên cũng tuân theo `$OPENCLAW_STATE_DIR` (ghi đè thư mục trạng thái). Tham khảo đầy đủ: [/gateway/configuration](/gateway/configuration-reference#auth-storage)
 
-For static secret refs and runtime snapshot activation behavior, see [Secrets Management](/gateway/secrets).
+Đối với tham chiếu bí mật tĩnh và hành vi kích hoạt snapshot runtime, xem [Quản lý Bí mật](/gateway/secrets).
 
-## Anthropic setup-token (subscription auth)
+## Anthropic setup-token (xác thực đăng ký)
 
 <Warning>
-Anthropic setup-token support is technical compatibility, not a policy guarantee.
-Anthropic has blocked some subscription usage outside Claude Code in the past.
-Decide for yourself whether to use subscription auth, and verify Anthropic's current terms.
+Hỗ trợ setup-token của Anthropic là khả năng tương thích kỹ thuật, không phải là đảm bảo chính sách.
+Anthropic đã chặn một số việc sử dụng đăng ký ngoài Claude Code trong quá khứ.
+Tự quyết định xem có nên sử dụng xác thực đăng ký hay không và xác minh các điều khoản hiện tại của Anthropic.
 </Warning>
 
-Run `claude setup-token` on any machine, then paste it into OpenClaw:
+Chạy `claude setup-token` trên bất kỳ máy nào, sau đó dán vào OpenClaw:
 
 ```bash
 openclaw models auth setup-token --provider anthropic
 ```
 
-If you generated the token elsewhere, paste it manually:
+Nếu bạn đã tạo token ở nơi khác, dán thủ công:
 
 ```bash
 openclaw models auth paste-token --provider anthropic
 ```
 
-Verify:
+Xác minh:
 
 ```bash
 openclaw models status
 ```
 
-## OAuth exchange (how login works)
+## Trao đổi OAuth (cách thức đăng nhập hoạt động)
 
-OpenClaw’s interactive login flows are implemented in `@mariozechner/pi-ai` and wired into the wizards/commands.
+Luồng đăng nhập tương tác của OpenClaw được triển khai trong `@mariozechner/pi-ai` và tích hợp vào các wizard/lệnh.
 
 ### Anthropic setup-token
 
-Flow shape:
+Hình dạng luồng:
 
-1. run `claude setup-token`
-2. paste the token into OpenClaw
-3. store as a token auth profile (no refresh)
+1. chạy `claude setup-token`
+2. dán token vào OpenClaw
+3. lưu dưới dạng hồ sơ xác thực token (không làm mới)
 
-The wizard path is `openclaw onboard` → auth choice `setup-token` (Anthropic).
+Đường dẫn wizard là `openclaw onboard` → lựa chọn xác thực `setup-token` (Anthropic).
 
 ### OpenAI Codex (ChatGPT OAuth)
 
-OpenAI Codex OAuth is explicitly supported for use outside the Codex CLI, including OpenClaw workflows.
+OpenAI Codex OAuth được hỗ trợ rõ ràng để sử dụng ngoài Codex CLI, bao gồm các quy trình làm việc của OpenClaw.
 
-Flow shape (PKCE):
+Hình dạng luồng (PKCE):
 
-1. generate PKCE verifier/challenge + random `state`
-2. open `https://auth.openai.com/oauth/authorize?...`
-3. try to capture callback on `http://127.0.0.1:1455/auth/callback`
-4. if callback can’t bind (or you’re remote/headless), paste the redirect URL/code
-5. exchange at `https://auth.openai.com/oauth/token`
-6. extract `accountId` from the access token and store `{ access, refresh, expires, accountId }`
+1. tạo PKCE verifier/challenge + `state` ngẫu nhiên
+2. mở `https://auth.openai.com/oauth/authorize?...`
+3. cố gắng bắt callback trên `http://127.0.0.1:1455/auth/callback`
+4. nếu callback không thể kết nối (hoặc bạn đang ở chế độ từ xa/không có giao diện), dán URL/chuyển hướng mã
+5. trao đổi tại `https://auth.openai.com/oauth/token`
+6. trích xuất `accountId` từ access token và lưu trữ `{ access, refresh, expires, accountId }`
 
-Wizard path is `openclaw onboard` → auth choice `openai-codex`.
+Đường dẫn wizard là `openclaw onboard` → lựa chọn xác thực `openai-codex`.
 
-## Refresh + expiry
+## Làm mới + hết hạn
 
-Profiles store an `expires` timestamp.
+Hồ sơ lưu trữ một dấu thời gian `expires`.
 
-At runtime:
+Tại runtime:
 
-- if `expires` is in the future → use the stored access token
-- if expired → refresh (under a file lock) and overwrite the stored credentials
+- nếu `expires` trong tương lai → sử dụng access token đã lưu
+- nếu hết hạn → làm mới (dưới khóa tệp) và ghi đè thông tin xác thực đã lưu
 
-The refresh flow is automatic; you generally don't need to manage tokens manually.
+Luồng làm mới là tự động; bạn thường không cần quản lý token thủ công.
 
-## Multiple accounts (profiles) + routing
+## Nhiều tài khoản (hồ sơ) + định tuyến
 
-Two patterns:
+Hai mô hình:
 
-### 1) Preferred: separate agents
+### 1) Ưu tiên: tách biệt agent
 
-If you want “personal” and “work” to never interact, use isolated agents (separate sessions + credentials + workspace):
+Nếu bạn muốn "cá nhân" và "công việc" không bao giờ tương tác, sử dụng các agent riêng biệt (phiên + thông tin xác thực + workspace riêng):
 
 ```bash
 openclaw agents add work
 openclaw agents add personal
 ```
 
-Then configure auth per-agent (wizard) and route chats to the right agent.
+Sau đó cấu hình xác thực theo từng agent (wizard) và định tuyến các cuộc trò chuyện đến đúng agent.
 
-### 2) Advanced: multiple profiles in one agent
+### 2) Nâng cao: nhiều hồ sơ trong một agent
 
-`auth-profiles.json` supports multiple profile IDs for the same provider.
+`auth-profiles.json` hỗ trợ nhiều ID hồ sơ cho cùng một nhà cung cấp.
 
-Pick which profile is used:
+Chọn hồ sơ nào được sử dụng:
 
-- globally via config ordering (`auth.order`)
-- per-session via `/model ...@<profileId>`
+- toàn cầu qua thứ tự cấu hình (`auth.order`)
+- theo phiên qua `/model ...@<profileId>`
 
-Example (session override):
+Ví dụ (ghi đè phiên):
 
 - `/model Opus@anthropic:work`
 
-How to see what profile IDs exist:
+Cách xem các ID hồ sơ hiện có:
 
-- `openclaw channels list --json` (shows `auth[]`)
+- `openclaw channels list --json` (hiển thị `auth[]`)
 
-Related docs:
+Tài liệu liên quan:
 
-- [/concepts/model-failover](/concepts/model-failover) (rotation + cooldown rules)
-- [/tools/slash-commands](/tools/slash-commands) (command surface)
+- [/concepts/model-failover](/concepts/model-failover) (quy tắc xoay vòng + cooldown)
+- [/tools/slash-commands](/tools/slash-commands) (bề mặt lệnh)

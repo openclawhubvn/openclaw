@@ -1,47 +1,45 @@
 ---
-summary: "Messaging platforms OpenClaw can connect to"
+summary: "Các nền tảng nhắn tin mà OpenClaw có thể kết nối"
 read_when:
-  - You want to choose a chat channel for OpenClaw
-  - You need a quick overview of supported messaging platforms
-title: "Chat Channels"
+  - Bạn muốn chọn kênh chat cho OpenClaw
+  - Bạn cần cái nhìn tổng quan nhanh về các nền tảng nhắn tin được hỗ trợ
+title: "Kênh Chat"
 ---
 
-# Chat Channels
+# Kênh Chat
 
-OpenClaw can talk to you on any chat app you already use. Each channel connects via the Gateway.
-Text is supported everywhere; media and reactions vary by channel.
+OpenClaw có thể giao tiếp với bạn trên bất kỳ ứng dụng chat nào bạn đang sử dụng. Mỗi kênh kết nối thông qua Gateway. Văn bản được hỗ trợ ở mọi nơi; phương tiện và phản ứng có thể khác nhau tùy theo kênh.
 
-## Supported channels
+## Các kênh được hỗ trợ
 
-- [BlueBubbles](/channels/bluebubbles) — **Recommended for iMessage**; uses the BlueBubbles macOS server REST API with full feature support (edit, unsend, effects, reactions, group management — edit currently broken on macOS 26 Tahoe).
-- [Discord](/channels/discord) — Discord Bot API + Gateway; supports servers, channels, and DMs.
-- [Feishu](/channels/feishu) — Feishu/Lark bot via WebSocket (plugin, installed separately).
-- [Google Chat](/channels/googlechat) — Google Chat API app via HTTP webhook.
-- [iMessage (legacy)](/channels/imessage) — Legacy macOS integration via imsg CLI (deprecated, use BlueBubbles for new setups).
-- [IRC](/channels/irc) — Classic IRC servers; channels + DMs with pairing/allowlist controls.
-- [LINE](/channels/line) — LINE Messaging API bot (plugin, installed separately).
-- [Matrix](/channels/matrix) — Matrix protocol (plugin, installed separately).
-- [Mattermost](/channels/mattermost) — Bot API + WebSocket; channels, groups, DMs (plugin, installed separately).
-- [Microsoft Teams](/channels/msteams) — Bot Framework; enterprise support (plugin, installed separately).
-- [Nextcloud Talk](/channels/nextcloud-talk) — Self-hosted chat via Nextcloud Talk (plugin, installed separately).
-- [Nostr](/channels/nostr) — Decentralized DMs via NIP-04 (plugin, installed separately).
-- [Signal](/channels/signal) — signal-cli; privacy-focused.
-- [Synology Chat](/channels/synology-chat) — Synology NAS Chat via outgoing+incoming webhooks (plugin, installed separately).
-- [Slack](/channels/slack) — Bolt SDK; workspace apps.
-- [Telegram](/channels/telegram) — Bot API via grammY; supports groups.
-- [Tlon](/channels/tlon) — Urbit-based messenger (plugin, installed separately).
-- [Twitch](/channels/twitch) — Twitch chat via IRC connection (plugin, installed separately).
-- [WebChat](/web/webchat) — Gateway WebChat UI over WebSocket.
-- [WhatsApp](/channels/whatsapp) — Most popular; uses Baileys and requires QR pairing.
-- [Zalo](/channels/zalo) — Zalo Bot API; Vietnam's popular messenger (plugin, installed separately).
-- [Zalo Personal](/channels/zalouser) — Zalo personal account via QR login (plugin, installed separately).
+- [BlueBubbles](/channels/bluebubbles) — **Khuyến nghị cho iMessage**; sử dụng REST API của máy chủ BlueBubbles trên macOS với đầy đủ tính năng (chỉnh sửa, thu hồi, hiệu ứng, phản ứng, quản lý nhóm — chỉnh sửa hiện không hoạt động trên macOS 26 Tahoe).
+- [Discord](/channels/discord) — Sử dụng Discord Bot API + Gateway; hỗ trợ máy chủ, kênh và tin nhắn trực tiếp.
+- [Feishu](/channels/feishu) — Bot Feishu/Lark qua WebSocket (plugin, cài đặt riêng).
+- [Google Chat](/channels/googlechat) — Ứng dụng API Google Chat qua HTTP webhook.
+- [iMessage (cũ)](/channels/imessage) — Tích hợp macOS cũ qua imsg CLI (đã ngừng hỗ trợ, sử dụng BlueBubbles cho các thiết lập mới).
+- [IRC](/channels/irc) — Máy chủ IRC cổ điển; kênh và tin nhắn trực tiếp với kiểm soát ghép đôi/danh sách cho phép.
+- [LINE](/channels/line) — Bot API LINE Messaging (plugin, cài đặt riêng).
+- [Matrix](/channels/matrix) — Giao thức Matrix (plugin, cài đặt riêng).
+- [Mattermost](/channels/mattermost) — Bot API + WebSocket; kênh, nhóm, tin nhắn trực tiếp (plugin, cài đặt riêng).
+- [Microsoft Teams](/channels/msteams) — Bot Framework; hỗ trợ doanh nghiệp (plugin, cài đặt riêng).
+- [Nextcloud Talk](/channels/nextcloud-talk) — Chat tự lưu trữ qua Nextcloud Talk (plugin, cài đặt riêng).
+- [Nostr](/channels/nostr) — Tin nhắn trực tiếp phi tập trung qua NIP-04 (plugin, cài đặt riêng).
+- [Signal](/channels/signal) — signal-cli; tập trung vào quyền riêng tư.
+- [Synology Chat](/channels/synology-chat) — Chat Synology NAS qua webhooks gửi đi và nhận vào (plugin, cài đặt riêng).
+- [Slack](/channels/slack) — Bolt SDK; ứng dụng workspace.
+- [Telegram](/channels/telegram) — Bot API qua grammY; hỗ trợ nhóm.
+- [Tlon](/channels/tlon) — Messenger dựa trên Urbit (plugin, cài đặt riêng).
+- [Twitch](/channels/twitch) — Chat Twitch qua kết nối IRC (plugin, cài đặt riêng).
+- [WebChat](/web/webchat) — Giao diện WebChat Gateway qua WebSocket.
+- [WhatsApp](/channels/whatsapp) — Phổ biến nhất; sử dụng Baileys và yêu cầu ghép đôi QR.
+- [Zalo](/channels/zalo) — Zalo Bot API; messenger phổ biến tại Việt Nam (plugin, cài đặt riêng).
+- [Zalo Personal](/channels/zalouser) — Tài khoản cá nhân Zalo qua đăng nhập QR (plugin, cài đặt riêng).
 
-## Notes
+## Ghi chú
 
-- Channels can run simultaneously; configure multiple and OpenClaw will route per chat.
-- Fastest setup is usually **Telegram** (simple bot token). WhatsApp requires QR pairing and
-  stores more state on disk.
-- Group behavior varies by channel; see [Groups](/channels/groups).
-- DM pairing and allowlists are enforced for safety; see [Security](/gateway/security).
-- Troubleshooting: [Channel troubleshooting](/channels/troubleshooting).
-- Model providers are documented separately; see [Model Providers](/providers/models).
+- Các kênh có thể chạy đồng thời; cấu hình nhiều kênh và OpenClaw sẽ định tuyến theo từng chat.
+- Thiết lập nhanh nhất thường là **Telegram** (token bot đơn giản). WhatsApp yêu cầu ghép đôi QR và lưu trữ nhiều trạng thái hơn trên đĩa.
+- Hành vi nhóm khác nhau tùy theo kênh; xem [Nhóm](/channels/groups).
+- Ghép đôi tin nhắn trực tiếp và danh sách cho phép được thực thi để đảm bảo an toàn; xem [Bảo mật](/gateway/security).
+- Khắc phục sự cố: [Khắc phục sự cố kênh](/channels/troubleshooting).
+- Các nhà cung cấp mô hình được tài liệu riêng; xem [Nhà cung cấp mô hình](/providers/models).

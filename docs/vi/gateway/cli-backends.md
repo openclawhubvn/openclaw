@@ -1,41 +1,38 @@
 ---
-summary: "CLI backends: text-only fallback via local AI CLIs"
+summary: "CLI backends: dự phòng chỉ văn bản qua các AI CLI cục bộ"
 read_when:
-  - You want a reliable fallback when API providers fail
-  - You are running Claude Code CLI or other local AI CLIs and want to reuse them
-  - You need a text-only, tool-free path that still supports sessions and images
+  - Bạn cần một phương án dự phòng đáng tin cậy khi các nhà cung cấp API gặp sự cố
+  - Bạn đang chạy Claude Code CLI hoặc các AI CLI cục bộ khác và muốn tái sử dụng chúng
+  - Bạn cần một con đường chỉ văn bản, không công cụ nhưng vẫn hỗ trợ phiên và hình ảnh
 title: "CLI Backends"
 ---
 
-# CLI backends (fallback runtime)
+# CLI backends (thời gian chạy dự phòng)
 
-OpenClaw can run **local AI CLIs** as a **text-only fallback** when API providers are down,
-rate-limited, or temporarily misbehaving. This is intentionally conservative:
+OpenClaw có thể chạy **AI CLI cục bộ** như một **phương án dự phòng chỉ văn bản** khi các nhà cung cấp API bị gián đoạn, bị giới hạn tốc độ, hoặc tạm thời gặp sự cố. Điều này được thiết kế một cách thận trọng:
 
-- **Tools are disabled** (no tool calls).
-- **Text in → text out** (reliable).
-- **Sessions are supported** (so follow-up turns stay coherent).
-- **Images can be passed through** if the CLI accepts image paths.
+- **Công cụ bị vô hiệu hóa** (không có cuộc gọi công cụ).
+- **Văn bản vào → văn bản ra** (đáng tin cậy).
+- **Hỗ trợ phiên** (để các lượt tiếp theo vẫn nhất quán).
+- **Hình ảnh có thể được truyền qua** nếu CLI chấp nhận đường dẫn hình ảnh.
 
-This is designed as a **safety net** rather than a primary path. Use it when you
-want “always works” text responses without relying on external APIs.
+Đây được thiết kế như một **mạng an toàn** hơn là con đường chính. Sử dụng khi bạn muốn có phản hồi văn bản "luôn hoạt động" mà không phụ thuộc vào API bên ngoài.
 
-## Beginner-friendly quick start
+## Hướng dẫn nhanh cho người mới bắt đầu
 
-You can use Claude Code CLI **without any config** (OpenClaw ships a built-in default):
+Bạn có thể sử dụng Claude Code CLI **mà không cần cấu hình** (OpenClaw có sẵn mặc định):
 
 ```bash
 openclaw agent --message "hi" --model claude-cli/opus-4.6
 ```
 
-Codex CLI also works out of the box:
+Codex CLI cũng hoạt động ngay lập tức:
 
 ```bash
 openclaw agent --message "hi" --model codex-cli/gpt-5.4
 ```
 
-If your gateway runs under launchd/systemd and PATH is minimal, add just the
-command path:
+Nếu gateway của bạn chạy dưới launchd/systemd và PATH là tối thiểu, chỉ cần thêm đường dẫn lệnh:
 
 ```json5
 {
@@ -51,11 +48,11 @@ command path:
 }
 ```
 
-That’s it. No keys, no extra auth config needed beyond the CLI itself.
+Đó là tất cả. Không cần khóa, không cần cấu hình xác thực thêm ngoài CLI.
 
-## Using it as a fallback
+## Sử dụng như một phương án dự phòng
 
-Add a CLI backend to your fallback list so it only runs when primary models fail:
+Thêm một CLI backend vào danh sách dự phòng để nó chỉ chạy khi các mô hình chính thất bại:
 
 ```json5
 {
@@ -75,28 +72,27 @@ Add a CLI backend to your fallback list so it only runs when primary models fail
 }
 ```
 
-Notes:
+Lưu ý:
 
-- If you use `agents.defaults.models` (allowlist), you must include `claude-cli/...`.
-- If the primary provider fails (auth, rate limits, timeouts), OpenClaw will
-  try the CLI backend next.
+- Nếu bạn sử dụng `agents.defaults.models` (danh sách cho phép), bạn phải bao gồm `claude-cli/...`.
+- Nếu nhà cung cấp chính thất bại (xác thực, giới hạn tốc độ, hết thời gian), OpenClaw sẽ thử CLI backend tiếp theo.
 
-## Configuration overview
+## Tổng quan cấu hình
 
-All CLI backends live under:
+Tất cả CLI backends nằm dưới:
 
 ```
 agents.defaults.cliBackends
 ```
 
-Each entry is keyed by a **provider id** (e.g. `claude-cli`, `my-cli`).
-The provider id becomes the left side of your model ref:
+Mỗi mục được khóa bằng một **provider id** (ví dụ: `claude-cli`, `my-cli`).
+Provider id trở thành phần bên trái của tham chiếu mô hình:
 
 ```
 <provider>/<model>
 ```
 
-### Example configuration
+### Ví dụ cấu hình
 
 ```json5
 {
@@ -132,57 +128,53 @@ The provider id becomes the left side of your model ref:
 }
 ```
 
-## How it works
+## Cách hoạt động
 
-1. **Selects a backend** based on the provider prefix (`claude-cli/...`).
-2. **Builds a system prompt** using the same OpenClaw prompt + workspace context.
-3. **Executes the CLI** with a session id (if supported) so history stays consistent.
-4. **Parses output** (JSON or plain text) and returns the final text.
-5. **Persists session ids** per backend, so follow-ups reuse the same CLI session.
+1. **Chọn một backend** dựa trên tiền tố nhà cung cấp (`claude-cli/...`).
+2. **Xây dựng một hệ thống prompt** sử dụng cùng prompt OpenClaw + ngữ cảnh workspace.
+3. **Thực thi CLI** với một session id (nếu được hỗ trợ) để lịch sử vẫn nhất quán.
+4. **Phân tích đầu ra** (JSON hoặc văn bản thuần) và trả về văn bản cuối cùng.
+5. **Lưu trữ session ids** cho mỗi backend, để các lượt tiếp theo tái sử dụng cùng một phiên CLI.
 
-## Sessions
+## Phiên
 
-- If the CLI supports sessions, set `sessionArg` (e.g. `--session-id`) or
-  `sessionArgs` (placeholder `{sessionId}`) when the ID needs to be inserted
-  into multiple flags.
-- If the CLI uses a **resume subcommand** with different flags, set
-  `resumeArgs` (replaces `args` when resuming) and optionally `resumeOutput`
-  (for non-JSON resumes).
+- Nếu CLI hỗ trợ phiên, đặt `sessionArg` (ví dụ: `--session-id`) hoặc
+  `sessionArgs` (chỗ chèn `{sessionId}`) khi ID cần được chèn vào nhiều cờ.
+- Nếu CLI sử dụng một **lệnh phụ resume** với các cờ khác nhau, đặt
+  `resumeArgs` (thay thế `args` khi tiếp tục) và tùy chọn `resumeOutput`
+  (cho các lần tiếp tục không phải JSON).
 - `sessionMode`:
-  - `always`: always send a session id (new UUID if none stored).
-  - `existing`: only send a session id if one was stored before.
-  - `none`: never send a session id.
+  - `always`: luôn gửi một session id (UUID mới nếu không có lưu trữ).
+  - `existing`: chỉ gửi một session id nếu đã lưu trữ trước đó.
+  - `none`: không bao giờ gửi một session id.
 
-## Images (pass-through)
+## Hình ảnh (truyền qua)
 
-If your CLI accepts image paths, set `imageArg`:
+Nếu CLI của bạn chấp nhận đường dẫn hình ảnh, đặt `imageArg`:
 
 ```json5
 imageArg: "--image",
 imageMode: "repeat"
 ```
 
-OpenClaw will write base64 images to temp files. If `imageArg` is set, those
-paths are passed as CLI args. If `imageArg` is missing, OpenClaw appends the
-file paths to the prompt (path injection), which is enough for CLIs that auto-
-load local files from plain paths (Claude Code CLI behavior).
+OpenClaw sẽ ghi hình ảnh base64 vào các tệp tạm thời. Nếu `imageArg` được đặt, các đường dẫn đó sẽ được truyền dưới dạng tham số CLI. Nếu `imageArg` bị thiếu, OpenClaw sẽ thêm các đường dẫn tệp vào prompt (chèn đường dẫn), đủ cho các CLI tự động tải tệp cục bộ từ các đường dẫn thuần (hành vi của Claude Code CLI).
 
-## Inputs / outputs
+## Đầu vào / đầu ra
 
-- `output: "json"` (default) tries to parse JSON and extract text + session id.
-- `output: "jsonl"` parses JSONL streams (Codex CLI `--json`) and extracts the
-  last agent message plus `thread_id` when present.
-- `output: "text"` treats stdout as the final response.
+- `output: "json"` (mặc định) cố gắng phân tích JSON và trích xuất văn bản + session id.
+- `output: "jsonl"` phân tích các luồng JSONL (Codex CLI `--json`) và trích xuất
+  thông điệp cuối cùng của agent cùng với `thread_id` khi có.
+- `output: "text"` coi stdout là phản hồi cuối cùng.
 
-Input modes:
+Chế độ đầu vào:
 
-- `input: "arg"` (default) passes the prompt as the last CLI arg.
-- `input: "stdin"` sends the prompt via stdin.
-- If the prompt is very long and `maxPromptArgChars` is set, stdin is used.
+- `input: "arg"` (mặc định) truyền prompt dưới dạng tham số CLI cuối cùng.
+- `input: "stdin"` gửi prompt qua stdin.
+- Nếu prompt rất dài và `maxPromptArgChars` được đặt, stdin sẽ được sử dụng.
 
-## Defaults (built-in)
+## Mặc định (tích hợp sẵn)
 
-OpenClaw ships a default for `claude-cli`:
+OpenClaw có sẵn mặc định cho `claude-cli`:
 
 - `command: "claude"`
 - `args: ["-p", "--output-format", "json", "--permission-mode", "bypassPermissions"]`
@@ -193,7 +185,7 @@ OpenClaw ships a default for `claude-cli`:
 - `systemPromptWhen: "first"`
 - `sessionMode: "always"`
 
-OpenClaw also ships a default for `codex-cli`:
+OpenClaw cũng có sẵn mặc định cho `codex-cli`:
 
 - `command: "codex"`
 - `args: ["exec","--json","--color","never","--sandbox","read-only","--skip-git-repo-check"]`
@@ -204,22 +196,18 @@ OpenClaw also ships a default for `codex-cli`:
 - `imageArg: "--image"`
 - `sessionMode: "existing"`
 
-Override only if needed (common: absolute `command` path).
+Chỉ ghi đè nếu cần thiết (thường là đường dẫn `command` tuyệt đối).
 
-## Limitations
+## Hạn chế
 
-- **No OpenClaw tools** (the CLI backend never receives tool calls). Some CLIs
-  may still run their own agent tooling.
-- **No streaming** (CLI output is collected then returned).
-- **Structured outputs** depend on the CLI’s JSON format.
-- **Codex CLI sessions** resume via text output (no JSONL), which is less
-  structured than the initial `--json` run. OpenClaw sessions still work
-  normally.
+- **Không có công cụ OpenClaw** (CLI backend không bao giờ nhận cuộc gọi công cụ). Một số CLI có thể vẫn chạy công cụ agent của riêng chúng.
+- **Không có streaming** (đầu ra CLI được thu thập rồi trả về).
+- **Đầu ra có cấu trúc** phụ thuộc vào định dạng JSON của CLI.
+- **Phiên Codex CLI** tiếp tục qua đầu ra văn bản (không phải JSONL), ít có cấu trúc hơn so với lần chạy `--json` ban đầu. Phiên OpenClaw vẫn hoạt động bình thường.
 
-## Troubleshooting
+## Khắc phục sự cố
 
-- **CLI not found**: set `command` to a full path.
-- **Wrong model name**: use `modelAliases` to map `provider/model` → CLI model.
-- **No session continuity**: ensure `sessionArg` is set and `sessionMode` is not
-  `none` (Codex CLI currently cannot resume with JSON output).
-- **Images ignored**: set `imageArg` (and verify CLI supports file paths).
+- **CLI không tìm thấy**: đặt `command` thành đường dẫn đầy đủ.
+- **Sai tên mô hình**: sử dụng `modelAliases` để ánh xạ `provider/model` → mô hình CLI.
+- **Không có sự liên tục phiên**: đảm bảo `sessionArg` được đặt và `sessionMode` không phải `none` (Codex CLI hiện không thể tiếp tục với đầu ra JSON).
+- **Hình ảnh bị bỏ qua**: đặt `imageArg` (và xác minh CLI hỗ trợ đường dẫn tệp).

@@ -1,34 +1,34 @@
 ---
-summary: "Gateway singleton guard using the WebSocket listener bind"
+summary: "Cơ chế bảo vệ đơn nhất cho Gateway bằng cách sử dụng WebSocket listener bind"
 read_when:
-  - Running or debugging the gateway process
-  - Investigating single-instance enforcement
-title: "Gateway Lock"
+  - Khi chạy hoặc gỡ lỗi quá trình gateway
+  - Khi điều tra việc thực thi đơn nhất
+title: "Khóa Gateway"
 ---
 
-# Gateway lock
+# Khóa Gateway
 
-Last updated: 2025-12-11
+Cập nhật lần cuối: 2025-12-11
 
-## Why
+## Tại sao
 
-- Ensure only one gateway instance runs per base port on the same host; additional gateways must use isolated profiles and unique ports.
-- Survive crashes/SIGKILL without leaving stale lock files.
-- Fail fast with a clear error when the control port is already occupied.
+- Đảm bảo chỉ có một instance gateway chạy trên mỗi cổng cơ bản trên cùng một máy chủ; các gateway bổ sung phải sử dụng hồ sơ riêng biệt và cổng duy nhất.
+- Khả năng phục hồi sau sự cố/SIGKILL mà không để lại file khóa cũ.
+- Nhanh chóng báo lỗi rõ ràng khi cổng điều khiển đã bị chiếm dụng.
 
-## Mechanism
+## Cơ chế
 
-- The gateway binds the WebSocket listener (default `ws://127.0.0.1:18789`) immediately on startup using an exclusive TCP listener.
-- If the bind fails with `EADDRINUSE`, startup throws `GatewayLockError("another gateway instance is already listening on ws://127.0.0.1:<port>")`.
-- The OS releases the listener automatically on any process exit, including crashes and SIGKILL—no separate lock file or cleanup step is needed.
-- On shutdown the gateway closes the WebSocket server and underlying HTTP server to free the port promptly.
+- Gateway gắn WebSocket listener (mặc định `ws://127.0.0.1:18789`) ngay khi khởi động bằng cách sử dụng một TCP listener độc quyền.
+- Nếu việc gắn kết thất bại với `EADDRINUSE`, quá trình khởi động sẽ ném ra lỗi `GatewayLockError("another gateway instance is already listening on ws://127.0.0.1:<port>")`.
+- Hệ điều hành tự động giải phóng listener khi bất kỳ quá trình nào kết thúc, bao gồm cả sự cố và SIGKILL—không cần file khóa riêng hoặc bước dọn dẹp.
+- Khi tắt, gateway đóng máy chủ WebSocket và máy chủ HTTP cơ bản để giải phóng cổng ngay lập tức.
 
-## Error surface
+## Bề mặt lỗi
 
-- If another process holds the port, startup throws `GatewayLockError("another gateway instance is already listening on ws://127.0.0.1:<port>")`.
-- Other bind failures surface as `GatewayLockError("failed to bind gateway socket on ws://127.0.0.1:<port>: …")`.
+- Nếu một quá trình khác giữ cổng, quá trình khởi động sẽ ném ra lỗi `GatewayLockError("another gateway instance is already listening on ws://127.0.0.1:<port>")`.
+- Các lỗi gắn kết khác sẽ xuất hiện dưới dạng `GatewayLockError("failed to bind gateway socket on ws://127.0.0.1:<port>: …")`.
 
-## Operational notes
+## Ghi chú vận hành
 
-- If the port is occupied by _another_ process, the error is the same; free the port or choose another with `openclaw gateway --port <port>`.
-- The macOS app still maintains its own lightweight PID guard before spawning the gateway; the runtime lock is enforced by the WebSocket bind.
+- Nếu cổng bị chiếm bởi một quá trình _khác_, lỗi sẽ giống nhau; giải phóng cổng hoặc chọn cổng khác với `openclaw gateway --port <port>`.
+- Ứng dụng macOS vẫn duy trì một cơ chế bảo vệ PID nhẹ trước khi khởi chạy gateway; khóa runtime được thực thi bởi WebSocket bind.

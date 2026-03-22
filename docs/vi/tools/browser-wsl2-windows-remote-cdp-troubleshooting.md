@@ -1,126 +1,126 @@
 ---
-summary: "Troubleshoot WSL2 Gateway + Windows Chrome remote CDP in layers"
+summary: "Khắc phục sự cố WSL2 Gateway + Windows Chrome remote CDP theo từng lớp"
 read_when:
-  - Running OpenClaw Gateway in WSL2 while Chrome lives on Windows
-  - Seeing overlapping browser/control-ui errors across WSL2 and Windows
-  - Deciding between host-local Chrome MCP and raw remote CDP in split-host setups
-title: "WSL2 + Windows + remote Chrome CDP troubleshooting"
+  - Chạy OpenClaw Gateway trong WSL2 trong khi Chrome chạy trên Windows
+  - Gặp lỗi trình duyệt/giao diện điều khiển chồng chéo giữa WSL2 và Windows
+  - Quyết định giữa Chrome MCP host-local và remote CDP thô trong cấu hình chia tách host
+title: "Khắc phục sự cố WSL2 + Windows + remote Chrome CDP"
 ---
 
-# WSL2 + Windows + remote Chrome CDP troubleshooting
+# Khắc phục sự cố WSL2 + Windows + remote Chrome CDP
 
-This guide covers the common split-host setup where:
+Hướng dẫn này bao gồm cấu hình chia tách host phổ biến khi:
 
-- OpenClaw Gateway runs inside WSL2
-- Chrome runs on Windows
-- browser control must cross the WSL2/Windows boundary
+- OpenClaw Gateway chạy trong WSL2
+- Chrome chạy trên Windows
+- điều khiển trình duyệt phải vượt qua ranh giới WSL2/Windows
 
-It also covers the layered failure pattern from [issue #39369](https://github.com/openclaw/openclaw/issues/39369): several independent problems can show up at once, which makes the wrong layer look broken first.
+Nó cũng đề cập đến mô hình lỗi phân lớp từ [issue #39369](https://github.com/openclaw/openclaw/issues/39369): nhiều vấn đề độc lập có thể xuất hiện cùng lúc, khiến lớp sai trông như bị hỏng trước.
 
-## Choose the right browser mode first
+## Chọn chế độ trình duyệt phù hợp trước
 
-You have two valid patterns:
+Có hai mô hình hợp lệ:
 
-### Option 1: Raw remote CDP from WSL2 to Windows
+### Lựa chọn 1: Remote CDP thô từ WSL2 đến Windows
 
-Use a remote browser profile that points from WSL2 to a Windows Chrome CDP endpoint.
+Sử dụng hồ sơ trình duyệt từ xa trỏ từ WSL2 đến một endpoint CDP của Chrome trên Windows.
 
-Choose this when:
+Chọn cách này khi:
 
-- the Gateway stays inside WSL2
-- Chrome runs on Windows
-- you need browser control to cross the WSL2/Windows boundary
+- Gateway nằm trong WSL2
+- Chrome chạy trên Windows
+- cần điều khiển trình duyệt vượt qua ranh giới WSL2/Windows
 
-### Option 2: Host-local Chrome MCP
+### Lựa chọn 2: Host-local Chrome MCP
 
-Use `existing-session` / `user` only when the Gateway itself runs on the same host as Chrome.
+Chỉ sử dụng `existing-session` / `user` khi Gateway tự chạy trên cùng host với Chrome.
 
-Choose this when:
+Chọn cách này khi:
 
-- OpenClaw and Chrome are on the same machine
-- you want the local signed-in browser state
-- you do not need cross-host browser transport
+- OpenClaw và Chrome trên cùng một máy
+- muốn trạng thái trình duyệt đã đăng nhập cục bộ
+- không cần truyền trình duyệt qua host
 
-For WSL2 Gateway + Windows Chrome, prefer raw remote CDP. Chrome MCP is host-local, not a WSL2-to-Windows bridge.
+Đối với WSL2 Gateway + Windows Chrome, ưu tiên remote CDP thô. Chrome MCP là host-local, không phải cầu nối từ WSL2 đến Windows.
 
-## Working architecture
+## Kiến trúc hoạt động
 
-Reference shape:
+Hình dạng tham khảo:
 
-- WSL2 runs the Gateway on `127.0.0.1:18789`
-- Windows opens the Control UI in a normal browser at `http://127.0.0.1:18789/`
-- Windows Chrome exposes a CDP endpoint on port `9222`
-- WSL2 can reach that Windows CDP endpoint
-- OpenClaw points a browser profile at the address that is reachable from WSL2
+- WSL2 chạy Gateway trên `127.0.0.1:18789`
+- Windows mở Giao diện Điều khiển trong trình duyệt thông thường tại `http://127.0.0.1:18789/`
+- Windows Chrome mở một endpoint CDP trên cổng `9222`
+- WSL2 có thể truy cập endpoint CDP của Windows
+- OpenClaw trỏ một hồ sơ trình duyệt đến địa chỉ có thể truy cập từ WSL2
 
-## Why this setup is confusing
+## Tại sao cấu hình này gây nhầm lẫn
 
-Several failures can overlap:
+Nhiều lỗi có thể chồng chéo:
 
-- WSL2 cannot reach the Windows CDP endpoint
-- the Control UI is opened from a non-secure origin
-- `gateway.controlUi.allowedOrigins` does not match the page origin
-- token or pairing is missing
-- the browser profile points at the wrong address
+- WSL2 không thể truy cập endpoint CDP của Windows
+- Giao diện Điều khiển được mở từ một nguồn không an toàn
+- `gateway.controlUi.allowedOrigins` không khớp với nguồn trang
+- thiếu token hoặc ghép đôi
+- hồ sơ trình duyệt trỏ đến địa chỉ sai
 
-Because of that, fixing one layer can still leave a different error visible.
+Vì vậy, sửa một lớp có thể vẫn để lại lỗi khác hiển thị.
 
-## Critical rule for the Control UI
+## Quy tắc quan trọng cho Giao diện Điều khiển
 
-When the UI is opened from Windows, use Windows localhost unless you have a deliberate HTTPS setup.
+Khi giao diện được mở từ Windows, sử dụng localhost của Windows trừ khi có cấu hình HTTPS cụ thể.
 
-Use:
+Sử dụng:
 
 `http://127.0.0.1:18789/`
 
-Do not default to a LAN IP for the Control UI. Plain HTTP on a LAN or tailnet address can trigger insecure-origin/device-auth behavior that is unrelated to CDP itself. See [Control UI](/web/control-ui).
+Không mặc định sử dụng IP LAN cho Giao diện Điều khiển. HTTP thông thường trên địa chỉ LAN hoặc tailnet có thể kích hoạt hành vi không an toàn liên quan đến CDP. Xem [Control UI](/web/control-ui).
 
-## Validate in layers
+## Xác thực theo từng lớp
 
-Work top to bottom. Do not skip ahead.
+Làm từ trên xuống dưới. Không bỏ qua bước nào.
 
-### Layer 1: Verify Chrome is serving CDP on Windows
+### Lớp 1: Xác minh Chrome đang phục vụ CDP trên Windows
 
-Start Chrome on Windows with remote debugging enabled:
+Khởi động Chrome trên Windows với chế độ gỡ lỗi từ xa:
 
 ```powershell
 chrome.exe --remote-debugging-port=9222
 ```
 
-From Windows, verify Chrome itself first:
+Từ Windows, xác minh Chrome trước:
 
 ```powershell
 curl http://127.0.0.1:9222/json/version
 curl http://127.0.0.1:9222/json/list
 ```
 
-If this fails on Windows, OpenClaw is not the problem yet.
+Nếu thất bại trên Windows, OpenClaw chưa phải là vấn đề.
 
-### Layer 2: Verify WSL2 can reach that Windows endpoint
+### Lớp 2: Xác minh WSL2 có thể truy cập endpoint của Windows
 
-From WSL2, test the exact address you plan to use in `cdpUrl`:
+Từ WSL2, kiểm tra địa chỉ chính xác bạn dự định sử dụng trong `cdpUrl`:
 
 ```bash
 curl http://WINDOWS_HOST_OR_IP:9222/json/version
 curl http://WINDOWS_HOST_OR_IP:9222/json/list
 ```
 
-Good result:
+Kết quả tốt:
 
-- `/json/version` returns JSON with Browser / Protocol-Version metadata
-- `/json/list` returns JSON (empty array is fine if no pages are open)
+- `/json/version` trả về JSON với metadata Browser / Protocol-Version
+- `/json/list` trả về JSON (mảng rỗng cũng được nếu không có trang nào mở)
 
-If this fails:
+Nếu thất bại:
 
-- Windows is not exposing the port to WSL2 yet
-- the address is wrong for the WSL2 side
-- firewall / port forwarding / local proxying is still missing
+- Windows chưa mở cổng cho WSL2
+- địa chỉ sai cho phía WSL2
+- firewall / chuyển tiếp cổng / proxy cục bộ vẫn thiếu
 
-Fix that before touching OpenClaw config.
+Sửa điều đó trước khi chỉnh cấu hình OpenClaw.
 
-### Layer 3: Configure the correct browser profile
+### Lớp 3: Cấu hình hồ sơ trình duyệt đúng
 
-For raw remote CDP, point OpenClaw at the address that is reachable from WSL2:
+Đối với remote CDP thô, trỏ OpenClaw đến địa chỉ có thể truy cập từ WSL2:
 
 ```json5
 {
@@ -138,74 +138,74 @@ For raw remote CDP, point OpenClaw at the address that is reachable from WSL2:
 }
 ```
 
-Notes:
+Ghi chú:
 
-- use the WSL2-reachable address, not whatever only works on Windows
-- keep `attachOnly: true` for externally managed browsers
-- test the same URL with `curl` before expecting OpenClaw to succeed
+- sử dụng địa chỉ có thể truy cập từ WSL2, không phải địa chỉ chỉ hoạt động trên Windows
+- giữ `attachOnly: true` cho trình duyệt được quản lý bên ngoài
+- kiểm tra cùng URL với `curl` trước khi mong đợi OpenClaw thành công
 
-### Layer 4: Verify the Control UI layer separately
+### Lớp 4: Xác minh lớp Giao diện Điều khiển riêng biệt
 
-Open the UI from Windows:
+Mở giao diện từ Windows:
 
 `http://127.0.0.1:18789/`
 
-Then verify:
+Sau đó xác minh:
 
-- the page origin matches what `gateway.controlUi.allowedOrigins` expects
-- token auth or pairing is configured correctly
-- you are not debugging a Control UI auth problem as if it were a browser problem
+- nguồn trang khớp với những gì `gateway.controlUi.allowedOrigins` mong đợi
+- xác thực token hoặc ghép đôi được cấu hình đúng
+- không gỡ lỗi vấn đề xác thực Giao diện Điều khiển như thể đó là vấn đề trình duyệt
 
-Helpful page:
+Trang hữu ích:
 
 - [Control UI](/web/control-ui)
 
-### Layer 5: Verify end-to-end browser control
+### Lớp 5: Xác minh điều khiển trình duyệt từ đầu đến cuối
 
-From WSL2:
+Từ WSL2:
 
 ```bash
 openclaw browser open https://example.com --browser-profile remote
 openclaw browser tabs --browser-profile remote
 ```
 
-Good result:
+Kết quả tốt:
 
-- the tab opens in Windows Chrome
-- `openclaw browser tabs` returns the target
-- later actions (`snapshot`, `screenshot`, `navigate`) work from the same profile
+- tab mở trong Windows Chrome
+- `openclaw browser tabs` trả về mục tiêu
+- các hành động sau (`snapshot`, `screenshot`, `navigate`) hoạt động từ cùng hồ sơ
 
-## Common misleading errors
+## Lỗi gây hiểu lầm phổ biến
 
-Treat each message as a layer-specific clue:
+Xem mỗi thông báo như một manh mối cụ thể cho từng lớp:
 
 - `control-ui-insecure-auth`
-  - UI origin / secure-context problem, not a CDP transport problem
+  - vấn đề nguồn UI / ngữ cảnh an toàn, không phải vấn đề truyền CDP
 - `token_missing`
-  - auth configuration problem
+  - vấn đề cấu hình xác thực
 - `pairing required`
-  - device approval problem
+  - vấn đề phê duyệt thiết bị
 - `Remote CDP for profile "remote" is not reachable`
-  - WSL2 cannot reach the configured `cdpUrl`
+  - WSL2 không thể truy cập `cdpUrl` đã cấu hình
 - `gateway timeout after 1500ms`
-  - often still CDP reachability or a slow/unreachable remote endpoint
+  - thường vẫn là vấn đề truy cập CDP hoặc endpoint từ xa chậm/không thể truy cập
 - `No Chrome tabs found for profile="user"`
-  - local Chrome MCP profile selected where no host-local tabs are available
+  - hồ sơ Chrome MCP cục bộ được chọn khi không có tab host-local nào có sẵn
 
-## Fast triage checklist
+## Danh sách kiểm tra nhanh
 
-1. Windows: does `curl http://127.0.0.1:9222/json/version` work?
-2. WSL2: does `curl http://WINDOWS_HOST_OR_IP:9222/json/version` work?
-3. OpenClaw config: does `browser.profiles.<name>.cdpUrl` use that exact WSL2-reachable address?
-4. Control UI: are you opening `http://127.0.0.1:18789/` instead of a LAN IP?
-5. Are you trying to use `existing-session` across WSL2 and Windows instead of raw remote CDP?
+1. Windows: `curl http://127.0.0.1:9222/json/version` có hoạt động không?
+2. WSL2: `curl http://WINDOWS_HOST_OR_IP:9222/json/version` có hoạt động không?
+3. Cấu hình OpenClaw: `browser.profiles.<name>.cdpUrl` có sử dụng địa chỉ chính xác có thể truy cập từ WSL2 không?
+4. Giao diện Điều khiển: bạn có mở `http://127.0.0.1:18789/` thay vì IP LAN không?
+5. Bạn có đang cố sử dụng `existing-session` giữa WSL2 và Windows thay vì remote CDP thô không?
 
-## Practical takeaway
+## Kết luận thực tiễn
 
-The setup is usually viable. The hard part is that browser transport, Control UI origin security, and token/pairing can each fail independently while looking similar from the user side.
+Cấu hình này thường khả thi. Phần khó là truyền trình duyệt, bảo mật nguồn Giao diện Điều khiển và token/ghép đôi có thể thất bại độc lập trong khi trông giống nhau từ phía người dùng.
 
-When in doubt:
+Khi nghi ngờ:
 
-- verify the Windows Chrome endpoint locally first
-- verify the same endpoint from WSL2 second
-- only then debug OpenClaw config or Control UI auth
+- xác minh endpoint Chrome trên Windows trước
+- xác minh cùng endpoint từ WSL2 thứ hai
+- chỉ sau đó mới gỡ lỗi cấu hình OpenClaw hoặc xác thực Giao diện Điều khiển

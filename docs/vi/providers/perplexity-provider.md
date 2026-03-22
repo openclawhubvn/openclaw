@@ -1,62 +1,58 @@
 ---
 title: "Perplexity (Provider)"
-summary: "Perplexity web search provider setup (API key, search modes, filtering)"
+summary: "Thiết lập nhà cung cấp tìm kiếm web Perplexity (API key, chế độ tìm kiếm, lọc)"
 read_when:
-  - You want to configure Perplexity as a web search provider
-  - You need the Perplexity API key or OpenRouter proxy setup
+  - Bạn muốn cấu hình Perplexity làm nhà cung cấp tìm kiếm web
+  - Bạn cần API key của Perplexity hoặc thiết lập proxy OpenRouter
 ---
 
-# Perplexity (Web Search Provider)
+# Perplexity (Nhà cung cấp tìm kiếm web)
 
-The Perplexity plugin provides web search capabilities through the Perplexity
-Search API or Perplexity Sonar via OpenRouter.
+Plugin Perplexity cung cấp khả năng tìm kiếm web thông qua Perplexity Search API hoặc Perplexity Sonar qua OpenRouter.
 
 <Note>
-This page covers the Perplexity **provider** setup. For the Perplexity
-**tool** (how the agent uses it), see [Perplexity tool](/tools/perplexity-search).
+Trang này hướng dẫn thiết lập **nhà cung cấp** Perplexity. Để biết cách sử dụng **công cụ** Perplexity (cách agent sử dụng), xem [công cụ Perplexity](/tools/perplexity-search).
 </Note>
 
-- Type: web search provider (not a model provider)
-- Auth: `PERPLEXITY_API_KEY` (direct) or `OPENROUTER_API_KEY` (via OpenRouter)
-- Config path: `plugins.entries.perplexity.config.webSearch.apiKey`
+- Loại: nhà cung cấp tìm kiếm web (không phải nhà cung cấp mô hình)
+- Xác thực: `PERPLEXITY_API_KEY` (trực tiếp) hoặc `OPENROUTER_API_KEY` (qua OpenRouter)
+- Đường dẫn cấu hình: `plugins.entries.perplexity.config.webSearch.apiKey`
 
-## Quick start
+## Bắt đầu nhanh
 
-1. Set the API key:
+1. Thiết lập API key:
 
 ```bash
 openclaw configure --section web
 ```
 
-Or set it directly:
+Hoặc thiết lập trực tiếp:
 
 ```bash
 openclaw config set plugins.entries.perplexity.config.webSearch.apiKey "pplx-xxxxxxxxxxxx"
 ```
 
-2. The agent will automatically use Perplexity for web searches when configured.
+2. Agent sẽ tự động sử dụng Perplexity cho tìm kiếm web khi đã cấu hình.
 
-## Search modes
+## Chế độ tìm kiếm
 
-The plugin auto-selects the transport based on API key prefix:
+Plugin tự động chọn phương thức dựa trên tiền tố của API key:
 
-| Key prefix | Transport                    | Features                                         |
-| ---------- | ---------------------------- | ------------------------------------------------ |
-| `pplx-`    | Native Perplexity Search API | Structured results, domain/language/date filters |
-| `sk-or-`   | OpenRouter (Sonar)           | AI-synthesized answers with citations            |
+| Tiền tố key | Phương thức                   | Tính năng                                          |
+| ----------- | ----------------------------- | -------------------------------------------------- |
+| `pplx-`     | Native Perplexity Search API  | Kết quả có cấu trúc, bộ lọc miền/ngôn ngữ/ngày     |
+| `sk-or-`    | OpenRouter (Sonar)            | Câu trả lời tổng hợp AI kèm trích dẫn              |
 
-## Native API filtering
+## Lọc API gốc
 
-When using the native Perplexity API (`pplx-` key), searches support:
+Khi sử dụng API gốc của Perplexity (key `pplx-`), tìm kiếm hỗ trợ:
 
-- **Country**: 2-letter country code
-- **Language**: ISO 639-1 language code
-- **Date range**: day, week, month, year
-- **Domain filters**: allowlist/denylist (max 20 domains)
-- **Content budget**: `max_tokens`, `max_tokens_per_page`
+- **Quốc gia**: mã quốc gia 2 chữ cái
+- **Ngôn ngữ**: mã ngôn ngữ ISO 639-1
+- **Khoảng thời gian**: ngày, tuần, tháng, năm
+- **Bộ lọc miền**: danh sách cho phép/chặn (tối đa 20 miền)
+- **Ngân sách nội dung**: `max_tokens`, `max_tokens_per_page`
 
-## Environment note
+## Lưu ý về môi trường
 
-If the Gateway runs as a daemon (launchd/systemd), make sure
-`PERPLEXITY_API_KEY` is available to that process (for example, in
-`~/.openclaw/.env` or via `env.shellEnv`).
+Nếu Gateway chạy dưới dạng daemon (launchd/systemd), đảm bảo `PERPLEXITY_API_KEY` có sẵn cho tiến trình đó (ví dụ, trong `~/.openclaw/.env` hoặc qua `env.shellEnv`).

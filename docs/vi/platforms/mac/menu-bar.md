@@ -1,81 +1,81 @@
 ---
-summary: "Menu bar status logic and what is surfaced to users"
+summary: "Logic hiển thị thanh menu và thông tin cho người dùng"
 read_when:
-  - Tweaking mac menu UI or status logic
-title: "Menu Bar"
+  - Điều chỉnh giao diện hoặc logic trạng thái menu trên mac
+title: "Thanh Menu"
 ---
 
-# Menu Bar Status Logic
+# Logic Trạng Thái Thanh Menu
 
-## What is shown
+## Những gì được hiển thị
 
-- We surface the current agent work state in the menu bar icon and in the first status row of the menu.
-- Health status is hidden while work is active; it returns when all sessions are idle.
-- The “Nodes” block in the menu lists **devices** only (paired nodes via `node.list`), not client/presence entries.
-- A “Usage” section appears under Context when provider usage snapshots are available.
+- Trạng thái công việc hiện tại của agent được hiển thị trên biểu tượng thanh menu và dòng trạng thái đầu tiên của menu.
+- Trạng thái sức khỏe bị ẩn khi công việc đang hoạt động; nó sẽ trở lại khi tất cả các phiên làm việc đều nhàn rỗi.
+- Phần “Nodes” trong menu chỉ liệt kê **thiết bị** (các node đã ghép đôi qua `node.list`), không bao gồm các mục client/presence.
+- Mục “Usage” xuất hiện dưới Context khi có sẵn ảnh chụp nhanh về việc sử dụng của provider.
 
-## State model
+## Mô hình trạng thái
 
-- Sessions: events arrive with `runId` (per-run) plus `sessionKey` in the payload. The “main” session is the key `main`; if absent, we fall back to the most recently updated session.
-- Priority: main always wins. If main is active, its state is shown immediately. If main is idle, the most recently active non‑main session is shown. We do not flip‑flop mid‑activity; we only switch when the current session goes idle or main becomes active.
-- Activity kinds:
-  - `job`: high‑level command execution (`state: started|streaming|done|error`).
-  - `tool`: `phase: start|result` with `toolName` and `meta/args`.
+- Phiên làm việc: sự kiện đến với `runId` (cho mỗi lần chạy) cùng với `sessionKey` trong payload. Phiên chính là khóa `main`; nếu không có, chúng tôi sẽ sử dụng phiên được cập nhật gần nhất.
+- Ưu tiên: phiên chính luôn được ưu tiên. Nếu phiên chính đang hoạt động, trạng thái của nó sẽ được hiển thị ngay lập tức. Nếu phiên chính nhàn rỗi, phiên không chính hoạt động gần đây nhất sẽ được hiển thị. Chúng tôi không thay đổi giữa chừng hoạt động; chỉ chuyển khi phiên hiện tại nhàn rỗi hoặc phiên chính hoạt động.
+- Các loại hoạt động:
+  - `job`: thực thi lệnh cấp cao (`state: started|streaming|done|error`).
+  - `tool`: `phase: start|result` với `toolName` và `meta/args`.
 
-## IconState enum (Swift)
+## Enum IconState (Swift)
 
 - `idle`
 - `workingMain(ActivityKind)`
 - `workingOther(ActivityKind)`
-- `overridden(ActivityKind)` (debug override)
+- `overridden(ActivityKind)` (ghi đè debug)
 
-### ActivityKind → glyph
+### ActivityKind → biểu tượng
 
 - `exec` → 💻
 - `read` → 📄
 - `write` → ✍️
 - `edit` → 📝
 - `attach` → 📎
-- default → 🛠️
+- mặc định → 🛠️
 
-### Visual mapping
+### Ánh xạ hình ảnh
 
-- `idle`: normal critter.
-- `workingMain`: badge with glyph, full tint, leg “working” animation.
-- `workingOther`: badge with glyph, muted tint, no scurry.
-- `overridden`: uses the chosen glyph/tint regardless of activity.
+- `idle`: biểu tượng bình thường.
+- `workingMain`: biểu tượng với glyph, màu đầy đủ, hoạt ảnh chân “đang làm việc”.
+- `workingOther`: biểu tượng với glyph, màu nhạt, không có hoạt ảnh.
+- `overridden`: sử dụng glyph/màu đã chọn bất kể hoạt động.
 
-## Status row text (menu)
+## Văn bản dòng trạng thái (menu)
 
-- While work is active: `<Session role> · <activity label>`
-  - Examples: `Main · exec: pnpm test`, `Other · read: apps/macos/Sources/OpenClaw/AppState.swift`.
-- When idle: falls back to the health summary.
+- Khi công việc đang hoạt động: `<Vai trò phiên> · <nhãn hoạt động>`
+  - Ví dụ: `Main · exec: pnpm test`, `Other · read: apps/macos/Sources/OpenClaw/AppState.swift`.
+- Khi nhàn rỗi: quay lại tóm tắt sức khỏe.
 
-## Event ingestion
+## Xử lý sự kiện
 
-- Source: control‑channel `agent` events (`ControlChannel.handleAgentEvent`).
-- Parsed fields:
-  - `stream: "job"` with `data.state` for start/stop.
-  - `stream: "tool"` with `data.phase`, `name`, optional `meta`/`args`.
-- Labels:
-  - `exec`: first line of `args.command`.
-  - `read`/`write`: shortened path.
-  - `edit`: path plus inferred change kind from `meta`/diff counts.
-  - fallback: tool name.
+- Nguồn: sự kiện `agent` từ kênh điều khiển (`ControlChannel.handleAgentEvent`).
+- Các trường được phân tích:
+  - `stream: "job"` với `data.state` cho bắt đầu/dừng.
+  - `stream: "tool"` với `data.phase`, `name`, `meta`/`args` tùy chọn.
+- Nhãn:
+  - `exec`: dòng đầu tiên của `args.command`.
+  - `read`/`write`: đường dẫn rút gọn.
+  - `edit`: đường dẫn cộng với loại thay đổi suy luận từ `meta`/đếm diff.
+  - dự phòng: tên công cụ.
 
-## Debug override
+## Ghi đè debug
 
-- Settings ▸ Debug ▸ “Icon override” picker:
-  - `System (auto)` (default)
-  - `Working: main` (per tool kind)
-  - `Working: other` (per tool kind)
+- Cài đặt ▸ Debug ▸ Bộ chọn “Icon override”:
+  - `System (auto)` (mặc định)
+  - `Working: main` (theo loại công cụ)
+  - `Working: other` (theo loại công cụ)
   - `Idle`
-- Stored via `@AppStorage("iconOverride")`; mapped to `IconState.overridden`.
+- Lưu trữ qua `@AppStorage("iconOverride")`; ánh xạ tới `IconState.overridden`.
 
-## Testing checklist
+## Danh sách kiểm tra thử nghiệm
 
-- Trigger main session job: verify icon switches immediately and status row shows main label.
-- Trigger non‑main session job while main idle: icon/status shows non‑main; stays stable until it finishes.
-- Start main while other active: icon flips to main instantly.
-- Rapid tool bursts: ensure badge does not flicker (TTL grace on tool results).
-- Health row reappears once all sessions idle.
+- Kích hoạt công việc phiên chính: xác minh biểu tượng chuyển ngay lập tức và dòng trạng thái hiển thị nhãn chính.
+- Kích hoạt công việc phiên không chính khi phiên chính nhàn rỗi: biểu tượng/trạng thái hiển thị không chính; giữ ổn định cho đến khi hoàn thành.
+- Bắt đầu phiên chính khi phiên khác đang hoạt động: biểu tượng chuyển sang chính ngay lập tức.
+- Bùng nổ công cụ nhanh: đảm bảo biểu tượng không nhấp nháy (TTL grace trên kết quả công cụ).
+- Dòng sức khỏe xuất hiện lại khi tất cả các phiên nhàn rỗi.

@@ -1,30 +1,19 @@
----
-summary: "Firecrawl search, scrape, and web_fetch fallback"
-read_when:
-  - You want Firecrawl-backed web extraction
-  - You need a Firecrawl API key
-  - You want Firecrawl as a web_search provider
-  - You want anti-bot extraction for web_fetch
-title: "Firecrawl"
----
-
 # Firecrawl
 
-OpenClaw can use **Firecrawl** in three ways:
+OpenClaw có thể sử dụng **Firecrawl** theo ba cách:
 
-- as the `web_search` provider
-- as explicit plugin tools: `firecrawl_search` and `firecrawl_scrape`
-- as a fallback extractor for `web_fetch`
+- Là nhà cung cấp `web_search`
+- Là công cụ plugin cụ thể: `firecrawl_search` và `firecrawl_scrape`
+- Là bộ trích xuất dự phòng cho `web_fetch`
 
-It is a hosted extraction/search service that supports bot circumvention and caching,
-which helps with JS-heavy sites or pages that block plain HTTP fetches.
+Đây là dịch vụ trích xuất/tìm kiếm được lưu trữ, hỗ trợ vượt qua bot và lưu trữ đệm, giúp xử lý các trang web nặng JavaScript hoặc chặn truy cập HTTP thông thường.
 
-## Get an API key
+## Lấy API key
 
-1. Create a Firecrawl account and generate an API key.
-2. Store it in config or set `FIRECRAWL_API_KEY` in the gateway environment.
+1. Tạo tài khoản Firecrawl và tạo một API key.
+2. Lưu trữ trong cấu hình hoặc thiết lập `FIRECRAWL_API_KEY` trong môi trường gateway.
 
-## Configure Firecrawl search
+## Cấu hình tìm kiếm Firecrawl
 
 ```json5
 {
@@ -51,13 +40,13 @@ which helps with JS-heavy sites or pages that block plain HTTP fetches.
 }
 ```
 
-Notes:
+Ghi chú:
 
-- Choosing Firecrawl in onboarding or `openclaw configure --section web` enables the bundled Firecrawl plugin automatically.
-- `web_search` with Firecrawl supports `query` and `count`.
-- For Firecrawl-specific controls like `sources`, `categories`, or result scraping, use `firecrawl_search`.
+- Chọn Firecrawl trong quá trình khởi tạo hoặc `openclaw configure --section web` sẽ tự động kích hoạt plugin Firecrawl đi kèm.
+- `web_search` với Firecrawl hỗ trợ `query` và `count`.
+- Để điều khiển cụ thể của Firecrawl như `sources`, `categories`, hoặc trích xuất kết quả, sử dụng `firecrawl_search`.
 
-## Configure Firecrawl scrape + web_fetch fallback
+## Cấu hình Firecrawl scrape + dự phòng web_fetch
 
 ```json5
 {
@@ -84,21 +73,21 @@ Notes:
 }
 ```
 
-Notes:
+Ghi chú:
 
-- `firecrawl.enabled` defaults to `true` unless explicitly set to `false`.
-- Firecrawl fallback attempts run only when an API key is available (`tools.web.fetch.firecrawl.apiKey` or `FIRECRAWL_API_KEY`).
-- `maxAgeMs` controls how old cached results can be (ms). Default is 2 days.
+- `firecrawl.enabled` mặc định là `true` trừ khi được đặt rõ ràng là `false`.
+- Firecrawl fallback chỉ chạy khi có API key (`tools.web.fetch.firecrawl.apiKey` hoặc `FIRECRAWL_API_KEY`).
+- `maxAgeMs` kiểm soát tuổi tối đa của kết quả lưu trữ đệm (ms). Mặc định là 2 ngày.
 
-`firecrawl_scrape` reuses the same `tools.web.fetch.firecrawl.*` settings and env vars.
+`firecrawl_scrape` tái sử dụng cùng cài đặt `tools.web.fetch.firecrawl.*` và biến môi trường.
 
-## Firecrawl plugin tools
+## Công cụ plugin Firecrawl
 
 ### `firecrawl_search`
 
-Use this when you want Firecrawl-specific search controls instead of generic `web_search`.
+Sử dụng khi cần điều khiển tìm kiếm cụ thể của Firecrawl thay vì `web_search` chung.
 
-Core parameters:
+Các tham số chính:
 
 - `query`
 - `count`
@@ -109,9 +98,9 @@ Core parameters:
 
 ### `firecrawl_scrape`
 
-Use this for JS-heavy or bot-protected pages where plain `web_fetch` is weak.
+Sử dụng cho các trang nặng JS hoặc được bảo vệ bởi bot mà `web_fetch` thông thường không hiệu quả.
 
-Core parameters:
+Các tham số chính:
 
 - `url`
 - `extractMode`
@@ -122,19 +111,18 @@ Core parameters:
 - `storeInCache`
 - `timeoutSeconds`
 
-## Stealth / bot circumvention
+## Chế độ ẩn / vượt qua bot
 
-Firecrawl exposes a **proxy mode** parameter for bot circumvention (`basic`, `stealth`, or `auto`).
-OpenClaw always uses `proxy: "auto"` plus `storeInCache: true` for Firecrawl requests.
-If proxy is omitted, Firecrawl defaults to `auto`. `auto` retries with stealth proxies if a basic attempt fails, which may use more credits
-than basic-only scraping.
+Firecrawl cung cấp tham số **proxy mode** để vượt qua bot (`basic`, `stealth`, hoặc `auto`).
+OpenClaw luôn sử dụng `proxy: "auto"` cùng `storeInCache: true` cho các yêu cầu Firecrawl.
+Nếu không chỉ định proxy, Firecrawl mặc định là `auto`. `auto` sẽ thử lại với proxy ẩn nếu một lần thử cơ bản thất bại, có thể sử dụng nhiều credit hơn so với chỉ trích xuất cơ bản.
 
-## How `web_fetch` uses Firecrawl
+## Cách `web_fetch` sử dụng Firecrawl
 
-`web_fetch` extraction order:
+Thứ tự trích xuất `web_fetch`:
 
 1. Readability (local)
-2. Firecrawl (if configured)
-3. Basic HTML cleanup (last fallback)
+2. Firecrawl (nếu được cấu hình)
+3. Dọn dẹp HTML cơ bản (dự phòng cuối cùng)
 
-See [Web tools](/tools/web) for the full web tool setup.
+Xem [Công cụ web](/tools/web) để biết thiết lập công cụ web đầy đủ.

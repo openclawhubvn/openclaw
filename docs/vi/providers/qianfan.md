@@ -1,38 +1,37 @@
 ---
-summary: "Use Qianfan's unified API to access many models in OpenClaw"
+summary: "Sử dụng API thống nhất của Qianfan để truy cập nhiều mô hình trong OpenClaw"
 read_when:
-  - You want a single API key for many LLMs
-  - You need Baidu Qianfan setup guidance
+  - Bạn muốn một API key duy nhất cho nhiều LLMs
+  - Bạn cần hướng dẫn cài đặt Baidu Qianfan
 title: "Qianfan"
 ---
 
-# Qianfan Provider Guide
+# Hướng dẫn sử dụng Qianfan
 
-Qianfan is Baidu's MaaS platform, provides a **unified API** that routes requests to many models behind a single
-endpoint and API key. It is OpenAI-compatible, so most OpenAI SDKs work by switching the base URL.
+Qianfan là nền tảng MaaS của Baidu, cung cấp một **API thống nhất** để định tuyến yêu cầu đến nhiều mô hình thông qua một endpoint và API key duy nhất. Nó tương thích với OpenAI, vì vậy hầu hết các SDK của OpenAI có thể hoạt động bằng cách thay đổi URL cơ sở.
 
-## Prerequisites
+## Yêu cầu trước
 
-1. A Baidu Cloud account with Qianfan API access
-2. An API key from the Qianfan console
-3. OpenClaw installed on your system
+1. Tài khoản Baidu Cloud có quyền truy cập API Qianfan
+2. API key từ bảng điều khiển Qianfan
+3. OpenClaw đã được cài đặt trên hệ thống của bạn
 
-## Getting Your API Key
+## Lấy API Key
 
-1. Visit the [Qianfan Console](https://console.bce.baidu.com/qianfan/ais/console/apiKey)
-2. Create a new application or select an existing one
-3. Generate an API key (format: `bce-v3/ALTAK-...`)
-4. Copy the API key for use with OpenClaw
+1. Truy cập [Bảng điều khiển Qianfan](https://console.bce.baidu.com/qianfan/ais/console/apiKey)
+2. Tạo một ứng dụng mới hoặc chọn một ứng dụng có sẵn
+3. Tạo API key (định dạng: `bce-v3/ALTAK-...`)
+4. Sao chép API key để sử dụng với OpenClaw
 
-## CLI setup
+## Thiết lập CLI
 
 ```bash
 openclaw onboard --auth-choice qianfan-api-key
 ```
 
-## Related Documentation
+## Tài liệu liên quan
 
-- [OpenClaw Configuration](/gateway/configuration)
-- [Model Providers](/concepts/model-providers)
-- [Agent Setup](/concepts/agent)
-- [Qianfan API Documentation](https://cloud.baidu.com/doc/qianfan-api/s/3m7of64lb)
+- [Cấu hình OpenClaw](/gateway/configuration)
+- [Nhà cung cấp mô hình](/concepts/model-providers)
+- [Thiết lập Agent](/concepts/agent)
+- [Tài liệu API Qianfan](https://cloud.baidu.com/doc/qianfan-api/s/3m7of64lb)

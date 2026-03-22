@@ -1,45 +1,43 @@
 ---
-summary: "WhatsApp channel support, access controls, delivery behavior, and operations"
+summary: "Hỗ trợ kênh WhatsApp, kiểm soát truy cập, hành vi gửi tin và vận hành"
 read_when:
-  - Working on WhatsApp/web channel behavior or inbox routing
+  - Làm việc với hành vi kênh WhatsApp/web hoặc định tuyến hộp thư đến
 title: "WhatsApp"
 ---
 
-# WhatsApp (Web channel)
+# WhatsApp (Kênh Web)
 
-Status: production-ready via WhatsApp Web (Baileys). Gateway owns linked session(s).
+Trạng thái: Sẵn sàng sản xuất qua WhatsApp Web (Baileys). Gateway sở hữu session đã liên kết.
 
-## Install (on demand)
+## Cài đặt (khi cần)
 
-- Onboarding (`openclaw onboard`) and `openclaw channels add --channel whatsapp`
-  prompt to install the WhatsApp plugin the first time you select it.
-- `openclaw channels login --channel whatsapp` also offers the install flow when
-  the plugin is not present yet.
-- Dev channel + git checkout: defaults to the local plugin path.
-- Stable/Beta: defaults to the npm package `@openclaw/whatsapp`.
+- Quá trình onboarding (`openclaw onboard`) và `openclaw channels add --channel whatsapp` sẽ yêu cầu cài đặt plugin WhatsApp lần đầu tiên khi chọn.
+- `openclaw channels login --channel whatsapp` cũng cung cấp quy trình cài đặt khi plugin chưa có.
+- Kênh Dev + git checkout: mặc định là đường dẫn plugin cục bộ.
+- Ổn định/Beta: mặc định là gói npm `@openclaw/whatsapp`.
 
-Manual install stays available:
+Cài đặt thủ công vẫn có sẵn:
 
 ```bash
 openclaw plugins install @openclaw/whatsapp
 ```
 
 <CardGroup cols={3}>
-  <Card title="Pairing" icon="link" href="/channels/pairing">
-    Default DM policy is pairing for unknown senders.
+  <Card title="Ghép đôi" icon="link" href="/channels/pairing">
+    Chính sách DM mặc định là ghép đôi cho người gửi không xác định.
   </Card>
-  <Card title="Channel troubleshooting" icon="wrench" href="/channels/troubleshooting">
-    Cross-channel diagnostics and repair playbooks.
+  <Card title="Khắc phục sự cố kênh" icon="wrench" href="/channels/troubleshooting">
+    Chẩn đoán và sửa chữa đa kênh.
   </Card>
-  <Card title="Gateway configuration" icon="settings" href="/gateway/configuration">
-    Full channel config patterns and examples.
+  <Card title="Cấu hình Gateway" icon="settings" href="/gateway/configuration">
+    Mẫu cấu hình kênh đầy đủ và ví dụ.
   </Card>
 </CardGroup>
 
-## Quick setup
+## Thiết lập nhanh
 
 <Steps>
-  <Step title="Configure WhatsApp access policy">
+  <Step title="Cấu hình chính sách truy cập WhatsApp">
 
 ```json5
 {
@@ -56,13 +54,13 @@ openclaw plugins install @openclaw/whatsapp
 
   </Step>
 
-  <Step title="Link WhatsApp (QR)">
+  <Step title="Liên kết WhatsApp (QR)">
 
 ```bash
 openclaw channels login --channel whatsapp
 ```
 
-    For a specific account:
+    Đối với tài khoản cụ thể:
 
 ```bash
 openclaw channels login --channel whatsapp --account work
@@ -70,7 +68,7 @@ openclaw channels login --channel whatsapp --account work
 
   </Step>
 
-  <Step title="Start the gateway">
+  <Step title="Khởi động gateway">
 
 ```bash
 openclaw gateway
@@ -78,33 +76,33 @@ openclaw gateway
 
   </Step>
 
-  <Step title="Approve first pairing request (if using pairing mode)">
+  <Step title="Phê duyệt yêu cầu ghép đôi đầu tiên (nếu sử dụng chế độ ghép đôi)">
 
 ```bash
 openclaw pairing list whatsapp
 openclaw pairing approve whatsapp <CODE>
 ```
 
-    Pairing requests expire after 1 hour. Pending requests are capped at 3 per channel.
+    Yêu cầu ghép đôi hết hạn sau 1 giờ. Yêu cầu đang chờ xử lý bị giới hạn ở 3 mỗi kênh.
 
   </Step>
 </Steps>
 
 <Note>
-OpenClaw recommends running WhatsApp on a separate number when possible. (The channel metadata and setup flow are optimized for that setup, but personal-number setups are also supported.)
+OpenClaw khuyến nghị chạy WhatsApp trên một số riêng biệt khi có thể. (Dữ liệu kênh và quy trình thiết lập được tối ưu hóa cho thiết lập đó, nhưng cũng hỗ trợ thiết lập số cá nhân.)
 </Note>
 
-## Deployment patterns
+## Mẫu triển khai
 
 <AccordionGroup>
-  <Accordion title="Dedicated number (recommended)">
-    This is the cleanest operational mode:
+  <Accordion title="Số riêng biệt (khuyến nghị)">
+    Đây là chế độ vận hành sạch nhất:
 
-    - separate WhatsApp identity for OpenClaw
-    - clearer DM allowlists and routing boundaries
-    - lower chance of self-chat confusion
+    - danh tính WhatsApp riêng cho OpenClaw
+    - danh sách cho phép DM và ranh giới định tuyến rõ ràng hơn
+    - giảm khả năng nhầm lẫn tự trò chuyện
 
-    Minimal policy pattern:
+    Mẫu chính sách tối thiểu:
 
     ```json5
     {
@@ -119,129 +117,129 @@ OpenClaw recommends running WhatsApp on a separate number when possible. (The ch
 
   </Accordion>
 
-  <Accordion title="Personal-number fallback">
-    Onboarding supports personal-number mode and writes a self-chat-friendly baseline:
+  <Accordion title="Dự phòng số cá nhân">
+    Onboarding hỗ trợ chế độ số cá nhân và ghi một cấu hình cơ bản thân thiện với tự trò chuyện:
 
     - `dmPolicy: "allowlist"`
-    - `allowFrom` includes your personal number
+    - `allowFrom` bao gồm số cá nhân của bạn
     - `selfChatMode: true`
 
-    In runtime, self-chat protections key off the linked self number and `allowFrom`.
+    Trong thời gian chạy, bảo vệ tự trò chuyện dựa trên số tự liên kết và `allowFrom`.
 
   </Accordion>
 
-  <Accordion title="WhatsApp Web-only channel scope">
-    The messaging platform channel is WhatsApp Web-based (`Baileys`) in current OpenClaw channel architecture.
+  <Accordion title="Phạm vi kênh chỉ WhatsApp Web">
+    Kênh nền tảng nhắn tin là dựa trên WhatsApp Web (`Baileys`) trong kiến trúc kênh OpenClaw hiện tại.
 
-    There is no separate Twilio WhatsApp messaging channel in the built-in chat-channel registry.
+    Không có kênh nhắn tin WhatsApp Twilio riêng biệt trong registry kênh chat tích hợp.
 
   </Accordion>
 </AccordionGroup>
 
-## Runtime model
+## Mô hình thời gian chạy
 
-- Gateway owns the WhatsApp socket and reconnect loop.
-- Outbound sends require an active WhatsApp listener for the target account.
-- Status and broadcast chats are ignored (`@status`, `@broadcast`).
-- Direct chats use DM session rules (`session.dmScope`; default `main` collapses DMs to the agent main session).
-- Group sessions are isolated (`agent:<agentId>:whatsapp:group:<jid>`).
+- Gateway sở hữu socket WhatsApp và vòng lặp kết nối lại.
+- Gửi đi yêu cầu một listener WhatsApp hoạt động cho tài khoản mục tiêu.
+- Trạng thái và chat phát sóng bị bỏ qua (`@status`, `@broadcast`).
+- Chat trực tiếp sử dụng quy tắc phiên DM (`session.dmScope`; mặc định `main` gộp DMs vào phiên chính của agent).
+- Phiên nhóm được cô lập (`agent:<agentId>:whatsapp:group:<jid>`).
 
-## Access control and activation
+## Kiểm soát truy cập và kích hoạt
 
 <Tabs>
-  <Tab title="DM policy">
-    `channels.whatsapp.dmPolicy` controls direct chat access:
+  <Tab title="Chính sách DM">
+    `channels.whatsapp.dmPolicy` kiểm soát truy cập chat trực tiếp:
 
-    - `pairing` (default)
+    - `pairing` (mặc định)
     - `allowlist`
-    - `open` (requires `allowFrom` to include `"*"`)
+    - `open` (yêu cầu `allowFrom` bao gồm `"*"`)
     - `disabled`
 
-    `allowFrom` accepts E.164-style numbers (normalized internally).
+    `allowFrom` chấp nhận số theo kiểu E.164 (được chuẩn hóa nội bộ).
 
-    Multi-account override: `channels.whatsapp.accounts.<id>.dmPolicy` (and `allowFrom`) take precedence over channel-level defaults for that account.
+    Ghi đè nhiều tài khoản: `channels.whatsapp.accounts.<id>.dmPolicy` (và `allowFrom`) được ưu tiên hơn mặc định cấp kênh cho tài khoản đó.
 
-    Runtime behavior details:
+    Chi tiết hành vi thời gian chạy:
 
-    - pairings are persisted in channel allow-store and merged with configured `allowFrom`
-    - if no allowlist is configured, the linked self number is allowed by default
-    - outbound `fromMe` DMs are never auto-paired
-
-  </Tab>
-
-  <Tab title="Group policy + allowlists">
-    Group access has two layers:
-
-    1. **Group membership allowlist** (`channels.whatsapp.groups`)
-       - if `groups` is omitted, all groups are eligible
-       - if `groups` is present, it acts as a group allowlist (`"*"` allowed)
-
-    2. **Group sender policy** (`channels.whatsapp.groupPolicy` + `groupAllowFrom`)
-       - `open`: sender allowlist bypassed
-       - `allowlist`: sender must match `groupAllowFrom` (or `*`)
-       - `disabled`: block all group inbound
-
-    Sender allowlist fallback:
-
-    - if `groupAllowFrom` is unset, runtime falls back to `allowFrom` when available
-    - sender allowlists are evaluated before mention/reply activation
-
-    Note: if no `channels.whatsapp` block exists at all, runtime group-policy fallback is `allowlist` (with a warning log), even if `channels.defaults.groupPolicy` is set.
+    - ghép đôi được lưu trữ trong kho cho phép kênh và hợp nhất với `allowFrom` đã cấu hình
+    - nếu không có danh sách cho phép nào được cấu hình, số tự liên kết được cho phép mặc định
+    - DMs gửi đi `fromMe` không bao giờ tự động ghép đôi
 
   </Tab>
 
-  <Tab title="Mentions + /activation">
-    Group replies require mention by default.
+  <Tab title="Chính sách nhóm + danh sách cho phép">
+    Truy cập nhóm có hai lớp:
 
-    Mention detection includes:
+    1. **Danh sách cho phép thành viên nhóm** (`channels.whatsapp.groups`)
+       - nếu `groups` bị bỏ qua, tất cả các nhóm đều đủ điều kiện
+       - nếu `groups` có mặt, nó hoạt động như một danh sách cho phép nhóm (`"*"` được phép)
 
-    - explicit WhatsApp mentions of the bot identity
-    - configured mention regex patterns (`agents.list[].groupChat.mentionPatterns`, fallback `messages.groupChat.mentionPatterns`)
-    - implicit reply-to-bot detection (reply sender matches bot identity)
+    2. **Chính sách người gửi nhóm** (`channels.whatsapp.groupPolicy` + `groupAllowFrom`)
+       - `open`: bỏ qua danh sách cho phép người gửi
+       - `allowlist`: người gửi phải khớp với `groupAllowFrom` (hoặc `*`)
+       - `disabled`: chặn tất cả nhóm inbound
 
-    Security note:
+    Dự phòng danh sách cho phép người gửi:
 
-    - quote/reply only satisfies mention gating; it does **not** grant sender authorization
-    - with `groupPolicy: "allowlist"`, non-allowlisted senders are still blocked even if they reply to an allowlisted user's message
+    - nếu `groupAllowFrom` không được đặt, thời gian chạy sẽ dựa vào `allowFrom` khi có sẵn
+    - danh sách cho phép người gửi được đánh giá trước khi kích hoạt nhắc/đáp
 
-    Session-level activation command:
+    Lưu ý: nếu không có khối `channels.whatsapp` nào tồn tại, dự phòng chính sách nhóm thời gian chạy là `allowlist` (với nhật ký cảnh báo), ngay cả khi `channels.defaults.groupPolicy` đã được đặt.
+
+  </Tab>
+
+  <Tab title="Nhắc + /kích hoạt">
+    Trả lời nhóm yêu cầu nhắc theo mặc định.
+
+    Phát hiện nhắc bao gồm:
+
+    - nhắc WhatsApp rõ ràng về danh tính bot
+    - mẫu regex nhắc được cấu hình (`agents.list[].groupChat.mentionPatterns`, dự phòng `messages.groupChat.mentionPatterns`)
+    - phát hiện trả lời ngầm định (người gửi trả lời khớp với danh tính bot)
+
+    Lưu ý bảo mật:
+
+    - chỉ trích dẫn/trả lời thỏa mãn điều kiện nhắc; nó không cấp quyền cho người gửi
+    - với `groupPolicy: "allowlist"`, người gửi không có trong danh sách cho phép vẫn bị chặn ngay cả khi họ trả lời tin nhắn của người dùng trong danh sách cho phép
+
+    Lệnh kích hoạt cấp phiên:
 
     - `/activation mention`
     - `/activation always`
 
-    `activation` updates session state (not global config). It is owner-gated.
+    `activation` cập nhật trạng thái phiên (không phải cấu hình toàn cầu). Nó được bảo vệ bởi chủ sở hữu.
 
   </Tab>
 </Tabs>
 
-## Personal-number and self-chat behavior
+## Hành vi số cá nhân và tự trò chuyện
 
-When the linked self number is also present in `allowFrom`, WhatsApp self-chat safeguards activate:
+Khi số tự liên kết cũng có trong `allowFrom`, các biện pháp bảo vệ tự trò chuyện WhatsApp được kích hoạt:
 
-- skip read receipts for self-chat turns
-- ignore mention-JID auto-trigger behavior that would otherwise ping yourself
-- if `messages.responsePrefix` is unset, self-chat replies default to `[{identity.name}]` or `[openclaw]`
+- bỏ qua biên nhận đã đọc cho lượt tự trò chuyện
+- bỏ qua hành vi tự động kích hoạt nhắc-JID mà nếu không sẽ tự ping
+- nếu `messages.responsePrefix` không được đặt, trả lời tự trò chuyện mặc định là `[{identity.name}]` hoặc `[openclaw]`
 
-## Message normalization and context
+## Chuẩn hóa tin nhắn và ngữ cảnh
 
 <AccordionGroup>
-  <Accordion title="Inbound envelope + reply context">
-    Incoming WhatsApp messages are wrapped in the shared inbound envelope.
+  <Accordion title="Phong bì inbound + ngữ cảnh trả lời">
+    Tin nhắn WhatsApp đến được bao bọc trong phong bì inbound chung.
 
-    If a quoted reply exists, context is appended in this form:
+    Nếu có trả lời trích dẫn, ngữ cảnh được thêm vào dưới dạng:
 
     ```text
-    [Replying to <sender> id:<stanzaId>]
-    <quoted body or media placeholder>
-    [/Replying]
+    [Trả lời <người gửi> id:<stanzaId>]
+    <nội dung trích dẫn hoặc chỗ giữ chỗ phương tiện>
+    [/Trả lời]
     ```
 
-    Reply metadata fields are also populated when available (`ReplyToId`, `ReplyToBody`, `ReplyToSender`, sender JID/E.164).
+    Các trường siêu dữ liệu trả lời cũng được điền khi có sẵn (`ReplyToId`, `ReplyToBody`, `ReplyToSender`, JID/E.164 của người gửi).
 
   </Accordion>
 
-  <Accordion title="Media placeholders and location/contact extraction">
-    Media-only inbound messages are normalized with placeholders such as:
+  <Accordion title="Chỗ giữ chỗ phương tiện và trích xuất vị trí/liên hệ">
+    Tin nhắn inbound chỉ có phương tiện được chuẩn hóa với các chỗ giữ chỗ như:
 
     - `<media:image>`
     - `<media:video>`
@@ -249,29 +247,29 @@ When the linked self number is also present in `allowFrom`, WhatsApp self-chat s
     - `<media:document>`
     - `<media:sticker>`
 
-    Location and contact payloads are normalized into textual context before routing.
+    Tải trọng vị trí và liên hệ được chuẩn hóa thành ngữ cảnh văn bản trước khi định tuyến.
 
   </Accordion>
 
-  <Accordion title="Pending group history injection">
-    For groups, unprocessed messages can be buffered and injected as context when the bot is finally triggered.
+  <Accordion title="Tiêm lịch sử nhóm đang chờ xử lý">
+    Đối với các nhóm, các tin nhắn chưa được xử lý có thể được đệm và tiêm làm ngữ cảnh khi bot cuối cùng được kích hoạt.
 
-    - default limit: `50`
-    - config: `channels.whatsapp.historyLimit`
-    - fallback: `messages.groupChat.historyLimit`
-    - `0` disables
+    - giới hạn mặc định: `50`
+    - cấu hình: `channels.whatsapp.historyLimit`
+    - dự phòng: `messages.groupChat.historyLimit`
+    - `0` vô hiệu hóa
 
-    Injection markers:
+    Các dấu hiệu tiêm:
 
-    - `[Chat messages since your last reply - for context]`
-    - `[Current message - respond to this]`
+    - `[Tin nhắn trò chuyện kể từ lần trả lời cuối cùng của bạn - để làm ngữ cảnh]`
+    - `[Tin nhắn hiện tại - trả lời tin nhắn này]`
 
   </Accordion>
 
-  <Accordion title="Read receipts">
-    Read receipts are enabled by default for accepted inbound WhatsApp messages.
+  <Accordion title="Biên nhận đã đọc">
+    Biên nhận đã đọc được bật theo mặc định cho các tin nhắn WhatsApp inbound đã được chấp nhận.
 
-    Disable globally:
+    Vô hiệu hóa toàn cầu:
 
     ```json5
     {
@@ -283,7 +281,7 @@ When the linked self number is also present in `allowFrom`, WhatsApp self-chat s
     }
     ```
 
-    Per-account override:
+    Ghi đè theo tài khoản:
 
     ```json5
     {
@@ -299,40 +297,40 @@ When the linked self number is also present in `allowFrom`, WhatsApp self-chat s
     }
     ```
 
-    Self-chat turns skip read receipts even when globally enabled.
+    Lượt tự trò chuyện bỏ qua biên nhận đã đọc ngay cả khi đã bật toàn cầu.
 
   </Accordion>
 </AccordionGroup>
 
-## Delivery, chunking, and media
+## Giao hàng, chia nhỏ và phương tiện
 
 <AccordionGroup>
-  <Accordion title="Text chunking">
-    - default chunk limit: `channels.whatsapp.textChunkLimit = 4000`
+  <Accordion title="Chia nhỏ văn bản">
+    - giới hạn chia nhỏ mặc định: `channels.whatsapp.textChunkLimit = 4000`
     - `channels.whatsapp.chunkMode = "length" | "newline"`
-    - `newline` mode prefers paragraph boundaries (blank lines), then falls back to length-safe chunking
+    - chế độ `newline` ưu tiên ranh giới đoạn văn (dòng trống), sau đó dự phòng chia nhỏ an toàn theo độ dài
   </Accordion>
 
-  <Accordion title="Outbound media behavior">
-    - supports image, video, audio (PTT voice-note), and document payloads
-    - `audio/ogg` is rewritten to `audio/ogg; codecs=opus` for voice-note compatibility
-    - animated GIF playback is supported via `gifPlayback: true` on video sends
-    - captions are applied to the first media item when sending multi-media reply payloads
-    - media source can be HTTP(S), `file://`, or local paths
+  <Accordion title="Hành vi phương tiện gửi đi">
+    - hỗ trợ hình ảnh, video, âm thanh (ghi chú giọng nói PTT) và tải trọng tài liệu
+    - `audio/ogg` được viết lại thành `audio/ogg; codecs=opus` để tương thích với ghi chú giọng nói
+    - phát lại GIF động được hỗ trợ qua `gifPlayback: true` khi gửi video
+    - chú thích được áp dụng cho mục phương tiện đầu tiên khi gửi tải trọng trả lời đa phương tiện
+    - nguồn phương tiện có thể là HTTP(S), `file://`, hoặc đường dẫn cục bộ
   </Accordion>
 
-  <Accordion title="Media size limits and fallback behavior">
-    - inbound media save cap: `channels.whatsapp.mediaMaxMb` (default `50`)
-    - outbound media send cap: `channels.whatsapp.mediaMaxMb` (default `50`)
-    - per-account overrides use `channels.whatsapp.accounts.<accountId>.mediaMaxMb`
-    - images are auto-optimized (resize/quality sweep) to fit limits
-    - on media send failure, first-item fallback sends text warning instead of dropping the response silently
+  <Accordion title="Giới hạn kích thước phương tiện và hành vi dự phòng">
+    - giới hạn lưu phương tiện inbound: `channels.whatsapp.mediaMaxMb` (mặc định `50`)
+    - giới hạn gửi phương tiện outbound: `channels.whatsapp.mediaMaxMb` (mặc định `50`)
+    - ghi đè theo tài khoản sử dụng `channels.whatsapp.accounts.<accountId>.mediaMaxMb`
+    - hình ảnh được tối ưu hóa tự động (thay đổi kích thước/chất lượng) để phù hợp với giới hạn
+    - khi gửi phương tiện thất bại, mục đầu tiên dự phòng gửi cảnh báo văn bản thay vì bỏ qua phản hồi một cách im lặng
   </Accordion>
 </AccordionGroup>
 
-## Acknowledgment reactions
+## Phản ứng xác nhận
 
-WhatsApp supports immediate ack reactions on inbound receipt via `channels.whatsapp.ackReaction`.
+WhatsApp hỗ trợ phản ứng xác nhận ngay lập tức khi nhận inbound qua `channels.whatsapp.ackReaction`.
 
 ```json5
 {
@@ -348,51 +346,51 @@ WhatsApp supports immediate ack reactions on inbound receipt via `channels.whats
 }
 ```
 
-Behavior notes:
+Ghi chú hành vi:
 
-- sent immediately after inbound is accepted (pre-reply)
-- failures are logged but do not block normal reply delivery
-- group mode `mentions` reacts on mention-triggered turns; group activation `always` acts as bypass for this check
-- WhatsApp uses `channels.whatsapp.ackReaction` (legacy `messages.ackReaction` is not used here)
+- gửi ngay sau khi inbound được chấp nhận (trước khi trả lời)
+- lỗi được ghi lại nhưng không chặn việc gửi trả lời bình thường
+- chế độ nhóm `mentions` phản ứng khi lượt được kích hoạt bởi nhắc; kích hoạt nhóm `always` hoạt động như bỏ qua cho kiểm tra này
+- WhatsApp sử dụng `channels.whatsapp.ackReaction` (không sử dụng `messages.ackReaction` cũ ở đây)
 
-## Multi-account and credentials
+## Nhiều tài khoản và thông tin xác thực
 
 <AccordionGroup>
-  <Accordion title="Account selection and defaults">
-    - account ids come from `channels.whatsapp.accounts`
-    - default account selection: `default` if present, otherwise first configured account id (sorted)
-    - account ids are normalized internally for lookup
+  <Accordion title="Lựa chọn tài khoản và mặc định">
+    - id tài khoản đến từ `channels.whatsapp.accounts`
+    - lựa chọn tài khoản mặc định: `default` nếu có, nếu không thì id tài khoản đầu tiên được cấu hình (sắp xếp)
+    - id tài khoản được chuẩn hóa nội bộ để tra cứu
   </Accordion>
 
-  <Accordion title="Credential paths and legacy compatibility">
-    - current auth path: `~/.openclaw/credentials/whatsapp/<accountId>/creds.json`
-    - backup file: `creds.json.bak`
-    - legacy default auth in `~/.openclaw/credentials/` is still recognized/migrated for default-account flows
+  <Accordion title="Đường dẫn thông tin xác thực và khả năng tương thích cũ">
+    - đường dẫn xác thực hiện tại: `~/.openclaw/credentials/whatsapp/<accountId>/creds.json`
+    - tệp sao lưu: `creds.json.bak`
+    - xác thực mặc định cũ trong `~/.openclaw/credentials/` vẫn được nhận diện/chuyển đổi cho các luồng tài khoản mặc định
   </Accordion>
 
-  <Accordion title="Logout behavior">
-    `openclaw channels logout --channel whatsapp [--account <id>]` clears WhatsApp auth state for that account.
+  <Accordion title="Hành vi đăng xuất">
+    `openclaw channels logout --channel whatsapp [--account <id>]` xóa trạng thái xác thực WhatsApp cho tài khoản đó.
 
-    In legacy auth directories, `oauth.json` is preserved while Baileys auth files are removed.
+    Trong các thư mục xác thực cũ, `oauth.json` được giữ lại trong khi các tệp xác thực Baileys bị xóa.
 
   </Accordion>
 </AccordionGroup>
 
-## Tools, actions, and config writes
+## Công cụ, hành động và ghi cấu hình
 
-- Agent tool support includes WhatsApp reaction action (`react`).
-- Action gates:
+- Hỗ trợ công cụ Agent bao gồm hành động phản ứng WhatsApp (`react`).
+- Cổng hành động:
   - `channels.whatsapp.actions.reactions`
   - `channels.whatsapp.actions.polls`
-- Channel-initiated config writes are enabled by default (disable via `channels.whatsapp.configWrites=false`).
+- Ghi cấu hình do kênh khởi tạo được bật theo mặc định (vô hiệu hóa qua `channels.whatsapp.configWrites=false`).
 
-## Troubleshooting
+## Khắc phục sự cố
 
 <AccordionGroup>
-  <Accordion title="Not linked (QR required)">
-    Symptom: channel status reports not linked.
+  <Accordion title="Chưa liên kết (cần QR)">
+    Triệu chứng: trạng thái kênh báo chưa liên kết.
 
-    Fix:
+    Khắc phục:
 
     ```bash
     openclaw channels login --channel whatsapp
@@ -401,60 +399,60 @@ Behavior notes:
 
   </Accordion>
 
-  <Accordion title="Linked but disconnected / reconnect loop">
-    Symptom: linked account with repeated disconnects or reconnect attempts.
+  <Accordion title="Đã liên kết nhưng bị ngắt kết nối / vòng lặp kết nối lại">
+    Triệu chứng: tài khoản đã liên kết với các lần ngắt kết nối hoặc thử kết nối lại lặp lại.
 
-    Fix:
+    Khắc phục:
 
     ```bash
     openclaw doctor
     openclaw logs --follow
     ```
 
-    If needed, re-link with `channels login`.
+    Nếu cần, liên kết lại với `channels login`.
 
   </Accordion>
 
-  <Accordion title="No active listener when sending">
-    Outbound sends fail fast when no active gateway listener exists for the target account.
+  <Accordion title="Không có listener hoạt động khi gửi">
+    Gửi đi thất bại nhanh chóng khi không có listener gateway hoạt động cho tài khoản mục tiêu.
 
-    Make sure gateway is running and the account is linked.
+    Đảm bảo gateway đang chạy và tài khoản đã được liên kết.
 
   </Accordion>
 
-  <Accordion title="Group messages unexpectedly ignored">
-    Check in this order:
+  <Accordion title="Tin nhắn nhóm bị bỏ qua không mong muốn">
+    Kiểm tra theo thứ tự này:
 
     - `groupPolicy`
     - `groupAllowFrom` / `allowFrom`
-    - `groups` allowlist entries
-    - mention gating (`requireMention` + mention patterns)
-    - duplicate keys in `openclaw.json` (JSON5): later entries override earlier ones, so keep a single `groupPolicy` per scope
+    - mục danh sách cho phép `groups`
+    - điều kiện nhắc (`requireMention` + mẫu nhắc)
+    - khóa trùng lặp trong `openclaw.json` (JSON5): các mục nhập sau ghi đè các mục nhập trước đó, vì vậy hãy giữ một `groupPolicy` duy nhất cho mỗi phạm vi
 
   </Accordion>
 
-  <Accordion title="Bun runtime warning">
-    WhatsApp gateway runtime should use Node. Bun is flagged as incompatible for stable WhatsApp/Telegram gateway operation.
+  <Accordion title="Cảnh báo runtime Bun">
+    Runtime gateway WhatsApp nên sử dụng Node. Bun được đánh dấu là không tương thích cho hoạt động gateway WhatsApp/Telegram ổn định.
   </Accordion>
 </AccordionGroup>
 
-## Configuration reference pointers
+## Tham chiếu cấu hình
 
-Primary reference:
+Tham chiếu chính:
 
-- [Configuration reference - WhatsApp](/gateway/configuration-reference#whatsapp)
+- [Tham chiếu cấu hình - WhatsApp](/gateway/configuration-reference#whatsapp)
 
-High-signal WhatsApp fields:
+Các trường WhatsApp quan trọng:
 
-- access: `dmPolicy`, `allowFrom`, `groupPolicy`, `groupAllowFrom`, `groups`
-- delivery: `textChunkLimit`, `chunkMode`, `mediaMaxMb`, `sendReadReceipts`, `ackReaction`
-- multi-account: `accounts.<id>.enabled`, `accounts.<id>.authDir`, account-level overrides
-- operations: `configWrites`, `debounceMs`, `web.enabled`, `web.heartbeatSeconds`, `web.reconnect.*`
-- session behavior: `session.dmScope`, `historyLimit`, `dmHistoryLimit`, `dms.<id>.historyLimit`
+- truy cập: `dmPolicy`, `allowFrom`, `groupPolicy`, `groupAllowFrom`, `groups`
+- giao hàng: `textChunkLimit`, `chunkMode`, `mediaMaxMb`, `sendReadReceipts`, `ackReaction`
+- nhiều tài khoản: `accounts.<id>.enabled`, `accounts.<id>.authDir`, ghi đè cấp tài khoản
+- vận hành: `configWrites`, `debounceMs`, `web.enabled`, `web.heartbeatSeconds`, `web.reconnect.*`
+- hành vi phiên: `session.dmScope`, `historyLimit`, `dmHistoryLimit`, `dms.<id>.historyLimit`
 
-## Related
+## Liên quan
 
-- [Pairing](/channels/pairing)
-- [Channel routing](/channels/channel-routing)
-- [Multi-agent routing](/concepts/multi-agent)
-- [Troubleshooting](/channels/troubleshooting)
+- [Ghép đôi](/channels/pairing)
+- [Định tuyến kênh](/channels/channel-routing)
+- [Định tuyến nhiều agent](/concepts/multi-agent)
+- [Khắc phục sự cố](/channels/troubleshooting)

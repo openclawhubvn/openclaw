@@ -1,91 +1,77 @@
 ---
-summary: "Bridge protocol (legacy nodes): TCP JSONL, pairing, scoped RPC"
+summary: "Giao thức Bridge (node cũ): TCP JSONL, ghép đôi, RPC có phạm vi"
 read_when:
-  - Building or debugging node clients (iOS/Android/macOS node mode)
-  - Investigating pairing or bridge auth failures
-  - Auditing the node surface exposed by the gateway
-title: "Bridge Protocol"
+  - Xây dựng hoặc gỡ lỗi các client node (chế độ node iOS/Android/macOS)
+  - Điều tra lỗi ghép đôi hoặc xác thực bridge
+  - Kiểm tra bề mặt node được gateway phơi bày
+title: "Giao thức Bridge"
 ---
 
-# Bridge protocol (legacy node transport)
+# Giao thức Bridge (truyền tải node cũ)
 
-The Bridge protocol is a **legacy** node transport (TCP JSONL). New node clients
-should use the unified Gateway WebSocket protocol instead.
+Giao thức Bridge là một phương thức truyền tải node **cũ** (TCP JSONL). Các client node mới nên sử dụng giao thức Gateway WebSocket thống nhất.
 
-If you are building an operator or node client, use the
-[Gateway protocol](/gateway/protocol).
+Nếu bạn đang xây dựng một operator hoặc client node, hãy sử dụng [giao thức Gateway](/gateway/protocol).
 
-**Note:** Current OpenClaw builds no longer ship the TCP bridge listener; this document is kept for historical reference.
-Legacy `bridge.*` config keys are no longer part of the config schema.
+**Lưu ý:** Các bản dựng OpenClaw hiện tại không còn cung cấp listener bridge TCP; tài liệu này được giữ lại để tham khảo lịch sử. Các khóa cấu hình `bridge.*` cũ không còn là một phần của schema cấu hình.
 
-## Why we have both
+## Tại sao chúng ta có cả hai
 
-- **Security boundary**: the bridge exposes a small allowlist instead of the
-  full gateway API surface.
-- **Pairing + node identity**: node admission is owned by the gateway and tied
-  to a per-node token.
-- **Discovery UX**: nodes can discover gateways via Bonjour on LAN, or connect
-  directly over a tailnet.
-- **Loopback WS**: the full WS control plane stays local unless tunneled via SSH.
+- **Ranh giới bảo mật**: bridge chỉ phơi bày một danh sách cho phép nhỏ thay vì toàn bộ bề mặt API của gateway.
+- **Ghép đôi + danh tính node**: việc chấp nhận node được quản lý bởi gateway và gắn liền với token cho từng node.
+- **Trải nghiệm khám phá**: các node có thể khám phá gateway qua Bonjour trên LAN, hoặc kết nối trực tiếp qua tailnet.
+- **Loopback WS**: toàn bộ mặt phẳng điều khiển WS ở lại cục bộ trừ khi được truyền qua SSH.
 
-## Transport
+## Truyền tải
 
-- TCP, one JSON object per line (JSONL).
-- Optional TLS (when `bridge.tls.enabled` is true).
-- Legacy default listener port was `18790` (current builds do not start a TCP bridge).
+- TCP, một đối tượng JSON trên mỗi dòng (JSONL).
+- TLS tùy chọn (khi `bridge.tls.enabled` là true).
+- Cổng listener mặc định cũ là `18790` (các bản dựng hiện tại không khởi động bridge TCP).
 
-When TLS is enabled, discovery TXT records include `bridgeTls=1` plus
-`bridgeTlsSha256` as a non-secret hint. Note that Bonjour/mDNS TXT records are
-unauthenticated; clients must not treat the advertised fingerprint as an
-authoritative pin without explicit user intent or other out-of-band verification.
+Khi TLS được kích hoạt, các bản ghi TXT khám phá bao gồm `bridgeTls=1` cộng với `bridgeTlsSha256` như một gợi ý không bí mật. Lưu ý rằng các bản ghi TXT Bonjour/mDNS không được xác thực; các client không nên coi dấu vân tay được quảng cáo là một mã pin có thẩm quyền mà không có ý định rõ ràng của người dùng hoặc xác minh ngoài băng tần khác.
 
-## Handshake + pairing
+## Bắt tay + ghép đôi
 
-1. Client sends `hello` with node metadata + token (if already paired).
-2. If not paired, gateway replies `error` (`NOT_PAIRED`/`UNAUTHORIZED`).
-3. Client sends `pair-request`.
-4. Gateway waits for approval, then sends `pair-ok` and `hello-ok`.
+1. Client gửi `hello` với metadata node + token (nếu đã ghép đôi).
+2. Nếu chưa ghép đôi, gateway trả lời `error` (`NOT_PAIRED`/`UNAUTHORIZED`).
+3. Client gửi `pair-request`.
+4. Gateway chờ phê duyệt, sau đó gửi `pair-ok` và `hello-ok`.
 
-`hello-ok` returns `serverName` and may include `canvasHostUrl`.
+`hello-ok` trả về `serverName` và có thể bao gồm `canvasHostUrl`.
 
-## Frames
+## Khung
 
 Client → Gateway:
 
-- `req` / `res`: scoped gateway RPC (chat, sessions, config, health, voicewake, skills.bins)
-- `event`: node signals (voice transcript, agent request, chat subscribe, exec lifecycle)
+- `req` / `res`: RPC gateway có phạm vi (chat, sessions, config, health, voicewake, skills.bins)
+- `event`: tín hiệu node (bản ghi giọng nói, yêu cầu agent, đăng ký chat, vòng đời exec)
 
 Gateway → Client:
 
-- `invoke` / `invoke-res`: node commands (`canvas.*`, `camera.*`, `screen.record`,
-  `location.get`, `sms.send`)
-- `event`: chat updates for subscribed sessions
-- `ping` / `pong`: keepalive
+- `invoke` / `invoke-res`: lệnh node (`canvas.*`, `camera.*`, `screen.record`, `location.get`, `sms.send`)
+- `event`: cập nhật chat cho các phiên đã đăng ký
+- `ping` / `pong`: giữ kết nối
 
-Legacy allowlist enforcement lived in `src/gateway/server-bridge.ts` (removed).
+Việc thực thi danh sách cho phép cũ nằm trong `src/gateway/server-bridge.ts` (đã bị loại bỏ).
 
-## Exec lifecycle events
+## Sự kiện vòng đời Exec
 
-Nodes can emit `exec.finished` or `exec.denied` events to surface system.run activity.
-These are mapped to system events in the gateway. (Legacy nodes may still emit `exec.started`.)
+Các node có thể phát ra sự kiện `exec.finished` hoặc `exec.denied` để hiển thị hoạt động system.run. Những sự kiện này được ánh xạ tới các sự kiện hệ thống trong gateway. (Các node cũ có thể vẫn phát ra `exec.started`.)
 
-Payload fields (all optional unless noted):
+Các trường payload (tất cả đều tùy chọn trừ khi được ghi chú):
 
-- `sessionKey` (required): agent session to receive the system event.
-- `runId`: unique exec id for grouping.
-- `command`: raw or formatted command string.
-- `exitCode`, `timedOut`, `success`, `output`: completion details (finished only).
-- `reason`: denial reason (denied only).
+- `sessionKey` (bắt buộc): phiên agent để nhận sự kiện hệ thống.
+- `runId`: id exec duy nhất để nhóm lại.
+- `command`: chuỗi lệnh thô hoặc đã định dạng.
+- `exitCode`, `timedOut`, `success`, `output`: chi tiết hoàn thành (chỉ khi kết thúc).
+- `reason`: lý do từ chối (chỉ khi bị từ chối).
 
-## Tailnet usage
+## Sử dụng Tailnet
 
-- Bind the bridge to a tailnet IP: `bridge.bind: "tailnet"` in
-  `~/.openclaw/openclaw.json`.
-- Clients connect via MagicDNS name or tailnet IP.
-- Bonjour does **not** cross networks; use manual host/port or wide-area DNS‑SD
-  when needed.
+- Ràng buộc bridge với IP tailnet: `bridge.bind: "tailnet"` trong `~/.openclaw/openclaw.json`.
+- Các client kết nối qua tên MagicDNS hoặc IP tailnet.
+- Bonjour **không** vượt qua các mạng; sử dụng host/port thủ công hoặc DNS-SD diện rộng khi cần.
 
-## Versioning
+## Phiên bản
 
-Bridge is currently **implicit v1** (no min/max negotiation). Backward‑compat
-is expected; add a bridge protocol version field before any breaking changes.
+Bridge hiện tại là **v1 ngầm định** (không có thương lượng min/max). Tương thích ngược được mong đợi; thêm một trường phiên bản giao thức bridge trước khi có bất kỳ thay đổi phá vỡ nào.

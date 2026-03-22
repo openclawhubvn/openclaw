@@ -1,14 +1,14 @@
 ---
-summary: "Skills config schema and examples"
+summary: "Cấu hình kỹ năng và ví dụ"
 read_when:
-  - Adding or modifying skills config
-  - Adjusting bundled allowlist or install behavior
-title: "Skills Config"
+  - Thêm hoặc chỉnh sửa cấu hình kỹ năng
+  - Điều chỉnh danh sách cho phép hoặc hành vi cài đặt
+title: "Cấu hình Kỹ năng"
 ---
 
-# Skills Config
+# Cấu hình Kỹ năng
 
-All skills-related configuration lives under `skills` in `~/.openclaw/openclaw.json`.
+Tất cả cấu hình liên quan đến kỹ năng nằm dưới `skills` trong `~/.openclaw/openclaw.json`.
 
 ```json5
 {
@@ -21,12 +21,12 @@ All skills-related configuration lives under `skills` in `~/.openclaw/openclaw.j
     },
     install: {
       preferBrew: true,
-      nodeManager: "npm", // npm | pnpm | yarn | bun (Gateway runtime still Node; bun not recommended)
+      nodeManager: "npm", // npm | pnpm | yarn | bun (Gateway runtime vẫn là Node; không khuyến nghị dùng bun)
     },
     entries: {
       "image-lab": {
         enabled: true,
-        apiKey: { source: "env", provider: "default", id: "GEMINI_API_KEY" }, // or plaintext string
+        apiKey: { source: "env", provider: "default", id: "GEMINI_API_KEY" }, // hoặc chuỗi plaintext
         env: {
           GEMINI_API_KEY: "GEMINI_KEY_HERE",
         },
@@ -38,49 +38,42 @@ All skills-related configuration lives under `skills` in `~/.openclaw/openclaw.j
 }
 ```
 
-For built-in image generation/editing, prefer `agents.defaults.imageGenerationModel`
-plus the core `image_generate` tool. `skills.entries.*` is only for custom or
-third-party skill workflows.
+Đối với việc tạo/chỉnh sửa hình ảnh tích hợp sẵn, ưu tiên `agents.defaults.imageGenerationModel`
+cùng công cụ cốt lõi `image_generate`. `skills.entries.*` chỉ dành cho quy trình kỹ năng tùy chỉnh hoặc của bên thứ ba.
 
-Examples:
+Ví dụ:
 
-- Native Nano Banana-style setup: `agents.defaults.imageGenerationModel.primary: "google/gemini-3-pro-image-preview"`
-- Native fal setup: `agents.defaults.imageGenerationModel.primary: "fal/fal-ai/flux/dev"`
+- Cài đặt kiểu Native Nano Banana: `agents.defaults.imageGenerationModel.primary: "google/gemini-3-pro-image-preview"`
+- Cài đặt kiểu Native fal: `agents.defaults.imageGenerationModel.primary: "fal/fal-ai/flux/dev"`
 
-## Fields
+## Các trường
 
-- `allowBundled`: optional allowlist for **bundled** skills only. When set, only
-  bundled skills in the list are eligible (managed/workspace skills unaffected).
-- `load.extraDirs`: additional skill directories to scan (lowest precedence).
-- `load.watch`: watch skill folders and refresh the skills snapshot (default: true).
-- `load.watchDebounceMs`: debounce for skill watcher events in milliseconds (default: 250).
-- `install.preferBrew`: prefer brew installers when available (default: true).
-- `install.nodeManager`: node installer preference (`npm` | `pnpm` | `yarn` | `bun`, default: npm).
-  This only affects **skill installs**; the Gateway runtime should still be Node
-  (Bun not recommended for WhatsApp/Telegram).
-- `entries.<skillKey>`: per-skill overrides.
+- `allowBundled`: danh sách cho phép tùy chọn chỉ dành cho kỹ năng **đi kèm**. Khi được thiết lập, chỉ những kỹ năng đi kèm trong danh sách mới đủ điều kiện (kỹ năng quản lý/khu vực làm việc không bị ảnh hưởng).
+- `load.extraDirs`: thư mục kỹ năng bổ sung để quét (ưu tiên thấp nhất).
+- `load.watch`: theo dõi thư mục kỹ năng và làm mới ảnh chụp nhanh kỹ năng (mặc định: true).
+- `load.watchDebounceMs`: thời gian chờ cho sự kiện theo dõi kỹ năng tính bằng mili giây (mặc định: 250).
+- `install.preferBrew`: ưu tiên cài đặt qua brew khi có sẵn (mặc định: true).
+- `install.nodeManager`: ưu tiên trình cài đặt node (`npm` | `pnpm` | `yarn` | `bun`, mặc định: npm). Điều này chỉ ảnh hưởng đến **cài đặt kỹ năng**; runtime Gateway vẫn nên là Node (không khuyến nghị dùng Bun cho WhatsApp/Telegram).
+- `entries.<skillKey>`: ghi đè theo từng kỹ năng.
 
-Per-skill fields:
+Các trường theo từng kỹ năng:
 
-- `enabled`: set `false` to disable a skill even if it’s bundled/installed.
-- `env`: environment variables injected for the agent run (only if not already set).
-- `apiKey`: optional convenience for skills that declare a primary env var.
-  Supports plaintext string or SecretRef object (`{ source, provider, id }`).
+- `enabled`: đặt `false` để vô hiệu hóa một kỹ năng ngay cả khi nó đã được đi kèm/cài đặt.
+- `env`: biến môi trường được tiêm vào khi chạy agent (chỉ khi chưa được thiết lập).
+- `apiKey`: tiện ích tùy chọn cho các kỹ năng khai báo biến môi trường chính. Hỗ trợ chuỗi plaintext hoặc đối tượng SecretRef (`{ source, provider, id }`).
 
-## Notes
+## Ghi chú
 
-- Keys under `entries` map to the skill name by default. If a skill defines
-  `metadata.openclaw.skillKey`, use that key instead.
-- Changes to skills are picked up on the next agent turn when the watcher is enabled.
+- Các khóa dưới `entries` mặc định ánh xạ tới tên kỹ năng. Nếu một kỹ năng định nghĩa `metadata.openclaw.skillKey`, sử dụng khóa đó thay thế.
+- Thay đổi đối với kỹ năng sẽ được cập nhật trong lần chạy agent tiếp theo khi chế độ theo dõi được bật.
 
-### Sandboxed skills + env vars
+### Kỹ năng trong sandbox + biến môi trường
 
-When a session is **sandboxed**, skill processes run inside Docker. The sandbox
-does **not** inherit the host `process.env`.
+Khi một phiên làm việc được **sandboxed**, các quy trình kỹ năng chạy bên trong Docker. Sandbox **không** kế thừa `process.env` của máy chủ.
 
-Use one of:
+Sử dụng một trong các cách sau:
 
-- `agents.defaults.sandbox.docker.env` (or per-agent `agents.list[].sandbox.docker.env`)
-- bake the env into your custom sandbox image
+- `agents.defaults.sandbox.docker.env` (hoặc theo từng agent `agents.list[].sandbox.docker.env`)
+- tích hợp biến môi trường vào hình ảnh sandbox tùy chỉnh của bạn
 
-Global `env` and `skills.entries.<skill>.env/apiKey` apply to **host** runs only.
+Biến môi trường toàn cục `env` và `skills.entries.<skill>.env/apiKey` chỉ áp dụng cho các lần chạy trên **máy chủ**.

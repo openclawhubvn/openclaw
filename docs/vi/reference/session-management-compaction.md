@@ -1,25 +1,25 @@
 ---
-summary: "Deep dive: session store + transcripts, lifecycle, and (auto)compaction internals"
+summary: "Khám phá sâu: lưu trữ phiên + bản ghi, vòng đời, và nội bộ (tự động) nén"
 read_when:
-  - You need to debug session ids, transcript JSONL, or sessions.json fields
-  - You are changing auto-compaction behavior or adding “pre-compaction” housekeeping
-  - You want to implement memory flushes or silent system turns
-title: "Session Management Deep Dive"
+  - Cần gỡ lỗi session ids, transcript JSONL, hoặc các trường trong sessions.json
+  - Đang thay đổi hành vi tự động nén hoặc thêm công việc dọn dẹp trước khi nén
+  - Muốn triển khai xả bộ nhớ hoặc các thao tác hệ thống im lặng
+title: "Khám Phá Sâu Quản Lý Phiên"
 ---
 
-# Session Management & Compaction (Deep Dive)
+# Quản Lý Phiên & Nén (Khám Phá Sâu)
 
-This document explains how OpenClaw manages sessions end-to-end:
+Tài liệu này giải thích cách OpenClaw quản lý các phiên từ đầu đến cuối:
 
-- **Session routing** (how inbound messages map to a `sessionKey`)
-- **Session store** (`sessions.json`) and what it tracks
-- **Transcript persistence** (`*.jsonl`) and its structure
-- **Transcript hygiene** (provider-specific fixups before runs)
-- **Context limits** (context window vs tracked tokens)
-- **Compaction** (manual + auto-compaction) and where to hook pre-compaction work
-- **Silent housekeeping** (e.g. memory writes that shouldn’t produce user-visible output)
+- **Định tuyến phiên** (cách các tin nhắn đến được ánh xạ tới `sessionKey`)
+- **Lưu trữ phiên** (`sessions.json`) và những gì nó theo dõi
+- **Lưu trữ bản ghi** (`*.jsonl`) và cấu trúc của nó
+- **Vệ sinh bản ghi** (sửa chữa cụ thể theo nhà cung cấp trước khi chạy)
+- **Giới hạn ngữ cảnh** (cửa sổ ngữ cảnh so với các token được theo dõi)
+- **Nén** (nén thủ công + tự động) và nơi để gắn công việc trước khi nén
+- **Dọn dẹp im lặng** (ví dụ: ghi bộ nhớ mà không tạo ra đầu ra thấy được cho người dùng)
 
-If you want a higher-level overview first, start with:
+Nếu muốn có cái nhìn tổng quan hơn, hãy bắt đầu với:
 
 - [/concepts/session](/concepts/session)
 - [/concepts/compaction](/concepts/compaction)
@@ -28,64 +28,64 @@ If you want a higher-level overview first, start with:
 
 ---
 
-## Source of truth: the Gateway
+## Nguồn sự thật: Gateway
 
-OpenClaw is designed around a single **Gateway process** that owns session state.
+OpenClaw được thiết kế xoay quanh một **quá trình Gateway duy nhất** sở hữu trạng thái phiên.
 
-- UIs (macOS app, web Control UI, TUI) should query the Gateway for session lists and token counts.
-- In remote mode, session files are on the remote host; “checking your local Mac files” won’t reflect what the Gateway is using.
-
----
-
-## Two persistence layers
-
-OpenClaw persists sessions in two layers:
-
-1. **Session store (`sessions.json`)**
-   - Key/value map: `sessionKey -> SessionEntry`
-   - Small, mutable, safe to edit (or delete entries)
-   - Tracks session metadata (current session id, last activity, toggles, token counters, etc.)
-
-2. **Transcript (`<sessionId>.jsonl`)**
-   - Append-only transcript with tree structure (entries have `id` + `parentId`)
-   - Stores the actual conversation + tool calls + compaction summaries
-   - Used to rebuild the model context for future turns
+- Các giao diện người dùng (ứng dụng macOS, giao diện điều khiển web, TUI) nên truy vấn Gateway để lấy danh sách phiên và số lượng token.
+- Ở chế độ từ xa, các tệp phiên nằm trên máy chủ từ xa; “kiểm tra các tệp trên máy Mac của bạn” sẽ không phản ánh những gì Gateway đang sử dụng.
 
 ---
 
-## On-disk locations
+## Hai lớp lưu trữ
 
-Per agent, on the Gateway host:
+OpenClaw lưu trữ các phiên trong hai lớp:
 
-- Store: `~/.openclaw/agents/<agentId>/sessions/sessions.json`
-- Transcripts: `~/.openclaw/agents/<agentId>/sessions/<sessionId>.jsonl`
-  - Telegram topic sessions: `.../<sessionId>-topic-<threadId>.jsonl`
+1. **Lưu trữ phiên (`sessions.json`)**
+   - Bản đồ khóa/giá trị: `sessionKey -> SessionEntry`
+   - Nhỏ, có thể chỉnh sửa, an toàn để chỉnh sửa (hoặc xóa các mục)
+   - Theo dõi siêu dữ liệu phiên (id phiên hiện tại, hoạt động cuối cùng, chuyển đổi, bộ đếm token, v.v.)
 
-OpenClaw resolves these via `src/config/sessions.ts`.
+2. **Bản ghi (`<sessionId>.jsonl`)**
+   - Bản ghi chỉ thêm với cấu trúc cây (các mục có `id` + `parentId`)
+   - Lưu trữ cuộc trò chuyện thực tế + các cuộc gọi công cụ + tóm tắt nén
+   - Dùng để tái tạo ngữ cảnh mô hình cho các lượt tiếp theo
 
 ---
 
-## Store maintenance and disk controls
+## Vị trí trên đĩa
 
-Session persistence has automatic maintenance controls (`session.maintenance`) for `sessions.json` and transcript artifacts:
+Mỗi agent, trên máy chủ Gateway:
 
-- `mode`: `warn` (default) or `enforce`
-- `pruneAfter`: stale-entry age cutoff (default `30d`)
-- `maxEntries`: cap entries in `sessions.json` (default `500`)
-- `rotateBytes`: rotate `sessions.json` when oversized (default `10mb`)
-- `resetArchiveRetention`: retention for `*.reset.<timestamp>` transcript archives (default: same as `pruneAfter`; `false` disables cleanup)
-- `maxDiskBytes`: optional sessions-directory budget
-- `highWaterBytes`: optional target after cleanup (default `80%` of `maxDiskBytes`)
+- Lưu trữ: `~/.openclaw/agents/<agentId>/sessions/sessions.json`
+- Bản ghi: `~/.openclaw/agents/<agentId>/sessions/<sessionId>.jsonl`
+  - Phiên chủ đề Telegram: `.../<sessionId>-topic-<threadId>.jsonl`
 
-Enforcement order for disk budget cleanup (`mode: "enforce"`):
+OpenClaw giải quyết những điều này thông qua `src/config/sessions.ts`.
 
-1. Remove oldest archived or orphan transcript artifacts first.
-2. If still above the target, evict oldest session entries and their transcript files.
-3. Keep going until usage is at or below `highWaterBytes`.
+---
 
-In `mode: "warn"`, OpenClaw reports potential evictions but does not mutate the store/files.
+## Bảo trì lưu trữ và kiểm soát đĩa
 
-Run maintenance on demand:
+Lưu trữ phiên có các kiểm soát bảo trì tự động (`session.maintenance`) cho `sessions.json` và các bản ghi:
+
+- `mode`: `warn` (mặc định) hoặc `enforce`
+- `pruneAfter`: ngưỡng tuổi mục không hoạt động (mặc định `30d`)
+- `maxEntries`: giới hạn số mục trong `sessions.json` (mặc định `500`)
+- `rotateBytes`: xoay `sessions.json` khi quá kích thước (mặc định `10mb`)
+- `resetArchiveRetention`: thời gian lưu trữ cho các bản ghi `*.reset.<timestamp>` (mặc định: giống `pruneAfter`; `false` vô hiệu hóa dọn dẹp)
+- `maxDiskBytes`: ngân sách tùy chọn cho thư mục phiên
+- `highWaterBytes`: mục tiêu tùy chọn sau khi dọn dẹp (mặc định `80%` của `maxDiskBytes`)
+
+Thứ tự thực thi cho dọn dẹp ngân sách đĩa (`mode: "enforce"`):
+
+1. Xóa các bản ghi lưu trữ hoặc mồ côi cũ nhất trước.
+2. Nếu vẫn trên mục tiêu, loại bỏ các mục phiên cũ nhất và các tệp bản ghi của chúng.
+3. Tiếp tục cho đến khi sử dụng đạt hoặc dưới `highWaterBytes`.
+
+Trong `mode: "warn"`, OpenClaw báo cáo các khả năng loại bỏ nhưng không thay đổi lưu trữ/tệp.
+
+Chạy bảo trì theo yêu cầu:
 
 ```bash
 openclaw sessions cleanup --dry-run
@@ -94,143 +94,143 @@ openclaw sessions cleanup --enforce
 
 ---
 
-## Cron sessions and run logs
+## Phiên cron và nhật ký chạy
 
-Isolated cron runs also create session entries/transcripts, and they have dedicated retention controls:
+Các lần chạy cron cô lập cũng tạo ra các mục phiên/bản ghi, và chúng có các kiểm soát lưu trữ riêng:
 
-- `cron.sessionRetention` (default `24h`) prunes old isolated cron run sessions from the session store (`false` disables).
-- `cron.runLog.maxBytes` + `cron.runLog.keepLines` prune `~/.openclaw/cron/runs/<jobId>.jsonl` files (defaults: `2_000_000` bytes and `2000` lines).
+- `cron.sessionRetention` (mặc định `24h`) loại bỏ các phiên chạy cron cô lập cũ khỏi lưu trữ phiên (`false` vô hiệu hóa).
+- `cron.runLog.maxBytes` + `cron.runLog.keepLines` loại bỏ các tệp `~/.openclaw/cron/runs/<jobId>.jsonl` (mặc định: `2_000_000` byte và `2000` dòng).
 
 ---
 
-## Session keys (`sessionKey`)
+## Khóa phiên (`sessionKey`)
 
-A `sessionKey` identifies _which conversation bucket_ you’re in (routing + isolation).
+Một `sessionKey` xác định _bucket cuộc trò chuyện nào_ bạn đang ở (định tuyến + cô lập).
 
-Common patterns:
+Các mẫu phổ biến:
 
-- Main/direct chat (per agent): `agent:<agentId>:<mainKey>` (default `main`)
-- Group: `agent:<agentId>:<channel>:group:<id>`
-- Room/channel (Discord/Slack): `agent:<agentId>:<channel>:channel:<id>` or `...:room:<id>`
+- Chat chính/trực tiếp (mỗi agent): `agent:<agentId>:<mainKey>` (mặc định `main`)
+- Nhóm: `agent:<agentId>:<channel>:group:<id>`
+- Phòng/kênh (Discord/Slack): `agent:<agentId>:<channel>:channel:<id>` hoặc `...:room:<id>`
 - Cron: `cron:<job.id>`
-- Webhook: `hook:<uuid>` (unless overridden)
+- Webhook: `hook:<uuid>` (trừ khi bị ghi đè)
 
-The canonical rules are documented at [/concepts/session](/concepts/session).
-
----
-
-## Session ids (`sessionId`)
-
-Each `sessionKey` points at a current `sessionId` (the transcript file that continues the conversation).
-
-Rules of thumb:
-
-- **Reset** (`/new`, `/reset`) creates a new `sessionId` for that `sessionKey`.
-- **Daily reset** (default 4:00 AM local time on the gateway host) creates a new `sessionId` on the next message after the reset boundary.
-- **Idle expiry** (`session.reset.idleMinutes` or legacy `session.idleMinutes`) creates a new `sessionId` when a message arrives after the idle window. When daily + idle are both configured, whichever expires first wins.
-- **Thread parent fork guard** (`session.parentForkMaxTokens`, default `100000`) skips parent transcript forking when the parent session is already too large; the new thread starts fresh. Set `0` to disable.
-
-Implementation detail: the decision happens in `initSessionState()` in `src/auto-reply/reply/session.ts`.
+Các quy tắc chuẩn được ghi lại tại [/concepts/session](/concepts/session).
 
 ---
 
-## Session store schema (`sessions.json`)
+## Id phiên (`sessionId`)
 
-The store’s value type is `SessionEntry` in `src/config/sessions.ts`.
+Mỗi `sessionKey` trỏ đến một `sessionId` hiện tại (tệp bản ghi tiếp tục cuộc trò chuyện).
 
-Key fields (not exhaustive):
+Nguyên tắc chung:
 
-- `sessionId`: current transcript id (filename is derived from this unless `sessionFile` is set)
-- `updatedAt`: last activity timestamp
-- `sessionFile`: optional explicit transcript path override
-- `chatType`: `direct | group | room` (helps UIs and send policy)
-- `provider`, `subject`, `room`, `space`, `displayName`: metadata for group/channel labeling
-- Toggles:
+- **Reset** (`/new`, `/reset`) tạo một `sessionId` mới cho `sessionKey` đó.
+- **Reset hàng ngày** (mặc định 4:00 AM giờ địa phương trên máy chủ gateway) tạo một `sessionId` mới vào tin nhắn tiếp theo sau ranh giới reset.
+- **Hết hạn không hoạt động** (`session.reset.idleMinutes` hoặc `session.idleMinutes` cũ) tạo một `sessionId` mới khi một tin nhắn đến sau cửa sổ không hoạt động. Khi cả hai cấu hình hàng ngày + không hoạt động, cái nào hết hạn trước sẽ thắng.
+- **Bảo vệ fork cha luồng** (`session.parentForkMaxTokens`, mặc định `100000`) bỏ qua fork bản ghi cha khi phiên cha đã quá lớn; luồng mới bắt đầu từ đầu. Đặt `0` để vô hiệu hóa.
+
+Chi tiết triển khai: quyết định xảy ra trong `initSessionState()` trong `src/auto-reply/reply/session.ts`.
+
+---
+
+## Schema lưu trữ phiên (`sessions.json`)
+
+Giá trị của lưu trữ là `SessionEntry` trong `src/config/sessions.ts`.
+
+Các trường chính (không đầy đủ):
+
+- `sessionId`: id bản ghi hiện tại (tên tệp được suy ra từ đây trừ khi `sessionFile` được đặt)
+- `updatedAt`: dấu thời gian hoạt động cuối cùng
+- `sessionFile`: đường dẫn bản ghi rõ ràng tùy chọn
+- `chatType`: `direct | group | room` (giúp các giao diện người dùng và chính sách gửi)
+- `provider`, `subject`, `room`, `space`, `displayName`: siêu dữ liệu cho nhãn nhóm/kênh
+- Chuyển đổi:
   - `thinkingLevel`, `verboseLevel`, `reasoningLevel`, `elevatedLevel`
-  - `sendPolicy` (per-session override)
-- Model selection:
+  - `sendPolicy` (ghi đè theo phiên)
+- Lựa chọn mô hình:
   - `providerOverride`, `modelOverride`, `authProfileOverride`
-- Token counters (best-effort / provider-dependent):
+- Bộ đếm token (nỗ lực tốt nhất / phụ thuộc vào nhà cung cấp):
   - `inputTokens`, `outputTokens`, `totalTokens`, `contextTokens`
-- `compactionCount`: how often auto-compaction completed for this session key
-- `memoryFlushAt`: timestamp for the last pre-compaction memory flush
-- `memoryFlushCompactionCount`: compaction count when the last flush ran
+- `compactionCount`: số lần nén tự động hoàn thành cho khóa phiên này
+- `memoryFlushAt`: dấu thời gian cho lần xả bộ nhớ trước khi nén cuối cùng
+- `memoryFlushCompactionCount`: số lần nén khi lần xả cuối cùng chạy
 
-The store is safe to edit, but the Gateway is the authority: it may rewrite or rehydrate entries as sessions run.
-
----
-
-## Transcript structure (`*.jsonl`)
-
-Transcripts are managed by `@mariozechner/pi-coding-agent`’s `SessionManager`.
-
-The file is JSONL:
-
-- First line: session header (`type: "session"`, includes `id`, `cwd`, `timestamp`, optional `parentSession`)
-- Then: session entries with `id` + `parentId` (tree)
-
-Notable entry types:
-
-- `message`: user/assistant/toolResult messages
-- `custom_message`: extension-injected messages that _do_ enter model context (can be hidden from UI)
-- `custom`: extension state that does _not_ enter model context
-- `compaction`: persisted compaction summary with `firstKeptEntryId` and `tokensBefore`
-- `branch_summary`: persisted summary when navigating a tree branch
-
-OpenClaw intentionally does **not** “fix up” transcripts; the Gateway uses `SessionManager` to read/write them.
+Lưu trữ an toàn để chỉnh sửa, nhưng Gateway là thẩm quyền: nó có thể viết lại hoặc tái tạo các mục khi các phiên chạy.
 
 ---
 
-## Context windows vs tracked tokens
+## Cấu trúc bản ghi (`*.jsonl`)
 
-Two different concepts matter:
+Bản ghi được quản lý bởi `@mariozechner/pi-coding-agent`’s `SessionManager`.
 
-1. **Model context window**: hard cap per model (tokens visible to the model)
-2. **Session store counters**: rolling stats written into `sessions.json` (used for /status and dashboards)
+Tệp là JSONL:
 
-If you’re tuning limits:
+- Dòng đầu tiên: tiêu đề phiên (`type: "session"`, bao gồm `id`, `cwd`, `timestamp`, `parentSession` tùy chọn)
+- Sau đó: các mục phiên với `id` + `parentId` (cây)
 
-- The context window comes from the model catalog (and can be overridden via config).
-- `contextTokens` in the store is a runtime estimate/reporting value; don’t treat it as a strict guarantee.
+Các loại mục đáng chú ý:
 
-For more, see [/token-use](/reference/token-use).
+- `message`: tin nhắn người dùng/trợ lý/kết quả công cụ
+- `custom_message`: tin nhắn được tiêm bởi tiện ích mở rộng mà _có_ vào ngữ cảnh mô hình (có thể bị ẩn khỏi giao diện người dùng)
+- `custom`: trạng thái tiện ích mở rộng mà _không_ vào ngữ cảnh mô hình
+- `compaction`: tóm tắt nén được lưu trữ với `firstKeptEntryId` và `tokensBefore`
+- `branch_summary`: tóm tắt được lưu trữ khi điều hướng một nhánh cây
 
----
-
-## Compaction: what it is
-
-Compaction summarizes older conversation into a persisted `compaction` entry in the transcript and keeps recent messages intact.
-
-After compaction, future turns see:
-
-- The compaction summary
-- Messages after `firstKeptEntryId`
-
-Compaction is **persistent** (unlike session pruning). See [/concepts/session-pruning](/concepts/session-pruning).
+OpenClaw cố ý **không** “sửa chữa” các bản ghi; Gateway sử dụng `SessionManager` để đọc/ghi chúng.
 
 ---
 
-## When auto-compaction happens (Pi runtime)
+## Cửa sổ ngữ cảnh so với các token được theo dõi
 
-In the embedded Pi agent, auto-compaction triggers in two cases:
+Hai khái niệm khác nhau quan trọng:
 
-1. **Overflow recovery**: the model returns a context overflow error → compact → retry.
-2. **Threshold maintenance**: after a successful turn, when:
+1. **Cửa sổ ngữ cảnh mô hình**: giới hạn cứng cho mỗi mô hình (các token thấy được bởi mô hình)
+2. **Bộ đếm lưu trữ phiên**: thống kê cuộn được ghi vào `sessions.json` (dùng cho /status và bảng điều khiển)
+
+Nếu bạn đang điều chỉnh giới hạn:
+
+- Cửa sổ ngữ cảnh đến từ danh mục mô hình (và có thể được ghi đè qua cấu hình).
+- `contextTokens` trong lưu trữ là giá trị ước tính/báo cáo thời gian chạy; không coi đó là một đảm bảo nghiêm ngặt.
+
+Để biết thêm, xem [/token-use](/reference/token-use).
+
+---
+
+## Nén: nó là gì
+
+Nén tóm tắt cuộc trò chuyện cũ hơn thành một mục `compaction` được lưu trữ trong bản ghi và giữ lại các tin nhắn gần đây.
+
+Sau khi nén, các lượt tương lai thấy:
+
+- Tóm tắt nén
+- Tin nhắn sau `firstKeptEntryId`
+
+Nén là **bền vững** (không giống như cắt tỉa phiên). Xem [/concepts/session-pruning](/concepts/session-pruning).
+
+---
+
+## Khi nào tự động nén xảy ra (Pi runtime)
+
+Trong agent Pi nhúng, tự động nén kích hoạt trong hai trường hợp:
+
+1. **Phục hồi tràn**: mô hình trả về lỗi tràn ngữ cảnh → nén → thử lại.
+2. **Bảo trì ngưỡng**: sau một lượt thành công, khi:
 
 `contextTokens > contextWindow - reserveTokens`
 
-Where:
+Trong đó:
 
-- `contextWindow` is the model’s context window
-- `reserveTokens` is headroom reserved for prompts + the next model output
+- `contextWindow` là cửa sổ ngữ cảnh của mô hình
+- `reserveTokens` là khoảng trống dành cho các lời nhắc + đầu ra mô hình tiếp theo
 
-These are Pi runtime semantics (OpenClaw consumes the events, but Pi decides when to compact).
+Đây là ngữ nghĩa runtime của Pi (OpenClaw tiêu thụ các sự kiện, nhưng Pi quyết định khi nào nén).
 
 ---
 
-## Compaction settings (`reserveTokens`, `keepRecentTokens`)
+## Cài đặt nén (`reserveTokens`, `keepRecentTokens`)
 
-Pi’s compaction settings live in Pi settings:
+Cài đặt nén của Pi nằm trong cài đặt Pi:
 
 ```json5
 {
@@ -242,83 +242,79 @@ Pi’s compaction settings live in Pi settings:
 }
 ```
 
-OpenClaw also enforces a safety floor for embedded runs:
+OpenClaw cũng thực thi một sàn an toàn cho các lần chạy nhúng:
 
-- If `compaction.reserveTokens < reserveTokensFloor`, OpenClaw bumps it.
-- Default floor is `20000` tokens.
-- Set `agents.defaults.compaction.reserveTokensFloor: 0` to disable the floor.
-- If it’s already higher, OpenClaw leaves it alone.
+- Nếu `compaction.reserveTokens < reserveTokensFloor`, OpenClaw tăng nó.
+- Sàn mặc định là `20000` token.
+- Đặt `agents.defaults.compaction.reserveTokensFloor: 0` để vô hiệu hóa sàn.
+- Nếu nó đã cao hơn, OpenClaw để yên.
 
-Why: leave enough headroom for multi-turn “housekeeping” (like memory writes) before compaction becomes unavoidable.
+Lý do: để lại đủ khoảng trống cho “dọn dẹp” nhiều lượt (như ghi bộ nhớ) trước khi nén trở nên không thể tránh khỏi.
 
-Implementation: `ensurePiCompactionReserveTokens()` in `src/agents/pi-settings.ts`
-(called from `src/agents/pi-embedded-runner.ts`).
+Triển khai: `ensurePiCompactionReserveTokens()` trong `src/agents/pi-settings.ts`
+(gọi từ `src/agents/pi-embedded-runner.ts`).
 
 ---
 
-## User-visible surfaces
+## Bề mặt thấy được cho người dùng
 
-You can observe compaction and session state via:
+Bạn có thể quan sát nén và trạng thái phiên qua:
 
-- `/status` (in any chat session)
+- `/status` (trong bất kỳ phiên chat nào)
 - `openclaw status` (CLI)
 - `openclaw sessions` / `sessions --json`
-- Verbose mode: `🧹 Auto-compaction complete` + compaction count
+- Chế độ chi tiết: `🧹 Auto-compaction complete` + số lần nén
 
 ---
 
-## Silent housekeeping (`NO_REPLY`)
+## Dọn dẹp im lặng (`NO_REPLY`)
 
-OpenClaw supports “silent” turns for background tasks where the user should not see intermediate output.
+OpenClaw hỗ trợ các lượt “im lặng” cho các tác vụ nền mà người dùng không nên thấy đầu ra trung gian.
 
-Convention:
+Quy ước:
 
-- The assistant starts its output with `NO_REPLY` to indicate “do not deliver a reply to the user”.
-- OpenClaw strips/suppresses this in the delivery layer.
+- Trợ lý bắt đầu đầu ra của mình với `NO_REPLY` để chỉ ra “không gửi trả lời cho người dùng”.
+- OpenClaw loại bỏ/ẩn điều này trong lớp phân phối.
 
-As of `2026.1.10`, OpenClaw also suppresses **draft/typing streaming** when a partial chunk begins with `NO_REPLY`, so silent operations don’t leak partial output mid-turn.
-
----
-
-## Pre-compaction "memory flush" (implemented)
-
-Goal: before auto-compaction happens, run a silent agentic turn that writes durable
-state to disk (e.g. `memory/YYYY-MM-DD.md` in the agent workspace) so compaction can’t
-erase critical context.
-
-OpenClaw uses the **pre-threshold flush** approach:
-
-1. Monitor session context usage.
-2. When it crosses a “soft threshold” (below Pi’s compaction threshold), run a silent
-   “write memory now” directive to the agent.
-3. Use `NO_REPLY` so the user sees nothing.
-
-Config (`agents.defaults.compaction.memoryFlush`):
-
-- `enabled` (default: `true`)
-- `softThresholdTokens` (default: `4000`)
-- `prompt` (user message for the flush turn)
-- `systemPrompt` (extra system prompt appended for the flush turn)
-
-Notes:
-
-- The default prompt/system prompt include a `NO_REPLY` hint to suppress delivery.
-- The flush runs once per compaction cycle (tracked in `sessions.json`).
-- The flush runs only for embedded Pi sessions (CLI backends skip it).
-- The flush is skipped when the session workspace is read-only (`workspaceAccess: "ro"` or `"none"`).
-- See [Memory](/concepts/memory) for the workspace file layout and write patterns.
-
-Pi also exposes a `session_before_compact` hook in the extension API, but OpenClaw’s
-flush logic lives on the Gateway side today.
+Từ `2026.1.10`, OpenClaw cũng ẩn **dự thảo/đánh máy streaming** khi một phần bắt đầu với `NO_REPLY`, vì vậy các hoạt động im lặng không rò rỉ đầu ra trung gian giữa lượt.
 
 ---
 
-## Troubleshooting checklist
+## Xả bộ nhớ trước khi nén (đã triển khai)
 
-- Session key wrong? Start with [/concepts/session](/concepts/session) and confirm the `sessionKey` in `/status`.
-- Store vs transcript mismatch? Confirm the Gateway host and the store path from `openclaw status`.
-- Compaction spam? Check:
-  - model context window (too small)
-  - compaction settings (`reserveTokens` too high for the model window can cause earlier compaction)
-  - tool-result bloat: enable/tune session pruning
-- Silent turns leaking? Confirm the reply starts with `NO_REPLY` (exact token) and you’re on a build that includes the streaming suppression fix.
+Mục tiêu: trước khi tự động nén xảy ra, chạy một lượt agent im lặng ghi trạng thái bền vững vào đĩa (ví dụ: `memory/YYYY-MM-DD.md` trong không gian làm việc của agent) để nén không thể xóa ngữ cảnh quan trọng.
+
+OpenClaw sử dụng cách tiếp cận **xả trước ngưỡng**:
+
+1. Giám sát việc sử dụng ngữ cảnh phiên.
+2. Khi nó vượt qua một “ngưỡng mềm” (dưới ngưỡng nén của Pi), chạy một chỉ thị “ghi bộ nhớ ngay” im lặng cho agent.
+3. Sử dụng `NO_REPLY` để người dùng không thấy gì.
+
+Cấu hình (`agents.defaults.compaction.memoryFlush`):
+
+- `enabled` (mặc định: `true`)
+- `softThresholdTokens` (mặc định: `4000`)
+- `prompt` (tin nhắn người dùng cho lượt xả)
+- `systemPrompt` (lời nhắc hệ thống bổ sung được thêm vào cho lượt xả)
+
+Ghi chú:
+
+- Lời nhắc mặc định/lời nhắc hệ thống bao gồm một gợi ý `NO_REPLY` để ẩn phân phối.
+- Xả chạy một lần mỗi chu kỳ nén (được theo dõi trong `sessions.json`).
+- Xả chỉ chạy cho các phiên Pi nhúng (CLI backends bỏ qua nó).
+- Xả bị bỏ qua khi không gian làm việc của phiên chỉ đọc (`workspaceAccess: "ro"` hoặc `"none"`).
+- Xem [Memory](/concepts/memory) để biết bố cục tệp không gian làm việc và các mẫu ghi.
+
+Pi cũng cung cấp một hook `session_before_compact` trong API tiện ích mở rộng, nhưng logic xả của OpenClaw hiện nằm ở phía Gateway.
+
+---
+
+## Danh sách kiểm tra khắc phục sự cố
+
+- Khóa phiên sai? Bắt đầu với [/concepts/session](/concepts/session) và xác nhận `sessionKey` trong `/status`.
+- Lưu trữ so với bản ghi không khớp? Xác nhận máy chủ Gateway và đường dẫn lưu trữ từ `openclaw status`.
+- Nén spam? Kiểm tra:
+  - cửa sổ ngữ cảnh mô hình (quá nhỏ)
+  - cài đặt nén (`reserveTokens` quá cao cho cửa sổ mô hình có thể gây ra nén sớm hơn)
+  - phình to kết quả công cụ: bật/điều chỉnh cắt tỉa phiên
+- Lượt im lặng bị rò rỉ? Xác nhận trả lời bắt đầu với `NO_REPLY` (token chính xác) và bạn đang ở trên bản dựng bao gồm sửa lỗi ẩn streaming.

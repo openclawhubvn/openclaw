@@ -1,86 +1,75 @@
 ---
-summary: "OpenClaw tools and plugins overview: what the agent can do and how to extend it"
+summary: "Tổng quan về công cụ và plugin của OpenClaw: khả năng của agent và cách mở rộng"
 read_when:
-  - You want to understand what tools OpenClaw provides
-  - You need to configure, allow, or deny tools
-  - You are deciding between built-in tools, skills, and plugins
-title: "Tools and Plugins"
+  - Bạn muốn hiểu các công cụ OpenClaw cung cấp
+  - Bạn cần cấu hình, cho phép hoặc từ chối công cụ
+  - Bạn đang phân vân giữa công cụ tích hợp sẵn, kỹ năng và plugin
+title: "Công cụ và Plugin"
 ---
 
-# Tools and Plugins
+# Công cụ và Plugin
 
-Everything the agent does beyond generating text happens through **tools**.
-Tools are how the agent reads files, runs commands, browses the web, sends
-messages, and interacts with devices.
+Mọi hoạt động của agent ngoài việc tạo văn bản đều thông qua **công cụ**. Công cụ giúp agent đọc file, chạy lệnh, duyệt web, gửi tin nhắn và tương tác với thiết bị.
 
-## Tools, skills, and plugins
+## Công cụ, kỹ năng và plugin
 
-OpenClaw has three layers that work together:
+OpenClaw có ba lớp hoạt động cùng nhau:
 
 <Steps>
-  <Step title="Tools are what the agent calls">
-    A tool is a typed function the agent can invoke (e.g. `exec`, `browser`,
-    `web_search`, `message`). OpenClaw ships a set of **built-in tools** and
-    plugins can register additional ones.
+  <Step title="Công cụ là những gì agent gọi">
+    Công cụ là một hàm có kiểu mà agent có thể gọi (ví dụ: `exec`, `browser`, `web_search`, `message`). OpenClaw cung cấp một bộ **công cụ tích hợp sẵn** và plugin có thể đăng ký thêm.
 
-    The agent sees tools as structured function definitions sent to the model API.
+    Agent xem công cụ như các định nghĩa hàm có cấu trúc được gửi đến API mô hình.
 
   </Step>
 
-  <Step title="Skills teach the agent when and how">
-    A skill is a markdown file (`SKILL.md`) injected into the system prompt.
-    Skills give the agent context, constraints, and step-by-step guidance for
-    using tools effectively. Skills live in your workspace, in shared folders,
-    or ship inside plugins.
+  <Step title="Kỹ năng hướng dẫn agent khi nào và cách nào">
+    Kỹ năng là một file markdown (`SKILL.md`) được đưa vào hệ thống nhắc nhở. Kỹ năng cung cấp cho agent ngữ cảnh, ràng buộc và hướng dẫn từng bước để sử dụng công cụ hiệu quả. Kỹ năng có thể nằm trong workspace, thư mục chia sẻ hoặc đi kèm trong plugin.
 
-    [Skills reference](/tools/skills) | [Creating skills](/tools/creating-skills)
+    [Tham khảo kỹ năng](/tools/skills) | [Tạo kỹ năng](/tools/creating-skills)
 
   </Step>
 
-  <Step title="Plugins package everything together">
-    A plugin is a package that can register any combination of capabilities:
-    channels, model providers, tools, skills, speech, image generation, and more.
-    Some plugins are **core** (shipped with OpenClaw), others are **external**
-    (published on npm by the community).
+  <Step title="Plugin đóng gói mọi thứ lại với nhau">
+    Plugin là một gói có thể đăng ký bất kỳ sự kết hợp nào của các khả năng: kênh, nhà cung cấp mô hình, công cụ, kỹ năng, giọng nói, tạo hình ảnh và nhiều hơn nữa. Một số plugin là **cốt lõi** (đi kèm với OpenClaw), số khác là **bên ngoài** (được cộng đồng phát hành trên npm).
 
-    [Install and configure plugins](/tools/plugin) | [Build your own](/plugins/building-plugins)
+    [Cài đặt và cấu hình plugin](/tools/plugin) | [Tự xây dựng plugin](/plugins/building-plugins)
 
   </Step>
 </Steps>
 
-## Built-in tools
+## Công cụ tích hợp sẵn
 
-These tools ship with OpenClaw and are available without installing any plugins:
+Những công cụ này đi kèm với OpenClaw và có sẵn mà không cần cài đặt plugin:
 
-| Tool                         | What it does                                             | Page                              |
-| ---------------------------- | -------------------------------------------------------- | --------------------------------- |
-| `exec` / `process`           | Run shell commands, manage background processes          | [Exec](/tools/exec)               |
-| `browser`                    | Control a Chromium browser (navigate, click, screenshot) | [Browser](/tools/browser)         |
-| `web_search` / `web_fetch`   | Search the web, fetch page content                       | [Web](/tools/web)                 |
-| `read` / `write` / `edit`    | File I/O in the workspace                                |                                   |
-| `apply_patch`                | Multi-hunk file patches                                  | [Apply Patch](/tools/apply-patch) |
-| `message`                    | Send messages across all channels                        | [Agent Send](/tools/agent-send)   |
-| `canvas`                     | Drive node Canvas (present, eval, snapshot)              |                                   |
-| `nodes`                      | Discover and target paired devices                       |                                   |
-| `cron` / `gateway`           | Manage scheduled jobs, restart gateway                   |                                   |
-| `image` / `image_generate`   | Analyze or generate images                               |                                   |
-| `sessions_*` / `agents_list` | Session management, sub-agents                           | [Sub-agents](/tools/subagents)    |
+| Công cụ                      | Chức năng                                                   | Trang                              |
+| ---------------------------- | ----------------------------------------------------------- | --------------------------------- |
+| `exec` / `process`           | Chạy lệnh shell, quản lý tiến trình nền                     | [Exec](/tools/exec)               |
+| `browser`                    | Điều khiển trình duyệt Chromium (điều hướng, nhấp, chụp màn hình) | [Browser](/tools/browser)         |
+| `web_search` / `web_fetch`   | Tìm kiếm web, lấy nội dung trang                            | [Web](/tools/web)                 |
+| `read` / `write` / `edit`    | I/O file trong workspace                                    |                                   |
+| `apply_patch`                | Vá file nhiều phần                                          | [Apply Patch](/tools/apply-patch) |
+| `message`                    | Gửi tin nhắn qua tất cả các kênh                            | [Agent Send](/tools/agent-send)   |
+| `canvas`                     | Điều khiển node Canvas (trình bày, đánh giá, chụp nhanh)    |                                   |
+| `nodes`                      | Khám phá và nhắm mục tiêu thiết bị ghép đôi                 |                                   |
+| `cron` / `gateway`           | Quản lý công việc định kỳ, khởi động lại gateway            |                                   |
+| `image` / `image_generate`   | Phân tích hoặc tạo hình ảnh                                 |                                   |
+| `sessions_*` / `agents_list` | Quản lý phiên, sub-agent                                    | [Sub-agents](/tools/subagents)    |
 
-### Plugin-provided tools
+### Công cụ do plugin cung cấp
 
-Plugins can register additional tools. Some examples:
+Plugin có thể đăng ký thêm công cụ. Một số ví dụ:
 
-- [Lobster](/tools/lobster) — typed workflow runtime with resumable approvals
-- [LLM Task](/tools/llm-task) — JSON-only LLM step for structured output
-- [Diffs](/tools/diffs) — diff viewer and renderer
-- [OpenProse](/prose) — markdown-first workflow orchestration
+- [Lobster](/tools/lobster) — runtime workflow có kiểu với phê duyệt có thể tiếp tục
+- [LLM Task](/tools/llm-task) — bước LLM chỉ JSON cho đầu ra có cấu trúc
+- [Diffs](/tools/diffs) — trình xem và render diff
+- [OpenProse](/prose) — điều phối workflow ưu tiên markdown
 
-## Tool configuration
+## Cấu hình công cụ
 
-### Allow and deny lists
+### Danh sách cho phép và từ chối
 
-Control which tools the agent can call via `tools.allow` / `tools.deny` in
-config. Deny always wins over allow.
+Kiểm soát công cụ mà agent có thể gọi qua `tools.allow` / `tools.deny` trong cấu hình. Từ chối luôn ưu tiên hơn cho phép.
 
 ```json5
 {
@@ -91,39 +80,37 @@ config. Deny always wins over allow.
 }
 ```
 
-### Tool profiles
+### Hồ sơ công cụ
 
-`tools.profile` sets a base allowlist before `allow`/`deny` is applied.
-Per-agent override: `agents.list[].tools.profile`.
+`tools.profile` thiết lập danh sách cho phép cơ bản trước khi áp dụng `allow`/`deny`. Ghi đè theo agent: `agents.list[].tools.profile`.
 
-| Profile     | What it includes                            |
-| ----------- | ------------------------------------------- |
-| `full`      | All tools (default)                         |
-| `coding`    | File I/O, runtime, sessions, memory, image  |
-| `messaging` | Messaging, session list/history/send/status |
-| `minimal`   | `session_status` only                       |
+| Hồ sơ       | Bao gồm gì                                    |
+| ----------- | --------------------------------------------- |
+| `full`      | Tất cả công cụ (mặc định)                     |
+| `coding`    | I/O file, runtime, phiên, bộ nhớ, hình ảnh    |
+| `messaging` | Nhắn tin, danh sách/lịch sử/gửi/trạng thái phiên |
+| `minimal`   | Chỉ `session_status`                          |
 
-### Tool groups
+### Nhóm công cụ
 
-Use `group:*` shorthands in allow/deny lists:
+Sử dụng viết tắt `group:*` trong danh sách cho phép/từ chối:
 
-| Group              | Tools                                                                          |
-| ------------------ | ------------------------------------------------------------------------------ |
-| `group:runtime`    | exec, bash, process                                                            |
-| `group:fs`         | read, write, edit, apply_patch                                                 |
-| `group:sessions`   | sessions_list, sessions_history, sessions_send, sessions_spawn, session_status |
-| `group:memory`     | memory_search, memory_get                                                      |
-| `group:web`        | web_search, web_fetch                                                          |
-| `group:ui`         | browser, canvas                                                                |
-| `group:automation` | cron, gateway                                                                  |
-| `group:messaging`  | message                                                                        |
-| `group:nodes`      | nodes                                                                          |
-| `group:openclaw`   | All built-in OpenClaw tools (excludes plugin tools)                            |
+| Nhóm                | Công cụ                                                                         |
+| ------------------ | -------------------------------------------------------------------------------- |
+| `group:runtime`    | exec, bash, process                                                              |
+| `group:fs`         | read, write, edit, apply_patch                                                   |
+| `group:sessions`   | sessions_list, sessions_history, sessions_send, sessions_spawn, session_status   |
+| `group:memory`     | memory_search, memory_get                                                        |
+| `group:web`        | web_search, web_fetch                                                            |
+| `group:ui`         | browser, canvas                                                                  |
+| `group:automation` | cron, gateway                                                                    |
+| `group:messaging`  | message                                                                          |
+| `group:nodes`      | nodes                                                                            |
+| `group:openclaw`   | Tất cả công cụ tích hợp sẵn của OpenClaw (không bao gồm công cụ plugin)          |
 
-### Provider-specific restrictions
+### Hạn chế theo nhà cung cấp
 
-Use `tools.byProvider` to restrict tools for specific providers without
-changing global defaults:
+Sử dụng `tools.byProvider` để hạn chế công cụ cho các nhà cung cấp cụ thể mà không thay đổi mặc định toàn cầu:
 
 ```json5
 {

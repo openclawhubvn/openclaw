@@ -1,151 +1,135 @@
 ---
-summary: "Reference: provider-specific transcript sanitization and repair rules"
+summary: "Tham khảo: Quy tắc làm sạch và sửa chữa bản ghi cụ thể cho từng nhà cung cấp"
 read_when:
-  - You are debugging provider request rejections tied to transcript shape
-  - You are changing transcript sanitization or tool-call repair logic
-  - You are investigating tool-call id mismatches across providers
-title: "Transcript Hygiene"
+  - Bạn đang gỡ lỗi các yêu cầu bị từ chối do hình dạng bản ghi
+  - Bạn đang thay đổi logic làm sạch hoặc sửa chữa cuộc gọi công cụ
+  - Bạn đang điều tra sự không khớp id cuộc gọi công cụ giữa các nhà cung cấp
+title: "Vệ sinh Bản ghi"
 ---
 
-# Transcript Hygiene (Provider Fixups)
+# Vệ sinh Bản ghi (Sửa chữa theo Nhà cung cấp)
 
-This document describes **provider-specific fixes** applied to transcripts before a run
-(building model context). These are **in-memory** adjustments used to satisfy strict
-provider requirements. These hygiene steps do **not** rewrite the stored JSONL transcript
-on disk; however, a separate session-file repair pass may rewrite malformed JSONL files
-by dropping invalid lines before the session is loaded. When a repair occurs, the original
-file is backed up alongside the session file.
+Tài liệu này mô tả các **sửa chữa cụ thể cho từng nhà cung cấp** được áp dụng cho bản ghi trước khi chạy (xây dựng ngữ cảnh mô hình). Đây là các điều chỉnh **trong bộ nhớ** để đáp ứng yêu cầu nghiêm ngặt của nhà cung cấp. Các bước vệ sinh này **không** viết lại bản ghi JSONL lưu trữ trên đĩa; tuy nhiên, một lần sửa chữa file phiên riêng có thể viết lại các file JSONL bị lỗi bằng cách loại bỏ các dòng không hợp lệ trước khi tải phiên. Khi sửa chữa xảy ra, file gốc được sao lưu cùng với file phiên.
 
-Scope includes:
+Phạm vi bao gồm:
 
-- Tool call id sanitization
-- Tool call input validation
-- Tool result pairing repair
-- Turn validation / ordering
-- Thought signature cleanup
-- Image payload sanitization
-- User-input provenance tagging (for inter-session routed prompts)
+- Làm sạch id cuộc gọi công cụ
+- Xác thực đầu vào cuộc gọi công cụ
+- Sửa chữa ghép đôi kết quả công cụ
+- Xác thực / sắp xếp lượt
+- Dọn dẹp chữ ký suy nghĩ
+- Làm sạch payload hình ảnh
+- Gắn thẻ nguồn gốc đầu vào người dùng (cho các lời nhắc được định tuyến giữa các phiên)
 
-If you need transcript storage details, see:
+Nếu cần chi tiết lưu trữ bản ghi, xem:
 
 - [/reference/session-management-compaction](/reference/session-management-compaction)
 
 ---
 
-## Where this runs
+## Nơi thực hiện
 
-All transcript hygiene is centralized in the embedded runner:
+Tất cả vệ sinh bản ghi được tập trung trong runner nhúng:
 
-- Policy selection: `src/agents/transcript-policy.ts`
-- Sanitization/repair application: `sanitizeSessionHistory` in `src/agents/pi-embedded-runner/google.ts`
+- Lựa chọn chính sách: `src/agents/transcript-policy.ts`
+- Áp dụng làm sạch/sửa chữa: `sanitizeSessionHistory` trong `src/agents/pi-embedded-runner/google.ts`
 
-The policy uses `provider`, `modelApi`, and `modelId` to decide what to apply.
+Chính sách sử dụng `provider`, `modelApi`, và `modelId` để quyết định áp dụng gì.
 
-Separate from transcript hygiene, session files are repaired (if needed) before load:
+Tách biệt với vệ sinh bản ghi, các file phiên được sửa chữa (nếu cần) trước khi tải:
 
-- `repairSessionFileIfNeeded` in `src/agents/session-file-repair.ts`
-- Called from `run/attempt.ts` and `compact.ts` (embedded runner)
-
----
-
-## Global rule: image sanitization
-
-Image payloads are always sanitized to prevent provider-side rejection due to size
-limits (downscale/recompress oversized base64 images).
-
-This also helps control image-driven token pressure for vision-capable models.
-Lower max dimensions generally reduce token usage; higher dimensions preserve detail.
-
-Implementation:
-
-- `sanitizeSessionMessagesImages` in `src/agents/pi-embedded-helpers/images.ts`
-- `sanitizeContentBlocksImages` in `src/agents/tool-images.ts`
-- Max image side is configurable via `agents.defaults.imageMaxDimensionPx` (default: `1200`).
+- `repairSessionFileIfNeeded` trong `src/agents/session-file-repair.ts`
+- Được gọi từ `run/attempt.ts` và `compact.ts` (runner nhúng)
 
 ---
 
-## Global rule: malformed tool calls
+## Quy tắc toàn cầu: làm sạch hình ảnh
 
-Assistant tool-call blocks that are missing both `input` and `arguments` are dropped
-before model context is built. This prevents provider rejections from partially
-persisted tool calls (for example, after a rate limit failure).
+Payload hình ảnh luôn được làm sạch để ngăn chặn từ chối từ phía nhà cung cấp do giới hạn kích thước (giảm kích thước/nén lại hình ảnh base64 quá lớn).
 
-Implementation:
+Điều này cũng giúp kiểm soát áp lực token do hình ảnh gây ra cho các mô hình có khả năng xử lý hình ảnh. Giảm kích thước tối đa thường giảm sử dụng token; kích thước lớn hơn giữ chi tiết.
 
-- `sanitizeToolCallInputs` in `src/agents/session-transcript-repair.ts`
-- Applied in `sanitizeSessionHistory` in `src/agents/pi-embedded-runner/google.ts`
+Triển khai:
+
+- `sanitizeSessionMessagesImages` trong `src/agents/pi-embedded-helpers/images.ts`
+- `sanitizeContentBlocksImages` trong `src/agents/tool-images.ts`
+- Kích thước cạnh hình ảnh tối đa có thể cấu hình qua `agents.defaults.imageMaxDimensionPx` (mặc định: `1200`).
 
 ---
 
-## Global rule: inter-session input provenance
+## Quy tắc toàn cầu: cuộc gọi công cụ bị lỗi
 
-When an agent sends a prompt into another session via `sessions_send` (including
-agent-to-agent reply/announce steps), OpenClaw persists the created user turn with:
+Các khối cuộc gọi công cụ trợ lý thiếu cả `input` và `arguments` sẽ bị loại bỏ trước khi xây dựng ngữ cảnh mô hình. Điều này ngăn chặn từ chối từ nhà cung cấp do các cuộc gọi công cụ được lưu trữ một phần (ví dụ, sau khi gặp lỗi giới hạn tốc độ).
+
+Triển khai:
+
+- `sanitizeToolCallInputs` trong `src/agents/session-transcript-repair.ts`
+- Áp dụng trong `sanitizeSessionHistory` trong `src/agents/pi-embedded-runner/google.ts`
+
+---
+
+## Quy tắc toàn cầu: nguồn gốc đầu vào giữa các phiên
+
+Khi một agent gửi một lời nhắc vào một phiên khác qua `sessions_send` (bao gồm các bước trả lời/thông báo agent-to-agent), OpenClaw lưu trữ lượt người dùng được tạo với:
 
 - `message.provenance.kind = "inter_session"`
 
-This metadata is written at transcript append time and does not change role
-(`role: "user"` remains for provider compatibility). Transcript readers can use
-this to avoid treating routed internal prompts as end-user-authored instructions.
+Metadata này được ghi vào thời điểm thêm bản ghi và không thay đổi vai trò (`role: "user"` vẫn giữ để tương thích với nhà cung cấp). Người đọc bản ghi có thể sử dụng điều này để tránh coi các lời nhắc nội bộ được định tuyến là hướng dẫn do người dùng cuối tạo ra.
 
-During context rebuild, OpenClaw also prepends a short `[Inter-session message]`
-marker to those user turns in-memory so the model can distinguish them from
-external end-user instructions.
+Trong quá trình xây dựng lại ngữ cảnh, OpenClaw cũng thêm một dấu `[Inter-session message]` ngắn vào các lượt người dùng đó trong bộ nhớ để mô hình có thể phân biệt chúng với các hướng dẫn từ người dùng cuối bên ngoài.
 
 ---
 
-## Provider matrix (current behavior)
+## Ma trận nhà cung cấp (hành vi hiện tại)
 
 **OpenAI / OpenAI Codex**
 
-- Image sanitization only.
-- Drop orphaned reasoning signatures (standalone reasoning items without a following content block) for OpenAI Responses/Codex transcripts.
-- No tool call id sanitization.
-- No tool result pairing repair.
-- No turn validation or reordering.
-- No synthetic tool results.
-- No thought signature stripping.
+- Chỉ làm sạch hình ảnh.
+- Loại bỏ chữ ký suy nghĩ mồ côi (các mục suy nghĩ độc lập không có khối nội dung theo sau) cho bản ghi OpenAI Responses/Codex.
+- Không làm sạch id cuộc gọi công cụ.
+- Không sửa chữa ghép đôi kết quả công cụ.
+- Không xác thực hoặc sắp xếp lại lượt.
+- Không có kết quả công cụ tổng hợp.
+- Không loại bỏ chữ ký suy nghĩ.
 
 **Google (Generative AI / Gemini CLI / Antigravity)**
 
-- Tool call id sanitization: strict alphanumeric.
-- Tool result pairing repair and synthetic tool results.
-- Turn validation (Gemini-style turn alternation).
-- Google turn ordering fixup (prepend a tiny user bootstrap if history starts with assistant).
-- Antigravity Claude: normalize thinking signatures; drop unsigned thinking blocks.
+- Làm sạch id cuộc gọi công cụ: chỉ cho phép chữ và số.
+- Sửa chữa ghép đôi kết quả công cụ và kết quả công cụ tổng hợp.
+- Xác thực lượt (luân phiên kiểu Gemini).
+- Sửa chữa sắp xếp lượt của Google (thêm một lượt khởi động người dùng nhỏ nếu lịch sử bắt đầu với trợ lý).
+- Antigravity Claude: chuẩn hóa chữ ký suy nghĩ; loại bỏ các khối suy nghĩ không có chữ ký.
 
-**Anthropic / Minimax (Anthropic-compatible)**
+**Anthropic / Minimax (tương thích với Anthropic)**
 
-- Tool result pairing repair and synthetic tool results.
-- Turn validation (merge consecutive user turns to satisfy strict alternation).
+- Sửa chữa ghép đôi kết quả công cụ và kết quả công cụ tổng hợp.
+- Xác thực lượt (gộp các lượt người dùng liên tiếp để đáp ứng luân phiên nghiêm ngặt).
 
-**Mistral (including model-id based detection)**
+**Mistral (bao gồm phát hiện dựa trên model-id)**
 
-- Tool call id sanitization: strict9 (alphanumeric length 9).
+- Làm sạch id cuộc gọi công cụ: strict9 (độ dài chữ và số 9).
 
 **OpenRouter Gemini**
 
-- Thought signature cleanup: strip non-base64 `thought_signature` values (keep base64).
+- Dọn dẹp chữ ký suy nghĩ: loại bỏ các giá trị `thought_signature` không phải base64 (giữ base64).
 
-**Everything else**
+**Mọi thứ khác**
 
-- Image sanitization only.
+- Chỉ làm sạch hình ảnh.
 
 ---
 
-## Historical behavior (pre-2026.1.22)
+## Hành vi lịch sử (trước 2026.1.22)
 
-Before the 2026.1.22 release, OpenClaw applied multiple layers of transcript hygiene:
+Trước bản phát hành 2026.1.22, OpenClaw áp dụng nhiều lớp vệ sinh bản ghi:
 
-- A **transcript-sanitize extension** ran on every context build and could:
-  - Repair tool use/result pairing.
-  - Sanitize tool call ids (including a non-strict mode that preserved `_`/`-`).
-- The runner also performed provider-specific sanitization, which duplicated work.
-- Additional mutations occurred outside the provider policy, including:
-  - Stripping `<final>` tags from assistant text before persistence.
-  - Dropping empty assistant error turns.
-  - Trimming assistant content after tool calls.
+- Một **mở rộng làm sạch bản ghi** chạy trên mỗi lần xây dựng ngữ cảnh và có thể:
+  - Sửa chữa ghép đôi sử dụng/kết quả công cụ.
+  - Làm sạch id cuộc gọi công cụ (bao gồm chế độ không nghiêm ngặt giữ `_`/`-`).
+- Runner cũng thực hiện làm sạch cụ thể cho nhà cung cấp, điều này gây trùng lặp công việc.
+- Các thay đổi bổ sung xảy ra ngoài chính sách nhà cung cấp, bao gồm:
+  - Loại bỏ thẻ `<final>` khỏi văn bản trợ lý trước khi lưu trữ.
+  - Loại bỏ các lượt lỗi trợ lý trống.
+  - Cắt bớt nội dung trợ lý sau các cuộc gọi công cụ.
 
-This complexity caused cross-provider regressions (notably `openai-responses`
-`call_id|fc_id` pairing). The 2026.1.22 cleanup removed the extension, centralized
-logic in the runner, and made OpenAI **no-touch** beyond image sanitization.
+Sự phức tạp này gây ra các hồi quy giữa các nhà cung cấp (đặc biệt là `openai-responses` `call_id|fc_id` ghép đôi). Việc dọn dẹp 2026.1.22 đã loại bỏ mở rộng, tập trung logic trong runner, và làm cho OpenAI **không chạm** ngoài việc làm sạch hình ảnh.

@@ -1,32 +1,29 @@
 ---
-summary: "Deepgram transcription for inbound voice notes"
+summary: "Chuyển giọng nói thành văn bản với Deepgram cho ghi chú thoại đến"
 read_when:
-  - You want Deepgram speech-to-text for audio attachments
-  - You need a quick Deepgram config example
+  - Bạn muốn sử dụng Deepgram để chuyển giọng nói thành văn bản cho tệp âm thanh đính kèm
+  - Bạn cần ví dụ cấu hình nhanh cho Deepgram
 title: "Deepgram"
 ---
 
-# Deepgram (Audio Transcription)
+# Deepgram (Chuyển giọng nói thành văn bản)
 
-Deepgram is a speech-to-text API. In OpenClaw it is used for **inbound audio/voice note
-transcription** via `tools.media.audio`.
+Deepgram là một API chuyển giọng nói thành văn bản. Trong OpenClaw, nó được sử dụng để **chuyển đổi ghi chú thoại/âm thanh đến** thông qua `tools.media.audio`.
 
-When enabled, OpenClaw uploads the audio file to Deepgram and injects the transcript
-into the reply pipeline (`{{Transcript}}` + `[Audio]` block). This is **not streaming**;
-it uses the pre-recorded transcription endpoint.
+Khi được kích hoạt, OpenClaw tải tệp âm thanh lên Deepgram và chèn bản chuyển đổi vào quy trình phản hồi (`{{Transcript}}` + khối `[Audio]`). Đây **không phải là streaming**; nó sử dụng endpoint chuyển đổi đã ghi âm trước.
 
 Website: [https://deepgram.com](https://deepgram.com)  
-Docs: [https://developers.deepgram.com](https://developers.deepgram.com)
+Tài liệu: [https://developers.deepgram.com](https://developers.deepgram.com)
 
-## Quick start
+## Bắt đầu nhanh
 
-1. Set your API key:
+1. Thiết lập API key của bạn:
 
 ```
 DEEPGRAM_API_KEY=dg_...
 ```
 
-2. Enable the provider:
+2. Kích hoạt nhà cung cấp:
 
 ```json5
 {
@@ -41,15 +38,15 @@ DEEPGRAM_API_KEY=dg_...
 }
 ```
 
-## Options
+## Tùy chọn
 
-- `model`: Deepgram model id (default: `nova-3`)
-- `language`: language hint (optional)
-- `tools.media.audio.providerOptions.deepgram.detect_language`: enable language detection (optional)
-- `tools.media.audio.providerOptions.deepgram.punctuate`: enable punctuation (optional)
-- `tools.media.audio.providerOptions.deepgram.smart_format`: enable smart formatting (optional)
+- `model`: ID mô hình của Deepgram (mặc định: `nova-3`)
+- `language`: gợi ý ngôn ngữ (tùy chọn)
+- `tools.media.audio.providerOptions.deepgram.detect_language`: bật phát hiện ngôn ngữ (tùy chọn)
+- `tools.media.audio.providerOptions.deepgram.punctuate`: bật dấu câu (tùy chọn)
+- `tools.media.audio.providerOptions.deepgram.smart_format`: bật định dạng thông minh (tùy chọn)
 
-Example with language:
+Ví dụ với ngôn ngữ:
 
 ```json5
 {
@@ -64,7 +61,7 @@ Example with language:
 }
 ```
 
-Example with Deepgram options:
+Ví dụ với các tùy chọn của Deepgram:
 
 ```json5
 {
@@ -86,8 +83,8 @@ Example with Deepgram options:
 }
 ```
 
-## Notes
+## Ghi chú
 
-- Authentication follows the standard provider auth order; `DEEPGRAM_API_KEY` is the simplest path.
-- Override endpoints or headers with `tools.media.audio.baseUrl` and `tools.media.audio.headers` when using a proxy.
-- Output follows the same audio rules as other providers (size caps, timeouts, transcript injection).
+- Xác thực tuân theo thứ tự xác thực nhà cung cấp tiêu chuẩn; `DEEPGRAM_API_KEY` là cách đơn giản nhất.
+- Ghi đè endpoints hoặc headers với `tools.media.audio.baseUrl` và `tools.media.audio.headers` khi sử dụng proxy.
+- Đầu ra tuân theo các quy tắc âm thanh giống như các nhà cung cấp khác (giới hạn kích thước, thời gian chờ, chèn bản chuyển đổi).

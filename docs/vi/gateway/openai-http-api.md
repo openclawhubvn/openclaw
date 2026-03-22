@@ -1,64 +1,64 @@
 ---
-summary: "Expose an OpenAI-compatible /v1/chat/completions HTTP endpoint from the Gateway"
+summary: "Cung cấp endpoint HTTP /v1/chat/completions tương thích với OpenAI từ Gateway"
 read_when:
-  - Integrating tools that expect OpenAI Chat Completions
+  - Tích hợp các công cụ yêu cầu OpenAI Chat Completions
 title: "OpenAI Chat Completions"
 ---
 
 # OpenAI Chat Completions (HTTP)
 
-OpenClaw’s Gateway can serve a small OpenAI-compatible Chat Completions endpoint.
+Gateway của OpenClaw có thể cung cấp một endpoint Chat Completions tương thích với OpenAI.
 
-This endpoint is **disabled by default**. Enable it in config first.
+Endpoint này **mặc định bị vô hiệu hóa**. Cần kích hoạt trong cấu hình trước.
 
 - `POST /v1/chat/completions`
-- Same port as the Gateway (WS + HTTP multiplex): `http://<gateway-host>:<port>/v1/chat/completions`
+- Cùng cổng với Gateway (WS + HTTP multiplex): `http://<gateway-host>:<port>/v1/chat/completions`
 
-Under the hood, requests are executed as a normal Gateway agent run (same codepath as `openclaw agent`), so routing/permissions/config match your Gateway.
+Bên trong, các yêu cầu được thực thi như một lần chạy agent thông thường của Gateway (cùng đường dẫn mã với `openclaw agent`), do đó việc định tuyến/quyền hạn/cấu hình sẽ khớp với Gateway của bạn.
 
-## Authentication
+## Xác thực
 
-Uses the Gateway auth configuration. Send a bearer token:
+Sử dụng cấu hình xác thực của Gateway. Gửi một bearer token:
 
 - `Authorization: Bearer <token>`
 
-Notes:
+Lưu ý:
 
-- When `gateway.auth.mode="token"`, use `gateway.auth.token` (or `OPENCLAW_GATEWAY_TOKEN`).
-- When `gateway.auth.mode="password"`, use `gateway.auth.password` (or `OPENCLAW_GATEWAY_PASSWORD`).
-- If `gateway.auth.rateLimit` is configured and too many auth failures occur, the endpoint returns `429` with `Retry-After`.
+- Khi `gateway.auth.mode="token"`, sử dụng `gateway.auth.token` (hoặc `OPENCLAW_GATEWAY_TOKEN`).
+- Khi `gateway.auth.mode="password"`, sử dụng `gateway.auth.password` (hoặc `OPENCLAW_GATEWAY_PASSWORD`).
+- Nếu `gateway.auth.rateLimit` được cấu hình và xảy ra quá nhiều lỗi xác thực, endpoint sẽ trả về `429` với `Retry-After`.
 
-## Security boundary (important)
+## Ranh giới bảo mật (quan trọng)
 
-Treat this endpoint as a **full operator-access** surface for the gateway instance.
+Xem endpoint này như một bề mặt **truy cập toàn quyền** cho instance gateway.
 
-- HTTP bearer auth here is not a narrow per-user scope model.
-- A valid Gateway token/password for this endpoint should be treated like an owner/operator credential.
-- Requests run through the same control-plane agent path as trusted operator actions.
-- There is no separate non-owner/per-user tool boundary on this endpoint; once a caller passes Gateway auth here, OpenClaw treats that caller as a trusted operator for this gateway.
-- If the target agent policy allows sensitive tools, this endpoint can use them.
-- Keep this endpoint on loopback/tailnet/private ingress only; do not expose it directly to the public internet.
+- Xác thực HTTP bearer ở đây không phải là mô hình phạm vi hẹp cho từng người dùng.
+- Một token/password hợp lệ của Gateway cho endpoint này nên được xem như một thông tin đăng nhập của chủ sở hữu/người vận hành.
+- Các yêu cầu chạy qua cùng đường dẫn agent control-plane như các hành động của người vận hành đáng tin cậy.
+- Không có ranh giới công cụ riêng biệt cho người không phải chủ sở hữu/người dùng trên endpoint này; khi một người gọi vượt qua xác thực Gateway ở đây, OpenClaw coi người gọi đó là một người vận hành đáng tin cậy cho gateway này.
+- Nếu chính sách agent mục tiêu cho phép các công cụ nhạy cảm, endpoint này có thể sử dụng chúng.
+- Giữ endpoint này trên loopback/tailnet/private ingress; không để lộ trực tiếp ra internet công cộng.
 
-See [Security](/gateway/security) and [Remote access](/gateway/remote).
+Xem thêm [Security](/gateway/security) và [Remote access](/gateway/remote).
 
-## Choosing an agent
+## Chọn agent
 
-No custom headers required: encode the agent id in the OpenAI `model` field:
+Không cần header tùy chỉnh: mã hóa id agent trong trường `model` của OpenAI:
 
-- `model: "openclaw:<agentId>"` (example: `"openclaw:main"`, `"openclaw:beta"`)
-- `model: "agent:<agentId>"` (alias)
+- `model: "openclaw:<agentId>"` (ví dụ: `"openclaw:main"`, `"openclaw:beta"`)
+- `model: "agent:<agentId>"` (bí danh)
 
-Or target a specific OpenClaw agent by header:
+Hoặc nhắm đến một agent OpenClaw cụ thể bằng header:
 
-- `x-openclaw-agent-id: <agentId>` (default: `main`)
+- `x-openclaw-agent-id: <agentId>` (mặc định: `main`)
 
-Advanced:
+Nâng cao:
 
-- `x-openclaw-session-key: <sessionKey>` to fully control session routing.
+- `x-openclaw-session-key: <sessionKey>` để kiểm soát hoàn toàn định tuyến phiên.
 
-## Enabling the endpoint
+## Kích hoạt endpoint
 
-Set `gateway.http.endpoints.chatCompletions.enabled` to `true`:
+Đặt `gateway.http.endpoints.chatCompletions.enabled` thành `true`:
 
 ```json5
 {
@@ -72,9 +72,9 @@ Set `gateway.http.endpoints.chatCompletions.enabled` to `true`:
 }
 ```
 
-## Disabling the endpoint
+## Vô hiệu hóa endpoint
 
-Set `gateway.http.endpoints.chatCompletions.enabled` to `false`:
+Đặt `gateway.http.endpoints.chatCompletions.enabled` thành `false`:
 
 ```json5
 {
@@ -88,23 +88,23 @@ Set `gateway.http.endpoints.chatCompletions.enabled` to `false`:
 }
 ```
 
-## Session behavior
+## Hành vi phiên
 
-By default the endpoint is **stateless per request** (a new session key is generated each call).
+Mặc định, endpoint là **không trạng thái cho mỗi yêu cầu** (một khóa phiên mới được tạo cho mỗi lần gọi).
 
-If the request includes an OpenAI `user` string, the Gateway derives a stable session key from it, so repeated calls can share an agent session.
+Nếu yêu cầu bao gồm một chuỗi `user` của OpenAI, Gateway sẽ tạo ra một khóa phiên ổn định từ đó, để các lần gọi lặp lại có thể chia sẻ một phiên agent.
 
 ## Streaming (SSE)
 
-Set `stream: true` to receive Server-Sent Events (SSE):
+Đặt `stream: true` để nhận Server-Sent Events (SSE):
 
 - `Content-Type: text/event-stream`
-- Each event line is `data: <json>`
-- Stream ends with `data: [DONE]`
+- Mỗi dòng sự kiện là `data: <json>`
+- Stream kết thúc với `data: [DONE]`
 
-## Examples
+## Ví dụ
 
-Non-streaming:
+Không streaming:
 
 ```bash
 curl -sS http://127.0.0.1:18789/v1/chat/completions \

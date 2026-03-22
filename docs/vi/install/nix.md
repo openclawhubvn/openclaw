@@ -1,89 +1,89 @@
 ---
-summary: "Install OpenClaw declaratively with Nix"
+summary: "Cài đặt OpenClaw một cách khai báo với Nix"
 read_when:
-  - You want reproducible, rollback-able installs
-  - You're already using Nix/NixOS/Home Manager
-  - You want everything pinned and managed declaratively
+  - Bạn muốn cài đặt có thể tái tạo và quay lại phiên bản trước
+  - Bạn đã sử dụng Nix/NixOS/Home Manager
+  - Bạn muốn mọi thứ được quản lý và cố định một cách khai báo
 title: "Nix"
 ---
 
-# Nix Installation
+# Cài đặt Nix
 
-Install OpenClaw declaratively with **[nix-openclaw](https://github.com/openclaw/nix-openclaw)** -- a batteries-included Home Manager module.
+Cài đặt OpenClaw một cách khai báo với **[nix-openclaw](https://github.com/openclaw/nix-openclaw)** — một module Home Manager đầy đủ tính năng.
 
 <Info>
-The [nix-openclaw](https://github.com/openclaw/nix-openclaw) repo is the source of truth for Nix installation. This page is a quick overview.
+Kho [nix-openclaw](https://github.com/openclaw/nix-openclaw) là nguồn thông tin chính xác cho việc cài đặt Nix. Trang này chỉ là một cái nhìn tổng quan nhanh.
 </Info>
 
-## What You Get
+## Những gì bạn nhận được
 
-- Gateway + macOS app + tools (whisper, spotify, cameras) -- all pinned
-- Launchd service that survives reboots
-- Plugin system with declarative config
-- Instant rollback: `home-manager switch --rollback`
+- Gateway + ứng dụng macOS + công cụ (whisper, spotify, cameras) — tất cả đều được cố định
+- Dịch vụ Launchd tồn tại qua các lần khởi động lại
+- Hệ thống plugin với cấu hình khai báo
+- Khả năng quay lại ngay lập tức: `home-manager switch --rollback`
 
-## Quick Start
+## Bắt đầu nhanh
 
 <Steps>
-  <Step title="Install Determinate Nix">
-    If Nix is not already installed, follow the [Determinate Nix installer](https://github.com/DeterminateSystems/nix-installer) instructions.
+  <Step title="Cài đặt Determinate Nix">
+    Nếu Nix chưa được cài đặt, hãy làm theo hướng dẫn của [Determinate Nix installer](https://github.com/DeterminateSystems/nix-installer).
   </Step>
-  <Step title="Create a local flake">
-    Use the agent-first template from the nix-openclaw repo:
+  <Step title="Tạo một flake cục bộ">
+    Sử dụng mẫu agent-first từ kho nix-openclaw:
     ```bash
     mkdir -p ~/code/openclaw-local
-    # Copy templates/agent-first/flake.nix from the nix-openclaw repo
+    # Sao chép templates/agent-first/flake.nix từ kho nix-openclaw
     ```
   </Step>
-  <Step title="Configure secrets">
-    Set up your messaging bot token and model provider API key. Plain files at `~/.secrets/` work fine.
+  <Step title="Cấu hình secrets">
+    Thiết lập token bot nhắn tin và khóa API của nhà cung cấp mô hình. Các file đơn giản tại `~/.secrets/` là đủ.
   </Step>
-  <Step title="Fill in template placeholders and switch">
+  <Step title="Điền vào các chỗ trống trong mẫu và chuyển đổi">
     ```bash
     home-manager switch
     ```
   </Step>
-  <Step title="Verify">
-    Confirm the launchd service is running and your bot responds to messages.
+  <Step title="Xác minh">
+    Xác nhận dịch vụ launchd đang chạy và bot của bạn phản hồi tin nhắn.
   </Step>
 </Steps>
 
-See the [nix-openclaw README](https://github.com/openclaw/nix-openclaw) for full module options and examples.
+Xem [README của nix-openclaw](https://github.com/openclaw/nix-openclaw) để biết đầy đủ các tùy chọn module và ví dụ.
 
-## Nix Mode Runtime Behavior
+## Hành vi thời gian chạy của Nix Mode
 
-When `OPENCLAW_NIX_MODE=1` is set (automatic with nix-openclaw), OpenClaw enters a deterministic mode that disables auto-install flows.
+Khi `OPENCLAW_NIX_MODE=1` được thiết lập (tự động với nix-openclaw), OpenClaw sẽ vào chế độ xác định, vô hiệu hóa các luồng cài đặt tự động.
 
-You can also set it manually:
+Bạn cũng có thể thiết lập thủ công:
 
 ```bash
 export OPENCLAW_NIX_MODE=1
 ```
 
-On macOS, the GUI app does not automatically inherit shell environment variables. Enable Nix mode via defaults instead:
+Trên macOS, ứng dụng GUI không tự động thừa hưởng các biến môi trường shell. Thay vào đó, kích hoạt chế độ Nix qua defaults:
 
 ```bash
 defaults write ai.openclaw.mac openclaw.nixMode -bool true
 ```
 
-### What changes in Nix mode
+### Những thay đổi trong chế độ Nix
 
-- Auto-install and self-mutation flows are disabled
-- Missing dependencies surface Nix-specific remediation messages
-- UI surfaces a read-only Nix mode banner
+- Các luồng cài đặt tự động và tự biến đổi bị vô hiệu hóa
+- Các phụ thuộc thiếu sẽ hiển thị thông báo khắc phục cụ thể cho Nix
+- Giao diện hiển thị một biểu ngữ chế độ Nix chỉ đọc
 
-### Config and state paths
+### Đường dẫn cấu hình và trạng thái
 
-OpenClaw reads JSON5 config from `OPENCLAW_CONFIG_PATH` and stores mutable data in `OPENCLAW_STATE_DIR`. When running under Nix, set these explicitly to Nix-managed locations so runtime state and config stay out of the immutable store.
+OpenClaw đọc cấu hình JSON5 từ `OPENCLAW_CONFIG_PATH` và lưu trữ dữ liệu có thể thay đổi trong `OPENCLAW_STATE_DIR`. Khi chạy dưới Nix, hãy thiết lập rõ ràng các đường dẫn này đến các vị trí được Nix quản lý để trạng thái và cấu hình thời gian chạy không nằm trong kho lưu trữ không thể thay đổi.
 
-| Variable               | Default                                 |
+| Biến                   | Mặc định                                 |
 | ---------------------- | --------------------------------------- |
 | `OPENCLAW_HOME`        | `HOME` / `USERPROFILE` / `os.homedir()` |
 | `OPENCLAW_STATE_DIR`   | `~/.openclaw`                           |
 | `OPENCLAW_CONFIG_PATH` | `$OPENCLAW_STATE_DIR/openclaw.json`     |
 
-## Related
+## Liên quan
 
-- [nix-openclaw](https://github.com/openclaw/nix-openclaw) -- full setup guide
-- [Wizard](/start/wizard) -- non-Nix CLI setup
-- [Docker](/install/docker) -- containerized setup
+- [nix-openclaw](https://github.com/openclaw/nix-openclaw) — hướng dẫn thiết lập đầy đủ
+- [Wizard](/start/wizard) — thiết lập CLI không dùng Nix
+- [Docker](/install/docker) — thiết lập dạng container

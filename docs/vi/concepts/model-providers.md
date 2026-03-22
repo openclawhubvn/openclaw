@@ -1,155 +1,119 @@
 ---
-summary: "Model provider overview with example configs + CLI flows"
+summary: "Tổng quan về nhà cung cấp mô hình với ví dụ cấu hình + luồng CLI"
 read_when:
-  - You need a provider-by-provider model setup reference
-  - You want example configs or CLI onboarding commands for model providers
-title: "Model Providers"
+  - Cần tham khảo thiết lập mô hình theo từng nhà cung cấp
+  - Muốn có ví dụ cấu hình hoặc lệnh CLI để bắt đầu với các nhà cung cấp mô hình
+title: "Nhà cung cấp mô hình"
 ---
 
-# Model providers
+# Nhà cung cấp mô hình
 
-This page covers **LLM/model providers** (not chat channels like WhatsApp/Telegram).
-For model selection rules, see [/concepts/models](/concepts/models).
+Trang này đề cập đến **nhà cung cấp mô hình/LLM** (không phải các kênh chat như WhatsApp/Telegram).
+Để biết quy tắc chọn mô hình, xem tại [/concepts/models](/concepts/models).
 
-## Quick rules
+## Quy tắc nhanh
 
-- Model refs use `provider/model` (example: `opencode/claude-opus-4-6`).
-- If you set `agents.defaults.models`, it becomes the allowlist.
-- CLI helpers: `openclaw onboard`, `openclaw models list`, `openclaw models set <provider/model>`.
-- Provider plugins can inject model catalogs via `registerProvider({ catalog })`;
-  OpenClaw merges that output into `models.providers` before writing
+- Tham chiếu mô hình sử dụng `provider/model` (ví dụ: `opencode/claude-opus-4-6`).
+- Nếu thiết lập `agents.defaults.models`, nó sẽ trở thành danh sách cho phép.
+- Trợ giúp CLI: `openclaw onboard`, `openclaw models list`, `openclaw models set <provider/model>`.
+- Plugin nhà cung cấp có thể chèn danh mục mô hình qua `registerProvider({ catalog })`;
+  OpenClaw sẽ hợp nhất đầu ra đó vào `models.providers` trước khi ghi
   `models.json`.
-- Provider manifests can declare `providerAuthEnvVars` so generic env-based
-  auth probes do not need to load plugin runtime. The remaining core env-var
-  map is now just for non-plugin/core providers and a few generic-precedence
-  cases such as Anthropic API-key-first onboarding.
-- Provider plugins can also own provider runtime behavior via
+- Manifest nhà cung cấp có thể khai báo `providerAuthEnvVars` để các kiểm tra xác thực dựa trên môi trường không cần tải runtime plugin. Bản đồ env-var cốt lõi còn lại chỉ dành cho các nhà cung cấp không phải plugin/cốt lõi và một số trường hợp ưu tiên chung như onboarding API-key-first của Anthropic.
+- Plugin nhà cung cấp cũng có thể sở hữu hành vi runtime của nhà cung cấp qua
   `resolveDynamicModel`, `prepareDynamicModel`, `normalizeResolvedModel`,
   `capabilities`, `prepareExtraParams`, `wrapStreamFn`, `formatApiKey`,
   `refreshOAuth`, `buildAuthDoctorHint`,
   `isCacheTtlEligible`, `buildMissingAuthMessage`,
   `suppressBuiltInModel`, `augmentModelCatalog`, `isBinaryThinking`,
   `supportsXHighThinking`, `resolveDefaultThinkingLevel`,
-  `isModernModelRef`, `prepareRuntimeAuth`, `resolveUsageAuth`, and
+  `isModernModelRef`, `prepareRuntimeAuth`, `resolveUsageAuth`, và
   `fetchUsageSnapshot`.
-- Note: provider runtime `capabilities` is shared runner metadata (provider
-  family, transcript/tooling quirks, transport/cache hints). It is not the
-  same as the [public capability model](/plugins/architecture#public-capability-model)
-  which describes what a plugin registers (text inference, speech, etc.).
+- Lưu ý: `capabilities` runtime của nhà cung cấp là metadata runner chia sẻ (gia đình nhà cung cấp, quirks transcript/tooling, gợi ý transport/cache). Nó không giống với [mô hình khả năng công khai](/plugins/architecture#public-capability-model) mô tả những gì một plugin đăng ký (suy luận văn bản, giọng nói, v.v.).
 
-## Plugin-owned provider behavior
+## Hành vi nhà cung cấp do plugin sở hữu
 
-Provider plugins can now own most provider-specific logic while OpenClaw keeps
-the generic inference loop.
+Plugin nhà cung cấp hiện có thể sở hữu hầu hết logic cụ thể của nhà cung cấp trong khi OpenClaw giữ vòng lặp suy luận chung.
 
-Typical split:
+Phân chia điển hình:
 
-- `auth[].run` / `auth[].runNonInteractive`: provider owns onboarding/login
-  flows for `openclaw onboard`, `openclaw models auth`, and headless setup
-- `wizard.setup` / `wizard.modelPicker`: provider owns auth-choice labels,
-  legacy aliases, onboarding allowlist hints, and setup entries in onboarding/model pickers
-- `catalog`: provider appears in `models.providers`
-- `resolveDynamicModel`: provider accepts model ids not present in the local
-  static catalog yet
-- `prepareDynamicModel`: provider needs a metadata refresh before retrying
-  dynamic resolution
-- `normalizeResolvedModel`: provider needs transport or base URL rewrites
-- `capabilities`: provider publishes transcript/tooling/provider-family quirks
-- `prepareExtraParams`: provider defaults or normalizes per-model request params
-- `wrapStreamFn`: provider applies request headers/body/model compat wrappers
-- `formatApiKey`: provider formats stored auth profiles into the runtime
-  `apiKey` string expected by the transport
-- `refreshOAuth`: provider owns OAuth refresh when the shared `pi-ai`
-  refreshers are not enough
-- `buildAuthDoctorHint`: provider appends repair guidance when OAuth refresh
-  fails
-- `isCacheTtlEligible`: provider decides which upstream model ids support prompt-cache TTL
-- `buildMissingAuthMessage`: provider replaces the generic auth-store error
-  with a provider-specific recovery hint
-- `suppressBuiltInModel`: provider hides stale upstream rows and can return a
-  vendor-owned error for direct resolution failures
-- `augmentModelCatalog`: provider appends synthetic/final catalog rows after
-  discovery and config merging
-- `isBinaryThinking`: provider owns binary on/off thinking UX
-- `supportsXHighThinking`: provider opts selected models into `xhigh`
-- `resolveDefaultThinkingLevel`: provider owns default `/think` policy for a
-  model family
-- `isModernModelRef`: provider owns live/smoke preferred-model matching
-- `prepareRuntimeAuth`: provider turns a configured credential into a short
-  lived runtime token
-- `resolveUsageAuth`: provider resolves usage/quota credentials for `/usage`
-  and related status/reporting surfaces
-- `fetchUsageSnapshot`: provider owns the usage endpoint fetch/parsing while
-  core still owns the summary shell and formatting
+- `auth[].run` / `auth[].runNonInteractive`: nhà cung cấp sở hữu luồng onboarding/đăng nhập cho `openclaw onboard`, `openclaw models auth`, và thiết lập không tương tác
+- `wizard.setup` / `wizard.modelPicker`: nhà cung cấp sở hữu nhãn lựa chọn xác thực, bí danh cũ, gợi ý danh sách cho phép onboarding, và các mục thiết lập trong onboarding/model pickers
+- `catalog`: nhà cung cấp xuất hiện trong `models.providers`
+- `resolveDynamicModel`: nhà cung cấp chấp nhận id mô hình chưa có trong danh mục tĩnh cục bộ
+- `prepareDynamicModel`: nhà cung cấp cần làm mới metadata trước khi thử lại giải quyết động
+- `normalizeResolvedModel`: nhà cung cấp cần viết lại transport hoặc URL cơ sở
+- `capabilities`: nhà cung cấp công bố quirks transcript/tooling/gia đình nhà cung cấp
+- `prepareExtraParams`: nhà cung cấp mặc định hoặc chuẩn hóa các tham số yêu cầu theo mô hình
+- `wrapStreamFn`: nhà cung cấp áp dụng các gói tương thích headers/body/model yêu cầu
+- `formatApiKey`: nhà cung cấp định dạng hồ sơ xác thực lưu trữ thành chuỗi `apiKey` runtime mà transport mong đợi
+- `refreshOAuth`: nhà cung cấp sở hữu làm mới OAuth khi các bộ làm mới `pi-ai` chia sẻ không đủ
+- `buildAuthDoctorHint`: nhà cung cấp thêm hướng dẫn sửa chữa khi làm mới OAuth thất bại
+- `isCacheTtlEligible`: nhà cung cấp quyết định id mô hình upstream nào hỗ trợ TTL cache prompt
+- `buildMissingAuthMessage`: nhà cung cấp thay thế lỗi lưu trữ xác thực chung bằng gợi ý khôi phục cụ thể của nhà cung cấp
+- `suppressBuiltInModel`: nhà cung cấp ẩn các hàng upstream cũ và có thể trả về lỗi do nhà cung cấp sở hữu cho các lỗi giải quyết trực tiếp
+- `augmentModelCatalog`: nhà cung cấp thêm các hàng danh mục tổng hợp/cuối cùng sau khi khám phá và hợp nhất cấu hình
+- `isBinaryThinking`: nhà cung cấp sở hữu UX suy nghĩ nhị phân bật/tắt
+- `supportsXHighThinking`: nhà cung cấp chọn các mô hình đã chọn vào `xhigh`
+- `resolveDefaultThinkingLevel`: nhà cung cấp sở hữu chính sách `/think` mặc định cho một gia đình mô hình
+- `isModernModelRef`: nhà cung cấp sở hữu khớp mô hình ưa thích live/smoke
+- `prepareRuntimeAuth`: nhà cung cấp biến thông tin xác thực đã cấu hình thành token runtime ngắn hạn
+- `resolveUsageAuth`: nhà cung cấp giải quyết thông tin xác thực sử dụng/hạn ngạch cho `/usage` và các bề mặt trạng thái/báo cáo liên quan
+- `fetchUsageSnapshot`: nhà cung cấp sở hữu việc lấy/phân tích cú pháp điểm cuối sử dụng trong khi cốt lõi vẫn sở hữu shell tóm tắt và định dạng
 
-Current bundled examples:
+Các ví dụ đi kèm hiện tại:
 
-- `anthropic`: Claude 4.6 forward-compat fallback, auth repair hints, usage
-  endpoint fetching, and cache-TTL/provider-family metadata
-- `openrouter`: pass-through model ids, request wrappers, provider capability
-  hints, and cache-TTL policy
-- `github-copilot`: onboarding/device login, forward-compat model fallback,
-  Claude-thinking transcript hints, runtime token exchange, and usage endpoint
-  fetching
-- `openai`: GPT-5.4 forward-compat fallback, direct OpenAI transport
-  normalization, Codex-aware missing-auth hints, Spark suppression, synthetic
-  OpenAI/Codex catalog rows, thinking/live-model policy, and
-  provider-family metadata
-- `google` and `google-gemini-cli`: Gemini 3.1 forward-compat fallback and
-  modern-model matching; Gemini CLI OAuth also owns auth-profile token
-  formatting, usage-token parsing, and quota endpoint fetching for usage
-  surfaces
-- `moonshot`: shared transport, plugin-owned thinking payload normalization
-- `kilocode`: shared transport, plugin-owned request headers, reasoning payload
-  normalization, Gemini transcript hints, and cache-TTL policy
-- `zai`: GLM-5 forward-compat fallback, `tool_stream` defaults, cache-TTL
-  policy, binary-thinking/live-model policy, and usage auth + quota fetching
-- `mistral`, `opencode`, and `opencode-go`: plugin-owned capability metadata
+- `anthropic`: Claude 4.6 forward-compat fallback, gợi ý sửa chữa xác thực, lấy điểm cuối sử dụng, và metadata cache-TTL/gia đình nhà cung cấp
+- `openrouter`: id mô hình pass-through, gói yêu cầu, gợi ý khả năng nhà cung cấp, và chính sách cache-TTL
+- `github-copilot`: onboarding/đăng nhập thiết bị, fallback mô hình forward-compat, gợi ý transcript Claude-thinking, trao đổi token runtime, và lấy điểm cuối sử dụng
+- `openai`: GPT-5.4 forward-compat fallback, chuẩn hóa transport OpenAI trực tiếp, gợi ý thiếu xác thực Codex-aware, ức chế Spark, hàng danh mục tổng hợp OpenAI/Codex, chính sách mô hình suy nghĩ/live, và metadata gia đình nhà cung cấp
+- `google` và `google-gemini-cli`: Gemini 3.1 forward-compat fallback và khớp mô hình hiện đại; OAuth Gemini CLI cũng sở hữu định dạng token hồ sơ xác thực, phân tích cú pháp token sử dụng, và lấy điểm cuối hạn ngạch cho các bề mặt sử dụng
+- `moonshot`: transport chia sẻ, chuẩn hóa payload suy nghĩ do plugin sở hữu
+- `kilocode`: transport chia sẻ, headers yêu cầu do plugin sở hữu, chuẩn hóa payload lý luận, gợi ý transcript Gemini, và chính sách cache-TTL
+- `zai`: GLM-5 forward-compat fallback, mặc định `tool_stream`, chính sách cache-TTL, chính sách mô hình suy nghĩ nhị phân/live, và xác thực sử dụng + lấy hạn ngạch
+- `mistral`, `opencode`, và `opencode-go`: metadata khả năng do plugin sở hữu
 - `byteplus`, `cloudflare-ai-gateway`, `huggingface`, `kimi-coding`,
   `modelstudio`, `nvidia`, `qianfan`, `synthetic`, `together`, `venice`,
-  `vercel-ai-gateway`, and `volcengine`: plugin-owned catalogs only
-- `qwen-portal`: plugin-owned catalog, OAuth login, and OAuth refresh
-- `minimax` and `xiaomi`: plugin-owned catalogs plus usage auth/snapshot logic
+  `vercel-ai-gateway`, và `volcengine`: chỉ có danh mục do plugin sở hữu
+- `qwen-portal`: danh mục do plugin sở hữu, đăng nhập OAuth, và làm mới OAuth
+- `minimax` và `xiaomi`: danh mục do plugin sở hữu cộng với logic xác thực/snapshot sử dụng
 
-The bundled `openai` plugin now owns both provider ids: `openai` and
+Plugin `openai` đi kèm hiện sở hữu cả hai id nhà cung cấp: `openai` và
 `openai-codex`.
 
-That covers providers that still fit OpenClaw's normal transports. A provider
-that needs a totally custom request executor is a separate, deeper extension
-surface.
+Điều đó bao gồm các nhà cung cấp vẫn phù hợp với các transport thông thường của OpenClaw. Một nhà cung cấp cần một executor yêu cầu hoàn toàn tùy chỉnh là một bề mặt mở rộng sâu hơn.
 
-## API key rotation
+## Xoay vòng API key
 
-- Supports generic provider rotation for selected providers.
-- Configure multiple keys via:
-  - `OPENCLAW_LIVE_<PROVIDER>_KEY` (single live override, highest priority)
-  - `<PROVIDER>_API_KEYS` (comma or semicolon list)
-  - `<PROVIDER>_API_KEY` (primary key)
-  - `<PROVIDER>_API_KEY_*` (numbered list, e.g. `<PROVIDER>_API_KEY_1`)
-- For Google providers, `GOOGLE_API_KEY` is also included as fallback.
-- Key selection order preserves priority and deduplicates values.
-- Requests are retried with the next key only on rate-limit responses (for example `429`, `rate_limit`, `quota`, `resource exhausted`).
-- Non-rate-limit failures fail immediately; no key rotation is attempted.
-- When all candidate keys fail, the final error is returned from the last attempt.
+- Hỗ trợ xoay vòng nhà cung cấp chung cho các nhà cung cấp đã chọn.
+- Cấu hình nhiều key qua:
+  - `OPENCLAW_LIVE_<PROVIDER>_KEY` (ghi đè trực tiếp, ưu tiên cao nhất)
+  - `<PROVIDER>_API_KEYS` (danh sách phân tách bằng dấu phẩy hoặc chấm phẩy)
+  - `<PROVIDER>_API_KEY` (key chính)
+  - `<PROVIDER>_API_KEY_*` (danh sách đánh số, ví dụ: `<PROVIDER>_API_KEY_1`)
+- Đối với các nhà cung cấp Google, `GOOGLE_API_KEY` cũng được bao gồm như một phương án dự phòng.
+- Thứ tự chọn key bảo toàn ưu tiên và loại bỏ các giá trị trùng lặp.
+- Các yêu cầu được thử lại với key tiếp theo chỉ khi gặp phản hồi giới hạn tốc độ (ví dụ: `429`, `rate_limit`, `quota`, `resource exhausted`).
+- Các lỗi không phải giới hạn tốc độ sẽ thất bại ngay lập tức; không có xoay vòng key nào được thực hiện.
+- Khi tất cả các key ứng viên thất bại, lỗi cuối cùng sẽ được trả về từ lần thử cuối cùng.
 
-## Built-in providers (pi-ai catalog)
+## Nhà cung cấp tích hợp sẵn (danh mục pi-ai)
 
-OpenClaw ships with the pi‑ai catalog. These providers require **no**
-`models.providers` config; just set auth + pick a model.
+OpenClaw đi kèm với danh mục pi‑ai. Các nhà cung cấp này không yêu cầu cấu hình `models.providers`; chỉ cần thiết lập xác thực + chọn một mô hình.
 
 ### OpenAI
 
-- Provider: `openai`
-- Auth: `OPENAI_API_KEY`
-- Optional rotation: `OPENAI_API_KEYS`, `OPENAI_API_KEY_1`, `OPENAI_API_KEY_2`, plus `OPENCLAW_LIVE_OPENAI_KEY` (single override)
-- Example models: `openai/gpt-5.4`, `openai/gpt-5.4-pro`
+- Nhà cung cấp: `openai`
+- Xác thực: `OPENAI_API_KEY`
+- Xoay vòng tùy chọn: `OPENAI_API_KEYS`, `OPENAI_API_KEY_1`, `OPENAI_API_KEY_2`, cộng với `OPENCLAW_LIVE_OPENAI_KEY` (ghi đè trực tiếp)
+- Mô hình ví dụ: `openai/gpt-5.4`, `openai/gpt-5.4-pro`
 - CLI: `openclaw onboard --auth-choice openai-api-key`
-- Default transport is `auto` (WebSocket-first, SSE fallback)
-- Override per model via `agents.defaults.models["openai/<model>"].params.transport` (`"sse"`, `"websocket"`, or `"auto"`)
-- OpenAI Responses WebSocket warm-up defaults to enabled via `params.openaiWsWarmup` (`true`/`false`)
-- OpenAI priority processing can be enabled via `agents.defaults.models["openai/<model>"].params.serviceTier`
-- OpenAI fast mode can be enabled per model via `agents.defaults.models["<provider>/<model>"].params.fastMode`
-- `openai/gpt-5.3-codex-spark` is intentionally suppressed in OpenClaw because the live OpenAI API rejects it; Spark is treated as Codex-only
+- Transport mặc định là `auto` (ưu tiên WebSocket, dự phòng SSE)
+- Ghi đè theo mô hình qua `agents.defaults.models["openai/<model>"].params.transport` (`"sse"`, `"websocket"`, hoặc `"auto"`)
+- OpenAI Responses WebSocket warm-up mặc định được bật qua `params.openaiWsWarmup` (`true`/`false`)
+- Xử lý ưu tiên OpenAI có thể được bật qua `agents.defaults.models["openai/<model>"].params.serviceTier`
+- Chế độ nhanh OpenAI có thể được bật theo mô hình qua `agents.defaults.models["<provider>/<model>"].params.fastMode`
+- `openai/gpt-5.3-codex-spark` bị ức chế trong OpenClaw vì API OpenAI trực tiếp từ chối nó; Spark được coi là chỉ dành cho Codex
 
 ```json5
 {
@@ -159,14 +123,14 @@ OpenClaw ships with the pi‑ai catalog. These providers require **no**
 
 ### Anthropic
 
-- Provider: `anthropic`
-- Auth: `ANTHROPIC_API_KEY` or `claude setup-token`
-- Optional rotation: `ANTHROPIC_API_KEYS`, `ANTHROPIC_API_KEY_1`, `ANTHROPIC_API_KEY_2`, plus `OPENCLAW_LIVE_ANTHROPIC_KEY` (single override)
-- Example model: `anthropic/claude-opus-4-6`
-- CLI: `openclaw onboard --auth-choice token` (paste setup-token) or `openclaw models auth paste-token --provider anthropic`
-- Direct API-key models support the shared `/fast` toggle and `params.fastMode`; OpenClaw maps that to Anthropic `service_tier` (`auto` vs `standard_only`)
-- Policy note: setup-token support is technical compatibility; Anthropic has blocked some subscription usage outside Claude Code in the past. Verify current Anthropic terms and decide based on your risk tolerance.
-- Recommendation: Anthropic API key auth is the safer, recommended path over subscription setup-token auth.
+- Nhà cung cấp: `anthropic`
+- Xác thực: `ANTHROPIC_API_KEY` hoặc `claude setup-token`
+- Xoay vòng tùy chọn: `ANTHROPIC_API_KEYS`, `ANTHROPIC_API_KEY_1`, `ANTHROPIC_API_KEY_2`, cộng với `OPENCLAW_LIVE_ANTHROPIC_KEY` (ghi đè trực tiếp)
+- Mô hình ví dụ: `anthropic/claude-opus-4-6`
+- CLI: `openclaw onboard --auth-choice token` (dán setup-token) hoặc `openclaw models auth paste-token --provider anthropic`
+- Các mô hình API-key trực tiếp hỗ trợ chuyển đổi `/fast` chia sẻ và `params.fastMode`; OpenClaw ánh xạ điều đó tới Anthropic `service_tier` (`auto` so với `standard_only`)
+- Lưu ý chính sách: hỗ trợ setup-token là khả năng kỹ thuật; Anthropic đã chặn một số sử dụng đăng ký ngoài Claude Code trong quá khứ. Xác minh các điều khoản hiện tại của Anthropic và quyết định dựa trên mức độ chấp nhận rủi ro của bạn.
+- Khuyến nghị: xác thực API key Anthropic là con đường an toàn hơn, được khuyến nghị hơn so với xác thực setup-token đăng ký.
 
 ```json5
 {
@@ -176,15 +140,15 @@ OpenClaw ships with the pi‑ai catalog. These providers require **no**
 
 ### OpenAI Code (Codex)
 
-- Provider: `openai-codex`
-- Auth: OAuth (ChatGPT)
-- Example model: `openai-codex/gpt-5.4`
-- CLI: `openclaw onboard --auth-choice openai-codex` or `openclaw models auth login --provider openai-codex`
-- Default transport is `auto` (WebSocket-first, SSE fallback)
-- Override per model via `agents.defaults.models["openai-codex/<model>"].params.transport` (`"sse"`, `"websocket"`, or `"auto"`)
-- Shares the same `/fast` toggle and `params.fastMode` config as direct `openai/*`
-- `openai-codex/gpt-5.3-codex-spark` remains available when the Codex OAuth catalog exposes it; entitlement-dependent
-- Policy note: OpenAI Codex OAuth is explicitly supported for external tools/workflows like OpenClaw.
+- Nhà cung cấp: `openai-codex`
+- Xác thực: OAuth (ChatGPT)
+- Mô hình ví dụ: `openai-codex/gpt-5.4`
+- CLI: `openclaw onboard --auth-choice openai-codex` hoặc `openclaw models auth login --provider openai-codex`
+- Transport mặc định là `auto` (ưu tiên WebSocket, dự phòng SSE)
+- Ghi đè theo mô hình qua `agents.defaults.models["openai-codex/<model>"].params.transport` (`"sse"`, `"websocket"`, hoặc `"auto"`)
+- Chia sẻ cùng chuyển đổi `/fast` và cấu hình `params.fastMode` như `openai/*` trực tiếp
+- `openai-codex/gpt-5.3-codex-spark` vẫn có sẵn khi danh mục OAuth Codex tiết lộ nó; phụ thuộc vào quyền lợi
+- Lưu ý chính sách: OAuth OpenAI Codex được hỗ trợ rõ ràng cho các công cụ/quy trình làm việc bên ngoài như OpenClaw.
 
 ```json5
 {
@@ -194,11 +158,11 @@ OpenClaw ships with the pi‑ai catalog. These providers require **no**
 
 ### OpenCode
 
-- Auth: `OPENCODE_API_KEY` (or `OPENCODE_ZEN_API_KEY`)
-- Zen runtime provider: `opencode`
-- Go runtime provider: `opencode-go`
-- Example models: `opencode/claude-opus-4-6`, `opencode-go/kimi-k2.5`
-- CLI: `openclaw onboard --auth-choice opencode-zen` or `openclaw onboard --auth-choice opencode-go`
+- Xác thực: `OPENCODE_API_KEY` (hoặc `OPENCODE_ZEN_API_KEY`)
+- Nhà cung cấp runtime Zen: `opencode`
+- Nhà cung cấp runtime Go: `opencode-go`
+- Mô hình ví dụ: `opencode/claude-opus-4-6`, `opencode-go/kimi-k2.5`
+- CLI: `openclaw onboard --auth-choice opencode-zen` hoặc `openclaw onboard --auth-choice opencode-go`
 
 ```json5
 {
@@ -208,59 +172,59 @@ OpenClaw ships with the pi‑ai catalog. These providers require **no**
 
 ### Google Gemini (API key)
 
-- Provider: `google`
-- Auth: `GEMINI_API_KEY`
-- Optional rotation: `GEMINI_API_KEYS`, `GEMINI_API_KEY_1`, `GEMINI_API_KEY_2`, `GOOGLE_API_KEY` fallback, and `OPENCLAW_LIVE_GEMINI_KEY` (single override)
-- Example models: `google/gemini-3.1-pro-preview`, `google/gemini-3-flash-preview`
-- Compatibility: legacy OpenClaw config using `google/gemini-3.1-flash-preview` is normalized to `google/gemini-3-flash-preview`
+- Nhà cung cấp: `google`
+- Xác thực: `GEMINI_API_KEY`
+- Xoay vòng tùy chọn: `GEMINI_API_KEYS`, `GEMINI_API_KEY_1`, `GEMINI_API_KEY_2`, `GOOGLE_API_KEY` dự phòng, và `OPENCLAW_LIVE_GEMINI_KEY` (ghi đè trực tiếp)
+- Mô hình ví dụ: `google/gemini-3.1-pro-preview`, `google/gemini-3-flash-preview`
+- Tương thích: cấu hình OpenClaw cũ sử dụng `google/gemini-3.1-flash-preview` được chuẩn hóa thành `google/gemini-3-flash-preview`
 - CLI: `openclaw onboard --auth-choice gemini-api-key`
 
-### Google Vertex and Gemini CLI
+### Google Vertex và Gemini CLI
 
-- Providers: `google-vertex`, `google-gemini-cli`
-- Auth: Vertex uses gcloud ADC; Gemini CLI uses its OAuth flow
-- Caution: Gemini CLI OAuth in OpenClaw is an unofficial integration. Some users have reported Google account restrictions after using third-party clients. Review Google terms and use a non-critical account if you choose to proceed.
-- Gemini CLI OAuth is shipped as part of the bundled `google` plugin.
-  - Enable: `openclaw plugins enable google`
-  - Login: `openclaw models auth login --provider google-gemini-cli --set-default`
-  - Note: you do **not** paste a client id or secret into `openclaw.json`. The CLI login flow stores
-    tokens in auth profiles on the gateway host.
+- Nhà cung cấp: `google-vertex`, `google-gemini-cli`
+- Xác thực: Vertex sử dụng gcloud ADC; Gemini CLI sử dụng luồng OAuth của nó
+- Cẩn trọng: OAuth Gemini CLI trong OpenClaw là một tích hợp không chính thức. Một số người dùng đã báo cáo hạn chế tài khoản Google sau khi sử dụng các khách hàng bên thứ ba. Xem xét các điều khoản của Google và sử dụng tài khoản không quan trọng nếu bạn chọn tiếp tục.
+- OAuth Gemini CLI được cung cấp như một phần của plugin `google` đi kèm.
+  - Bật: `openclaw plugins enable google`
+  - Đăng nhập: `openclaw models auth login --provider google-gemini-cli --set-default`
+  - Lưu ý: bạn **không** dán một id khách hàng hoặc bí mật vào `openclaw.json`. Luồng đăng nhập CLI lưu trữ
+    token trong hồ sơ xác thực trên máy chủ gateway.
 
 ### Z.AI (GLM)
 
-- Provider: `zai`
-- Auth: `ZAI_API_KEY`
-- Example model: `zai/glm-5`
+- Nhà cung cấp: `zai`
+- Xác thực: `ZAI_API_KEY`
+- Mô hình ví dụ: `zai/glm-5`
 - CLI: `openclaw onboard --auth-choice zai-api-key`
-  - Aliases: `z.ai/*` and `z-ai/*` normalize to `zai/*`
+  - Bí danh: `z.ai/*` và `z-ai/*` chuẩn hóa thành `zai/*`
 
 ### Vercel AI Gateway
 
-- Provider: `vercel-ai-gateway`
-- Auth: `AI_GATEWAY_API_KEY`
-- Example model: `vercel-ai-gateway/anthropic/claude-opus-4.6`
+- Nhà cung cấp: `vercel-ai-gateway`
+- Xác thực: `AI_GATEWAY_API_KEY`
+- Mô hình ví dụ: `vercel-ai-gateway/anthropic/claude-opus-4.6`
 - CLI: `openclaw onboard --auth-choice ai-gateway-api-key`
 
 ### Kilo Gateway
 
-- Provider: `kilocode`
-- Auth: `KILOCODE_API_KEY`
-- Example model: `kilocode/anthropic/claude-opus-4.6`
+- Nhà cung cấp: `kilocode`
+- Xác thực: `KILOCODE_API_KEY`
+- Mô hình ví dụ: `kilocode/anthropic/claude-opus-4.6`
 - CLI: `openclaw onboard --kilocode-api-key <key>`
-- Base URL: `https://api.kilo.ai/api/gateway/`
-- Expanded built-in catalog includes GLM-5 Free, MiniMax M2.5 Free, GPT-5.2, Gemini 3 Pro Preview, Gemini 3 Flash Preview, Grok Code Fast 1, and Kimi K2.5.
+- URL cơ sở: `https://api.kilo.ai/api/gateway/`
+- Danh mục tích hợp mở rộng bao gồm GLM-5 Free, MiniMax M2.5 Free, GPT-5.2, Gemini 3 Pro Preview, Gemini 3 Flash Preview, Grok Code Fast 1, và Kimi K2.5.
 
-See [/providers/kilocode](/providers/kilocode) for setup details.
+Xem [/providers/kilocode](/providers/kilocode) để biết chi tiết thiết lập.
 
-### Other bundled provider plugins
+### Các plugin nhà cung cấp đi kèm khác
 
 - OpenRouter: `openrouter` (`OPENROUTER_API_KEY`)
-- Example model: `openrouter/anthropic/claude-sonnet-4-6`
+- Mô hình ví dụ: `openrouter/anthropic/claude-sonnet-4-6`
 - Kilo Gateway: `kilocode` (`KILOCODE_API_KEY`)
-- Example model: `kilocode/anthropic/claude-opus-4.6`
+- Mô hình ví dụ: `kilocode/anthropic/claude-opus-4.6`
 - MiniMax: `minimax` (`MINIMAX_API_KEY`)
 - Moonshot: `moonshot` (`MOONSHOT_API_KEY`)
-- Kimi Coding: `kimi-coding` (`KIMI_API_KEY` or `KIMICODE_API_KEY`)
+- Kimi Coding: `kimi-coding` (`KIMI_API_KEY` hoặc `KIMICODE_API_KEY`)
 - Qianfan: `qianfan` (`QIANFAN_API_KEY`)
 - Model Studio: `modelstudio` (`MODELSTUDIO_API_KEY`)
 - NVIDIA: `nvidia` (`NVIDIA_API_KEY`)
@@ -268,39 +232,39 @@ See [/providers/kilocode](/providers/kilocode) for setup details.
 - Venice: `venice` (`VENICE_API_KEY`)
 - Xiaomi: `xiaomi` (`XIAOMI_API_KEY`)
 - Vercel AI Gateway: `vercel-ai-gateway` (`AI_GATEWAY_API_KEY`)
-- Hugging Face Inference: `huggingface` (`HUGGINGFACE_HUB_TOKEN` or `HF_TOKEN`)
+- Hugging Face Inference: `huggingface` (`HUGGINGFACE_HUB_TOKEN` hoặc `HF_TOKEN`)
 - Cloudflare AI Gateway: `cloudflare-ai-gateway` (`CLOUDFLARE_AI_GATEWAY_API_KEY`)
 - Volcengine: `volcengine` (`VOLCANO_ENGINE_API_KEY`)
 - BytePlus: `byteplus` (`BYTEPLUS_API_KEY`)
 - xAI: `xai` (`XAI_API_KEY`)
 - Mistral: `mistral` (`MISTRAL_API_KEY`)
-- Example model: `mistral/mistral-large-latest`
+- Mô hình ví dụ: `mistral/mistral-large-latest`
 - CLI: `openclaw onboard --auth-choice mistral-api-key`
 - Groq: `groq` (`GROQ_API_KEY`)
 - Cerebras: `cerebras` (`CEREBRAS_API_KEY`)
-  - GLM models on Cerebras use ids `zai-glm-4.7` and `zai-glm-4.6`.
-  - OpenAI-compatible base URL: `https://api.cerebras.ai/v1`.
+  - Các mô hình GLM trên Cerebras sử dụng id `zai-glm-4.7` và `zai-glm-4.6`.
+  - URL cơ sở tương thích với OpenAI: `https://api.cerebras.ai/v1`.
 - GitHub Copilot: `github-copilot` (`COPILOT_GITHUB_TOKEN` / `GH_TOKEN` / `GITHUB_TOKEN`)
-- Hugging Face Inference example model: `huggingface/deepseek-ai/DeepSeek-R1`; CLI: `openclaw onboard --auth-choice huggingface-api-key`. See [Hugging Face (Inference)](/providers/huggingface).
+- Mô hình ví dụ Hugging Face Inference: `huggingface/deepseek-ai/DeepSeek-R1`; CLI: `openclaw onboard --auth-choice huggingface-api-key`. Xem [Hugging Face (Inference)](/providers/huggingface).
 
-## Providers via `models.providers` (custom/base URL)
+## Nhà cung cấp qua `models.providers` (URL tùy chỉnh/cơ sở)
 
-Use `models.providers` (or `models.json`) to add **custom** providers or
-OpenAI/Anthropic‑compatible proxies.
+Sử dụng `models.providers` (hoặc `models.json`) để thêm các nhà cung cấp **tùy chỉnh** hoặc
+proxy tương thích với OpenAI/Anthropic.
 
-Many of the bundled provider plugins below already publish a default catalog.
-Use explicit `models.providers.<id>` entries only when you want to override the
-default base URL, headers, or model list.
+Nhiều plugin nhà cung cấp đi kèm dưới đây đã xuất bản một danh mục mặc định.
+Chỉ sử dụng các mục `models.providers.<id>` rõ ràng khi bạn muốn ghi đè
+URL cơ sở, headers, hoặc danh sách mô hình mặc định.
 
 ### Moonshot AI (Kimi)
 
-Moonshot uses OpenAI-compatible endpoints, so configure it as a custom provider:
+Moonshot sử dụng các điểm cuối tương thích với OpenAI, vì vậy hãy cấu hình nó như một nhà cung cấp tùy chỉnh:
 
-- Provider: `moonshot`
-- Auth: `MOONSHOT_API_KEY`
-- Example model: `moonshot/kimi-k2.5`
+- Nhà cung cấp: `moonshot`
+- Xác thực: `MOONSHOT_API_KEY`
+- Mô hình ví dụ: `moonshot/kimi-k2.5`
 
-Kimi K2 model IDs:
+ID mô hình Kimi K2:
 
 [//]: # "moonshot-kimi-k2-model-refs:start"
 
@@ -333,11 +297,11 @@ Kimi K2 model IDs:
 
 ### Kimi Coding
 
-Kimi Coding uses Moonshot AI's Anthropic-compatible endpoint:
+Kimi Coding sử dụng điểm cuối tương thích với Anthropic của Moonshot AI:
 
-- Provider: `kimi-coding`
-- Auth: `KIMI_API_KEY`
-- Example model: `kimi-coding/k2p5`
+- Nhà cung cấp: `kimi-coding`
+- Xác thực: `KIMI_API_KEY`
+- Mô hình ví dụ: `kimi-coding/k2p5`
 
 ```json5
 {
@@ -348,29 +312,29 @@ Kimi Coding uses Moonshot AI's Anthropic-compatible endpoint:
 }
 ```
 
-### Qwen OAuth (free tier)
+### Qwen OAuth (miễn phí)
 
-Qwen provides OAuth access to Qwen Coder + Vision via a device-code flow.
-The bundled provider plugin is enabled by default, so just log in:
+Qwen cung cấp quyền truy cập OAuth vào Qwen Coder + Vision qua luồng mã thiết bị.
+Plugin nhà cung cấp đi kèm được bật theo mặc định, vì vậy chỉ cần đăng nhập:
 
 ```bash
 openclaw models auth login --provider qwen-portal --set-default
 ```
 
-Model refs:
+Tham chiếu mô hình:
 
 - `qwen-portal/coder-model`
 - `qwen-portal/vision-model`
 
-See [/providers/qwen](/providers/qwen) for setup details and notes.
+Xem [/providers/qwen](/providers/qwen) để biết chi tiết thiết lập và ghi chú.
 
 ### Volcano Engine (Doubao)
 
-Volcano Engine (火山引擎) provides access to Doubao and other models in China.
+Volcano Engine (火山引擎) cung cấp quyền truy cập vào Doubao và các mô hình khác ở Trung Quốc.
 
-- Provider: `volcengine` (coding: `volcengine-plan`)
-- Auth: `VOLCANO_ENGINE_API_KEY`
-- Example model: `volcengine/doubao-seed-1-8-251228`
+- Nhà cung cấp: `volcengine` (coding: `volcengine-plan`)
+- Xác thực: `VOLCANO_ENGINE_API_KEY`
+- Mô hình ví dụ: `volcengine/doubao-seed-1-8-251228`
 - CLI: `openclaw onboard --auth-choice volcengine-api-key`
 
 ```json5
@@ -381,7 +345,7 @@ Volcano Engine (火山引擎) provides access to Doubao and other models in Chin
 }
 ```
 
-Available models:
+Các mô hình có sẵn:
 
 - `volcengine/doubao-seed-1-8-251228` (Doubao Seed 1.8)
 - `volcengine/doubao-seed-code-preview-251028`
@@ -389,7 +353,7 @@ Available models:
 - `volcengine/glm-4-7-251222` (GLM 4.7)
 - `volcengine/deepseek-v3-2-251201` (DeepSeek V3.2 128K)
 
-Coding models (`volcengine-plan`):
+Mô hình coding (`volcengine-plan`):
 
 - `volcengine-plan/ark-code-latest`
 - `volcengine-plan/doubao-seed-code`
@@ -397,13 +361,13 @@ Coding models (`volcengine-plan`):
 - `volcengine-plan/kimi-k2-thinking`
 - `volcengine-plan/glm-4.7`
 
-### BytePlus (International)
+### BytePlus (Quốc tế)
 
-BytePlus ARK provides access to the same models as Volcano Engine for international users.
+BytePlus ARK cung cấp quyền truy cập vào các mô hình tương tự như Volcano Engine cho người dùng quốc tế.
 
-- Provider: `byteplus` (coding: `byteplus-plan`)
-- Auth: `BYTEPLUS_API_KEY`
-- Example model: `byteplus/seed-1-8-251228`
+- Nhà cung cấp: `byteplus` (coding: `byteplus-plan`)
+- Xác thực: `BYTEPLUS_API_KEY`
+- Mô hình ví dụ: `byteplus/seed-1-8-251228`
 - CLI: `openclaw onboard --auth-choice byteplus-api-key`
 
 ```json5
@@ -414,13 +378,13 @@ BytePlus ARK provides access to the same models as Volcano Engine for internatio
 }
 ```
 
-Available models:
+Các mô hình có sẵn:
 
 - `byteplus/seed-1-8-251228` (Seed 1.8)
 - `byteplus/kimi-k2-5-260127` (Kimi K2.5)
 - `byteplus/glm-4-7-251222` (GLM 4.7)
 
-Coding models (`byteplus-plan`):
+Mô hình coding (`byteplus-plan`):
 
 - `byteplus-plan/ark-code-latest`
 - `byteplus-plan/doubao-seed-code`
@@ -430,11 +394,11 @@ Coding models (`byteplus-plan`):
 
 ### Synthetic
 
-Synthetic provides Anthropic-compatible models behind the `synthetic` provider:
+Synthetic cung cấp các mô hình tương thích với Anthropic thông qua nhà cung cấp `synthetic`:
 
-- Provider: `synthetic`
-- Auth: `SYNTHETIC_API_KEY`
-- Example model: `synthetic/hf:MiniMaxAI/MiniMax-M2.5`
+- Nhà cung cấp: `synthetic`
+- Xác thực: `SYNTHETIC_API_KEY`
+- Mô hình ví dụ: `synthetic/hf:MiniMaxAI/MiniMax-M2.5`
 - CLI: `openclaw onboard --auth-choice synthetic-api-key`
 
 ```json5
@@ -458,24 +422,24 @@ Synthetic provides Anthropic-compatible models behind the `synthetic` provider:
 
 ### MiniMax
 
-MiniMax is configured via `models.providers` because it uses custom endpoints:
+MiniMax được cấu hình qua `models.providers` vì nó sử dụng các điểm cuối tùy chỉnh:
 
-- MiniMax (Anthropic‑compatible): `--auth-choice minimax-api`
-- Auth: `MINIMAX_API_KEY`
+- MiniMax (tương thích với Anthropic): `--auth-choice minimax-api`
+- Xác thực: `MINIMAX_API_KEY`
 
-See [/providers/minimax](/providers/minimax) for setup details, model options, and config snippets.
+Xem [/providers/minimax](/providers/minimax) để biết chi tiết thiết lập, tùy chọn mô hình, và đoạn mã cấu hình.
 
 ### Ollama
 
-Ollama ships as a bundled provider plugin and uses Ollama's native API:
+Ollama được cung cấp dưới dạng plugin nhà cung cấp đi kèm và sử dụng API gốc của Ollama:
 
-- Provider: `ollama`
-- Auth: None required (local server)
-- Example model: `ollama/llama3.3`
-- Installation: [https://ollama.com/download](https://ollama.com/download)
+- Nhà cung cấp: `ollama`
+- Xác thực: Không yêu cầu (máy chủ cục bộ)
+- Mô hình ví dụ: `ollama/llama3.3`
+- Cài đặt: [https://ollama.com/download](https://ollama.com/download)
 
 ```bash
-# Install Ollama, then pull a model:
+# Cài đặt Ollama, sau đó kéo một mô hình:
 ollama pull llama3.3
 ```
 
@@ -487,27 +451,26 @@ ollama pull llama3.3
 }
 ```
 
-Ollama is detected locally at `http://127.0.0.1:11434` when you opt in with
-`OLLAMA_API_KEY`, and the bundled provider plugin adds Ollama directly to
-`openclaw onboard` and the model picker. See [/providers/ollama](/providers/ollama)
-for onboarding, cloud/local mode, and custom configuration.
+Ollama được phát hiện cục bộ tại `http://127.0.0.1:11434` khi bạn chọn tham gia với
+`OLLAMA_API_KEY`, và plugin nhà cung cấp đi kèm thêm Ollama trực tiếp vào
+`openclaw onboard` và bộ chọn mô hình. Xem [/providers/ollama](/providers/ollama)
+để biết thông tin về onboarding, chế độ đám mây/cục bộ, và cấu hình tùy chỉnh.
 
 ### vLLM
 
-vLLM ships as a bundled provider plugin for local/self-hosted OpenAI-compatible
-servers:
+vLLM được cung cấp dưới dạng plugin nhà cung cấp đi kèm cho các máy chủ tương thích với OpenAI cục bộ/tự lưu trữ:
 
-- Provider: `vllm`
-- Auth: Optional (depends on your server)
-- Default base URL: `http://127.0.0.1:8000/v1`
+- Nhà cung cấp: `vllm`
+- Xác thực: Tùy chọn (phụ thuộc vào máy chủ của bạn)
+- URL cơ sở mặc định: `http://127.0.0.1:8000/v1`
 
-To opt in to auto-discovery locally (any value works if your server doesn’t enforce auth):
+Để chọn tham gia tự động phát hiện cục bộ (bất kỳ giá trị nào cũng hoạt động nếu máy chủ của bạn không thực thi xác thực):
 
 ```bash
 export VLLM_API_KEY="vllm-local"
 ```
 
-Then set a model (replace with one of the IDs returned by `/v1/models`):
+Sau đó thiết lập một mô hình (thay thế bằng một trong các ID được trả về bởi `/v1/models`):
 
 ```json5
 {
@@ -517,25 +480,24 @@ Then set a model (replace with one of the IDs returned by `/v1/models`):
 }
 ```
 
-See [/providers/vllm](/providers/vllm) for details.
+Xem [/providers/vllm](/providers/vllm) để biết chi tiết.
 
 ### SGLang
 
-SGLang ships as a bundled provider plugin for fast self-hosted
-OpenAI-compatible servers:
+SGLang được cung cấp dưới dạng plugin nhà cung cấp đi kèm cho các máy chủ tương thích với OpenAI tự lưu trữ nhanh:
 
-- Provider: `sglang`
-- Auth: Optional (depends on your server)
-- Default base URL: `http://127.0.0.1:30000/v1`
+- Nhà cung cấp: `sglang`
+- Xác thực: Tùy chọn (phụ thuộc vào máy chủ của bạn)
+- URL cơ sở mặc định: `http://127.0.0.1:30000/v1`
 
-To opt in to auto-discovery locally (any value works if your server does not
-enforce auth):
+Để chọn tham gia tự động phát hiện cục bộ (bất kỳ giá trị nào cũng hoạt động nếu máy chủ của bạn không
+thực thi xác thực):
 
 ```bash
 export SGLANG_API_KEY="sglang-local"
 ```
 
-Then set a model (replace with one of the IDs returned by `/v1/models`):
+Sau đó thiết lập một mô hình (thay thế bằng một trong các ID được trả về bởi `/v1/models`):
 
 ```json5
 {
@@ -545,11 +507,11 @@ Then set a model (replace with one of the IDs returned by `/v1/models`):
 }
 ```
 
-See [/providers/sglang](/providers/sglang) for details.
+Xem [/providers/sglang](/providers/sglang) để biết chi tiết.
 
-### Local proxies (LM Studio, vLLM, LiteLLM, etc.)
+### Proxy cục bộ (LM Studio, vLLM, LiteLLM, v.v.)
 
-Example (OpenAI‑compatible):
+Ví dụ (tương thích với OpenAI):
 
 ```json5
 {
@@ -582,21 +544,21 @@ Example (OpenAI‑compatible):
 }
 ```
 
-Notes:
+Ghi chú:
 
-- For custom providers, `reasoning`, `input`, `cost`, `contextWindow`, and `maxTokens` are optional.
-  When omitted, OpenClaw defaults to:
+- Đối với các nhà cung cấp tùy chỉnh, `reasoning`, `input`, `cost`, `contextWindow`, và `maxTokens` là tùy chọn.
+  Khi bỏ qua, OpenClaw mặc định:
   - `reasoning: false`
   - `input: ["text"]`
   - `cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }`
   - `contextWindow: 200000`
   - `maxTokens: 8192`
-- Recommended: set explicit values that match your proxy/model limits.
-- For `api: "openai-completions"` on non-native endpoints (any non-empty `baseUrl` whose host is not `api.openai.com`), OpenClaw forces `compat.supportsDeveloperRole: false` to avoid provider 400 errors for unsupported `developer` roles.
-- If `baseUrl` is empty/omitted, OpenClaw keeps the default OpenAI behavior (which resolves to `api.openai.com`).
-- For safety, an explicit `compat.supportsDeveloperRole: true` is still overridden on non-native `openai-completions` endpoints.
+- Khuyến nghị: đặt các giá trị rõ ràng phù hợp với giới hạn proxy/mô hình của bạn.
+- Đối với `api: "openai-completions"` trên các điểm cuối không gốc (bất kỳ `baseUrl` không trống nào mà máy chủ không phải là `api.openai.com`), OpenClaw buộc `compat.supportsDeveloperRole: false` để tránh lỗi 400 của nhà cung cấp cho các vai trò `developer` không được hỗ trợ.
+- Nếu `baseUrl` trống/bỏ qua, OpenClaw giữ hành vi OpenAI mặc định (giải quyết thành `api.openai.com`).
+- Để an toàn, một `compat.supportsDeveloperRole: true` rõ ràng vẫn bị ghi đè trên các điểm cuối `openai-completions` không gốc.
 
-## CLI examples
+## Ví dụ CLI
 
 ```bash
 openclaw onboard --auth-choice opencode-zen
@@ -604,4 +566,4 @@ openclaw models set opencode/claude-opus-4-6
 openclaw models list
 ```
 
-See also: [/gateway/configuration](/gateway/configuration) for full configuration examples.
+Xem thêm: [/gateway/configuration](/gateway/configuration) để biết các ví dụ cấu hình đầy đủ.

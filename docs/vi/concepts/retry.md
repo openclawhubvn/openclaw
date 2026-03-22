@@ -1,44 +1,44 @@
 ---
-summary: "Retry policy for outbound provider calls"
+summary: "Chính sách thử lại cho các cuộc gọi nhà cung cấp outbound"
 read_when:
-  - Updating provider retry behavior or defaults
-  - Debugging provider send errors or rate limits
-title: "Retry Policy"
+  - Cập nhật hành vi hoặc mặc định thử lại của nhà cung cấp
+  - Gỡ lỗi lỗi gửi hoặc giới hạn tốc độ của nhà cung cấp
+title: "Chính sách Thử Lại"
 ---
 
-# Retry policy
+# Chính sách Thử Lại
 
-## Goals
+## Mục tiêu
 
-- Retry per HTTP request, not per multi-step flow.
-- Preserve ordering by retrying only the current step.
-- Avoid duplicating non-idempotent operations.
+- Thử lại theo từng yêu cầu HTTP, không phải theo luồng nhiều bước.
+- Giữ thứ tự bằng cách chỉ thử lại bước hiện tại.
+- Tránh lặp lại các thao tác không idempotent.
 
-## Defaults
+## Mặc định
 
-- Attempts: 3
-- Max delay cap: 30000 ms
-- Jitter: 0.1 (10 percent)
-- Provider defaults:
-  - Telegram min delay: 400 ms
-  - Discord min delay: 500 ms
+- Số lần thử: 3
+- Giới hạn tối đa độ trễ: 30000 ms
+- Jitter: 0.1 (10 phần trăm)
+- Mặc định của nhà cung cấp:
+  - Telegram độ trễ tối thiểu: 400 ms
+  - Discord độ trễ tối thiểu: 500 ms
 
-## Behavior
+## Hành vi
 
 ### Discord
 
-- Retries only on rate-limit errors (HTTP 429).
-- Uses Discord `retry_after` when available, otherwise exponential backoff.
+- Chỉ thử lại khi gặp lỗi giới hạn tốc độ (HTTP 429).
+- Sử dụng `retry_after` của Discord khi có, nếu không thì dùng backoff theo cấp số nhân.
 
 ### Telegram
 
-- Retries on transient errors (429, timeout, connect/reset/closed, temporarily unavailable).
-- Uses `retry_after` when available, otherwise exponential backoff.
-- Markdown parse errors are not retried; they fall back to plain text.
+- Thử lại khi gặp lỗi tạm thời (429, timeout, connect/reset/closed, tạm thời không khả dụng).
+- Sử dụng `retry_after` khi có, nếu không thì dùng backoff theo cấp số nhân.
+- Lỗi phân tích Markdown không được thử lại; sẽ chuyển sang văn bản thuần túy.
 
-## Configuration
+## Cấu hình
 
-Set retry policy per provider in `~/.openclaw/openclaw.json`:
+Thiết lập chính sách thử lại cho từng nhà cung cấp trong `~/.openclaw/openclaw.json`:
 
 ```json5
 {
@@ -63,7 +63,7 @@ Set retry policy per provider in `~/.openclaw/openclaw.json`:
 }
 ```
 
-## Notes
+## Ghi chú
 
-- Retries apply per request (message send, media upload, reaction, poll, sticker).
-- Composite flows do not retry completed steps.
+- Thử lại áp dụng cho từng yêu cầu (gửi tin nhắn, tải lên media, phản ứng, thăm dò ý kiến, nhãn dán).
+- Các luồng tổng hợp không thử lại các bước đã hoàn thành.

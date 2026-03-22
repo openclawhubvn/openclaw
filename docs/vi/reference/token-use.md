@@ -1,104 +1,87 @@
 ---
-summary: "How OpenClaw builds prompt context and reports token usage + costs"
+summary: "Cách OpenClaw xây dựng ngữ cảnh prompt và báo cáo sử dụng token + chi phí"
 read_when:
-  - Explaining token usage, costs, or context windows
-  - Debugging context growth or compaction behavior
-title: "Token Use and Costs"
+  - Giải thích về sử dụng token, chi phí, hoặc cửa sổ ngữ cảnh
+  - Gỡ lỗi hành vi tăng trưởng hoặc nén ngữ cảnh
+title: "Sử dụng Token và Chi phí"
 ---
 
-# Token use & costs
+# Sử dụng Token & Chi phí
 
-OpenClaw tracks **tokens**, not characters. Tokens are model-specific, but most
-OpenAI-style models average ~4 characters per token for English text.
+OpenClaw theo dõi **token**, không phải ký tự. Token phụ thuộc vào từng mô hình, nhưng hầu hết các mô hình kiểu OpenAI trung bình khoảng 4 ký tự mỗi token cho văn bản tiếng Anh.
 
-## How the system prompt is built
+## Cách hệ thống xây dựng prompt
 
-OpenClaw assembles its own system prompt on every run. It includes:
+OpenClaw tự động tạo prompt hệ thống trong mỗi lần chạy. Nó bao gồm:
 
-- Tool list + short descriptions
-- Skills list (only metadata; instructions are loaded on demand with `read`)
-- Self-update instructions
-- Workspace + bootstrap files (`AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`, `BOOTSTRAP.md` when new, plus `MEMORY.md` when present or `memory.md` as a lowercase fallback). Large files are truncated by `agents.defaults.bootstrapMaxChars` (default: 20000), and total bootstrap injection is capped by `agents.defaults.bootstrapTotalMaxChars` (default: 150000). `memory/*.md` files are on-demand via memory tools and are not auto-injected.
-- Time (UTC + user timezone)
-- Reply tags + heartbeat behavior
-- Runtime metadata (host/OS/model/thinking)
+- Danh sách công cụ + mô tả ngắn
+- Danh sách kỹ năng (chỉ metadata; hướng dẫn được tải khi cần với `read`)
+- Hướng dẫn tự cập nhật
+- Tệp Workspace + bootstrap (`AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`, `BOOTSTRAP.md` khi mới, và `MEMORY.md` khi có hoặc `memory.md` như một lựa chọn thay thế viết thường). Các tệp lớn bị cắt ngắn bởi `agents.defaults.bootstrapMaxChars` (mặc định: 20000), và tổng số ký tự bootstrap được giới hạn bởi `agents.defaults.bootstrapTotalMaxChars` (mặc định: 150000). Các tệp `memory/*.md` được tải theo yêu cầu qua công cụ memory và không tự động được chèn vào.
+- Thời gian (UTC + múi giờ người dùng)
+- Thẻ trả lời + hành vi heartbeat
+- Metadata thời gian chạy (host/OS/model/thinking)
 
-See the full breakdown in [System Prompt](/concepts/system-prompt).
+Xem chi tiết đầy đủ trong [System Prompt](/concepts/system-prompt).
 
-## What counts in the context window
+## Những gì được tính trong cửa sổ ngữ cảnh
 
-Everything the model receives counts toward the context limit:
+Mọi thứ mà mô hình nhận được đều tính vào giới hạn ngữ cảnh:
 
-- System prompt (all sections listed above)
-- Conversation history (user + assistant messages)
-- Tool calls and tool results
-- Attachments/transcripts (images, audio, files)
-- Compaction summaries and pruning artifacts
-- Provider wrappers or safety headers (not visible, but still counted)
+- Prompt hệ thống (tất cả các phần đã liệt kê ở trên)
+- Lịch sử hội thoại (tin nhắn người dùng + trợ lý)
+- Lời gọi công cụ và kết quả công cụ
+- Tệp đính kèm/bản ghi (hình ảnh, âm thanh, tệp)
+- Tóm tắt nén và các hiện vật cắt tỉa
+- Bao bọc của nhà cung cấp hoặc tiêu đề an toàn (không hiển thị, nhưng vẫn được tính)
 
-For images, OpenClaw downscales transcript/tool image payloads before provider calls.
-Use `agents.defaults.imageMaxDimensionPx` (default: `1200`) to tune this:
+Đối với hình ảnh, OpenClaw giảm kích thước tải trọng hình ảnh transcript/công cụ trước khi gọi nhà cung cấp. Sử dụng `agents.defaults.imageMaxDimensionPx` (mặc định: `1200`) để điều chỉnh:
 
-- Lower values usually reduce vision-token usage and payload size.
-- Higher values preserve more visual detail for OCR/UI-heavy screenshots.
+- Giá trị thấp hơn thường giảm sử dụng token hình ảnh và kích thước tải trọng.
+- Giá trị cao hơn giữ lại nhiều chi tiết hình ảnh hơn cho các ảnh chụp màn hình nặng OCR/UI.
 
-For a practical breakdown (per injected file, tools, skills, and system prompt size), use `/context list` or `/context detail`. See [Context](/concepts/context).
+Để có phân tích thực tế (theo từng tệp được chèn, công cụ, kỹ năng và kích thước prompt hệ thống), sử dụng `/context list` hoặc `/context detail`. Xem [Context](/concepts/context).
 
-## How to see current token usage
+## Cách xem sử dụng token hiện tại
 
-Use these in chat:
+Sử dụng các lệnh sau trong chat:
 
-- `/status` → **emoji‑rich status card** with the session model, context usage,
-  last response input/output tokens, and **estimated cost** (API key only).
-- `/usage off|tokens|full` → appends a **per-response usage footer** to every reply.
-  - Persists per session (stored as `responseUsage`).
-  - OAuth auth **hides cost** (tokens only).
-- `/usage cost` → shows a local cost summary from OpenClaw session logs.
+- `/status` → **thẻ trạng thái phong phú emoji** với mô hình phiên, sử dụng ngữ cảnh, token đầu vào/đầu ra của phản hồi cuối cùng, và **ước tính chi phí** (chỉ với API key).
+- `/usage off|tokens|full` → thêm **chân trang sử dụng theo phản hồi** vào mỗi trả lời.
+  - Lưu trữ theo phiên (lưu dưới dạng `responseUsage`).
+  - Xác thực OAuth **ẩn chi phí** (chỉ token).
+- `/usage cost` → hiển thị tóm tắt chi phí cục bộ từ nhật ký phiên OpenClaw.
 
-Other surfaces:
+Các bề mặt khác:
 
-- **TUI/Web TUI:** `/status` + `/usage` are supported.
-- **CLI:** `openclaw status --usage` and `openclaw channels list` show
-  provider quota windows (not per-response costs).
+- **TUI/Web TUI:** `/status` + `/usage` được hỗ trợ.
+- **CLI:** `openclaw status --usage` và `openclaw channels list` hiển thị cửa sổ hạn ngạch nhà cung cấp (không phải chi phí theo phản hồi).
 
-## Cost estimation (when shown)
+## Ước tính chi phí (khi được hiển thị)
 
-Costs are estimated from your model pricing config:
+Chi phí được ước tính từ cấu hình giá mô hình của bạn:
 
 ```
 models.providers.<provider>.models[].cost
 ```
 
-These are **USD per 1M tokens** for `input`, `output`, `cacheRead`, and
-`cacheWrite`. If pricing is missing, OpenClaw shows tokens only. OAuth tokens
-never show dollar cost.
+Đây là **USD cho mỗi 1 triệu token** cho `input`, `output`, `cacheRead`, và `cacheWrite`. Nếu thiếu giá, OpenClaw chỉ hiển thị token. Token OAuth không bao giờ hiển thị chi phí đô la.
 
-## Cache TTL and pruning impact
+## Thời gian tồn tại của bộ nhớ cache và tác động cắt tỉa
 
-Provider prompt caching only applies within the cache TTL window. OpenClaw can
-optionally run **cache-ttl pruning**: it prunes the session once the cache TTL
-has expired, then resets the cache window so subsequent requests can re-use the
-freshly cached context instead of re-caching the full history. This keeps cache
-write costs lower when a session goes idle past the TTL.
+Bộ nhớ cache prompt của nhà cung cấp chỉ áp dụng trong cửa sổ TTL của bộ nhớ cache. OpenClaw có thể tùy chọn chạy **cắt tỉa TTL bộ nhớ cache**: nó cắt tỉa phiên khi TTL của bộ nhớ cache đã hết hạn, sau đó đặt lại cửa sổ bộ nhớ cache để các yêu cầu tiếp theo có thể sử dụng lại ngữ cảnh đã được lưu trữ thay vì lưu trữ lại toàn bộ lịch sử. Điều này giữ chi phí ghi bộ nhớ cache thấp hơn khi một phiên không hoạt động quá TTL.
 
-Configure it in [Gateway configuration](/gateway/configuration) and see the
-behavior details in [Session pruning](/concepts/session-pruning).
+Cấu hình nó trong [Gateway configuration](/gateway/configuration) và xem chi tiết hành vi trong [Session pruning](/concepts/session-pruning).
 
-Heartbeat can keep the cache **warm** across idle gaps. If your model cache TTL
-is `1h`, setting the heartbeat interval just under that (e.g., `55m`) can avoid
-re-caching the full prompt, reducing cache write costs.
+Heartbeat có thể giữ bộ nhớ cache **ấm** qua các khoảng trống không hoạt động. Nếu TTL bộ nhớ cache mô hình của bạn là `1h`, đặt khoảng thời gian heartbeat ngay dưới đó (ví dụ: `55m`) có thể tránh lưu trữ lại toàn bộ prompt, giảm chi phí ghi bộ nhớ cache.
 
-In multi-agent setups, you can keep one shared model config and tune cache behavior
-per agent with `agents.list[].params.cacheRetention`.
+Trong các thiết lập đa tác nhân, bạn có thể giữ một cấu hình mô hình chia sẻ và điều chỉnh hành vi bộ nhớ cache cho từng tác nhân với `agents.list[].params.cacheRetention`.
 
-For a full knob-by-knob guide, see [Prompt Caching](/reference/prompt-caching).
+Để có hướng dẫn chi tiết từng nút, xem [Prompt Caching](/reference/prompt-caching).
 
-For Anthropic API pricing, cache reads are significantly cheaper than input
-tokens, while cache writes are billed at a higher multiplier. See Anthropic’s
-prompt caching pricing for the latest rates and TTL multipliers:
-[https://docs.anthropic.com/docs/build-with-claude/prompt-caching](https://docs.anthropic.com/docs/build-with-claude/prompt-caching)
+Đối với giá API của Anthropic, đọc bộ nhớ cache rẻ hơn đáng kể so với token đầu vào, trong khi ghi bộ nhớ cache được tính với hệ số nhân cao hơn. Xem giá bộ nhớ cache prompt của Anthropic cho các mức giá và hệ số TTL mới nhất: [https://docs.anthropic.com/docs/build-with-claude/prompt-caching](https://docs.anthropic.com/docs/build-with-claude/prompt-caching)
 
-### Example: keep 1h cache warm with heartbeat
+### Ví dụ: giữ bộ nhớ cache 1h ấm với heartbeat
 
 ```yaml
 agents:
@@ -113,7 +96,7 @@ agents:
       every: "55m"
 ```
 
-### Example: mixed traffic with per-agent cache strategy
+### Ví dụ: lưu lượng hỗn hợp với chiến lược bộ nhớ cache theo tác nhân
 
 ```yaml
 agents:
@@ -123,25 +106,22 @@ agents:
     models:
       "anthropic/claude-opus-4-6":
         params:
-          cacheRetention: "long" # default baseline for most agents
+          cacheRetention: "long" # cơ sở mặc định cho hầu hết các tác nhân
   list:
     - id: "research"
       default: true
       heartbeat:
-        every: "55m" # keep long cache warm for deep sessions
+        every: "55m" # giữ bộ nhớ cache dài ấm cho các phiên sâu
     - id: "alerts"
       params:
-        cacheRetention: "none" # avoid cache writes for bursty notifications
+        cacheRetention: "none" # tránh ghi bộ nhớ cache cho thông báo đột biến
 ```
 
-`agents.list[].params` merges on top of the selected model's `params`, so you can
-override only `cacheRetention` and inherit other model defaults unchanged.
+`agents.list[].params` hợp nhất trên các `params` của mô hình đã chọn, vì vậy bạn có thể chỉ ghi đè `cacheRetention` và kế thừa các mặc định mô hình khác không thay đổi.
 
-### Example: enable Anthropic 1M context beta header
+### Ví dụ: kích hoạt tiêu đề beta ngữ cảnh 1M của Anthropic
 
-Anthropic's 1M context window is currently beta-gated. OpenClaw can inject the
-required `anthropic-beta` value when you enable `context1m` on supported Opus
-or Sonnet models.
+Cửa sổ ngữ cảnh 1M của Anthropic hiện đang trong giai đoạn beta. OpenClaw có thể chèn giá trị `anthropic-beta` cần thiết khi bạn kích hoạt `context1m` trên các mô hình Opus hoặc Sonnet được hỗ trợ.
 
 ```yaml
 agents:
@@ -152,24 +132,20 @@ agents:
           context1m: true
 ```
 
-This maps to Anthropic's `context-1m-2025-08-07` beta header.
+Điều này ánh xạ tới tiêu đề beta `context-1m-2025-08-07` của Anthropic.
 
-This only applies when `context1m: true` is set on that model entry.
+Điều này chỉ áp dụng khi `context1m: true` được đặt trên mục mô hình đó.
 
-Requirement: the credential must be eligible for long-context usage (API key
-billing, or subscription with Extra Usage enabled). If not, Anthropic responds
-with `HTTP 429: rate_limit_error: Extra usage is required for long context requests`.
+Yêu cầu: thông tin xác thực phải đủ điều kiện để sử dụng ngữ cảnh dài (thanh toán API key, hoặc đăng ký với Extra Usage được kích hoạt). Nếu không, Anthropic phản hồi với `HTTP 429: rate_limit_error: Extra usage is required for long context requests`.
 
-If you authenticate Anthropic with OAuth/subscription tokens (`sk-ant-oat-*`),
-OpenClaw skips the `context-1m-*` beta header because Anthropic currently
-rejects that combination with HTTP 401.
+Nếu bạn xác thực Anthropic với token OAuth/đăng ký (`sk-ant-oat-*`), OpenClaw bỏ qua tiêu đề beta `context-1m-*` vì Anthropic hiện từ chối kết hợp đó với HTTP 401.
 
-## Tips for reducing token pressure
+## Mẹo để giảm áp lực token
 
-- Use `/compact` to summarize long sessions.
-- Trim large tool outputs in your workflows.
-- Lower `agents.defaults.imageMaxDimensionPx` for screenshot-heavy sessions.
-- Keep skill descriptions short (skill list is injected into the prompt).
-- Prefer smaller models for verbose, exploratory work.
+- Sử dụng `/compact` để tóm tắt các phiên dài.
+- Cắt ngắn đầu ra công cụ lớn trong quy trình làm việc của bạn.
+- Giảm `agents.defaults.imageMaxDimensionPx` cho các phiên nặng ảnh chụp màn hình.
+- Giữ mô tả kỹ năng ngắn gọn (danh sách kỹ năng được chèn vào prompt).
+- Ưu tiên các mô hình nhỏ hơn cho công việc dài dòng, khám phá.
 
-See [Skills](/tools/skills) for the exact skill list overhead formula.
+Xem [Skills](/tools/skills) để biết công thức chi phí danh sách kỹ năng chính xác.

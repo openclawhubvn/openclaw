@@ -1,72 +1,72 @@
 ---
-summary: "Image and media handling rules for send, gateway, and agent replies"
+summary: "Quy tắc xử lý hình ảnh và phương tiện cho gửi, gateway và phản hồi của agent"
 read_when:
-  - Modifying media pipeline or attachments
-title: "Image and Media Support"
+  - Sửa đổi pipeline phương tiện hoặc tệp đính kèm
+title: "Hỗ trợ Hình ảnh và Phương tiện"
 ---
 
-# Image & Media Support (2025-12-05)
+# Hỗ trợ Hình ảnh & Phương tiện (2025-12-05)
 
-The WhatsApp channel runs via **Baileys Web**. This document captures the current media handling rules for send, gateway, and agent replies.
+Kênh WhatsApp hoạt động qua **Baileys Web**. Tài liệu này ghi lại các quy tắc xử lý phương tiện hiện tại cho gửi, gateway và phản hồi của agent.
 
-## Goals
+## Mục tiêu
 
-- Send media with optional captions via `openclaw message send --media`.
-- Allow auto-replies from the web inbox to include media alongside text.
-- Keep per-type limits sane and predictable.
+- Gửi phương tiện kèm chú thích tùy chọn qua `openclaw message send --media`.
+- Cho phép tự động phản hồi từ web inbox bao gồm phương tiện cùng với văn bản.
+- Giữ giới hạn theo loại hợp lý và dễ dự đoán.
 
-## CLI Surface
+## Giao diện CLI
 
 - `openclaw message send --media <path-or-url> [--message <caption>]`
-  - `--media` optional; caption can be empty for media-only sends.
-  - `--dry-run` prints the resolved payload; `--json` emits `{ channel, to, messageId, mediaUrl, caption }`.
+  - `--media` là tùy chọn; chú thích có thể để trống cho gửi chỉ phương tiện.
+  - `--dry-run` in ra payload đã giải quyết; `--json` xuất `{ channel, to, messageId, mediaUrl, caption }`.
 
-## WhatsApp Web channel behavior
+## Hành vi kênh WhatsApp Web
 
-- Input: local file path **or** HTTP(S) URL.
-- Flow: load into a Buffer, detect media kind, and build the correct payload:
-  - **Images:** resize & recompress to JPEG (max side 2048px) targeting `agents.defaults.mediaMaxMb` (default 5 MB), capped at 6 MB.
-  - **Audio/Voice/Video:** pass-through up to 16 MB; audio is sent as a voice note (`ptt: true`).
-  - **Documents:** anything else, up to 100 MB, with filename preserved when available.
-- WhatsApp GIF-style playback: send an MP4 with `gifPlayback: true` (CLI: `--gif-playback`) so mobile clients loop inline.
-- MIME detection prefers magic bytes, then headers, then file extension.
-- Caption comes from `--message` or `reply.text`; empty caption is allowed.
-- Logging: non-verbose shows `↩️`/`✅`; verbose includes size and source path/URL.
+- Đầu vào: đường dẫn tệp cục bộ **hoặc** URL HTTP(S).
+- Quy trình: tải vào Buffer, phát hiện loại phương tiện và xây dựng payload đúng:
+  - **Hình ảnh:** thay đổi kích thước & nén lại thành JPEG (cạnh tối đa 2048px) nhắm đến `agents.defaults.mediaMaxMb` (mặc định 5 MB), giới hạn ở 6 MB.
+  - **Âm thanh/Giọng nói/Video:** truyền qua tối đa 16 MB; âm thanh được gửi dưới dạng ghi chú giọng nói (`ptt: true`).
+  - **Tài liệu:** bất kỳ thứ gì khác, tối đa 100 MB, với tên tệp được giữ nguyên khi có sẵn.
+- Phát lại kiểu GIF của WhatsApp: gửi một MP4 với `gifPlayback: true` (CLI: `--gif-playback`) để các ứng dụng di động lặp lại trong dòng.
+- Phát hiện MIME ưu tiên magic bytes, sau đó là headers, rồi đến phần mở rộng tệp.
+- Chú thích lấy từ `--message` hoặc `reply.text`; chú thích trống được phép.
+- Ghi log: không chi tiết hiển thị `↩️`/`✅`; chi tiết bao gồm kích thước và đường dẫn/URL nguồn.
 
-## Auto-Reply Pipeline
+## Pipeline Tự động Phản hồi
 
-- `getReplyFromConfig` returns `{ text?, mediaUrl?, mediaUrls? }`.
-- When media is present, the web sender resolves local paths or URLs using the same pipeline as `openclaw message send`.
-- Multiple media entries are sent sequentially if provided.
+- `getReplyFromConfig` trả về `{ text?, mediaUrl?, mediaUrls? }`.
+- Khi có phương tiện, web sender giải quyết đường dẫn cục bộ hoặc URL sử dụng cùng pipeline như `openclaw message send`.
+- Nhiều mục phương tiện được gửi tuần tự nếu có.
 
-## Inbound Media to Commands (Pi)
+## Phương tiện Đầu vào cho Lệnh (Pi)
 
-- When inbound web messages include media, OpenClaw downloads to a temp file and exposes templating variables:
-  - `{{MediaUrl}}` pseudo-URL for the inbound media.
-  - `{{MediaPath}}` local temp path written before running the command.
-- When a per-session Docker sandbox is enabled, inbound media is copied into the sandbox workspace and `MediaPath`/`MediaUrl` are rewritten to a relative path like `media/inbound/<filename>`.
-- Media understanding (if configured via `tools.media.*` or shared `tools.media.models`) runs before templating and can insert `[Image]`, `[Audio]`, and `[Video]` blocks into `Body`.
-  - Audio sets `{{Transcript}}` and uses the transcript for command parsing so slash commands still work.
-  - Video and image descriptions preserve any caption text for command parsing.
-- By default only the first matching image/audio/video attachment is processed; set `tools.media.<cap>.attachments` to process multiple attachments.
+- Khi tin nhắn web đầu vào bao gồm phương tiện, OpenClaw tải xuống tệp tạm và cung cấp biến mẫu:
+  - `{{MediaUrl}}` pseudo-URL cho phương tiện đầu vào.
+  - `{{MediaPath}}` đường dẫn tạm cục bộ được ghi trước khi chạy lệnh.
+- Khi sandbox Docker theo phiên được bật, phương tiện đầu vào được sao chép vào workspace sandbox và `MediaPath`/`MediaUrl` được viết lại thành đường dẫn tương đối như `media/inbound/<filename>`.
+- Hiểu phương tiện (nếu được cấu hình qua `tools.media.*` hoặc `tools.media.models` chia sẻ) chạy trước khi tạo mẫu và có thể chèn các khối `[Image]`, `[Audio]`, và `[Video]` vào `Body`.
+  - Âm thanh thiết lập `{{Transcript}}` và sử dụng bản ghi để phân tích lệnh nên các lệnh slash vẫn hoạt động.
+  - Mô tả video và hình ảnh giữ nguyên bất kỳ văn bản chú thích nào để phân tích lệnh.
+- Mặc định chỉ xử lý tệp đính kèm hình ảnh/âm thanh/video đầu tiên; đặt `tools.media.<cap>.attachments` để xử lý nhiều tệp đính kèm.
 
-## Limits & Errors
+## Giới hạn & Lỗi
 
-**Outbound send caps (WhatsApp web send)**
+**Giới hạn gửi ra ngoài (gửi WhatsApp web)**
 
-- Images: ~6 MB cap after recompression.
-- Audio/voice/video: 16 MB cap; documents: 100 MB cap.
-- Oversize or unreadable media → clear error in logs and the reply is skipped.
+- Hình ảnh: ~6 MB sau khi nén lại.
+- Âm thanh/giọng nói/video: 16 MB; tài liệu: 100 MB.
+- Phương tiện quá kích thước hoặc không đọc được → lỗi rõ ràng trong log và bỏ qua phản hồi.
 
-**Media understanding caps (transcription/description)**
+**Giới hạn hiểu phương tiện (chuyển ngữ/mô tả)**
 
-- Image default: 10 MB (`tools.media.image.maxBytes`).
-- Audio default: 20 MB (`tools.media.audio.maxBytes`).
-- Video default: 50 MB (`tools.media.video.maxBytes`).
-- Oversize media skips understanding, but replies still go through with the original body.
+- Hình ảnh mặc định: 10 MB (`tools.media.image.maxBytes`).
+- Âm thanh mặc định: 20 MB (`tools.media.audio.maxBytes`).
+- Video mặc định: 50 MB (`tools.media.video.maxBytes`).
+- Phương tiện quá kích thước bỏ qua hiểu, nhưng phản hồi vẫn được gửi với nội dung gốc.
 
-## Notes for Tests
+## Ghi chú cho Kiểm tra
 
-- Cover send + reply flows for image/audio/document cases.
-- Validate recompression for images (size bound) and voice-note flag for audio.
-- Ensure multi-media replies fan out as sequential sends.
+- Bao gồm các luồng gửi + phản hồi cho các trường hợp hình ảnh/âm thanh/tài liệu.
+- Xác thực nén lại cho hình ảnh (giới hạn kích thước) và cờ ghi chú giọng nói cho âm thanh.
+- Đảm bảo phản hồi đa phương tiện được gửi tuần tự.

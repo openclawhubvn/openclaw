@@ -14,8 +14,8 @@ if (!apiKey) {
 }
 
 // ================= CẤU HÌNH SCRIPT =================
-const CONCURRENCY_LIMIT = 20; // Số lượng file dịch song song cùng lúc (Tăng giảm tùy Rate Limit của API)
-const MAX_FILES = 10;          // Số file tối đa cần dịch (0 = không giới hạn, đổi thành số nhỏ khi test)
+const CONCURRENCY_LIMIT = 25; // Số lượng file dịch song song cùng lúc (Tăng giảm tùy Rate Limit của API)
+const MAX_FILES = 0;          // Số file tối đa cần dịch (0 = không giới hạn, đổi thành số nhỏ khi test)
 
 const docsDir = __dirname;
 const targetDir = path.join(docsDir, 'vi'); // Thư mục nguồn cần quét

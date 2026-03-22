@@ -1,27 +1,27 @@
 ---
-summary: "SSH tunnel setup for OpenClaw.app connecting to a remote gateway"
-read_when: "Connecting the macOS app to a remote gateway over SSH"
-title: "Remote Gateway Setup"
+summary: "Thiết lập SSH tunnel cho OpenClaw.app kết nối đến gateway từ xa"
+read_when: "Kết nối ứng dụng macOS đến gateway từ xa qua SSH"
+title: "Thiết lập Gateway Từ Xa"
 ---
 
-# Running OpenClaw.app with a Remote Gateway
+# Chạy OpenClaw.app với Gateway Từ Xa
 
-OpenClaw.app uses SSH tunneling to connect to a remote gateway. This guide shows you how to set it up.
+OpenClaw.app sử dụng SSH tunneling để kết nối đến gateway từ xa. Hướng dẫn này sẽ chỉ bạn cách thiết lập.
 
-## Overview
+## Tổng Quan
 
 ```mermaid
 flowchart TB
-    subgraph Client["Client Machine"]
+    subgraph Client["Máy Khách"]
         direction TB
         A["OpenClaw.app"]
-        B["ws://127.0.0.1:18789\n(local port)"]
+        B["ws://127.0.0.1:18789\n(cổng cục bộ)"]
         T["SSH Tunnel"]
 
         A --> B
         B --> T
     end
-    subgraph Remote["Remote Machine"]
+    subgraph Remote["Máy Từ Xa"]
         direction TB
         C["Gateway WebSocket"]
         D["ws://127.0.0.1:18789"]
@@ -31,60 +31,60 @@ flowchart TB
     T --> C
 ```
 
-## Quick Setup
+## Thiết Lập Nhanh
 
-### Step 1: Add SSH Config
+### Bước 1: Thêm Cấu Hình SSH
 
-Edit `~/.ssh/config` and add:
+Chỉnh sửa `~/.ssh/config` và thêm:
 
 ```ssh
 Host remote-gateway
-    HostName <REMOTE_IP>          # e.g., 172.27.187.184
-    User <REMOTE_USER>            # e.g., jefferson
+    HostName <REMOTE_IP>          # ví dụ: 172.27.187.184
+    User <REMOTE_USER>            # ví dụ: jefferson
     LocalForward 18789 127.0.0.1:18789
     IdentityFile ~/.ssh/id_rsa
 ```
 
-Replace `<REMOTE_IP>` and `<REMOTE_USER>` with your values.
+Thay thế `<REMOTE_IP>` và `<REMOTE_USER>` bằng giá trị của bạn.
 
-### Step 2: Copy SSH Key
+### Bước 2: Sao Chép Khóa SSH
 
-Copy your public key to the remote machine (enter password once):
+Sao chép khóa công khai của bạn đến máy từ xa (nhập mật khẩu một lần):
 
 ```bash
 ssh-copy-id -i ~/.ssh/id_rsa <REMOTE_USER>@<REMOTE_IP>
 ```
 
-### Step 3: Set Gateway Token
+### Bước 3: Đặt Gateway Token
 
 ```bash
 launchctl setenv OPENCLAW_GATEWAY_TOKEN "<your-token>"
 ```
 
-### Step 4: Start SSH Tunnel
+### Bước 4: Khởi Động SSH Tunnel
 
 ```bash
 ssh -N remote-gateway &
 ```
 
-### Step 5: Restart OpenClaw.app
+### Bước 5: Khởi Động Lại OpenClaw.app
 
 ```bash
-# Quit OpenClaw.app (⌘Q), then reopen:
+# Thoát OpenClaw.app (⌘Q), sau đó mở lại:
 open /path/to/OpenClaw.app
 ```
 
-The app will now connect to the remote gateway through the SSH tunnel.
+Ứng dụng sẽ kết nối đến gateway từ xa qua SSH tunnel.
 
 ---
 
-## Auto-Start Tunnel on Login
+## Tự Động Khởi Động Tunnel Khi Đăng Nhập
 
-To have the SSH tunnel start automatically when you log in, create a Launch Agent.
+Để SSH tunnel tự động khởi động khi bạn đăng nhập, tạo một Launch Agent.
 
-### Create the PLIST file
+### Tạo File PLIST
 
-Save this as `~/Library/LaunchAgents/ai.openclaw.ssh-tunnel.plist`:
+Lưu file này dưới tên `~/Library/LaunchAgents/ai.openclaw.ssh-tunnel.plist`:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -107,38 +107,38 @@ Save this as `~/Library/LaunchAgents/ai.openclaw.ssh-tunnel.plist`:
 </plist>
 ```
 
-### Load the Launch Agent
+### Tải Launch Agent
 
 ```bash
 launchctl bootstrap gui/$UID ~/Library/LaunchAgents/ai.openclaw.ssh-tunnel.plist
 ```
 
-The tunnel will now:
+Tunnel sẽ:
 
-- Start automatically when you log in
-- Restart if it crashes
-- Keep running in the background
+- Tự động khởi động khi bạn đăng nhập
+- Khởi động lại nếu bị lỗi
+- Chạy ngầm trong nền
 
-Legacy note: remove any leftover `com.openclaw.ssh-tunnel` LaunchAgent if present.
+Lưu ý cũ: xóa bất kỳ LaunchAgent `com.openclaw.ssh-tunnel` còn sót lại nếu có.
 
 ---
 
-## Troubleshooting
+## Khắc Phục Sự Cố
 
-**Check if tunnel is running:**
+**Kiểm tra xem tunnel có đang chạy:**
 
 ```bash
 ps aux | grep "ssh -N remote-gateway" | grep -v grep
 lsof -i :18789
 ```
 
-**Restart the tunnel:**
+**Khởi động lại tunnel:**
 
 ```bash
 launchctl kickstart -k gui/$UID/ai.openclaw.ssh-tunnel
 ```
 
-**Stop the tunnel:**
+**Dừng tunnel:**
 
 ```bash
 launchctl bootout gui/$UID/ai.openclaw.ssh-tunnel
@@ -146,13 +146,13 @@ launchctl bootout gui/$UID/ai.openclaw.ssh-tunnel
 
 ---
 
-## How It Works
+## Cách Hoạt Động
 
-| Component                            | What It Does                                                 |
+| Thành Phần                           | Chức Năng                                                    |
 | ------------------------------------ | ------------------------------------------------------------ |
-| `LocalForward 18789 127.0.0.1:18789` | Forwards local port 18789 to remote port 18789               |
-| `ssh -N`                             | SSH without executing remote commands (just port forwarding) |
-| `KeepAlive`                          | Automatically restarts tunnel if it crashes                  |
-| `RunAtLoad`                          | Starts tunnel when the agent loads                           |
+| `LocalForward 18789 127.0.0.1:18789` | Chuyển tiếp cổng cục bộ 18789 đến cổng từ xa 18789           |
+| `ssh -N`                             | SSH mà không thực thi lệnh từ xa (chỉ chuyển tiếp cổng)      |
+| `KeepAlive`                          | Tự động khởi động lại tunnel nếu bị lỗi                      |
+| `RunAtLoad`                          | Khởi động tunnel khi agent được tải                          |
 
-OpenClaw.app connects to `ws://127.0.0.1:18789` on your client machine. The SSH tunnel forwards that connection to port 18789 on the remote machine where the Gateway is running.
+OpenClaw.app kết nối đến `ws://127.0.0.1:18789` trên máy khách của bạn. SSH tunnel chuyển tiếp kết nối đó đến cổng 18789 trên máy từ xa nơi Gateway đang chạy.

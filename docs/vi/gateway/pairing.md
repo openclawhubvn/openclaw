@@ -1,40 +1,35 @@
 ---
-summary: "Gateway-owned node pairing (Option B) for iOS and other remote nodes"
+summary: "Ghép nối node do Gateway quản lý (Tùy chọn B) cho iOS và các node từ xa khác"
 read_when:
-  - Implementing node pairing approvals without macOS UI
-  - Adding CLI flows for approving remote nodes
-  - Extending gateway protocol with node management
-title: "Gateway-Owned Pairing"
+  - Triển khai phê duyệt ghép nối node mà không cần giao diện macOS
+  - Thêm luồng CLI để phê duyệt node từ xa
+  - Mở rộng giao thức gateway với quản lý node
+title: "Ghép Nối Do Gateway Quản Lý"
 ---
 
-# Gateway-owned pairing (Option B)
+# Ghép nối do Gateway quản lý (Tùy chọn B)
 
-In Gateway-owned pairing, the **Gateway** is the source of truth for which nodes
-are allowed to join. UIs (macOS app, future clients) are just frontends that
-approve or reject pending requests.
+Trong ghép nối do Gateway quản lý, **Gateway** là nguồn xác thực cho việc node nào được phép tham gia. Các giao diện người dùng (ứng dụng macOS, các client tương lai) chỉ là giao diện để phê duyệt hoặc từ chối các yêu cầu đang chờ xử lý.
 
-**Important:** WS nodes use **device pairing** (role `node`) during `connect`.
-`node.pair.*` is a separate pairing store and does **not** gate the WS handshake.
-Only clients that explicitly call `node.pair.*` use this flow.
+**Quan trọng:** Các node WS sử dụng **ghép nối thiết bị** (vai trò `node`) trong quá trình `connect`. `node.pair.*` là một kho ghép nối riêng biệt và **không** kiểm soát handshake WS. Chỉ những client gọi rõ ràng `node.pair.*` mới sử dụng luồng này.
 
-## Concepts
+## Khái niệm
 
-- **Pending request**: a node asked to join; requires approval.
-- **Paired node**: approved node with an issued auth token.
-- **Transport**: the Gateway WS endpoint forwards requests but does not decide
-  membership. (Legacy TCP bridge support is deprecated/removed.)
+- **Yêu cầu đang chờ xử lý**: một node yêu cầu tham gia; cần được phê duyệt.
+- **Node đã ghép nối**: node đã được phê duyệt với token xác thực đã cấp.
+- **Transport**: điểm cuối Gateway WS chuyển tiếp yêu cầu nhưng không quyết định thành viên. (Hỗ trợ cầu nối TCP cũ đã bị loại bỏ.)
 
-## How pairing works
+## Cách thức ghép nối hoạt động
 
-1. A node connects to the Gateway WS and requests pairing.
-2. The Gateway stores a **pending request** and emits `node.pair.requested`.
-3. You approve or reject the request (CLI or UI).
-4. On approval, the Gateway issues a **new token** (tokens are rotated on re‑pair).
-5. The node reconnects using the token and is now “paired”.
+1. Một node kết nối đến Gateway WS và yêu cầu ghép nối.
+2. Gateway lưu trữ một **yêu cầu đang chờ xử lý** và phát ra `node.pair.requested`.
+3. Phê duyệt hoặc từ chối yêu cầu (CLI hoặc UI).
+4. Khi phê duyệt, Gateway cấp một **token mới** (token được xoay vòng khi ghép nối lại).
+5. Node kết nối lại bằng token và được coi là đã “ghép nối”.
 
-Pending requests expire automatically after **5 minutes**.
+Yêu cầu đang chờ xử lý tự động hết hạn sau **5 phút**.
 
-## CLI workflow (headless friendly)
+## Quy trình CLI (thân thiện với chế độ không giao diện)
 
 ```bash
 openclaw nodes pending
@@ -44,56 +39,54 @@ openclaw nodes status
 openclaw nodes rename --node <id|name|ip> --name "Living Room iPad"
 ```
 
-`nodes status` shows paired/connected nodes and their capabilities.
+`nodes status` hiển thị các node đã ghép nối/kết nối và khả năng của chúng.
 
-## API surface (gateway protocol)
+## Bề mặt API (giao thức gateway)
 
-Events:
+Sự kiện:
 
-- `node.pair.requested` — emitted when a new pending request is created.
-- `node.pair.resolved` — emitted when a request is approved/rejected/expired.
+- `node.pair.requested` — phát ra khi một yêu cầu đang chờ xử lý mới được tạo.
+- `node.pair.resolved` — phát ra khi một yêu cầu được phê duyệt/từ chối/hết hạn.
 
-Methods:
+Phương thức:
 
-- `node.pair.request` — create or reuse a pending request.
-- `node.pair.list` — list pending + paired nodes.
-- `node.pair.approve` — approve a pending request (issues token).
-- `node.pair.reject` — reject a pending request.
-- `node.pair.verify` — verify `{ nodeId, token }`.
+- `node.pair.request` — tạo hoặc tái sử dụng một yêu cầu đang chờ xử lý.
+- `node.pair.list` — liệt kê các node đang chờ xử lý + đã ghép nối.
+- `node.pair.approve` — phê duyệt một yêu cầu đang chờ xử lý (cấp token).
+- `node.pair.reject` — từ chối một yêu cầu đang chờ xử lý.
+- `node.pair.verify` — xác minh `{ nodeId, token }`.
 
-Notes:
+Ghi chú:
 
-- `node.pair.request` is idempotent per node: repeated calls return the same
-  pending request.
-- Approval **always** generates a fresh token; no token is ever returned from
-  `node.pair.request`.
-- Requests may include `silent: true` as a hint for auto-approval flows.
+- `node.pair.request` là idempotent cho mỗi node: các lần gọi lặp lại trả về cùng một yêu cầu đang chờ xử lý.
+- Phê duyệt **luôn** tạo ra một token mới; không có token nào được trả về từ `node.pair.request`.
+- Yêu cầu có thể bao gồm `silent: true` như một gợi ý cho các luồng tự động phê duyệt.
 
-## Auto-approval (macOS app)
+## Tự động phê duyệt (ứng dụng macOS)
 
-The macOS app can optionally attempt a **silent approval** when:
+Ứng dụng macOS có thể tùy chọn thử **phê duyệt im lặng** khi:
 
-- the request is marked `silent`, and
-- the app can verify an SSH connection to the gateway host using the same user.
+- yêu cầu được đánh dấu `silent`, và
+- ứng dụng có thể xác minh kết nối SSH đến máy chủ gateway bằng cùng một người dùng.
 
-If silent approval fails, it falls back to the normal “Approve/Reject” prompt.
+Nếu phê duyệt im lặng thất bại, nó sẽ quay lại nhắc nhở “Phê duyệt/Từ chối” thông thường.
 
-## Storage (local, private)
+## Lưu trữ (cục bộ, riêng tư)
 
-Pairing state is stored under the Gateway state directory (default `~/.openclaw`):
+Trạng thái ghép nối được lưu trữ dưới thư mục trạng thái Gateway (mặc định `~/.openclaw`):
 
 - `~/.openclaw/nodes/paired.json`
 - `~/.openclaw/nodes/pending.json`
 
-If you override `OPENCLAW_STATE_DIR`, the `nodes/` folder moves with it.
+Nếu bạn ghi đè `OPENCLAW_STATE_DIR`, thư mục `nodes/` sẽ di chuyển theo.
 
-Security notes:
+Ghi chú bảo mật:
 
-- Tokens are secrets; treat `paired.json` as sensitive.
-- Rotating a token requires re-approval (or deleting the node entry).
+- Token là bí mật; xử lý `paired.json` như dữ liệu nhạy cảm.
+- Xoay vòng token yêu cầu phê duyệt lại (hoặc xóa mục nhập node).
 
-## Transport behavior
+## Hành vi Transport
 
-- The transport is **stateless**; it does not store membership.
-- If the Gateway is offline or pairing is disabled, nodes cannot pair.
-- If the Gateway is in remote mode, pairing still happens against the remote Gateway’s store.
+- Transport là **không trạng thái**; nó không lưu trữ thành viên.
+- Nếu Gateway offline hoặc ghép nối bị vô hiệu hóa, các node không thể ghép nối.
+- Nếu Gateway ở chế độ từ xa, ghép nối vẫn diễn ra với kho lưu trữ của Gateway từ xa.

@@ -1,28 +1,27 @@
 ---
-summary: "Repository scripts: purpose, scope, and safety notes"
+summary: "Các script trong repository: mục đích, phạm vi và lưu ý an toàn"
 read_when:
-  - Running scripts from the repo
-  - Adding or changing scripts under ./scripts
+  - Chạy script từ repo
+  - Thêm hoặc thay đổi script trong ./scripts
 title: "Scripts"
 ---
 
 # Scripts
 
-The `scripts/` directory contains helper scripts for local workflows and ops tasks.
-Use these when a task is clearly tied to a script; otherwise prefer the CLI.
+Thư mục `scripts/` chứa các script hỗ trợ cho quy trình làm việc cục bộ và các tác vụ vận hành. Sử dụng các script này khi một tác vụ rõ ràng gắn liền với một script; nếu không, hãy ưu tiên sử dụng CLI.
 
-## Conventions
+## Quy ước
 
-- Scripts are **optional** unless referenced in docs or release checklists.
-- Prefer CLI surfaces when they exist (example: auth monitoring uses `openclaw models status --check`).
-- Assume scripts are host‑specific; read them before running on a new machine.
+- Các script là **tùy chọn** trừ khi được tham chiếu trong tài liệu hoặc danh sách kiểm tra phát hành.
+- Ưu tiên sử dụng CLI khi có sẵn (ví dụ: giám sát xác thực sử dụng `openclaw models status --check`).
+- Giả định rằng các script là đặc thù cho từng máy; hãy đọc chúng trước khi chạy trên máy mới.
 
-## Auth monitoring scripts
+## Script giám sát xác thực
 
-Auth monitoring scripts are documented here:
+Script giám sát xác thực được tài liệu hóa tại đây:
 [/automation/auth-monitoring](/automation/auth-monitoring)
 
-## When adding scripts
+## Khi thêm script
 
-- Keep scripts focused and documented.
-- Add a short entry in the relevant doc (or create one if missing).
+- Giữ cho script tập trung và có tài liệu hướng dẫn.
+- Thêm một mục ngắn trong tài liệu liên quan (hoặc tạo mới nếu chưa có).

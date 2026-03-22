@@ -1,23 +1,23 @@
 ---
-summary: "CLI reference for `openclaw plugins` (list, install, marketplace, uninstall, enable/disable, doctor)"
+summary: "Tham khảo CLI cho `openclaw plugins` (liệt kê, cài đặt, marketplace, gỡ cài đặt, bật/tắt, kiểm tra)"
 read_when:
-  - You want to install or manage Gateway plugins or compatible bundles
-  - You want to debug plugin load failures
+  - Bạn muốn cài đặt hoặc quản lý các plugin Gateway hoặc các gói tương thích
+  - Bạn muốn gỡ lỗi khi plugin không tải được
 title: "plugins"
 ---
 
 # `openclaw plugins`
 
-Manage Gateway plugins/extensions and compatible bundles.
+Quản lý các plugin/extension Gateway và các gói tương thích.
 
-Related:
+Liên quan:
 
-- Plugin system: [Plugins](/tools/plugin)
-- Bundle compatibility: [Plugin bundles](/plugins/bundles)
-- Plugin manifest + schema: [Plugin manifest](/plugins/manifest)
-- Security hardening: [Security](/gateway/security)
+- Hệ thống Plugin: [Plugins](/tools/plugin)
+- Tương thích gói: [Plugin bundles](/plugins/bundles)
+- Manifest + schema của Plugin: [Plugin manifest](/plugins/manifest)
+- Tăng cường bảo mật: [Security](/gateway/security)
 
-## Commands
+## Lệnh
 
 ```bash
 openclaw plugins list
@@ -32,18 +32,13 @@ openclaw plugins update --all
 openclaw plugins marketplace list <marketplace>
 ```
 
-Bundled plugins ship with OpenClaw but start disabled. Use `plugins enable` to
-activate them.
+Các plugin đi kèm với OpenClaw nhưng mặc định bị tắt. Sử dụng `plugins enable` để kích hoạt chúng.
 
-Native OpenClaw plugins must ship `openclaw.plugin.json` with an inline JSON
-Schema (`configSchema`, even if empty). Compatible bundles use their own bundle
-manifests instead.
+Plugin gốc của OpenClaw phải có `openclaw.plugin.json` với một JSON Schema nội tuyến (`configSchema`, dù là rỗng). Các gói tương thích sử dụng manifest riêng của chúng.
 
-`plugins list` shows `Format: openclaw` or `Format: bundle`. Verbose list/info
-output also shows the bundle subtype (`codex`, `claude`, or `cursor`) plus detected bundle
-capabilities.
+`plugins list` hiển thị `Format: openclaw` hoặc `Format: bundle`. Danh sách chi tiết cũng hiển thị loại phụ của gói (`codex`, `claude`, hoặc `cursor`) cùng với các khả năng của gói được phát hiện.
 
-### Install
+### Cài đặt
 
 ```bash
 openclaw plugins install <path-or-spec>
@@ -52,34 +47,26 @@ openclaw plugins install <plugin>@<marketplace>
 openclaw plugins install <plugin> --marketplace <marketplace>
 ```
 
-Security note: treat plugin installs like running code. Prefer pinned versions.
+Lưu ý bảo mật: xử lý việc cài đặt plugin như chạy mã. Ưu tiên các phiên bản đã được ghim.
 
-Npm specs are **registry-only** (package name + optional **exact version** or
-**dist-tag**). Git/URL/file specs and semver ranges are rejected. Dependency
-installs run with `--ignore-scripts` for safety.
+Các thông số npm chỉ dành cho **registry** (tên gói + phiên bản **chính xác** tùy chọn hoặc **dist-tag**). Các thông số Git/URL/file và phạm vi semver bị từ chối. Việc cài đặt phụ thuộc chạy với `--ignore-scripts` để đảm bảo an toàn.
 
-Bare specs and `@latest` stay on the stable track. If npm resolves either of
-those to a prerelease, OpenClaw stops and asks you to opt in explicitly with a
-prerelease tag such as `@beta`/`@rc` or an exact prerelease version such as
-`@1.2.3-beta.4`.
+Các thông số trần và `@latest` giữ nguyên trên kênh ổn định. Nếu npm giải quyết một trong số đó thành một phiên bản thử nghiệm, OpenClaw sẽ dừng và yêu cầu bạn chọn tham gia rõ ràng với một thẻ thử nghiệm như `@beta`/`@rc` hoặc một phiên bản thử nghiệm chính xác như `@1.2.3-beta.4`.
 
-If a bare install spec matches a bundled plugin id (for example `diffs`), OpenClaw
-installs the bundled plugin directly. To install an npm package with the same
-name, use an explicit scoped spec (for example `@scope/diffs`).
+Nếu một thông số cài đặt trần khớp với id plugin đi kèm (ví dụ `diffs`), OpenClaw sẽ cài đặt plugin đi kèm trực tiếp. Để cài đặt một gói npm có cùng tên, sử dụng thông số có phạm vi rõ ràng (ví dụ `@scope/diffs`).
 
-Supported archives: `.zip`, `.tgz`, `.tar.gz`, `.tar`.
+Các định dạng lưu trữ được hỗ trợ: `.zip`, `.tgz`, `.tar.gz`, `.tar`.
 
-Claude marketplace installs are also supported.
+Cài đặt từ marketplace Claude cũng được hỗ trợ.
 
-Use `plugin@marketplace` shorthand when the marketplace name exists in Claude's
-local registry cache at `~/.claude/plugins/known_marketplaces.json`:
+Sử dụng cú pháp `plugin@marketplace` khi tên marketplace tồn tại trong bộ nhớ cache registry cục bộ của Claude tại `~/.claude/plugins/known_marketplaces.json`:
 
 ```bash
 openclaw plugins marketplace list <marketplace-name>
 openclaw plugins install <plugin-name>@<marketplace-name>
 ```
 
-Use `--marketplace` when you want to pass the marketplace source explicitly:
+Sử dụng `--marketplace` khi bạn muốn chỉ định nguồn marketplace rõ ràng:
 
 ```bash
 openclaw plugins install <plugin-name> --marketplace <marketplace-name>
@@ -87,37 +74,31 @@ openclaw plugins install <plugin-name> --marketplace <owner/repo>
 openclaw plugins install <plugin-name> --marketplace ./my-marketplace
 ```
 
-Marketplace sources can be:
+Các nguồn marketplace có thể là:
 
-- a Claude known-marketplace name from `~/.claude/plugins/known_marketplaces.json`
-- a local marketplace root or `marketplace.json` path
-- a GitHub repo shorthand such as `owner/repo`
-- a git URL
+- tên marketplace đã biết của Claude từ `~/.claude/plugins/known_marketplaces.json`
+- đường dẫn gốc marketplace cục bộ hoặc đường dẫn `marketplace.json`
+- shorthand repo GitHub như `owner/repo`
+- URL git
 
-For local paths and archives, OpenClaw auto-detects:
+Đối với các đường dẫn và lưu trữ cục bộ, OpenClaw tự động phát hiện:
 
-- native OpenClaw plugins (`openclaw.plugin.json`)
-- Codex-compatible bundles (`.codex-plugin/plugin.json`)
-- Claude-compatible bundles (`.claude-plugin/plugin.json` or the default Claude
-  component layout)
-- Cursor-compatible bundles (`.cursor-plugin/plugin.json`)
+- plugin gốc của OpenClaw (`openclaw.plugin.json`)
+- gói tương thích Codex (`.codex-plugin/plugin.json`)
+- gói tương thích Claude (`.claude-plugin/plugin.json` hoặc bố cục thành phần Claude mặc định)
+- gói tương thích Cursor (`.cursor-plugin/plugin.json`)
 
-Compatible bundles install into the normal extensions root and participate in
-the same list/info/enable/disable flow. Today, bundle skills, Claude
-command-skills, Claude `settings.json` defaults, Cursor command-skills, and compatible Codex hook
-directories are supported; other detected bundle capabilities are shown in
-diagnostics/info but are not yet wired into runtime execution.
+Các gói tương thích được cài đặt vào thư mục gốc extensions thông thường và tham gia vào cùng quy trình liệt kê/thông tin/bật/tắt. Hiện tại, các kỹ năng gói, kỹ năng lệnh Claude, mặc định `settings.json` của Claude, kỹ năng lệnh Cursor, và các thư mục hook Codex tương thích được hỗ trợ; các khả năng gói khác được phát hiện trong chẩn đoán/thông tin nhưng chưa được tích hợp vào thực thi runtime.
 
-Use `--link` to avoid copying a local directory (adds to `plugins.load.paths`):
+Sử dụng `--link` để tránh sao chép một thư mục cục bộ (thêm vào `plugins.load.paths`):
 
 ```bash
 openclaw plugins install -l ./my-plugin
 ```
 
-Use `--pin` on npm installs to save the resolved exact spec (`name@version`) in
-`plugins.installs` while keeping the default behavior unpinned.
+Sử dụng `--pin` khi cài đặt npm để lưu thông số chính xác đã giải quyết (`name@version`) trong `plugins.installs` trong khi giữ hành vi mặc định không ghim.
 
-### Uninstall
+### Gỡ cài đặt
 
 ```bash
 openclaw plugins uninstall <id>
@@ -125,17 +106,13 @@ openclaw plugins uninstall <id> --dry-run
 openclaw plugins uninstall <id> --keep-files
 ```
 
-`uninstall` removes plugin records from `plugins.entries`, `plugins.installs`,
-the plugin allowlist, and linked `plugins.load.paths` entries when applicable.
-For active memory plugins, the memory slot resets to `memory-core`.
+`uninstall` xóa các bản ghi plugin khỏi `plugins.entries`, `plugins.installs`, danh sách cho phép plugin, và các mục `plugins.load.paths` được liên kết khi áp dụng. Đối với các plugin bộ nhớ đang hoạt động, khe bộ nhớ được đặt lại về `memory-core`.
 
-By default, uninstall also removes the plugin install directory under the active
-state dir extensions root (`$OPENCLAW_STATE_DIR/extensions/<id>`). Use
-`--keep-files` to keep files on disk.
+Theo mặc định, gỡ cài đặt cũng xóa thư mục cài đặt plugin dưới thư mục trạng thái hoạt động của extensions (`$OPENCLAW_STATE_DIR/extensions/<id>`). Sử dụng `--keep-files` để giữ lại các tệp trên đĩa.
 
-`--keep-config` is supported as a deprecated alias for `--keep-files`.
+`--keep-config` được hỗ trợ như một alias đã lỗi thời cho `--keep-files`.
 
-### Update
+### Cập nhật
 
 ```bash
 openclaw plugins update <id-or-npm-spec>
@@ -144,43 +121,32 @@ openclaw plugins update <id-or-npm-spec> --dry-run
 openclaw plugins update @openclaw/voice-call@beta
 ```
 
-Updates apply to tracked installs in `plugins.installs`, currently npm and
-marketplace installs.
+Cập nhật áp dụng cho các cài đặt được theo dõi trong `plugins.installs`, hiện tại là cài đặt npm và marketplace.
 
-When you pass a plugin id, OpenClaw reuses the recorded install spec for that
-plugin. That means previously stored dist-tags such as `@beta` and exact pinned
-versions continue to be used on later `update <id>` runs.
+Khi bạn truyền một id plugin, OpenClaw sử dụng lại thông số cài đặt đã ghi cho plugin đó. Điều đó có nghĩa là các dist-tag đã lưu trước đó như `@beta` và các phiên bản đã ghim chính xác tiếp tục được sử dụng trong các lần chạy `update <id>` sau này.
 
-For npm installs, you can also pass an explicit npm package spec with a dist-tag
-or exact version. OpenClaw resolves that package name back to the tracked plugin
-record, updates that installed plugin, and records the new npm spec for future
-id-based updates.
+Đối với các cài đặt npm, bạn cũng có thể truyền một thông số gói npm rõ ràng với một dist-tag hoặc phiên bản chính xác. OpenClaw giải quyết tên gói đó trở lại bản ghi plugin được theo dõi, cập nhật plugin đã cài đặt đó, và ghi lại thông số npm mới cho các bản cập nhật dựa trên id trong tương lai.
 
-When a stored integrity hash exists and the fetched artifact hash changes,
-OpenClaw prints a warning and asks for confirmation before proceeding. Use
-global `--yes` to bypass prompts in CI/non-interactive runs.
+Khi một hash toàn vẹn được lưu trữ tồn tại và hash của artifact được tải về thay đổi, OpenClaw in ra một cảnh báo và yêu cầu xác nhận trước khi tiếp tục. Sử dụng `--yes` toàn cục để bỏ qua các nhắc nhở trong các lần chạy CI/không tương tác.
 
-### Inspect
+### Kiểm tra
 
 ```bash
 openclaw plugins inspect <id>
 openclaw plugins inspect <id> --json
 ```
 
-Deep introspection for a single plugin. Shows identity, load status, source,
-registered capabilities, hooks, tools, commands, services, gateway methods,
-HTTP routes, policy flags, diagnostics, and install metadata.
+Kiểm tra sâu cho một plugin duy nhất. Hiển thị danh tính, trạng thái tải, nguồn, khả năng đã đăng ký, hooks, công cụ, lệnh, dịch vụ, phương thức gateway, tuyến HTTP, cờ chính sách, chẩn đoán, và metadata cài đặt.
 
-Each plugin is classified by what it actually registers at runtime:
+Mỗi plugin được phân loại dựa trên những gì nó thực sự đăng ký tại runtime:
 
-- **plain-capability** — one capability type (e.g. a provider-only plugin)
-- **hybrid-capability** — multiple capability types (e.g. text + speech + images)
-- **hook-only** — only hooks, no capabilities or surfaces
-- **non-capability** — tools/commands/services but no capabilities
+- **plain-capability** — một loại khả năng (ví dụ: plugin chỉ cung cấp)
+- **hybrid-capability** — nhiều loại khả năng (ví dụ: văn bản + giọng nói + hình ảnh)
+- **hook-only** — chỉ có hooks, không có khả năng hoặc bề mặt
+- **non-capability** — công cụ/lệnh/dịch vụ nhưng không có khả năng
 
-See [Plugin shapes](/plugins/architecture#plugin-shapes) for more on the capability model.
+Xem [Hình dạng Plugin](/plugins/architecture#plugin-shapes) để biết thêm về mô hình khả năng.
 
-The `--json` flag outputs a machine-readable report suitable for scripting and
-auditing.
+Cờ `--json` xuất ra một báo cáo có thể đọc được bằng máy phù hợp cho việc scripting và kiểm toán.
 
-`info` is an alias for `inspect`.
+`info` là một alias cho `inspect`.

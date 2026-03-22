@@ -1,27 +1,26 @@
 ---
-summary: "Date and time handling across envelopes, prompts, tools, and connectors"
+summary: "Xử lý ngày và giờ trong các phong bì, lời nhắc, công cụ và kết nối"
 read_when:
-  - You are changing how timestamps are shown to the model or users
-  - You are debugging time formatting in messages or system prompt output
-title: "Date and Time"
+  - Bạn đang thay đổi cách hiển thị dấu thời gian cho mô hình hoặc người dùng
+  - Bạn đang gỡ lỗi định dạng thời gian trong tin nhắn hoặc đầu ra của hệ thống
+title: "Ngày và Giờ"
 ---
 
-# Date & Time
+# Ngày & Giờ
 
-OpenClaw defaults to **host-local time for transport timestamps** and **user timezone only in the system prompt**.
-Provider timestamps are preserved so tools keep their native semantics (current time is available via `session_status`).
+OpenClaw mặc định sử dụng **thời gian cục bộ của máy chủ cho dấu thời gian vận chuyển** và **múi giờ người dùng chỉ trong lời nhắc hệ thống**. Dấu thời gian của nhà cung cấp được giữ nguyên để các công cụ duy trì ngữ nghĩa gốc của chúng (thời gian hiện tại có sẵn qua `session_status`).
 
-## Message envelopes (local by default)
+## Phong bì tin nhắn (mặc định là cục bộ)
 
-Inbound messages are wrapped with a timestamp (minute precision):
+Tin nhắn đến được bao bọc với một dấu thời gian (độ chính xác đến phút):
 
 ```
-[Provider ... 2026-01-05 16:26 PST] message text
+[Provider ... 2026-01-05 16:26 PST] nội dung tin nhắn
 ```
 
-This envelope timestamp is **host-local by default**, regardless of the provider timezone.
+Dấu thời gian phong bì này mặc định là **cục bộ của máy chủ**, bất kể múi giờ của nhà cung cấp.
 
-You can override this behavior:
+Bạn có thể thay đổi hành vi này:
 
 ```json5
 {
@@ -35,56 +34,52 @@ You can override this behavior:
 }
 ```
 
-- `envelopeTimezone: "utc"` uses UTC.
-- `envelopeTimezone: "local"` uses the host timezone.
-- `envelopeTimezone: "user"` uses `agents.defaults.userTimezone` (falls back to host timezone).
-- Use an explicit IANA timezone (e.g., `"America/Chicago"`) for a fixed zone.
-- `envelopeTimestamp: "off"` removes absolute timestamps from envelope headers.
-- `envelopeElapsed: "off"` removes elapsed time suffixes (the `+2m` style).
+- `envelopeTimezone: "utc"` sử dụng UTC.
+- `envelopeTimezone: "local"` sử dụng múi giờ của máy chủ.
+- `envelopeTimezone: "user"` sử dụng `agents.defaults.userTimezone` (sẽ quay về múi giờ máy chủ nếu không có).
+- Sử dụng múi giờ IANA cụ thể (ví dụ: `"America/Chicago"`) cho một múi giờ cố định.
+- `envelopeTimestamp: "off"` loại bỏ dấu thời gian tuyệt đối khỏi tiêu đề phong bì.
+- `envelopeElapsed: "off"` loại bỏ hậu tố thời gian đã trôi qua (kiểu `+2m`).
 
-### Examples
+### Ví dụ
 
-**Local (default):**
-
-```
-[WhatsApp +1555 2026-01-18 00:19 PST] hello
-```
-
-**User timezone:**
+**Cục bộ (mặc định):**
 
 ```
-[WhatsApp +1555 2026-01-18 00:19 CST] hello
+[WhatsApp +1555 2026-01-18 00:19 PST] xin chào
 ```
 
-**Elapsed time enabled:**
+**Múi giờ người dùng:**
 
 ```
-[WhatsApp +1555 +30s 2026-01-18T05:19Z] follow-up
+[WhatsApp +1555 2026-01-18 00:19 CST] xin chào
 ```
 
-## System prompt: Current Date & Time
-
-If the user timezone is known, the system prompt includes a dedicated
-**Current Date & Time** section with the **time zone only** (no clock/time format)
-to keep prompt caching stable:
+**Thời gian đã trôi qua được bật:**
 
 ```
-Time zone: America/Chicago
+[WhatsApp +1555 +30s 2026-01-18T05:19Z] theo dõi
 ```
 
-When the agent needs the current time, use the `session_status` tool; the status
-card includes a timestamp line.
+## Lời nhắc hệ thống: Ngày & Giờ hiện tại
 
-## System event lines (local by default)
-
-Queued system events inserted into agent context are prefixed with a timestamp using the
-same timezone selection as message envelopes (default: host-local).
+Nếu biết múi giờ người dùng, lời nhắc hệ thống sẽ bao gồm một phần **Ngày & Giờ hiện tại** với **chỉ múi giờ** (không có định dạng đồng hồ/thời gian) để giữ cho bộ nhớ đệm lời nhắc ổn định:
 
 ```
-System: [2026-01-12 12:19:17 PST] Model switched.
+Múi giờ: America/Chicago
 ```
 
-### Configure user timezone + format
+Khi agent cần thời gian hiện tại, sử dụng công cụ `session_status`; thẻ trạng thái bao gồm một dòng dấu thời gian.
+
+## Dòng sự kiện hệ thống (mặc định là cục bộ)
+
+Các sự kiện hệ thống được xếp hàng chờ chèn vào ngữ cảnh agent được thêm tiền tố với dấu thời gian sử dụng cùng lựa chọn múi giờ như phong bì tin nhắn (mặc định: cục bộ của máy chủ).
+
+```
+Hệ thống: [2026-01-12 12:19:17 PST] Mô hình đã chuyển đổi.
+```
+
+### Cấu hình múi giờ + định dạng người dùng
 
 ```json5
 {
@@ -97,32 +92,30 @@ System: [2026-01-12 12:19:17 PST] Model switched.
 }
 ```
 
-- `userTimezone` sets the **user-local timezone** for prompt context.
-- `timeFormat` controls **12h/24h display** in the prompt. `auto` follows OS prefs.
+- `userTimezone` thiết lập **múi giờ cục bộ của người dùng** cho ngữ cảnh lời nhắc.
+- `timeFormat` điều khiển **hiển thị 12h/24h** trong lời nhắc. `auto` theo tùy chọn hệ điều hành.
 
-## Time format detection (auto)
+## Phát hiện định dạng thời gian (tự động)
 
-When `timeFormat: "auto"`, OpenClaw inspects the OS preference (macOS/Windows)
-and falls back to locale formatting. The detected value is **cached per process**
-to avoid repeated system calls.
+Khi `timeFormat: "auto"`, OpenClaw kiểm tra tùy chọn hệ điều hành (macOS/Windows) và quay về định dạng địa phương. Giá trị phát hiện được **bộ nhớ đệm theo quy trình** để tránh các cuộc gọi hệ thống lặp lại.
 
-## Tool payloads + connectors (raw provider time + normalized fields)
+## Payload công cụ + kết nối (thời gian nhà cung cấp thô + trường chuẩn hóa)
 
-Channel tools return **provider-native timestamps** and add normalized fields for consistency:
+Các công cụ kênh trả về **dấu thời gian gốc của nhà cung cấp** và thêm các trường chuẩn hóa để đảm bảo nhất quán:
 
-- `timestampMs`: epoch milliseconds (UTC)
-- `timestampUtc`: ISO 8601 UTC string
+- `timestampMs`: mili giây epoch (UTC)
+- `timestampUtc`: chuỗi UTC ISO 8601
 
-Raw provider fields are preserved so nothing is lost.
+Các trường nhà cung cấp thô được giữ nguyên để không mất dữ liệu.
 
-- Slack: epoch-like strings from the API
-- Discord: UTC ISO timestamps
-- Telegram/WhatsApp: provider-specific numeric/ISO timestamps
+- Slack: chuỗi giống epoch từ API
+- Discord: dấu thời gian UTC ISO
+- Telegram/WhatsApp: dấu thời gian số/ISO cụ thể của nhà cung cấp
 
-If you need local time, convert it downstream using the known timezone.
+Nếu cần thời gian cục bộ, chuyển đổi nó xuống dòng sử dụng múi giờ đã biết.
 
-## Related docs
+## Tài liệu liên quan
 
-- [System Prompt](/concepts/system-prompt)
-- [Timezones](/concepts/timezone)
-- [Messages](/concepts/messages)
+- [Lời nhắc hệ thống](/concepts/system-prompt)
+- [Múi giờ](/concepts/timezone)
+- [Tin nhắn](/concepts/messages)

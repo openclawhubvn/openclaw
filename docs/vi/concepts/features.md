@@ -1,73 +1,73 @@
 ---
-summary: "OpenClaw capabilities across channels, routing, media, and UX."
+summary: "Khả năng của OpenClaw trên các kênh, định tuyến, phương tiện và UX."
 read_when:
-  - You want a full list of what OpenClaw supports
-title: "Features"
+  - Bạn muốn có danh sách đầy đủ về những gì OpenClaw hỗ trợ
+title: "Tính năng"
 ---
 
-# Features
+# Tính năng
 
-## Highlights
+## Điểm nổi bật
 
 <Columns>
-  <Card title="Channels" icon="message-square">
-    WhatsApp, Telegram, Discord, and iMessage with a single Gateway.
+  <Card title="Kênh" icon="message-square">
+    WhatsApp, Telegram, Discord và iMessage với một Gateway duy nhất.
   </Card>
-  <Card title="Plugins" icon="plug">
-    Add Mattermost and more with extensions.
+  <Card title="Plugin" icon="plug">
+    Thêm Mattermost và nhiều hơn nữa với các tiện ích mở rộng.
   </Card>
-  <Card title="Routing" icon="route">
-    Multi-agent routing with isolated sessions.
+  <Card title="Định tuyến" icon="route">
+    Định tuyến đa tác nhân với các phiên cách ly.
   </Card>
-  <Card title="Media" icon="image">
-    Images, audio, and documents in and out.
+  <Card title="Phương tiện" icon="image">
+    Hình ảnh, âm thanh và tài liệu vào và ra.
   </Card>
-  <Card title="Apps and UI" icon="monitor">
-    Web Control UI and macOS companion app.
+  <Card title="Ứng dụng và Giao diện" icon="monitor">
+    Giao diện điều khiển web và ứng dụng đồng hành trên macOS.
   </Card>
-  <Card title="Mobile nodes" icon="smartphone">
-    iOS and Android nodes with pairing, voice/chat, and rich device commands.
+  <Card title="Nút di động" icon="smartphone">
+    Nút iOS và Android với ghép nối, giọng nói/trò chuyện và lệnh thiết bị phong phú.
   </Card>
 </Columns>
 
-## Full list
+## Danh sách đầy đủ
 
-**Channels:**
+**Kênh:**
 
-- WhatsApp, Telegram, Discord, iMessage (built-in)
-- Mattermost, Matrix, Microsoft Teams, Nostr, and more (plugins)
-- Group chat support with mention-based activation
-- DM safety with allowlists and pairing
+- WhatsApp, Telegram, Discord, iMessage (tích hợp sẵn)
+- Mattermost, Matrix, Microsoft Teams, Nostr và nhiều hơn nữa (plugin)
+- Hỗ trợ trò chuyện nhóm với kích hoạt dựa trên đề cập
+- An toàn DM với danh sách cho phép và ghép nối
 
-**Agent:**
+**Tác nhân:**
 
-- Embedded agent runtime with tool streaming
-- Multi-agent routing with isolated sessions per workspace or sender
-- Sessions: direct chats collapse into shared `main`; groups are isolated
-- Streaming and chunking for long responses
+- Thời gian chạy tác nhân nhúng với truyền công cụ
+- Định tuyến đa tác nhân với các phiên cách ly cho mỗi workspace hoặc người gửi
+- Phiên: trò chuyện trực tiếp gộp vào `main` chung; nhóm được cách ly
+- Truyền và chia nhỏ cho các phản hồi dài
 
-**Auth and providers:**
+**Xác thực và nhà cung cấp:**
 
-- 35+ model providers (Anthropic, OpenAI, Google, and more)
-- Subscription auth via OAuth (e.g. OpenAI Codex)
-- Custom and self-hosted provider support (vLLM, SGLang, Ollama, and any OpenAI-compatible or Anthropic-compatible endpoint)
+- Hơn 35 nhà cung cấp mô hình (Anthropic, OpenAI, Google và nhiều hơn nữa)
+- Xác thực đăng ký qua OAuth (ví dụ: OpenAI Codex)
+- Hỗ trợ nhà cung cấp tùy chỉnh và tự lưu trữ (vLLM, SGLang, Ollama và bất kỳ điểm cuối tương thích OpenAI hoặc Anthropic nào)
 
-**Media:**
+**Phương tiện:**
 
-- Images, audio, video, and documents in and out
-- Voice note transcription
-- Text-to-speech with multiple providers
+- Hình ảnh, âm thanh, video và tài liệu vào và ra
+- Chuyển đổi giọng nói thành văn bản
+- Chuyển văn bản thành giọng nói với nhiều nhà cung cấp
 
-**Apps and interfaces:**
+**Ứng dụng và giao diện:**
 
-- WebChat and browser Control UI
-- macOS menu bar companion app
-- iOS node with pairing, Canvas, camera, screen recording, location, and voice
-- Android node with pairing, chat, voice, Canvas, camera, and device commands
+- WebChat và giao diện điều khiển trình duyệt
+- Ứng dụng đồng hành trên thanh menu macOS
+- Nút iOS với ghép nối, Canvas, máy ảnh, ghi màn hình, vị trí và giọng nói
+- Nút Android với ghép nối, trò chuyện, giọng nói, Canvas, máy ảnh và lệnh thiết bị
 
-**Tools and automation:**
+**Công cụ và tự động hóa:**
 
-- Browser automation, exec, sandboxing
-- Web search (Brave, Perplexity, Gemini, Grok, Kimi, Firecrawl)
-- Cron jobs and heartbeat scheduling
-- Skills, plugins, and workflow pipelines (Lobster)
+- Tự động hóa trình duyệt, thực thi, sandboxing
+- Tìm kiếm web (Brave, Perplexity, Gemini, Grok, Kimi, Firecrawl)
+- Công việc định kỳ và lập lịch nhịp tim
+- Kỹ năng, plugin và quy trình làm việc (Lobster)

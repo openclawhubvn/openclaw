@@ -1,362 +1,294 @@
 ---
-summary: "Doctor command: health checks, config migrations, and repair steps"
+summary: "Lệnh Doctor: kiểm tra sức khỏe, di chuyển cấu hình và các bước sửa chữa"
 read_when:
-  - Adding or modifying doctor migrations
-  - Introducing breaking config changes
+  - Thêm hoặc chỉnh sửa di chuyển trong doctor
+  - Giới thiệu thay đổi cấu hình gây ảnh hưởng
 title: "Doctor"
 ---
 
 # Doctor
 
-`openclaw doctor` is the repair + migration tool for OpenClaw. It fixes stale
-config/state, checks health, and provides actionable repair steps.
+`openclaw doctor` là công cụ sửa chữa và di chuyển cho OpenClaw. Nó giúp khắc phục cấu hình/trạng thái cũ, kiểm tra sức khỏe và cung cấp các bước sửa chữa cụ thể.
 
-## Quick start
+## Bắt đầu nhanh
 
 ```bash
 openclaw doctor
 ```
 
-### Headless / automation
+### Chế độ không giao diện / tự động hóa
 
 ```bash
 openclaw doctor --yes
 ```
 
-Accept defaults without prompting (including restart/service/sandbox repair steps when applicable).
+Chấp nhận các giá trị mặc định mà không cần hỏi (bao gồm các bước sửa chữa khởi động lại/dịch vụ/sandbox khi áp dụng).
 
 ```bash
 openclaw doctor --repair
 ```
 
-Apply recommended repairs without prompting (repairs + restarts where safe).
+Áp dụng các sửa chữa được đề xuất mà không cần hỏi (sửa chữa + khởi động lại khi an toàn).
 
 ```bash
 openclaw doctor --repair --force
 ```
 
-Apply aggressive repairs too (overwrites custom supervisor configs).
+Áp dụng cả các sửa chữa mạnh mẽ (ghi đè cấu hình supervisor tùy chỉnh).
 
 ```bash
 openclaw doctor --non-interactive
 ```
 
-Run without prompts and only apply safe migrations (config normalization + on-disk state moves). Skips restart/service/sandbox actions that require human confirmation.
-Legacy state migrations run automatically when detected.
+Chạy mà không cần hỏi và chỉ áp dụng các di chuyển an toàn (chuẩn hóa cấu hình + di chuyển trạng thái trên đĩa). Bỏ qua các hành động khởi động lại/dịch vụ/sandbox cần xác nhận từ người dùng. Di chuyển trạng thái cũ tự động chạy khi được phát hiện.
 
 ```bash
 openclaw doctor --deep
 ```
 
-Scan system services for extra gateway installs (launchd/systemd/schtasks).
+Quét các dịch vụ hệ thống để tìm các cài đặt gateway bổ sung (launchd/systemd/schtasks).
 
-If you want to review changes before writing, open the config file first:
+Nếu muốn xem xét các thay đổi trước khi ghi, hãy mở file cấu hình trước:
 
 ```bash
 cat ~/.openclaw/openclaw.json
 ```
 
-## What it does (summary)
+## Tóm tắt chức năng
 
-- Optional pre-flight update for git installs (interactive only).
-- UI protocol freshness check (rebuilds Control UI when the protocol schema is newer).
-- Health check + restart prompt.
-- Skills status summary (eligible/missing/blocked).
-- Config normalization for legacy values.
-- Browser migration checks for legacy Chrome extension configs and Chrome MCP readiness.
-- OpenCode provider override warnings (`models.providers.opencode` / `models.providers.opencode-go`).
-- Legacy on-disk state migration (sessions/agent dir/WhatsApp auth).
-- Legacy cron store migration (`jobId`, `schedule.cron`, top-level delivery/payload fields, payload `provider`, simple `notify: true` webhook fallback jobs).
-- State integrity and permissions checks (sessions, transcripts, state dir).
-- Config file permission checks (chmod 600) when running locally.
-- Model auth health: checks OAuth expiry, can refresh expiring tokens, and reports auth-profile cooldown/disabled states.
-- Extra workspace dir detection (`~/openclaw`).
-- Sandbox image repair when sandboxing is enabled.
-- Legacy service migration and extra gateway detection.
-- Gateway runtime checks (service installed but not running; cached launchd label).
-- Channel status warnings (probed from the running gateway).
-- Supervisor config audit (launchd/systemd/schtasks) with optional repair.
-- Gateway runtime best-practice checks (Node vs Bun, version-manager paths).
-- Gateway port collision diagnostics (default `18789`).
-- Security warnings for open DM policies.
-- Gateway auth checks for local token mode (offers token generation when no token source exists; does not overwrite token SecretRef configs).
-- systemd linger check on Linux.
-- Source install checks (pnpm workspace mismatch, missing UI assets, missing tsx binary).
-- Writes updated config + wizard metadata.
+- Cập nhật trước khi chạy cho các cài đặt git (chỉ tương tác).
+- Kiểm tra độ mới của giao thức UI (xây dựng lại Control UI khi schema giao thức mới hơn).
+- Kiểm tra sức khỏe + nhắc nhở khởi động lại.
+- Tóm tắt trạng thái kỹ năng (đủ điều kiện/thiếu/bị chặn).
+- Chuẩn hóa cấu hình cho các giá trị cũ.
+- Kiểm tra di chuyển trình duyệt cho cấu hình tiện ích mở rộng Chrome cũ và sẵn sàng Chrome MCP.
+- Cảnh báo ghi đè nhà cung cấp OpenCode (`models.providers.opencode` / `models.providers.opencode-go`).
+- Di chuyển trạng thái trên đĩa cũ (sessions/agent dir/WhatsApp auth).
+- Di chuyển lưu trữ cron cũ (`jobId`, `schedule.cron`, các trường delivery/payload cấp cao nhất, payload `provider`, công việc webhook đơn giản `notify: true`).
+- Kiểm tra tính toàn vẹn và quyền của trạng thái (sessions, transcripts, state dir).
+- Kiểm tra quyền file cấu hình (chmod 600) khi chạy cục bộ.
+- Kiểm tra sức khỏe xác thực mô hình: kiểm tra hết hạn OAuth, có thể làm mới token sắp hết hạn và báo cáo trạng thái cooldown/vô hiệu hóa hồ sơ xác thực.
+- Phát hiện thư mục workspace bổ sung (`~/openclaw`).
+- Sửa chữa hình ảnh sandbox khi sandboxing được bật.
+- Di chuyển dịch vụ cũ và phát hiện gateway bổ sung.
+- Kiểm tra runtime gateway (dịch vụ đã cài đặt nhưng không chạy; nhãn launchd được lưu trong bộ nhớ cache).
+- Cảnh báo trạng thái kênh (được thăm dò từ gateway đang chạy).
+- Kiểm tra cấu hình supervisor (launchd/systemd/schtasks) với sửa chữa tùy chọn.
+- Kiểm tra thực hành tốt nhất runtime gateway (Node vs Bun, đường dẫn version-manager).
+- Chẩn đoán va chạm cổng gateway (mặc định `18789`).
+- Cảnh báo bảo mật cho các chính sách DM mở.
+- Kiểm tra xác thực gateway cho chế độ token cục bộ (đề xuất tạo token khi không có nguồn token; không ghi đè cấu hình SecretRef token).
+- Kiểm tra linger systemd trên Linux.
+- Kiểm tra cài đặt nguồn (không khớp workspace pnpm, thiếu tài sản UI, thiếu binary tsx).
+- Ghi cấu hình cập nhật + metadata wizard.
 
-## Detailed behavior and rationale
+## Hành vi chi tiết và lý do
 
-### 0) Optional update (git installs)
+### 0) Cập nhật tùy chọn (cài đặt git)
 
-If this is a git checkout and doctor is running interactively, it offers to
-update (fetch/rebase/build) before running doctor.
+Nếu đây là một bản checkout git và doctor đang chạy tương tác, nó sẽ đề xuất cập nhật (fetch/rebase/build) trước khi chạy doctor.
 
-### 1) Config normalization
+### 1) Chuẩn hóa cấu hình
 
-If the config contains legacy value shapes (for example `messages.ackReaction`
-without a channel-specific override), doctor normalizes them into the current
-schema.
+Nếu cấu hình chứa các giá trị cũ (ví dụ `messages.ackReaction` mà không có ghi đè cụ thể cho kênh), doctor sẽ chuẩn hóa chúng theo schema hiện tại.
 
-### 2) Legacy config key migrations
+### 2) Di chuyển khóa cấu hình cũ
 
-When the config contains deprecated keys, other commands refuse to run and ask
-you to run `openclaw doctor`.
+Khi cấu hình chứa các khóa đã lỗi thời, các lệnh khác sẽ từ chối chạy và yêu cầu chạy `openclaw doctor`.
 
-Doctor will:
+Doctor sẽ:
 
-- Explain which legacy keys were found.
-- Show the migration it applied.
-- Rewrite `~/.openclaw/openclaw.json` with the updated schema.
+- Giải thích các khóa cũ nào đã được tìm thấy.
+- Hiển thị di chuyển đã áp dụng.
+- Ghi lại `~/.openclaw/openclaw.json` với schema cập nhật.
 
-The Gateway also auto-runs doctor migrations on startup when it detects a
-legacy config format, so stale configs are repaired without manual intervention.
+Gateway cũng tự động chạy di chuyển doctor khi khởi động khi phát hiện định dạng cấu hình cũ, do đó các cấu hình cũ được sửa chữa mà không cần can thiệp thủ công.
 
-Current migrations:
+Các di chuyển hiện tại:
 
 - `routing.allowFrom` → `channels.whatsapp.allowFrom`
 - `routing.groupChat.requireMention` → `channels.whatsapp/telegram/imessage.groups."*".requireMention`
 - `routing.groupChat.historyLimit` → `messages.groupChat.historyLimit`
 - `routing.groupChat.mentionPatterns` → `messages.groupChat.mentionPatterns`
 - `routing.queue` → `messages.queue`
-- `routing.bindings` → top-level `bindings`
+- `routing.bindings` → cấp cao nhất `bindings`
 - `routing.agents`/`routing.defaultAgentId` → `agents.list` + `agents.list[].default`
 - `routing.agentToAgent` → `tools.agentToAgent`
 - `routing.transcribeAudio` → `tools.media.audio.models`
 - `bindings[].match.accountID` → `bindings[].match.accountId`
-- For channels with named `accounts` but missing `accounts.default`, move account-scoped top-level single-account channel values into `channels.<channel>.accounts.default` when present
+- Đối với các kênh có `accounts` được đặt tên nhưng thiếu `accounts.default`, di chuyển các giá trị kênh đơn tài khoản cấp cao nhất vào `channels.<channel>.accounts.default` khi có
 - `identity` → `agents.list[].identity`
 - `agent.*` → `agents.defaults` + `tools.*` (tools/elevated/exec/sandbox/subagents)
 - `agent.model`/`allowedModels`/`modelAliases`/`modelFallbacks`/`imageModelFallbacks`
   → `agents.defaults.models` + `agents.defaults.model.primary/fallbacks` + `agents.defaults.imageModel.primary/fallbacks`
 - `browser.ssrfPolicy.allowPrivateNetwork` → `browser.ssrfPolicy.dangerouslyAllowPrivateNetwork`
 - `browser.profiles.*.driver: "extension"` → `"existing-session"`
-- remove `browser.relayBindHost` (legacy extension relay setting)
+- loại bỏ `browser.relayBindHost` (cài đặt relay tiện ích mở rộng cũ)
 
-Doctor warnings also include account-default guidance for multi-account channels:
+Cảnh báo của Doctor cũng bao gồm hướng dẫn mặc định tài khoản cho các kênh đa tài khoản:
 
-- If two or more `channels.<channel>.accounts` entries are configured without `channels.<channel>.defaultAccount` or `accounts.default`, doctor warns that fallback routing can pick an unexpected account.
-- If `channels.<channel>.defaultAccount` is set to an unknown account ID, doctor warns and lists configured account IDs.
+- Nếu hai hoặc nhiều mục `channels.<channel>.accounts` được cấu hình mà không có `channels.<channel>.defaultAccount` hoặc `accounts.default`, doctor cảnh báo rằng định tuyến dự phòng có thể chọn một tài khoản không mong muốn.
+- Nếu `channels.<channel>.defaultAccount` được đặt thành một ID tài khoản không xác định, doctor cảnh báo và liệt kê các ID tài khoản đã cấu hình.
 
-### 2b) OpenCode provider overrides
+### 2b) Ghi đè nhà cung cấp OpenCode
 
-If you’ve added `models.providers.opencode`, `opencode-zen`, or `opencode-go`
-manually, it overrides the built-in OpenCode catalog from `@mariozechner/pi-ai`.
-That can force models onto the wrong API or zero out costs. Doctor warns so you
-can remove the override and restore per-model API routing + costs.
+Nếu bạn đã thêm `models.providers.opencode`, `opencode-zen`, hoặc `opencode-go` thủ công, nó sẽ ghi đè danh mục OpenCode tích hợp từ `@mariozechner/pi-ai`. Điều này có thể buộc các mô hình vào API sai hoặc làm mất chi phí. Doctor cảnh báo để bạn có thể loại bỏ ghi đè và khôi phục định tuyến API + chi phí theo mô hình.
 
-### 2c) Browser migration and Chrome MCP readiness
+### 2c) Di chuyển trình duyệt và sẵn sàng Chrome MCP
 
-If your browser config still points at the removed Chrome extension path, doctor
-normalizes it to the current host-local Chrome MCP attach model:
+Nếu cấu hình trình duyệt của bạn vẫn chỉ vào đường dẫn tiện ích mở rộng Chrome đã bị loại bỏ, doctor chuẩn hóa nó thành mô hình đính kèm MCP Chrome cục bộ hiện tại:
 
-- `browser.profiles.*.driver: "extension"` becomes `"existing-session"`
-- `browser.relayBindHost` is removed
+- `browser.profiles.*.driver: "extension"` trở thành `"existing-session"`
+- `browser.relayBindHost` bị loại bỏ
 
-Doctor also audits the host-local Chrome MCP path when you use `defaultProfile:
-"user"` or a configured `existing-session` profile:
+Doctor cũng kiểm tra đường dẫn MCP Chrome cục bộ khi bạn sử dụng `defaultProfile: "user"` hoặc một hồ sơ `existing-session` đã cấu hình:
 
-- checks whether Google Chrome is installed on the same host for default
-  auto-connect profiles
-- checks the detected Chrome version and warns when it is below Chrome 144
-- reminds you to enable remote debugging in the browser inspect page (for
-  example `chrome://inspect/#remote-debugging`, `brave://inspect/#remote-debugging`,
-  or `edge://inspect/#remote-debugging`)
+- kiểm tra xem Google Chrome có được cài đặt trên cùng một máy chủ cho các hồ sơ tự động kết nối mặc định không
+- kiểm tra phiên bản Chrome được phát hiện và cảnh báo khi nó dưới Chrome 144
+- nhắc nhở bạn bật gỡ lỗi từ xa trong trang kiểm tra trình duyệt (ví dụ `chrome://inspect/#remote-debugging`, `brave://inspect/#remote-debugging`, hoặc `edge://inspect/#remote-debugging`)
 
-Doctor cannot enable the Chrome-side setting for you. Host-local Chrome MCP
-still requires:
+Doctor không thể bật cài đặt phía Chrome cho bạn. MCP Chrome cục bộ vẫn yêu cầu:
 
-- a Chromium-based browser 144+ on the gateway/node host
-- the browser running locally
-- remote debugging enabled in that browser
-- approving the first attach consent prompt in the browser
+- một trình duyệt dựa trên Chromium 144+ trên máy chủ gateway/node
+- trình duyệt chạy cục bộ
+- bật gỡ lỗi từ xa trong trình duyệt đó
+- chấp thuận lời nhắc đồng ý đính kèm đầu tiên trong trình duyệt
 
-This check does **not** apply to Docker, sandbox, remote-browser, or other
-headless flows. Those continue to use raw CDP.
+Kiểm tra này **không** áp dụng cho Docker, sandbox, trình duyệt từ xa, hoặc các luồng không giao diện khác. Những luồng đó tiếp tục sử dụng CDP thô.
 
-### 3) Legacy state migrations (disk layout)
+### 3) Di chuyển trạng thái cũ (bố cục đĩa)
 
-Doctor can migrate older on-disk layouts into the current structure:
+Doctor có thể di chuyển các bố cục trên đĩa cũ vào cấu trúc hiện tại:
 
-- Sessions store + transcripts:
-  - from `~/.openclaw/sessions/` to `~/.openclaw/agents/<agentId>/sessions/`
-- Agent dir:
-  - from `~/.openclaw/agent/` to `~/.openclaw/agents/<agentId>/agent/`
-- WhatsApp auth state (Baileys):
-  - from legacy `~/.openclaw/credentials/*.json` (except `oauth.json`)
-  - to `~/.openclaw/credentials/whatsapp/<accountId>/...` (default account id: `default`)
+- Lưu trữ phiên + transcripts:
+  - từ `~/.openclaw/sessions/` đến `~/.openclaw/agents/<agentId>/sessions/`
+- Thư mục Agent:
+  - từ `~/.openclaw/agent/` đến `~/.openclaw/agents/<agentId>/agent/`
+- Trạng thái xác thực WhatsApp (Baileys):
+  - từ `~/.openclaw/credentials/*.json` cũ (trừ `oauth.json`)
+  - đến `~/.openclaw/credentials/whatsapp/<accountId>/...` (ID tài khoản mặc định: `default`)
 
-These migrations are best-effort and idempotent; doctor will emit warnings when
-it leaves any legacy folders behind as backups. The Gateway/CLI also auto-migrates
-the legacy sessions + agent dir on startup so history/auth/models land in the
-per-agent path without a manual doctor run. WhatsApp auth is intentionally only
-migrated via `openclaw doctor`.
+Các di chuyển này là nỗ lực tốt nhất và có thể lặp lại; doctor sẽ phát ra cảnh báo khi để lại bất kỳ thư mục cũ nào làm bản sao lưu. Gateway/CLI cũng tự động di chuyển các phiên cũ + thư mục agent khi khởi động để lịch sử/xác thực/mô hình nằm trong đường dẫn mỗi agent mà không cần chạy doctor thủ công. Xác thực WhatsApp chỉ được di chuyển qua `openclaw doctor`.
 
-### 3b) Legacy cron store migrations
+### 3b) Di chuyển lưu trữ cron cũ
 
-Doctor also checks the cron job store (`~/.openclaw/cron/jobs.json` by default,
-or `cron.store` when overridden) for old job shapes that the scheduler still
-accepts for compatibility.
+Doctor cũng kiểm tra lưu trữ công việc cron (`~/.openclaw/cron/jobs.json` theo mặc định, hoặc `cron.store` khi bị ghi đè) cho các hình dạng công việc cũ mà bộ lập lịch vẫn chấp nhận để tương thích.
 
-Current cron cleanups include:
+Các dọn dẹp cron hiện tại bao gồm:
 
 - `jobId` → `id`
 - `schedule.cron` → `schedule.expr`
-- top-level payload fields (`message`, `model`, `thinking`, ...) → `payload`
-- top-level delivery fields (`deliver`, `channel`, `to`, `provider`, ...) → `delivery`
-- payload `provider` delivery aliases → explicit `delivery.channel`
-- simple legacy `notify: true` webhook fallback jobs → explicit `delivery.mode="webhook"` with `delivery.to=cron.webhook`
+- các trường payload cấp cao nhất (`message`, `model`, `thinking`, ...) → `payload`
+- các trường delivery cấp cao nhất (`deliver`, `channel`, `to`, `provider`, ...) → `delivery`
+- các alias delivery `provider` payload → `delivery.channel` rõ ràng
+- công việc webhook đơn giản `notify: true` cũ → `delivery.mode="webhook"` rõ ràng với `delivery.to=cron.webhook`
 
-Doctor only auto-migrates `notify: true` jobs when it can do so without
-changing behavior. If a job combines legacy notify fallback with an existing
-non-webhook delivery mode, doctor warns and leaves that job for manual review.
+Doctor chỉ tự động di chuyển các công việc `notify: true` khi có thể làm như vậy mà không thay đổi hành vi. Nếu một công việc kết hợp fallback notify cũ với một chế độ delivery không phải webhook hiện có, doctor cảnh báo và để lại công việc đó để xem xét thủ công.
 
-### 4) State integrity checks (session persistence, routing, and safety)
+### 4) Kiểm tra tính toàn vẹn trạng thái (duy trì phiên, định tuyến và an toàn)
 
-The state directory is the operational brainstem. If it vanishes, you lose
-sessions, credentials, logs, and config (unless you have backups elsewhere).
+Thư mục trạng thái là trung tâm hoạt động. Nếu nó biến mất, bạn sẽ mất các phiên, thông tin xác thực, nhật ký và cấu hình (trừ khi bạn có bản sao lưu ở nơi khác).
 
-Doctor checks:
+Doctor kiểm tra:
 
-- **State dir missing**: warns about catastrophic state loss, prompts to recreate
-  the directory, and reminds you that it cannot recover missing data.
-- **State dir permissions**: verifies writability; offers to repair permissions
-  (and emits a `chown` hint when owner/group mismatch is detected).
-- **macOS cloud-synced state dir**: warns when state resolves under iCloud Drive
-  (`~/Library/Mobile Documents/com~apple~CloudDocs/...`) or
-  `~/Library/CloudStorage/...` because sync-backed paths can cause slower I/O
-  and lock/sync races.
-- **Linux SD or eMMC state dir**: warns when state resolves to an `mmcblk*`
-  mount source, because SD or eMMC-backed random I/O can be slower and wear
-  faster under session and credential writes.
-- **Session dirs missing**: `sessions/` and the session store directory are
-  required to persist history and avoid `ENOENT` crashes.
-- **Transcript mismatch**: warns when recent session entries have missing
-  transcript files.
-- **Main session “1-line JSONL”**: flags when the main transcript has only one
-  line (history is not accumulating).
-- **Multiple state dirs**: warns when multiple `~/.openclaw` folders exist across
-  home directories or when `OPENCLAW_STATE_DIR` points elsewhere (history can
-  split between installs).
-- **Remote mode reminder**: if `gateway.mode=remote`, doctor reminds you to run
-  it on the remote host (the state lives there).
-- **Config file permissions**: warns if `~/.openclaw/openclaw.json` is
-  group/world readable and offers to tighten to `600`.
+- **Thư mục trạng thái bị thiếu**: cảnh báo về mất trạng thái nghiêm trọng, nhắc nhở tạo lại thư mục và nhắc nhở rằng nó không thể khôi phục dữ liệu bị mất.
+- **Quyền thư mục trạng thái**: xác minh khả năng ghi; đề xuất sửa chữa quyền (và phát ra gợi ý `chown` khi phát hiện không khớp chủ sở hữu/nhóm).
+- **Thư mục trạng thái đồng bộ đám mây macOS**: cảnh báo khi trạng thái giải quyết dưới iCloud Drive (`~/Library/Mobile Documents/com~apple~CloudDocs/...`) hoặc `~/Library/CloudStorage/...` vì các đường dẫn được đồng bộ hóa có thể gây ra I/O chậm hơn và khóa/cuộc đua đồng bộ.
+- **Thư mục trạng thái SD hoặc eMMC Linux**: cảnh báo khi trạng thái giải quyết đến một nguồn gắn kết `mmcblk*`, vì I/O ngẫu nhiên được hỗ trợ bởi SD hoặc eMMC có thể chậm hơn và mòn nhanh hơn dưới các phiên và ghi thông tin xác thực.
+- **Thư mục phiên bị thiếu**: `sessions/` và thư mục lưu trữ phiên là cần thiết để duy trì lịch sử và tránh các lỗi `ENOENT`.
+- **Không khớp transcript**: cảnh báo khi các mục phiên gần đây có các file transcript bị thiếu.
+- **Transcript chính “1-line JSONL”**: đánh dấu khi transcript chính chỉ có một dòng (lịch sử không tích lũy).
+- **Nhiều thư mục trạng thái**: cảnh báo khi nhiều thư mục `~/.openclaw` tồn tại trên các thư mục home hoặc khi `OPENCLAW_STATE_DIR` chỉ đến nơi khác (lịch sử có thể bị chia giữa các cài đặt).
+- **Nhắc nhở chế độ từ xa**: nếu `gateway.mode=remote`, doctor nhắc nhở bạn chạy nó trên máy chủ từ xa (trạng thái nằm ở đó).
+- **Quyền file cấu hình**: cảnh báo nếu `~/.openclaw/openclaw.json` có thể đọc được bởi nhóm/thế giới và đề xuất thắt chặt thành `600`.
 
-### 5) Model auth health (OAuth expiry)
+### 5) Kiểm tra sức khỏe xác thực mô hình (hết hạn OAuth)
 
-Doctor inspects OAuth profiles in the auth store, warns when tokens are
-expiring/expired, and can refresh them when safe. If the Anthropic Claude Code
-profile is stale, it suggests running `claude setup-token` (or pasting a setup-token).
-Refresh prompts only appear when running interactively (TTY); `--non-interactive`
-skips refresh attempts.
+Doctor kiểm tra các hồ sơ OAuth trong lưu trữ xác thực, cảnh báo khi token sắp hết hạn/hết hạn và có thể làm mới chúng khi an toàn. Nếu hồ sơ Anthropic Claude Code cũ, nó đề xuất chạy `claude setup-token` (hoặc dán một setup-token). Các nhắc nhở làm mới chỉ xuất hiện khi chạy tương tác (TTY); `--non-interactive` bỏ qua các nỗ lực làm mới.
 
-Doctor also reports auth profiles that are temporarily unusable due to:
+Doctor cũng báo cáo các hồ sơ xác thực tạm thời không sử dụng được do:
 
-- short cooldowns (rate limits/timeouts/auth failures)
-- longer disables (billing/credit failures)
+- cooldown ngắn (giới hạn tốc độ/thời gian chờ/lỗi xác thực)
+- vô hiệu hóa lâu hơn (lỗi thanh toán/tín dụng)
 
-### 6) Hooks model validation
+### 6) Xác thực mô hình hooks
 
-If `hooks.gmail.model` is set, doctor validates the model reference against the
-catalog and allowlist and warns when it won’t resolve or is disallowed.
+Nếu `hooks.gmail.model` được đặt, doctor xác thực tham chiếu mô hình với danh mục và danh sách cho phép và cảnh báo khi nó không thể giải quyết hoặc bị cấm.
 
-### 7) Sandbox image repair
+### 7) Sửa chữa hình ảnh sandbox
 
-When sandboxing is enabled, doctor checks Docker images and offers to build or
-switch to legacy names if the current image is missing.
+Khi sandboxing được bật, doctor kiểm tra các hình ảnh Docker và đề xuất xây dựng hoặc chuyển sang tên cũ nếu hình ảnh hiện tại bị thiếu.
 
-### 8) Gateway service migrations and cleanup hints
+### 8) Di chuyển dịch vụ gateway và gợi ý dọn dẹp
 
-Doctor detects legacy gateway services (launchd/systemd/schtasks) and
-offers to remove them and install the OpenClaw service using the current gateway
-port. It can also scan for extra gateway-like services and print cleanup hints.
-Profile-named OpenClaw gateway services are considered first-class and are not
-flagged as "extra."
+Doctor phát hiện các dịch vụ gateway cũ (launchd/systemd/schtasks) và đề xuất loại bỏ chúng và cài đặt dịch vụ OpenClaw bằng cổng gateway hiện tại. Nó cũng có thể quét các dịch vụ giống gateway bổ sung và in gợi ý dọn dẹp. Các dịch vụ gateway OpenClaw được đặt tên theo hồ sơ được coi là hạng nhất và không bị đánh dấu là "bổ sung."
 
-### 9) Security warnings
+### 9) Cảnh báo bảo mật
 
-Doctor emits warnings when a provider is open to DMs without an allowlist, or
-when a policy is configured in a dangerous way.
+Doctor phát ra cảnh báo khi một nhà cung cấp mở cho DMs mà không có danh sách cho phép, hoặc khi một chính sách được cấu hình theo cách nguy hiểm.
 
 ### 10) systemd linger (Linux)
 
-If running as a systemd user service, doctor ensures lingering is enabled so the
-gateway stays alive after logout.
+Nếu chạy như một dịch vụ người dùng systemd, doctor đảm bảo rằng linger được bật để gateway vẫn hoạt động sau khi đăng xuất.
 
-### 11) Skills status
+### 11) Trạng thái kỹ năng
 
-Doctor prints a quick summary of eligible/missing/blocked skills for the current
-workspace.
+Doctor in một tóm tắt nhanh về các kỹ năng đủ điều kiện/thiếu/bị chặn cho workspace hiện tại.
 
-### 12) Gateway auth checks (local token)
+### 12) Kiểm tra xác thực gateway (token cục bộ)
 
-Doctor checks local gateway token auth readiness.
+Doctor kiểm tra sự sẵn sàng xác thực token gateway cục bộ.
 
-- If token mode needs a token and no token source exists, doctor offers to generate one.
-- If `gateway.auth.token` is SecretRef-managed but unavailable, doctor warns and does not overwrite it with plaintext.
-- `openclaw doctor --generate-gateway-token` forces generation only when no token SecretRef is configured.
+- Nếu chế độ token cần một token và không có nguồn token, doctor đề xuất tạo một token.
+- Nếu `gateway.auth.token` được quản lý bởi SecretRef nhưng không có sẵn, doctor cảnh báo và không ghi đè nó bằng văn bản rõ ràng.
+- `openclaw doctor --generate-gateway-token` chỉ buộc tạo khi không có SecretRef token được cấu hình.
 
-### 12b) Read-only SecretRef-aware repairs
+### 12b) Sửa chữa nhận thức SecretRef chỉ đọc
 
-Some repair flows need to inspect configured credentials without weakening runtime fail-fast behavior.
+Một số luồng sửa chữa cần kiểm tra thông tin xác thực được cấu hình mà không làm suy yếu hành vi fail-fast runtime.
 
-- `openclaw doctor --fix` now uses the same read-only SecretRef summary model as status-family commands for targeted config repairs.
-- Example: Telegram `allowFrom` / `groupAllowFrom` `@username` repair tries to use configured bot credentials when available.
-- If the Telegram bot token is configured via SecretRef but unavailable in the current command path, doctor reports that the credential is configured-but-unavailable and skips auto-resolution instead of crashing or misreporting the token as missing.
+- `openclaw doctor --fix` hiện sử dụng cùng một mô hình tóm tắt SecretRef chỉ đọc như các lệnh họ trạng thái cho các sửa chữa cấu hình mục tiêu.
+- Ví dụ: sửa chữa `allowFrom` / `groupAllowFrom` `@username` của Telegram cố gắng sử dụng thông tin xác thực bot được cấu hình khi có sẵn.
+- Nếu token bot Telegram được cấu hình qua SecretRef nhưng không có sẵn trong đường dẫn lệnh hiện tại, doctor báo cáo rằng thông tin xác thực được cấu hình nhưng không có sẵn và bỏ qua tự động giải quyết thay vì gặp sự cố hoặc báo cáo sai token là thiếu.
 
-### 13) Gateway health check + restart
+### 13) Kiểm tra sức khỏe gateway + khởi động lại
 
-Doctor runs a health check and offers to restart the gateway when it looks
-unhealthy.
+Doctor chạy kiểm tra sức khỏe và đề xuất khởi động lại gateway khi nó trông không khỏe mạnh.
 
-### 14) Channel status warnings
+### 14) Cảnh báo trạng thái kênh
 
-If the gateway is healthy, doctor runs a channel status probe and reports
-warnings with suggested fixes.
+Nếu gateway khỏe mạnh, doctor chạy một thăm dò trạng thái kênh và báo cáo cảnh báo với các sửa chữa được đề xuất.
 
-### 15) Supervisor config audit + repair
+### 15) Kiểm tra cấu hình supervisor + sửa chữa
 
-Doctor checks the installed supervisor config (launchd/systemd/schtasks) for
-missing or outdated defaults (e.g., systemd network-online dependencies and
-restart delay). When it finds a mismatch, it recommends an update and can
-rewrite the service file/task to the current defaults.
+Doctor kiểm tra cấu hình supervisor đã cài đặt (launchd/systemd/schtasks) cho các mặc định bị thiếu hoặc lỗi thời (ví dụ: phụ thuộc network-online systemd và độ trễ khởi động lại). Khi phát hiện không khớp, nó đề xuất cập nhật và có thể ghi lại file dịch vụ/nhiệm vụ theo các mặc định hiện tại.
 
-Notes:
+Lưu ý:
 
-- `openclaw doctor` prompts before rewriting supervisor config.
-- `openclaw doctor --yes` accepts the default repair prompts.
-- `openclaw doctor --repair` applies recommended fixes without prompts.
-- `openclaw doctor --repair --force` overwrites custom supervisor configs.
-- If token auth requires a token and `gateway.auth.token` is SecretRef-managed, doctor service install/repair validates the SecretRef but does not persist resolved plaintext token values into supervisor service environment metadata.
-- If token auth requires a token and the configured token SecretRef is unresolved, doctor blocks the install/repair path with actionable guidance.
-- If both `gateway.auth.token` and `gateway.auth.password` are configured and `gateway.auth.mode` is unset, doctor blocks install/repair until mode is set explicitly.
-- For Linux user-systemd units, doctor token drift checks now include both `Environment=` and `EnvironmentFile=` sources when comparing service auth metadata.
-- You can always force a full rewrite via `openclaw gateway install --force`.
+- `openclaw doctor` nhắc nhở trước khi ghi lại cấu hình supervisor.
+- `openclaw doctor --yes` chấp nhận các nhắc nhở sửa chữa mặc định.
+- `openclaw doctor --repair` áp dụng các sửa chữa được đề xuất mà không cần nhắc nhở.
+- `openclaw doctor --repair --force` ghi đè cấu hình supervisor tùy chỉnh.
+- Nếu xác thực token yêu cầu một token và `gateway.auth.token` được quản lý bởi SecretRef, cài đặt/sửa chữa dịch vụ doctor xác thực SecretRef nhưng không lưu trữ các giá trị token văn bản rõ ràng đã giải quyết vào metadata môi trường dịch vụ supervisor.
+- Nếu xác thực token yêu cầu một token và SecretRef token được cấu hình không được giải quyết, doctor chặn đường dẫn cài đặt/sửa chữa với hướng dẫn có thể hành động.
+- Nếu cả `gateway.auth.token` và `gateway.auth.password` đều được cấu hình và `gateway.auth.mode` không được đặt, doctor chặn cài đặt/sửa chữa cho đến khi chế độ được đặt rõ ràng.
+- Đối với các đơn vị user-systemd Linux, kiểm tra trôi token doctor hiện bao gồm cả nguồn `Environment=` và `EnvironmentFile=` khi so sánh metadata xác thực dịch vụ.
+- Bạn luôn có thể buộc ghi lại hoàn toàn qua `openclaw gateway install --force`.
 
-### 16) Gateway runtime + port diagnostics
+### 16) Chẩn đoán runtime + cổng gateway
 
-Doctor inspects the service runtime (PID, last exit status) and warns when the
-service is installed but not actually running. It also checks for port collisions
-on the gateway port (default `18789`) and reports likely causes (gateway already
-running, SSH tunnel).
+Doctor kiểm tra runtime dịch vụ (PID, trạng thái thoát cuối cùng) và cảnh báo khi dịch vụ đã cài đặt nhưng không thực sự chạy. Nó cũng kiểm tra va chạm cổng trên cổng gateway (mặc định `18789`) và báo cáo các nguyên nhân có khả năng (gateway đã chạy, SSH tunnel).
 
-### 17) Gateway runtime best practices
+### 17) Thực hành tốt nhất runtime gateway
 
-Doctor warns when the gateway service runs on Bun or a version-managed Node path
-(`nvm`, `fnm`, `volta`, `asdf`, etc.). WhatsApp + Telegram channels require Node,
-and version-manager paths can break after upgrades because the service does not
-load your shell init. Doctor offers to migrate to a system Node install when
-available (Homebrew/apt/choco).
+Doctor cảnh báo khi dịch vụ gateway chạy trên Bun hoặc một đường dẫn Node được quản lý phiên bản (`nvm`, `fnm`, `volta`, `asdf`, v.v.). Các kênh WhatsApp + Telegram yêu cầu Node, và các đường dẫn quản lý phiên bản có thể bị hỏng sau khi nâng cấp vì dịch vụ không tải init shell của bạn. Doctor đề xuất di chuyển sang cài đặt Node hệ thống khi có sẵn (Homebrew/apt/choco).
 
-### 18) Config write + wizard metadata
+### 18) Ghi cấu hình + metadata wizard
 
-Doctor persists any config changes and stamps wizard metadata to record the
-doctor run.
+Doctor lưu trữ bất kỳ thay đổi cấu hình nào và đóng dấu metadata wizard để ghi lại lần chạy doctor.
 
-### 19) Workspace tips (backup + memory system)
+### 19) Mẹo workspace (sao lưu + hệ thống bộ nhớ)
 
-Doctor suggests a workspace memory system when missing and prints a backup tip
-if the workspace is not already under git.
+Doctor đề xuất một hệ thống bộ nhớ workspace khi thiếu và in một mẹo sao lưu nếu workspace chưa được đặt dưới git.
 
-See [/concepts/agent-workspace](/concepts/agent-workspace) for a full guide to
-workspace structure and git backup (recommended private GitHub or GitLab).
+Xem [/concepts/agent-workspace](/concepts/agent-workspace) để có hướng dẫn đầy đủ về cấu trúc workspace và sao lưu git (khuyến nghị GitHub hoặc GitLab riêng tư).

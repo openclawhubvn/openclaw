@@ -1,31 +1,30 @@
 ---
-summary: "Slash commands: text vs native, config, and supported commands"
+summary: "Slash commands: text vs native, cấu hình, và các lệnh hỗ trợ"
 read_when:
-  - Using or configuring chat commands
-  - Debugging command routing or permissions
-title: "Slash Commands"
+  - Sử dụng hoặc cấu hình lệnh chat
+  - Gỡ lỗi định tuyến lệnh hoặc quyền truy cập
+title: "Lệnh Slash"
 ---
 
-# Slash commands
+# Lệnh Slash
 
-Commands are handled by the Gateway. Most commands must be sent as a **standalone** message that starts with `/`.
-The host-only bash chat command uses `! <cmd>` (with `/bash <cmd>` as an alias).
+Các lệnh được xử lý bởi Gateway. Hầu hết các lệnh phải được gửi dưới dạng một tin nhắn **độc lập** bắt đầu bằng `/`.
+Lệnh chat bash chỉ dành cho host sử dụng `! <cmd>` (với `/bash <cmd>` là một alias).
 
-There are two related systems:
+Có hai hệ thống liên quan:
 
-- **Commands**: standalone `/...` messages.
+- **Commands**: tin nhắn độc lập `/...`.
 - **Directives**: `/think`, `/fast`, `/verbose`, `/reasoning`, `/elevated`, `/exec`, `/model`, `/queue`.
-  - Directives are stripped from the message before the model sees it.
-  - In normal chat messages (not directive-only), they are treated as “inline hints” and do **not** persist session settings.
-  - In directive-only messages (the message contains only directives), they persist to the session and reply with an acknowledgement.
-  - Directives are only applied for **authorized senders**. If `commands.allowFrom` is set, it is the only
-    allowlist used; otherwise authorization comes from channel allowlists/pairing plus `commands.useAccessGroups`.
-    Unauthorized senders see directives treated as plain text.
+  - Directives sẽ bị loại bỏ khỏi tin nhắn trước khi mô hình xử lý.
+  - Trong các tin nhắn chat thông thường (không chỉ có directive), chúng được coi là "gợi ý nội tuyến" và **không** duy trì cài đặt phiên.
+  - Trong các tin nhắn chỉ có directive (tin nhắn chỉ chứa directives), chúng duy trì trong phiên và trả lời với một thông báo xác nhận.
+  - Directives chỉ được áp dụng cho **người gửi được ủy quyền**. Nếu `commands.allowFrom` được thiết lập, đây là danh sách cho phép duy nhất được sử dụng; nếu không, ủy quyền đến từ danh sách cho phép kênh/cặp và `commands.useAccessGroups`.
+    Người gửi không được ủy quyền sẽ thấy directives được xử lý như văn bản thông thường.
 
-There are also a few **inline shortcuts** (allowlisted/authorized senders only): `/help`, `/commands`, `/status`, `/whoami` (`/id`).
-They run immediately, are stripped before the model sees the message, and the remaining text continues through the normal flow.
+Cũng có một số **phím tắt nội tuyến** (chỉ dành cho người gửi được cho phép): `/help`, `/commands`, `/status`, `/whoami` (`/id`).
+Chúng chạy ngay lập tức, bị loại bỏ trước khi mô hình xử lý tin nhắn, và phần văn bản còn lại tiếp tục qua luồng thông thường.
 
-## Config
+## Cấu hình
 
 ```json5
 {
@@ -49,122 +48,120 @@ They run immediately, are stripped before the model sees the message, and the re
 }
 ```
 
-- `commands.text` (default `true`) enables parsing `/...` in chat messages.
-  - On surfaces without native commands (WhatsApp/WebChat/Signal/iMessage/Google Chat/Microsoft Teams), text commands still work even if you set this to `false`.
-- `commands.native` (default `"auto"`) registers native commands.
-  - Auto: on for Discord/Telegram; off for Slack (until you add slash commands); ignored for providers without native support.
-  - Set `channels.discord.commands.native`, `channels.telegram.commands.native`, or `channels.slack.commands.native` to override per provider (bool or `"auto"`).
-  - `false` clears previously registered commands on Discord/Telegram at startup. Slack commands are managed in the Slack app and are not removed automatically.
-- `commands.nativeSkills` (default `"auto"`) registers **skill** commands natively when supported.
-  - Auto: on for Discord/Telegram; off for Slack (Slack requires creating a slash command per skill).
-  - Set `channels.discord.commands.nativeSkills`, `channels.telegram.commands.nativeSkills`, or `channels.slack.commands.nativeSkills` to override per provider (bool or `"auto"`).
-- `commands.bash` (default `false`) enables `! <cmd>` to run host shell commands (`/bash <cmd>` is an alias; requires `tools.elevated` allowlists).
-- `commands.bashForegroundMs` (default `2000`) controls how long bash waits before switching to background mode (`0` backgrounds immediately).
-- `commands.config` (default `false`) enables `/config` (reads/writes `openclaw.json`).
-- `commands.mcp` (default `false`) enables `/mcp` (reads/writes OpenClaw-managed MCP config under `mcp.servers`).
-- `commands.plugins` (default `false`) enables `/plugins` (plugin discovery/status plus enable/disable toggles).
-- `commands.debug` (default `false`) enables `/debug` (runtime-only overrides).
-- `commands.allowFrom` (optional) sets a per-provider allowlist for command authorization. When configured, it is the
-  only authorization source for commands and directives (channel allowlists/pairing and `commands.useAccessGroups`
-  are ignored). Use `"*"` for a global default; provider-specific keys override it.
-- `commands.useAccessGroups` (default `true`) enforces allowlists/policies for commands when `commands.allowFrom` is not set.
+- `commands.text` (mặc định `true`) cho phép phân tích `/...` trong tin nhắn chat.
+  - Trên các nền tảng không có lệnh native (WhatsApp/WebChat/Signal/iMessage/Google Chat/Microsoft Teams), lệnh văn bản vẫn hoạt động ngay cả khi bạn đặt giá trị này là `false`.
+- `commands.native` (mặc định `"auto"`) đăng ký lệnh native.
+  - Auto: bật cho Discord/Telegram; tắt cho Slack (cho đến khi bạn thêm lệnh slash); bỏ qua cho các nhà cung cấp không hỗ trợ native.
+  - Đặt `channels.discord.commands.native`, `channels.telegram.commands.native`, hoặc `channels.slack.commands.native` để ghi đè theo nhà cung cấp (bool hoặc `"auto"`).
+  - `false` xóa các lệnh đã đăng ký trước đó trên Discord/Telegram khi khởi động. Lệnh Slack được quản lý trong ứng dụng Slack và không bị xóa tự động.
+- `commands.nativeSkills` (mặc định `"auto"`) đăng ký lệnh **skill** native khi được hỗ trợ.
+  - Auto: bật cho Discord/Telegram; tắt cho Slack (Slack yêu cầu tạo một lệnh slash cho mỗi skill).
+  - Đặt `channels.discord.commands.nativeSkills`, `channels.telegram.commands.nativeSkills`, hoặc `channels.slack.commands.nativeSkills` để ghi đè theo nhà cung cấp (bool hoặc `"auto"`).
+- `commands.bash` (mặc định `false`) cho phép `! <cmd>` chạy lệnh shell của host (`/bash <cmd>` là một alias; yêu cầu danh sách cho phép `tools.elevated`).
+- `commands.bashForegroundMs` (mặc định `2000`) kiểm soát thời gian bash chờ trước khi chuyển sang chế độ nền (`0` chuyển ngay lập tức).
+- `commands.config` (mặc định `false`) cho phép `/config` (đọc/ghi `openclaw.json`).
+- `commands.mcp` (mặc định `false`) cho phép `/mcp` (đọc/ghi cấu hình MCP do OpenClaw quản lý dưới `mcp.servers`).
+- `commands.plugins` (mặc định `false`) cho phép `/plugins` (khám phá/trạng thái plugin cộng với bật/tắt).
+- `commands.debug` (mặc định `false`) cho phép `/debug` (ghi đè chỉ runtime).
+- `commands.allowFrom` (tùy chọn) thiết lập danh sách cho phép theo nhà cung cấp cho ủy quyền lệnh. Khi được cấu hình, đây là nguồn ủy quyền duy nhất cho các lệnh và directives (danh sách cho phép kênh/cặp và `commands.useAccessGroups` bị bỏ qua). Sử dụng `"*"` cho mặc định toàn cầu; các khóa cụ thể nhà cung cấp ghi đè nó.
+- `commands.useAccessGroups` (mặc định `true`) thực thi danh sách cho phép/chính sách cho các lệnh khi `commands.allowFrom` không được thiết lập.
 
-## Command list
+## Danh sách lệnh
 
-Text + native (when enabled):
+Văn bản + native (khi được bật):
 
 - `/help`
 - `/commands`
-- `/skill <name> [input]` (run a skill by name)
-- `/status` (show current status; includes provider usage/quota for the current model provider when available)
-- `/allowlist` (list/add/remove allowlist entries)
-- `/approve <id> allow-once|allow-always|deny` (resolve exec approval prompts)
-- `/context [list|detail|json]` (explain “context”; `detail` shows per-file + per-tool + per-skill + system prompt size)
-- `/btw <question>` (ask an ephemeral side question about the current session without changing future session context; see [/tools/btw](/tools/btw))
-- `/export-session [path]` (alias: `/export`) (export current session to HTML with full system prompt)
-- `/whoami` (show your sender id; alias: `/id`)
-- `/session idle <duration|off>` (manage inactivity auto-unfocus for focused thread bindings)
-- `/session max-age <duration|off>` (manage hard max-age auto-unfocus for focused thread bindings)
-- `/subagents list|kill|log|info|send|steer|spawn` (inspect, control, or spawn sub-agent runs for the current session)
-- `/acp spawn|cancel|steer|close|status|set-mode|set|cwd|permissions|timeout|model|reset-options|doctor|install|sessions` (inspect and control ACP runtime sessions)
-- `/agents` (list thread-bound agents for this session)
-- `/focus <target>` (Discord: bind this thread, or a new thread, to a session/subagent target)
-- `/unfocus` (Discord: remove the current thread binding)
-- `/kill <id|#|all>` (immediately abort one or all running sub-agents for this session; no confirmation message)
-- `/steer <id|#> <message>` (steer a running sub-agent immediately: in-run when possible, otherwise abort current work and restart on the steer message)
-- `/tell <id|#> <message>` (alias for `/steer`)
-- `/config show|get|set|unset` (persist config to disk, owner-only; requires `commands.config: true`)
-- `/mcp show|get|set|unset` (manage OpenClaw MCP server config, owner-only; requires `commands.mcp: true`)
-- `/plugins list|show|get|enable|disable` (inspect discovered plugins and toggle enablement, owner-only for writes; requires `commands.plugins: true`)
-- `/debug show|set|unset|reset` (runtime overrides, owner-only; requires `commands.debug: true`)
-- `/usage off|tokens|full|cost` (per-response usage footer or local cost summary)
-- `/tts off|always|inbound|tagged|status|provider|limit|summary|audio` (control TTS; see [/tts](/tools/tts))
-  - Discord: native command is `/voice` (Discord reserves `/tts`); text `/tts` still works.
+- `/skill <name> [input]` (chạy một skill theo tên)
+- `/status` (hiển thị trạng thái hiện tại; bao gồm sử dụng/hạn ngạch của nhà cung cấp mô hình hiện tại khi có sẵn)
+- `/allowlist` (liệt kê/thêm/xóa các mục danh sách cho phép)
+- `/approve <id> allow-once|allow-always|deny` (giải quyết các yêu cầu phê duyệt exec)
+- `/context [list|detail|json]` (giải thích “context”; `detail` hiển thị kích thước theo tệp + công cụ + skill + hệ thống)
+- `/btw <question>` (đặt câu hỏi phụ tạm thời về phiên hiện tại mà không thay đổi ngữ cảnh phiên trong tương lai; xem [/tools/btw](/tools/btw))
+- `/export-session [path]` (alias: `/export`) (xuất phiên hiện tại sang HTML với toàn bộ hệ thống)
+- `/whoami` (hiển thị id người gửi của bạn; alias: `/id`)
+- `/session idle <duration|off>` (quản lý tự động không tập trung khi không hoạt động cho các liên kết luồng tập trung)
+- `/session max-age <duration|off>` (quản lý tự động không tập trung khi đạt tuổi tối đa cho các liên kết luồng tập trung)
+- `/subagents list|kill|log|info|send|steer|spawn` (kiểm tra, điều khiển, hoặc tạo các phiên bản sub-agent cho phiên hiện tại)
+- `/acp spawn|cancel|steer|close|status|set-mode|set|cwd|permissions|timeout|model|reset-options|doctor|install|sessions` (kiểm tra và điều khiển các phiên runtime ACP)
+- `/agents` (liệt kê các agent liên kết luồng cho phiên này)
+- `/focus <target>` (Discord: liên kết luồng này, hoặc một luồng mới, với một mục tiêu phiên/subagent)
+- `/unfocus` (Discord: xóa liên kết luồng hiện tại)
+- `/kill <id|#|all>` (ngay lập tức hủy bỏ một hoặc tất cả các sub-agent đang chạy cho phiên này; không có thông báo xác nhận)
+- `/steer <id|#> <message>` (điều khiển một sub-agent đang chạy ngay lập tức: trong khi chạy khi có thể, nếu không thì hủy công việc hiện tại và khởi động lại với thông điệp điều khiển)
+- `/tell <id|#> <message>` (alias cho `/steer`)
+- `/config show|get|set|unset` (lưu cấu hình vào đĩa, chỉ dành cho chủ sở hữu; yêu cầu `commands.config: true`)
+- `/mcp show|get|set|unset` (quản lý cấu hình máy chủ MCP của OpenClaw, chỉ dành cho chủ sở hữu; yêu cầu `commands.mcp: true`)
+- `/plugins list|show|get|enable|disable` (kiểm tra các plugin đã phát hiện và bật/tắt, chỉ dành cho chủ sở hữu khi ghi; yêu cầu `commands.plugins: true`)
+- `/debug show|set|unset|reset` (ghi đè runtime, chỉ dành cho chủ sở hữu; yêu cầu `commands.debug: true`)
+- `/usage off|tokens|full|cost` (chân trang sử dụng mỗi phản hồi hoặc tóm tắt chi phí cục bộ)
+- `/tts off|always|inbound|tagged|status|provider|limit|summary|audio` (kiểm soát TTS; xem [/tts](/tools/tts))
+  - Discord: lệnh native là `/voice` (Discord dành riêng `/tts`); văn bản `/tts` vẫn hoạt động.
 - `/stop`
 - `/restart`
-- `/dock-telegram` (alias: `/dock_telegram`) (switch replies to Telegram)
-- `/dock-discord` (alias: `/dock_discord`) (switch replies to Discord)
-- `/dock-slack` (alias: `/dock_slack`) (switch replies to Slack)
-- `/activation mention|always` (groups only)
-- `/send on|off|inherit` (owner-only)
-- `/reset` or `/new [model]` (optional model hint; remainder is passed through)
-- `/think <off|minimal|low|medium|high|xhigh>` (dynamic choices by model/provider; aliases: `/thinking`, `/t`)
-- `/fast status|on|off` (omitting the arg shows the current effective fast-mode state)
+- `/dock-telegram` (alias: `/dock_telegram`) (chuyển đổi trả lời sang Telegram)
+- `/dock-discord` (alias: `/dock_discord`) (chuyển đổi trả lời sang Discord)
+- `/dock-slack` (alias: `/dock_slack`) (chuyển đổi trả lời sang Slack)
+- `/activation mention|always` (chỉ nhóm)
+- `/send on|off|inherit` (chỉ dành cho chủ sở hữu)
+- `/reset` hoặc `/new [model]` (gợi ý mô hình tùy chọn; phần còn lại được chuyển qua)
+- `/think <off|minimal|low|medium|high|xhigh>` (lựa chọn động theo mô hình/nhà cung cấp; alias: `/thinking`, `/t`)
+- `/fast status|on|off` (bỏ qua arg hiển thị trạng thái chế độ nhanh hiện tại)
 - `/verbose on|full|off` (alias: `/v`)
-- `/reasoning on|off|stream` (alias: `/reason`; when on, sends a separate message prefixed `Reasoning:`; `stream` = Telegram draft only)
-- `/elevated on|off|ask|full` (alias: `/elev`; `full` skips exec approvals)
-- `/exec host=<sandbox|gateway|node> security=<deny|allowlist|full> ask=<off|on-miss|always> node=<id>` (send `/exec` to show current)
-- `/model <name>` (alias: `/models`; or `/<alias>` from `agents.defaults.models.*.alias`)
-- `/queue <mode>` (plus options like `debounce:2s cap:25 drop:summarize`; send `/queue` to see current settings)
-- `/bash <command>` (host-only; alias for `! <command>`; requires `commands.bash: true` + `tools.elevated` allowlists)
+- `/reasoning on|off|stream` (alias: `/reason`; khi bật, gửi một tin nhắn riêng biệt có tiền tố `Reasoning:`; `stream` = chỉ bản nháp Telegram)
+- `/elevated on|off|ask|full` (alias: `/elev`; `full` bỏ qua phê duyệt exec)
+- `/exec host=<sandbox|gateway|node> security=<deny|allowlist|full> ask=<off|on-miss|always> node=<id>` (gửi `/exec` để hiển thị hiện tại)
+- `/model <name>` (alias: `/models`; hoặc `/<alias>` từ `agents.defaults.models.*.alias`)
+- `/queue <mode>` (cộng với các tùy chọn như `debounce:2s cap:25 drop:summarize`; gửi `/queue` để xem cài đặt hiện tại)
+- `/bash <command>` (chỉ dành cho host; alias cho `! <command>`; yêu cầu `commands.bash: true` + danh sách cho phép `tools.elevated`)
 
-Text-only:
+Chỉ văn bản:
 
-- `/compact [instructions]` (see [/concepts/compaction](/concepts/compaction))
-- `! <command>` (host-only; one at a time; use `!poll` + `!stop` for long-running jobs)
-- `!poll` (check output / status; accepts optional `sessionId`; `/bash poll` also works)
-- `!stop` (stop the running bash job; accepts optional `sessionId`; `/bash stop` also works)
+- `/compact [instructions]` (xem [/concepts/compaction](/concepts/compaction))
+- `! <command>` (chỉ dành cho host; một lần một lệnh; sử dụng `!poll` + `!stop` cho các công việc chạy lâu)
+- `!poll` (kiểm tra đầu ra / trạng thái; chấp nhận `sessionId` tùy chọn; `/bash poll` cũng hoạt động)
+- `!stop` (dừng công việc bash đang chạy; chấp nhận `sessionId` tùy chọn; `/bash stop` cũng hoạt động)
 
-Notes:
+Ghi chú:
 
-- Commands accept an optional `:` between the command and args (e.g. `/think: high`, `/send: on`, `/help:`).
-- `/new <model>` accepts a model alias, `provider/model`, or a provider name (fuzzy match); if no match, the text is treated as the message body.
-- For full provider usage breakdown, use `openclaw status --usage`.
-- `/allowlist add|remove` requires `commands.config=true` and honors channel `configWrites`.
-- In multi-account channels, config-targeted `/allowlist --account <id>` and `/config set channels.<provider>.accounts.<id>...` also honor the target account's `configWrites`.
-- `/usage` controls the per-response usage footer; `/usage cost` prints a local cost summary from OpenClaw session logs.
-- `/restart` is enabled by default; set `commands.restart: false` to disable it.
-- Discord-only native command: `/vc join|leave|status` controls voice channels (requires `channels.discord.voice` and native commands; not available as text).
-- Discord thread-binding commands (`/focus`, `/unfocus`, `/agents`, `/session idle`, `/session max-age`) require effective thread bindings to be enabled (`session.threadBindings.enabled` and/or `channels.discord.threadBindings.enabled`).
-- ACP command reference and runtime behavior: [ACP Agents](/tools/acp-agents).
-- `/verbose` is meant for debugging and extra visibility; keep it **off** in normal use.
-- `/fast on|off` persists a session override. Use the Sessions UI `inherit` option to clear it and fall back to config defaults.
-- Tool failure summaries are still shown when relevant, but detailed failure text is only included when `/verbose` is `on` or `full`.
-- `/reasoning` (and `/verbose`) are risky in group settings: they may reveal internal reasoning or tool output you did not intend to expose. Prefer leaving them off, especially in group chats.
-- **Fast path:** command-only messages from allowlisted senders are handled immediately (bypass queue + model).
-- **Group mention gating:** command-only messages from allowlisted senders bypass mention requirements.
-- **Inline shortcuts (allowlisted senders only):** certain commands also work when embedded in a normal message and are stripped before the model sees the remaining text.
-  - Example: `hey /status` triggers a status reply, and the remaining text continues through the normal flow.
-- Currently: `/help`, `/commands`, `/status`, `/whoami` (`/id`).
-- Unauthorized command-only messages are silently ignored, and inline `/...` tokens are treated as plain text.
-- **Skill commands:** `user-invocable` skills are exposed as slash commands. Names are sanitized to `a-z0-9_` (max 32 chars); collisions get numeric suffixes (e.g. `_2`).
-  - `/skill <name> [input]` runs a skill by name (useful when native command limits prevent per-skill commands).
-  - By default, skill commands are forwarded to the model as a normal request.
-  - Skills may optionally declare `command-dispatch: tool` to route the command directly to a tool (deterministic, no model).
-  - Example: `/prose` (OpenProse plugin) — see [OpenProse](/prose).
-- **Native command arguments:** Discord uses autocomplete for dynamic options (and button menus when you omit required args). Telegram and Slack show a button menu when a command supports choices and you omit the arg.
+- Các lệnh chấp nhận một `:` tùy chọn giữa lệnh và tham số (ví dụ: `/think: high`, `/send: on`, `/help:`).
+- `/new <model>` chấp nhận một alias mô hình, `provider/model`, hoặc tên nhà cung cấp (khớp mờ); nếu không khớp, văn bản được coi là nội dung tin nhắn.
+- Để có phân tích chi tiết sử dụng nhà cung cấp, sử dụng `openclaw status --usage`.
+- `/allowlist add|remove` yêu cầu `commands.config=true` và tuân theo `configWrites` của kênh.
+- Trong các kênh nhiều tài khoản, `/allowlist --account <id>` và `/config set channels.<provider>.accounts.<id>...` cũng tuân theo `configWrites` của tài khoản mục tiêu.
+- `/usage` kiểm soát chân trang sử dụng mỗi phản hồi; `/usage cost` in ra tóm tắt chi phí cục bộ từ nhật ký phiên OpenClaw.
+- `/restart` được bật theo mặc định; đặt `commands.restart: false` để tắt nó.
+- Lệnh native chỉ dành cho Discord: `/vc join|leave|status` kiểm soát các kênh thoại (yêu cầu `channels.discord.voice` và lệnh native; không có sẵn dưới dạng văn bản).
+- Các lệnh liên kết luồng của Discord (`/focus`, `/unfocus`, `/agents`, `/session idle`, `/session max-age`) yêu cầu các liên kết luồng hiệu quả được bật (`session.threadBindings.enabled` và/hoặc `channels.discord.threadBindings.enabled`).
+- Tham khảo lệnh ACP và hành vi runtime: [ACP Agents](/tools/acp-agents).
+- `/verbose` dành cho gỡ lỗi và tăng cường hiển thị; giữ nó **tắt** trong sử dụng bình thường.
+- `/fast on|off` duy trì một ghi đè phiên. Sử dụng tùy chọn `inherit` của Giao diện người dùng Sessions để xóa nó và quay lại mặc định cấu hình.
+- Tóm tắt lỗi công cụ vẫn được hiển thị khi có liên quan, nhưng văn bản lỗi chi tiết chỉ được bao gồm khi `/verbose` là `on` hoặc `full`.
+- `/reasoning` (và `/verbose`) có rủi ro trong cài đặt nhóm: chúng có thể tiết lộ lý do nội bộ hoặc đầu ra công cụ mà bạn không muốn tiết lộ. Nên để chúng tắt, đặc biệt là trong các cuộc trò chuyện nhóm.
+- **Đường dẫn nhanh:** các tin nhắn chỉ có lệnh từ người gửi được cho phép được xử lý ngay lập tức (bỏ qua hàng đợi + mô hình).
+- **Nhóm đề cập:** các tin nhắn chỉ có lệnh từ người gửi được cho phép bỏ qua yêu cầu đề cập.
+- **Phím tắt nội tuyến (chỉ dành cho người gửi được cho phép):** một số lệnh cũng hoạt động khi được nhúng trong một tin nhắn thông thường và bị loại bỏ trước khi mô hình xử lý phần văn bản còn lại.
+  - Ví dụ: `hey /status` kích hoạt một phản hồi trạng thái, và phần văn bản còn lại tiếp tục qua luồng thông thường.
+- Hiện tại: `/help`, `/commands`, `/status`, `/whoami` (`/id`).
+- Các tin nhắn chỉ có lệnh không được ủy quyền bị bỏ qua một cách im lặng, và các token `/...` nội tuyến được xử lý như văn bản thông thường.
+- **Lệnh skill:** các skill có thể được người dùng gọi được hiển thị dưới dạng lệnh slash. Tên được làm sạch thành `a-z0-9_` (tối đa 32 ký tự); các xung đột nhận hậu tố số (ví dụ: `_2`).
+  - `/skill <name> [input]` chạy một skill theo tên (hữu ích khi giới hạn lệnh native ngăn cản các lệnh theo skill).
+  - Theo mặc định, các lệnh skill được chuyển tiếp đến mô hình như một yêu cầu thông thường.
+  - Các skill có thể tùy chọn khai báo `command-dispatch: tool` để định tuyến lệnh trực tiếp đến một công cụ (xác định, không có mô hình).
+  - Ví dụ: `/prose` (plugin OpenProse) — xem [OpenProse](/prose).
+- **Tham số lệnh native:** Discord sử dụng tự động hoàn thành cho các tùy chọn động (và menu nút khi bạn bỏ qua các tham số bắt buộc). Telegram và Slack hiển thị một menu nút khi một lệnh hỗ trợ các lựa chọn và bạn bỏ qua tham số.
 
-## Usage surfaces (what shows where)
+## Bề mặt sử dụng (hiển thị ở đâu)
 
-- **Provider usage/quota** (example: “Claude 80% left”) shows up in `/status` for the current model provider when usage tracking is enabled.
-- **Per-response tokens/cost** is controlled by `/usage off|tokens|full` (appended to normal replies).
-- `/model status` is about **models/auth/endpoints**, not usage.
+- **Sử dụng/hạn ngạch nhà cung cấp** (ví dụ: “Claude 80% còn lại”) xuất hiện trong `/status` cho nhà cung cấp mô hình hiện tại khi theo dõi sử dụng được bật.
+- **Token/chi phí mỗi phản hồi** được kiểm soát bởi `/usage off|tokens|full` (được đính kèm vào các phản hồi thông thường).
+- `/model status` liên quan đến **mô hình/xác thực/điểm cuối**, không phải sử dụng.
 
-## Model selection (`/model`)
+## Lựa chọn mô hình (`/model`)
 
-`/model` is implemented as a directive.
+`/model` được triển khai dưới dạng một directive.
 
-Examples:
+Ví dụ:
 
 ```
 /model
@@ -175,18 +172,18 @@ Examples:
 /model status
 ```
 
-Notes:
+Ghi chú:
 
-- `/model` and `/model list` show a compact, numbered picker (model family + available providers).
-- On Discord, `/model` and `/models` open an interactive picker with provider and model dropdowns plus a Submit step.
-- `/model <#>` selects from that picker (and prefers the current provider when possible).
-- `/model status` shows the detailed view, including configured provider endpoint (`baseUrl`) and API mode (`api`) when available.
+- `/model` và `/model list` hiển thị một bộ chọn nhỏ gọn, được đánh số (gia đình mô hình + nhà cung cấp có sẵn).
+- Trên Discord, `/model` và `/models` mở một bộ chọn tương tác với các menu thả xuống nhà cung cấp và mô hình cộng với một bước Gửi.
+- `/model <#>` chọn từ bộ chọn đó (và ưu tiên nhà cung cấp hiện tại khi có thể).
+- `/model status` hiển thị chế độ xem chi tiết, bao gồm điểm cuối nhà cung cấp được cấu hình (`baseUrl`) và chế độ API (`api`) khi có sẵn.
 
-## Debug overrides
+## Ghi đè gỡ lỗi
 
-`/debug` lets you set **runtime-only** config overrides (memory, not disk). Owner-only. Disabled by default; enable with `commands.debug: true`.
+`/debug` cho phép bạn thiết lập các ghi đè cấu hình **chỉ runtime** (bộ nhớ, không phải đĩa). Chỉ dành cho chủ sở hữu. Bị tắt theo mặc định; bật với `commands.debug: true`.
 
-Examples:
+Ví dụ:
 
 ```
 /debug show
@@ -196,16 +193,16 @@ Examples:
 /debug reset
 ```
 
-Notes:
+Ghi chú:
 
-- Overrides apply immediately to new config reads, but do **not** write to `openclaw.json`.
-- Use `/debug reset` to clear all overrides and return to the on-disk config.
+- Các ghi đè áp dụng ngay lập tức cho các lần đọc cấu hình mới, nhưng **không** ghi vào `openclaw.json`.
+- Sử dụng `/debug reset` để xóa tất cả các ghi đè và quay lại cấu hình trên đĩa.
 
-## Config updates
+## Cập nhật cấu hình
 
-`/config` writes to your on-disk config (`openclaw.json`). Owner-only. Disabled by default; enable with `commands.config: true`.
+`/config` ghi vào cấu hình trên đĩa của bạn (`openclaw.json`). Chỉ dành cho chủ sở hữu. Bị tắt theo mặc định; bật với `commands.config: true`.
 
-Examples:
+Ví dụ:
 
 ```
 /config show
@@ -215,16 +212,16 @@ Examples:
 /config unset messages.responsePrefix
 ```
 
-Notes:
+Ghi chú:
 
-- Config is validated before write; invalid changes are rejected.
-- `/config` updates persist across restarts.
+- Cấu hình được xác thực trước khi ghi; các thay đổi không hợp lệ bị từ chối.
+- Các cập nhật `/config` duy trì qua các lần khởi động lại.
 
-## MCP updates
+## Cập nhật MCP
 
-`/mcp` writes OpenClaw-managed MCP server definitions under `mcp.servers`. Owner-only. Disabled by default; enable with `commands.mcp: true`.
+`/mcp` ghi định nghĩa máy chủ MCP do OpenClaw quản lý dưới `mcp.servers`. Chỉ dành cho chủ sở hữu. Bị tắt theo mặc định; bật với `commands.mcp: true`.
 
-Examples:
+Ví dụ:
 
 ```text
 /mcp show
@@ -233,16 +230,16 @@ Examples:
 /mcp unset context7
 ```
 
-Notes:
+Ghi chú:
 
-- `/mcp` stores config in OpenClaw config, not Pi-owned project settings.
-- Runtime adapters decide which transports are actually executable.
+- `/mcp` lưu cấu hình trong cấu hình OpenClaw, không phải cài đặt dự án do Pi sở hữu.
+- Các bộ điều hợp runtime quyết định các phương tiện nào thực sự có thể thực thi.
 
-## Plugin updates
+## Cập nhật Plugin
 
-`/plugins` lets operators inspect discovered plugins and toggle enablement in config. Read-only flows can use `/plugin` as an alias. Disabled by default; enable with `commands.plugins: true`.
+`/plugins` cho phép các nhà vận hành kiểm tra các plugin đã phát hiện và bật/tắt trong cấu hình. Các luồng chỉ đọc có thể sử dụng `/plugin` làm alias. Bị tắt theo mặc định; bật với `commands.plugins: true`.
 
-Examples:
+Ví dụ:
 
 ```text
 /plugins
@@ -252,43 +249,41 @@ Examples:
 /plugins disable context7
 ```
 
-Notes:
+Ghi chú:
 
-- `/plugins list` and `/plugins show` use real plugin discovery against the current workspace plus on-disk config.
-- `/plugins enable|disable` updates plugin config only; it does not install or uninstall plugins.
-- After enable/disable changes, restart the gateway to apply them.
+- `/plugins list` và `/plugins show` sử dụng khám phá plugin thực tế chống lại không gian làm việc hiện tại cộng với cấu hình trên đĩa.
+- `/plugins enable|disable` chỉ cập nhật cấu hình plugin; nó không cài đặt hoặc gỡ cài đặt plugin.
+- Sau khi thay đổi bật/tắt, khởi động lại gateway để áp dụng chúng.
 
-## Surface notes
+## Ghi chú bề mặt
 
-- **Text commands** run in the normal chat session (DMs share `main`, groups have their own session).
-- **Native commands** use isolated sessions:
+- **Lệnh văn bản** chạy trong phiên chat thông thường (DMs chia sẻ `main`, các nhóm có phiên riêng).
+- **Lệnh native** sử dụng các phiên cách ly:
   - Discord: `agent:<agentId>:discord:slash:<userId>`
-  - Slack: `agent:<agentId>:slack:slash:<userId>` (prefix configurable via `channels.slack.slashCommand.sessionPrefix`)
-  - Telegram: `telegram:slash:<userId>` (targets the chat session via `CommandTargetSessionKey`)
-- **`/stop`** targets the active chat session so it can abort the current run.
-- **Slack:** `channels.slack.slashCommand` is still supported for a single `/openclaw`-style command. If you enable `commands.native`, you must create one Slack slash command per built-in command (same names as `/help`). Command argument menus for Slack are delivered as ephemeral Block Kit buttons.
-  - Slack native exception: register `/agentstatus` (not `/status`) because Slack reserves `/status`. Text `/status` still works in Slack messages.
+  - Slack: `agent:<agentId>:slack:slash:<userId>` (tiền tố có thể cấu hình qua `channels.slack.slashCommand.sessionPrefix`)
+  - Telegram: `telegram:slash:<userId>` (nhắm mục tiêu phiên chat qua `CommandTargetSessionKey`)
+- **`/stop`** nhắm mục tiêu phiên chat đang hoạt động để có thể hủy bỏ chạy hiện tại.
+- **Slack:** `channels.slack.slashCommand` vẫn được hỗ trợ cho một lệnh kiểu `/openclaw`. Nếu bạn bật `commands.native`, bạn phải tạo một lệnh slash Slack cho mỗi lệnh tích hợp (cùng tên với `/help`). Menu tham số lệnh cho Slack được cung cấp dưới dạng nút Block Kit tạm thời.
+  - Ngoại lệ native Slack: đăng ký `/agentstatus` (không phải `/status`) vì Slack dành riêng `/status`. Văn bản `/status` vẫn hoạt động trong tin nhắn Slack.
 
-## BTW side questions
+## Câu hỏi phụ BTW
 
-`/btw` is a quick **side question** about the current session.
+`/btw` là một **câu hỏi phụ** nhanh về phiên hiện tại.
 
-Unlike normal chat:
+Không giống như chat thông thường:
 
-- it uses the current session as background context,
-- it runs as a separate **tool-less** one-shot call,
-- it does not change future session context,
-- it is not written to transcript history,
-- it is delivered as a live side result instead of a normal assistant message.
+- nó sử dụng phiên hiện tại làm ngữ cảnh nền,
+- nó chạy như một cuộc gọi **một lần không công cụ** riêng biệt,
+- nó không thay đổi ngữ cảnh phiên trong tương lai,
+- nó không được ghi vào lịch sử phiên,
+- nó được cung cấp dưới dạng kết quả phụ trực tiếp thay vì một tin nhắn trợ lý thông thường.
 
-That makes `/btw` useful when you want a temporary clarification while the main
-task keeps going.
+Điều đó làm cho `/btw` hữu ích khi bạn muốn một sự làm rõ tạm thời trong khi nhiệm vụ chính vẫn tiếp tục.
 
-Example:
+Ví dụ:
 
 ```text
-/btw what are we doing right now?
+/btw chúng ta đang làm gì bây giờ?
 ```
 
-See [BTW Side Questions](/tools/btw) for the full behavior and client UX
-details.
+Xem [Câu hỏi phụ BTW](/tools/btw) để biết hành vi đầy đủ và chi tiết UX khách hàng.

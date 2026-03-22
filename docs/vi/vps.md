@@ -1,70 +1,62 @@
 ---
-summary: "Run OpenClaw on a Linux server or cloud VPS — provider picker, architecture, and tuning"
+summary: "Chạy OpenClaw trên máy chủ Linux hoặc VPS đám mây — chọn nhà cung cấp, kiến trúc và tối ưu hóa"
 read_when:
-  - You want to run the Gateway on a Linux server or cloud VPS
-  - You need a quick map of hosting guides
-  - You want generic Linux server tuning for OpenClaw
-title: "Linux Server"
-sidebarTitle: "Linux Server"
+  - Muốn chạy Gateway trên máy chủ Linux hoặc VPS đám mây
+  - Cần bản đồ nhanh về hướng dẫn hosting
+  - Muốn tối ưu hóa máy chủ Linux chung cho OpenClaw
+title: "Máy chủ Linux"
+sidebarTitle: "Máy chủ Linux"
 ---
 
-# Linux Server
+# Máy chủ Linux
 
-Run the OpenClaw Gateway on any Linux server or cloud VPS. This page helps you
-pick a provider, explains how cloud deployments work, and covers generic Linux
-tuning that applies everywhere.
+Chạy OpenClaw Gateway trên bất kỳ máy chủ Linux hoặc VPS đám mây nào. Trang này giúp chọn nhà cung cấp, giải thích cách triển khai đám mây hoạt động và bao gồm tối ưu hóa Linux chung áp dụng mọi nơi.
 
-## Pick a provider
+## Chọn nhà cung cấp
 
 <CardGroup cols={2}>
-  <Card title="Railway" href="/install/railway">One-click, browser setup</Card>
-  <Card title="Northflank" href="/install/northflank">One-click, browser setup</Card>
-  <Card title="DigitalOcean" href="/install/digitalocean">Simple paid VPS</Card>
-  <Card title="Oracle Cloud" href="/install/oracle">Always Free ARM tier</Card>
+  <Card title="Railway" href="/install/railway">Thiết lập một lần nhấp, qua trình duyệt</Card>
+  <Card title="Northflank" href="/install/northflank">Thiết lập một lần nhấp, qua trình duyệt</Card>
+  <Card title="DigitalOcean" href="/install/digitalocean">VPS trả phí đơn giản</Card>
+  <Card title="Oracle Cloud" href="/install/oracle">Tầng ARM miễn phí mãi mãi</Card>
   <Card title="Fly.io" href="/install/fly">Fly Machines</Card>
-  <Card title="Hetzner" href="/install/hetzner">Docker on Hetzner VPS</Card>
+  <Card title="Hetzner" href="/install/hetzner">Docker trên Hetzner VPS</Card>
   <Card title="GCP" href="/install/gcp">Compute Engine</Card>
   <Card title="Azure" href="/install/azure">Linux VM</Card>
-  <Card title="exe.dev" href="/install/exe-dev">VM with HTTPS proxy</Card>
-  <Card title="Raspberry Pi" href="/install/raspberry-pi">ARM self-hosted</Card>
+  <Card title="exe.dev" href="/install/exe-dev">VM với proxy HTTPS</Card>
+  <Card title="Raspberry Pi" href="/install/raspberry-pi">Tự host ARM</Card>
 </CardGroup>
 
-**AWS (EC2 / Lightsail / free tier)** also works well.
-A community video walkthrough is available at
-[x.com/techfrenAJ/status/2014934471095812547](https://x.com/techfrenAJ/status/2014934471095812547)
-(community resource -- may become unavailable).
+**AWS (EC2 / Lightsail / free tier)** cũng hoạt động tốt. Có video hướng dẫn cộng đồng tại [x.com/techfrenAJ/status/2014934471095812547](https://x.com/techfrenAJ/status/2014934471095812547) (nguồn cộng đồng — có thể không còn khả dụng).
 
-## How cloud setups work
+## Cách triển khai đám mây hoạt động
 
-- The **Gateway runs on the VPS** and owns state + workspace.
-- You connect from your laptop or phone via the **Control UI** or **Tailscale/SSH**.
-- Treat the VPS as the source of truth and **back up** the state + workspace regularly.
-- Secure default: keep the Gateway on loopback and access it via SSH tunnel or Tailscale Serve.
-  If you bind to `lan` or `tailnet`, require `gateway.auth.token` or `gateway.auth.password`.
+- **Gateway chạy trên VPS** và quản lý trạng thái + workspace.
+- Kết nối từ laptop hoặc điện thoại qua **Control UI** hoặc **Tailscale/SSH**.
+- Xem VPS như nguồn dữ liệu chính và **sao lưu** trạng thái + workspace thường xuyên.
+- Mặc định an toàn: giữ Gateway trên loopback và truy cập qua SSH tunnel hoặc Tailscale Serve. Nếu kết nối với `lan` hoặc `tailnet`, yêu cầu `gateway.auth.token` hoặc `gateway.auth.password`.
 
-Related pages: [Gateway remote access](/gateway/remote), [Platforms hub](/platforms).
+Trang liên quan: [Truy cập từ xa Gateway](/gateway/remote), [Trung tâm nền tảng](/platforms).
 
-## Shared company agent on a VPS
+## Agent công ty dùng chung trên VPS
 
-Running a single agent for a team is a valid setup when every user is in the same trust boundary and the agent is business-only.
+Chạy một agent duy nhất cho một nhóm là cấu hình hợp lý khi mọi người dùng đều trong cùng một phạm vi tin cậy và agent chỉ phục vụ cho công việc.
 
-- Keep it on a dedicated runtime (VPS/VM/container + dedicated OS user/accounts).
-- Do not sign that runtime into personal Apple/Google accounts or personal browser/password-manager profiles.
-- If users are adversarial to each other, split by gateway/host/OS user.
+- Giữ nó trên một runtime riêng biệt (VPS/VM/container + người dùng/hệ điều hành riêng biệt).
+- Không đăng nhập runtime đó vào tài khoản Apple/Google cá nhân hoặc hồ sơ trình duyệt/quản lý mật khẩu cá nhân.
+- Nếu người dùng có mâu thuẫn với nhau, tách biệt theo gateway/host/người dùng hệ điều hành.
 
-Security model details: [Security](/gateway/security).
+Chi tiết mô hình bảo mật: [Bảo mật](/gateway/security).
 
-## Using nodes with a VPS
+## Sử dụng nodes với VPS
 
-You can keep the Gateway in the cloud and pair **nodes** on your local devices
-(Mac/iOS/Android/headless). Nodes provide local screen/camera/canvas and `system.run`
-capabilities while the Gateway stays in the cloud.
+Có thể giữ Gateway trên đám mây và ghép nối **nodes** trên thiết bị cục bộ (Mac/iOS/Android/headless). Nodes cung cấp khả năng màn hình/camera/canvas cục bộ và `system.run` trong khi Gateway vẫn ở trên đám mây.
 
-Docs: [Nodes](/nodes), [Nodes CLI](/cli/nodes).
+Tài liệu: [Nodes](/nodes), [Nodes CLI](/cli/nodes).
 
-## Startup tuning for small VMs and ARM hosts
+## Tối ưu hóa khởi động cho VM nhỏ và máy chủ ARM
 
-If CLI commands feel slow on low-power VMs (or ARM hosts), enable Node's module compile cache:
+Nếu lệnh CLI chạy chậm trên VM công suất thấp (hoặc máy chủ ARM), hãy bật bộ nhớ đệm biên dịch module của Node:
 
 ```bash
 grep -q 'NODE_COMPILE_CACHE=/var/tmp/openclaw-compile-cache' ~/.bashrc || cat >> ~/.bashrc <<'EOF'
@@ -75,25 +67,25 @@ EOF
 source ~/.bashrc
 ```
 
-- `NODE_COMPILE_CACHE` improves repeated command startup times.
-- `OPENCLAW_NO_RESPAWN=1` avoids extra startup overhead from a self-respawn path.
-- First command run warms the cache; subsequent runs are faster.
-- For Raspberry Pi specifics, see [Raspberry Pi](/install/raspberry-pi).
+- `NODE_COMPILE_CACHE` cải thiện thời gian khởi động lệnh lặp lại.
+- `OPENCLAW_NO_RESPAWN=1` tránh chi phí khởi động thêm từ đường dẫn tự khởi động lại.
+- Lệnh đầu tiên chạy sẽ làm ấm bộ nhớ đệm; các lần chạy sau sẽ nhanh hơn.
+- Đối với chi tiết cụ thể của Raspberry Pi, xem [Raspberry Pi](/install/raspberry-pi).
 
-### systemd tuning checklist (optional)
+### Danh sách kiểm tra tối ưu hóa systemd (tùy chọn)
 
-For VM hosts using `systemd`, consider:
+Đối với máy chủ VM sử dụng `systemd`, hãy xem xét:
 
-- Add service env for a stable startup path:
+- Thêm biến môi trường dịch vụ cho đường dẫn khởi động ổn định:
   - `OPENCLAW_NO_RESPAWN=1`
   - `NODE_COMPILE_CACHE=/var/tmp/openclaw-compile-cache`
-- Keep restart behavior explicit:
+- Giữ hành vi khởi động lại rõ ràng:
   - `Restart=always`
   - `RestartSec=2`
   - `TimeoutStartSec=90`
-- Prefer SSD-backed disks for state/cache paths to reduce random-I/O cold-start penalties.
+- Ưu tiên đĩa hỗ trợ SSD cho đường dẫn trạng thái/bộ nhớ đệm để giảm thiểu chi phí khởi động lạnh I/O ngẫu nhiên.
 
-Example:
+Ví dụ:
 
 ```bash
 sudo systemctl edit openclaw
@@ -108,5 +100,4 @@ RestartSec=2
 TimeoutStartSec=90
 ```
 
-How `Restart=` policies help automated recovery:
-[systemd can automate service recovery](https://www.redhat.com/en/blog/systemd-automate-recovery).
+Cách chính sách `Restart=` giúp tự động khôi phục: [systemd có thể tự động khôi phục dịch vụ](https://www.redhat.com/en/blog/systemd-automate-recovery).

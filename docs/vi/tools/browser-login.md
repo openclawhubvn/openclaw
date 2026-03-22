@@ -1,53 +1,53 @@
 ---
-summary: "Manual logins for browser automation + X/Twitter posting"
+summary: "Đăng nhập thủ công cho tự động hóa trình duyệt + đăng bài trên X/Twitter"
 read_when:
-  - You need to log into sites for browser automation
-  - You want to post updates to X/Twitter
-title: "Browser Login"
+  - Cần đăng nhập vào các trang web để tự động hóa trình duyệt
+  - Muốn đăng bài cập nhật lên X/Twitter
+title: "Đăng nhập trình duyệt"
 ---
 
-# Browser login + X/Twitter posting
+# Đăng nhập trình duyệt + đăng bài trên X/Twitter
 
-## Manual login (recommended)
+## Đăng nhập thủ công (khuyến nghị)
 
-When a site requires login, **sign in manually** in the **host** browser profile (the openclaw browser).
+Khi một trang web yêu cầu đăng nhập, hãy **đăng nhập thủ công** trong hồ sơ trình duyệt **host** (trình duyệt openclaw).
 
-Do **not** give the model your credentials. Automated logins often trigger anti‑bot defenses and can lock the account.
+**Không** cung cấp thông tin đăng nhập cho mô hình. Đăng nhập tự động thường kích hoạt các biện pháp chống bot và có thể khóa tài khoản.
 
-Back to the main browser docs: [Browser](/tools/browser).
+Quay lại tài liệu trình duyệt chính: [Browser](/tools/browser).
 
-## Which Chrome profile is used?
+## Hồ sơ Chrome nào được sử dụng?
 
-OpenClaw controls a **dedicated Chrome profile** (named `openclaw`, orange‑tinted UI). This is separate from your daily browser profile.
+OpenClaw kiểm soát một **hồ sơ Chrome riêng biệt** (tên là `openclaw`, giao diện có màu cam). Hồ sơ này tách biệt với hồ sơ trình duyệt hàng ngày của bạn.
 
-For agent browser tool calls:
+Đối với các cuộc gọi công cụ trình duyệt của agent:
 
-- Default choice: the agent should use its isolated `openclaw` browser.
-- Use `profile="user"` only when existing logged-in sessions matter and the user is at the computer to click/approve any attach prompt.
-- If you have multiple user-browser profiles, specify the profile explicitly instead of guessing.
+- Lựa chọn mặc định: agent nên sử dụng trình duyệt `openclaw` cách ly của nó.
+- Sử dụng `profile="user"` chỉ khi các phiên đăng nhập hiện có quan trọng và người dùng đang ở máy tính để nhấp/chấp thuận bất kỳ lời nhắc nào.
+- Nếu có nhiều hồ sơ trình duyệt người dùng, hãy chỉ định hồ sơ rõ ràng thay vì đoán.
 
-Two easy ways to access it:
+Hai cách dễ dàng để truy cập:
 
-1. **Ask the agent to open the browser** and then log in yourself.
-2. **Open it via CLI**:
+1. **Yêu cầu agent mở trình duyệt** và sau đó tự đăng nhập.
+2. **Mở qua CLI**:
 
 ```bash
 openclaw browser start
 openclaw browser open https://x.com
 ```
 
-If you have multiple profiles, pass `--browser-profile <name>` (the default is `openclaw`).
+Nếu có nhiều hồ sơ, sử dụng `--browser-profile <name>` (mặc định là `openclaw`).
 
-## X/Twitter: recommended flow
+## X/Twitter: quy trình khuyến nghị
 
-- **Read/search/threads:** use the **host** browser (manual login).
-- **Post updates:** use the **host** browser (manual login).
+- **Đọc/tìm kiếm/chủ đề:** sử dụng trình duyệt **host** (đăng nhập thủ công).
+- **Đăng cập nhật:** sử dụng trình duyệt **host** (đăng nhập thủ công).
 
-## Sandboxing + host browser access
+## Sandboxing + truy cập trình duyệt host
 
-Sandboxed browser sessions are **more likely** to trigger bot detection. For X/Twitter (and other strict sites), prefer the **host** browser.
+Các phiên trình duyệt sandboxed **có khả năng cao hơn** kích hoạt phát hiện bot. Đối với X/Twitter (và các trang nghiêm ngặt khác), ưu tiên sử dụng trình duyệt **host**.
 
-If the agent is sandboxed, the browser tool defaults to the sandbox. To allow host control:
+Nếu agent đang ở chế độ sandboxed, công cụ trình duyệt mặc định sẽ là sandbox. Để cho phép kiểm soát host:
 
 ```json5
 {
@@ -64,10 +64,10 @@ If the agent is sandboxed, the browser tool defaults to the sandbox. To allow ho
 }
 ```
 
-Then target the host browser:
+Sau đó, nhắm mục tiêu trình duyệt host:
 
 ```bash
 openclaw browser open https://x.com --browser-profile openclaw --target host
 ```
 
-Or disable sandboxing for the agent that posts updates.
+Hoặc tắt sandboxing cho agent đăng bài cập nhật.

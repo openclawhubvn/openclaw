@@ -1,20 +1,19 @@
 ---
 title: IRC
-summary: "IRC plugin setup, access controls, and troubleshooting"
+summary: "Thiết lập plugin IRC, kiểm soát truy cập và xử lý sự cố"
 read_when:
-  - You want to connect OpenClaw to IRC channels or DMs
-  - You are configuring IRC allowlists, group policy, or mention gating
+  - Bạn muốn kết nối OpenClaw với các kênh hoặc tin nhắn trực tiếp trên IRC
+  - Bạn đang cấu hình danh sách cho phép IRC, chính sách nhóm, hoặc điều kiện nhắc tên
 ---
 
 # IRC
 
-Use IRC when you want OpenClaw in classic channels (`#room`) and direct messages.
-IRC ships as an extension plugin, but it is configured in the main config under `channels.irc`.
+Sử dụng IRC khi bạn muốn OpenClaw hoạt động trong các kênh truyền thống (`#room`) và tin nhắn trực tiếp. IRC được cung cấp dưới dạng plugin mở rộng, nhưng được cấu hình trong phần cấu hình chính dưới `channels.irc`.
 
-## Quick start
+## Bắt đầu nhanh
 
-1. Enable IRC config in `~/.openclaw/openclaw.json`.
-2. Set at least:
+1. Kích hoạt cấu hình IRC trong `~/.openclaw/openclaw.json`.
+2. Thiết lập ít nhất:
 
 ```json5
 {
@@ -31,48 +30,48 @@ IRC ships as an extension plugin, but it is configured in the main config under 
 }
 ```
 
-3. Start/restart gateway:
+3. Khởi động lại gateway:
 
 ```bash
 openclaw gateway run
 ```
 
-## Security defaults
+## Mặc định bảo mật
 
-- `channels.irc.dmPolicy` defaults to `"pairing"`.
-- `channels.irc.groupPolicy` defaults to `"allowlist"`.
-- With `groupPolicy="allowlist"`, set `channels.irc.groups` to define allowed channels.
-- Use TLS (`channels.irc.tls=true`) unless you intentionally accept plaintext transport.
+- `channels.irc.dmPolicy` mặc định là `"pairing"`.
+- `channels.irc.groupPolicy` mặc định là `"allowlist"`.
+- Với `groupPolicy="allowlist"`, thiết lập `channels.irc.groups` để xác định các kênh được phép.
+- Sử dụng TLS (`channels.irc.tls=true`) trừ khi bạn chấp nhận truyền tải không mã hóa.
 
-## Access control
+## Kiểm soát truy cập
 
-There are two separate “gates” for IRC channels:
+Có hai "cổng" riêng biệt cho các kênh IRC:
 
-1. **Channel access** (`groupPolicy` + `groups`): whether the bot accepts messages from a channel at all.
-2. **Sender access** (`groupAllowFrom` / per-channel `groups["#channel"].allowFrom`): who is allowed to trigger the bot inside that channel.
+1. **Truy cập kênh** (`groupPolicy` + `groups`): liệu bot có chấp nhận tin nhắn từ một kênh hay không.
+2. **Truy cập người gửi** (`groupAllowFrom` / `groups["#channel"].allowFrom` cho từng kênh): ai được phép kích hoạt bot trong kênh đó.
 
-Config keys:
+Các khóa cấu hình:
 
-- DM allowlist (DM sender access): `channels.irc.allowFrom`
-- Group sender allowlist (channel sender access): `channels.irc.groupAllowFrom`
-- Per-channel controls (channel + sender + mention rules): `channels.irc.groups["#channel"]`
-- `channels.irc.groupPolicy="open"` allows unconfigured channels (**still mention-gated by default**)
+- Danh sách cho phép DM (truy cập người gửi DM): `channels.irc.allowFrom`
+- Danh sách cho phép người gửi nhóm (truy cập người gửi kênh): `channels.irc.groupAllowFrom`
+- Kiểm soát từng kênh (quy tắc kênh + người gửi + nhắc tên): `channels.irc.groups["#channel"]`
+- `channels.irc.groupPolicy="open"` cho phép các kênh chưa cấu hình (**vẫn bị điều kiện nhắc tên theo mặc định**)
 
-Allowlist entries should use stable sender identities (`nick!user@host`).
-Bare nick matching is mutable and only enabled when `channels.irc.dangerouslyAllowNameMatching: true`.
+Các mục trong danh sách cho phép nên sử dụng định danh người gửi ổn định (`nick!user@host`).
+Khớp tên nick không ổn định và chỉ được kích hoạt khi `channels.irc.dangerouslyAllowNameMatching: true`.
 
-### Common gotcha: `allowFrom` is for DMs, not channels
+### Lưu ý thường gặp: `allowFrom` dành cho DM, không phải kênh
 
-If you see logs like:
+Nếu bạn thấy các log như:
 
 - `irc: drop group sender alice!ident@host (policy=allowlist)`
 
-…it means the sender wasn’t allowed for **group/channel** messages. Fix it by either:
+...điều đó có nghĩa là người gửi không được phép cho tin nhắn **nhóm/kênh**. Khắc phục bằng cách:
 
-- setting `channels.irc.groupAllowFrom` (global for all channels), or
-- setting per-channel sender allowlists: `channels.irc.groups["#channel"].allowFrom`
+- thiết lập `channels.irc.groupAllowFrom` (toàn cầu cho tất cả các kênh), hoặc
+- thiết lập danh sách cho phép người gửi từng kênh: `channels.irc.groups["#channel"].allowFrom`
 
-Example (allow anyone in `#tuirc-dev` to talk to the bot):
+Ví dụ (cho phép bất kỳ ai trong `#tuirc-dev` nói chuyện với bot):
 
 ```json55
 {
@@ -87,13 +86,13 @@ Example (allow anyone in `#tuirc-dev` to talk to the bot):
 }
 ```
 
-## Reply triggering (mentions)
+## Kích hoạt trả lời (nhắc tên)
 
-Even if a channel is allowed (via `groupPolicy` + `groups`) and the sender is allowed, OpenClaw defaults to **mention-gating** in group contexts.
+Ngay cả khi một kênh được phép (qua `groupPolicy` + `groups`) và người gửi được phép, OpenClaw mặc định **điều kiện nhắc tên** trong các ngữ cảnh nhóm.
 
-That means you may see logs like `drop channel … (missing-mention)` unless the message includes a mention pattern that matches the bot.
+Điều đó có nghĩa là bạn có thể thấy các log như `drop channel … (missing-mention)` trừ khi tin nhắn bao gồm một mẫu nhắc tên khớp với bot.
 
-To make the bot reply in an IRC channel **without needing a mention**, disable mention gating for that channel:
+Để bot trả lời trong một kênh IRC **mà không cần nhắc tên**, tắt điều kiện nhắc tên cho kênh đó:
 
 ```json55
 {
@@ -111,7 +110,7 @@ To make the bot reply in an IRC channel **without needing a mention**, disable m
 }
 ```
 
-Or to allow **all** IRC channels (no per-channel allowlist) and still reply without mentions:
+Hoặc để cho phép **tất cả** các kênh IRC (không có danh sách cho phép từng kênh) và vẫn trả lời mà không cần nhắc tên:
 
 ```json55
 {
@@ -126,12 +125,12 @@ Or to allow **all** IRC channels (no per-channel allowlist) and still reply with
 }
 ```
 
-## Security note (recommended for public channels)
+## Lưu ý bảo mật (khuyến nghị cho các kênh công khai)
 
-If you allow `allowFrom: ["*"]` in a public channel, anyone can prompt the bot.
-To reduce risk, restrict tools for that channel.
+Nếu bạn cho phép `allowFrom: ["*"]` trong một kênh công khai, bất kỳ ai cũng có thể kích hoạt bot.
+Để giảm rủi ro, hạn chế công cụ cho kênh đó.
 
-### Same tools for everyone in the channel
+### Cùng công cụ cho mọi người trong kênh
 
 ```json55
 {
@@ -150,9 +149,9 @@ To reduce risk, restrict tools for that channel.
 }
 ```
 
-### Different tools per sender (owner gets more power)
+### Công cụ khác nhau cho từng người gửi (chủ sở hữu có nhiều quyền hơn)
 
-Use `toolsBySender` to apply a stricter policy to `"*"` and a looser one to your nick:
+Sử dụng `toolsBySender` để áp dụng chính sách nghiêm ngặt hơn cho `"*"` và lỏng lẻo hơn cho nick của bạn:
 
 ```json55
 {
@@ -176,18 +175,18 @@ Use `toolsBySender` to apply a stricter policy to `"*"` and a looser one to your
 }
 ```
 
-Notes:
+Lưu ý:
 
-- `toolsBySender` keys should use `id:` for IRC sender identity values:
-  `id:eigen` or `id:eigen!~eigen@174.127.248.171` for stronger matching.
-- Legacy unprefixed keys are still accepted and matched as `id:` only.
-- The first matching sender policy wins; `"*"` is the wildcard fallback.
+- Các khóa `toolsBySender` nên sử dụng `id:` cho các giá trị định danh người gửi IRC:
+  `id:eigen` hoặc `id:eigen!~eigen@174.127.248.171` để khớp mạnh hơn.
+- Các khóa không có tiền tố vẫn được chấp nhận và khớp như `id:` chỉ.
+- Chính sách người gửi khớp đầu tiên sẽ thắng; `"*"` là dự phòng wildcard.
 
-For more on group access vs mention-gating (and how they interact), see: [/channels/groups](/channels/groups).
+Để biết thêm về truy cập nhóm so với điều kiện nhắc tên (và cách chúng tương tác), xem: [/channels/groups](/channels/groups).
 
 ## NickServ
 
-To identify with NickServ after connect:
+Để xác định với NickServ sau khi kết nối:
 
 ```json5
 {
@@ -203,7 +202,7 @@ To identify with NickServ after connect:
 }
 ```
 
-Optional one-time registration on connect:
+Đăng ký một lần tùy chọn khi kết nối:
 
 ```json5
 {
@@ -218,11 +217,11 @@ Optional one-time registration on connect:
 }
 ```
 
-Disable `register` after the nick is registered to avoid repeated REGISTER attempts.
+Tắt `register` sau khi nick đã được đăng ký để tránh các lần thử REGISTER lặp lại.
 
-## Environment variables
+## Biến môi trường
 
-Default account supports:
+Tài khoản mặc định hỗ trợ:
 
 - `IRC_HOST`
 - `IRC_PORT`
@@ -231,12 +230,12 @@ Default account supports:
 - `IRC_USERNAME`
 - `IRC_REALNAME`
 - `IRC_PASSWORD`
-- `IRC_CHANNELS` (comma-separated)
+- `IRC_CHANNELS` (phân tách bằng dấu phẩy)
 - `IRC_NICKSERV_PASSWORD`
 - `IRC_NICKSERV_REGISTER_EMAIL`
 
-## Troubleshooting
+## Xử lý sự cố
 
-- If the bot connects but never replies in channels, verify `channels.irc.groups` **and** whether mention-gating is dropping messages (`missing-mention`). If you want it to reply without pings, set `requireMention:false` for the channel.
-- If login fails, verify nick availability and server password.
-- If TLS fails on a custom network, verify host/port and certificate setup.
+- Nếu bot kết nối nhưng không bao giờ trả lời trong các kênh, hãy kiểm tra `channels.irc.groups` **và** liệu điều kiện nhắc tên có đang loại bỏ tin nhắn (`missing-mention`). Nếu bạn muốn nó trả lời mà không cần nhắc tên, đặt `requireMention:false` cho kênh.
+- Nếu đăng nhập thất bại, kiểm tra tính khả dụng của nick và mật khẩu máy chủ.
+- Nếu TLS thất bại trên một mạng tùy chỉnh, kiểm tra thiết lập host/port và chứng chỉ.

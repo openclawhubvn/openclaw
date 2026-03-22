@@ -1,28 +1,28 @@
 ---
-summary: "CLI reference for `openclaw setup` (initialize config + workspace)"
+summary: "Tham khảo CLI cho `openclaw setup` (khởi tạo cấu hình + workspace)"
 read_when:
-  - You’re doing first-run setup without full CLI onboarding
-  - You want to set the default workspace path
+  - Bạn đang thực hiện thiết lập lần đầu mà không có hướng dẫn đầy đủ từ CLI
+  - Bạn muốn đặt đường dẫn mặc định cho workspace
 title: "setup"
 ---
 
 # `openclaw setup`
 
-Initialize `~/.openclaw/openclaw.json` and the agent workspace.
+Khởi tạo `~/.openclaw/openclaw.json` và workspace cho agent.
 
-Related:
+Liên quan:
 
-- Getting started: [Getting started](/start/getting-started)
-- CLI onboarding: [Onboarding (CLI)](/start/wizard)
+- Bắt đầu: [Bắt đầu](/start/getting-started)
+- Hướng dẫn CLI: [Hướng dẫn (CLI)](/start/wizard)
 
-## Examples
+## Ví dụ
 
 ```bash
 openclaw setup
 openclaw setup --workspace ~/.openclaw/workspace
 ```
 
-To run onboarding via setup:
+Để chạy hướng dẫn thông qua setup:
 
 ```bash
 openclaw setup --wizard

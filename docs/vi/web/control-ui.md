@@ -1,172 +1,154 @@
 ---
-summary: "Browser-based control UI for the Gateway (chat, nodes, config)"
+summary: "Giao diện điều khiển trên trình duyệt cho Gateway (chat, nodes, cấu hình)"
 read_when:
-  - You want to operate the Gateway from a browser
-  - You want Tailnet access without SSH tunnels
-title: "Control UI"
+  - Bạn muốn vận hành Gateway từ trình duyệt
+  - Bạn muốn truy cập Tailnet mà không cần SSH tunnels
+title: "Giao diện điều khiển"
 ---
 
-# Control UI (browser)
+# Giao diện điều khiển (trình duyệt)
 
-The Control UI is a small **Vite + Lit** single-page app served by the Gateway:
+Giao diện điều khiển là một ứng dụng đơn trang nhỏ sử dụng **Vite + Lit** được Gateway phục vụ:
 
-- default: `http://<host>:18789/`
-- optional prefix: set `gateway.controlUi.basePath` (e.g. `/openclaw`)
+- mặc định: `http://<host>:18789/`
+- tiền tố tùy chọn: thiết lập `gateway.controlUi.basePath` (ví dụ: `/openclaw`)
 
-It speaks **directly to the Gateway WebSocket** on the same port.
+Nó kết nối **trực tiếp với Gateway WebSocket** trên cùng cổng.
 
-## Quick open (local)
+## Mở nhanh (cục bộ)
 
-If the Gateway is running on the same computer, open:
+Nếu Gateway đang chạy trên cùng máy tính, mở:
 
-- [http://127.0.0.1:18789/](http://127.0.0.1:18789/) (or [http://localhost:18789/](http://localhost:18789/))
+- [http://127.0.0.1:18789/](http://127.0.0.1:18789/) (hoặc [http://localhost:18789/](http://localhost:18789/))
 
-If the page fails to load, start the Gateway first: `openclaw gateway`.
+Nếu trang không tải được, hãy khởi động Gateway trước: `openclaw gateway`.
 
-Auth is supplied during the WebSocket handshake via:
+Xác thực được cung cấp trong quá trình bắt tay WebSocket qua:
 
 - `connect.params.auth.token`
 - `connect.params.auth.password`
-  The dashboard settings panel keeps a token for the current browser tab session and selected gateway URL; passwords are not persisted.
-  Onboarding generates a gateway token by default, so paste it here on first connect.
+  Bảng cài đặt dashboard giữ một token cho phiên tab trình duyệt hiện tại và URL gateway đã chọn; mật khẩu không được lưu trữ.
+  Quá trình onboarding tạo ra một token gateway mặc định, vì vậy hãy dán nó vào đây khi kết nối lần đầu.
 
-## Device pairing (first connection)
+## Ghép nối thiết bị (kết nối lần đầu)
 
-When you connect to the Control UI from a new browser or device, the Gateway
-requires a **one-time pairing approval** — even if you're on the same Tailnet
-with `gateway.auth.allowTailscale: true`. This is a security measure to prevent
-unauthorized access.
+Khi kết nối với Giao diện điều khiển từ một trình duyệt hoặc thiết bị mới, Gateway yêu cầu **phê duyệt ghép nối một lần** — ngay cả khi bạn đang trên cùng Tailnet với `gateway.auth.allowTailscale: true`. Đây là một biện pháp bảo mật để ngăn chặn truy cập trái phép.
 
-**What you'll see:** "disconnected (1008): pairing required"
+**Bạn sẽ thấy:** "disconnected (1008): pairing required"
 
-**To approve the device:**
+**Để phê duyệt thiết bị:**
 
 ```bash
-# List pending requests
+# Liệt kê các yêu cầu đang chờ
 openclaw devices list
 
-# Approve by request ID
+# Phê duyệt theo ID yêu cầu
 openclaw devices approve <requestId>
 ```
 
-If the browser retries pairing with changed auth details (role/scopes/public
-key), the previous pending request is superseded and a new `requestId` is
-created. Re-run `openclaw devices list` before approval.
+Nếu trình duyệt thử lại ghép nối với thông tin xác thực thay đổi (vai trò/phạm vi/khóa công khai), yêu cầu đang chờ trước đó sẽ bị thay thế và một `requestId` mới được tạo. Chạy lại `openclaw devices list` trước khi phê duyệt.
 
-Once approved, the device is remembered and won't require re-approval unless
-you revoke it with `openclaw devices revoke --device <id> --role <role>`. See
-[Devices CLI](/cli/devices) for token rotation and revocation.
+Khi đã được phê duyệt, thiết bị sẽ được ghi nhớ và không cần phê duyệt lại trừ khi bạn thu hồi nó với `openclaw devices revoke --device <id> --role <role>`. Xem [Devices CLI](/cli/devices) để biết về việc xoay vòng và thu hồi token.
 
-**Notes:**
+**Lưu ý:**
 
-- Local connections (`127.0.0.1`) are auto-approved.
-- Remote connections (LAN, Tailnet, etc.) require explicit approval.
-- Each browser profile generates a unique device ID, so switching browsers or
-  clearing browser data will require re-pairing.
+- Kết nối cục bộ (`127.0.0.1`) được tự động phê duyệt.
+- Kết nối từ xa (LAN, Tailnet, v.v.) yêu cầu phê duyệt rõ ràng.
+- Mỗi hồ sơ trình duyệt tạo ra một ID thiết bị duy nhất, vì vậy chuyển đổi trình duyệt hoặc xóa dữ liệu trình duyệt sẽ yêu cầu ghép nối lại.
 
-## Language support
+## Hỗ trợ ngôn ngữ
 
-The Control UI can localize itself on first load based on your browser locale, and you can override it later from the language picker in the Access card.
+Giao diện điều khiển có thể tự động điều chỉnh ngôn ngữ dựa trên ngôn ngữ trình duyệt của bạn khi tải lần đầu, và bạn có thể thay đổi sau từ bộ chọn ngôn ngữ trong thẻ Truy cập.
 
-- Supported locales: `en`, `zh-CN`, `zh-TW`, `pt-BR`, `de`, `es`
-- Non-English translations are lazy-loaded in the browser.
-- The selected locale is saved in browser storage and reused on future visits.
-- Missing translation keys fall back to English.
+- Ngôn ngữ hỗ trợ: `en`, `zh-CN`, `zh-TW`, `pt-BR`, `de`, `es`
+- Các bản dịch không phải tiếng Anh được tải lười biếng trong trình duyệt.
+- Ngôn ngữ đã chọn được lưu trong bộ nhớ trình duyệt và sử dụng lại trong các lần truy cập sau.
+- Các khóa dịch thiếu sẽ quay về tiếng Anh.
 
-## What it can do (today)
+## Những gì có thể làm (hiện tại)
 
-- Chat with the model via Gateway WS (`chat.history`, `chat.send`, `chat.abort`, `chat.inject`)
-- Stream tool calls + live tool output cards in Chat (agent events)
-- Channels: WhatsApp/Telegram/Discord/Slack + plugin channels (Mattermost, etc.) status + QR login + per-channel config (`channels.status`, `web.login.*`, `config.patch`)
-- Instances: presence list + refresh (`system-presence`)
-- Sessions: list + per-session thinking/fast/verbose/reasoning overrides (`sessions.list`, `sessions.patch`)
-- Cron jobs: list/add/edit/run/enable/disable + run history (`cron.*`)
-- Skills: status, enable/disable, install, API key updates (`skills.*`)
-- Nodes: list + caps (`node.list`)
-- Exec approvals: edit gateway or node allowlists + ask policy for `exec host=gateway/node` (`exec.approvals.*`)
-- Config: view/edit `~/.openclaw/openclaw.json` (`config.get`, `config.set`)
-- Config: apply + restart with validation (`config.apply`) and wake the last active session
-- Config writes include a base-hash guard to prevent clobbering concurrent edits
-- Config schema + form rendering (`config.schema`, including plugin + channel schemas); Raw JSON editor remains available
-- Debug: status/health/models snapshots + event log + manual RPC calls (`status`, `health`, `models.list`)
-- Logs: live tail of gateway file logs with filter/export (`logs.tail`)
-- Update: run a package/git update + restart (`update.run`) with a restart report
+- Chat với mô hình qua Gateway WS (`chat.history`, `chat.send`, `chat.abort`, `chat.inject`)
+- Truyền tải cuộc gọi công cụ + thẻ đầu ra công cụ trực tiếp trong Chat (sự kiện agent)
+- Kênh: trạng thái WhatsApp/Telegram/Discord/Slack + kênh plugin (Mattermost, v.v.) + đăng nhập QR + cấu hình từng kênh (`channels.status`, `web.login.*`, `config.patch`)
+- Phiên bản: danh sách hiện diện + làm mới (`system-presence`)
+- Phiên: danh sách + ghi đè suy nghĩ/nhanh/chi tiết/lý luận cho từng phiên (`sessions.list`, `sessions.patch`)
+- Công việc định kỳ: danh sách/thêm/sửa/chạy/bật/tắt + lịch sử chạy (`cron.*`)
+- Kỹ năng: trạng thái, bật/tắt, cài đặt, cập nhật khóa API (`skills.*`)
+- Nodes: danh sách + khả năng (`node.list`)
+- Phê duyệt thực thi: chỉnh sửa danh sách cho phép gateway hoặc node + hỏi chính sách cho `exec host=gateway/node` (`exec.approvals.*`)
+- Cấu hình: xem/sửa `~/.openclaw/openclaw.json` (`config.get`, `config.set`)
+- Cấu hình: áp dụng + khởi động lại với xác thực (`config.apply`) và đánh thức phiên hoạt động cuối cùng
+- Ghi cấu hình bao gồm bảo vệ base-hash để ngăn chặn ghi đè chỉnh sửa đồng thời
+- Sơ đồ cấu hình + hiển thị biểu mẫu (`config.schema`, bao gồm sơ đồ plugin + kênh); Trình chỉnh sửa JSON thô vẫn có sẵn
+- Gỡ lỗi: trạng thái/sức khỏe/mô hình snapshot + nhật ký sự kiện + cuộc gọi RPC thủ công (`status`, `health`, `models.list`)
+- Nhật ký: theo dõi trực tiếp nhật ký file gateway với bộ lọc/xuất (`logs.tail`)
+- Cập nhật: chạy cập nhật package/git + khởi động lại (`update.run`) với báo cáo khởi động lại
 
-Cron jobs panel notes:
+Ghi chú bảng công việc định kỳ:
 
-- For isolated jobs, delivery defaults to announce summary. You can switch to none if you want internal-only runs.
-- Channel/target fields appear when announce is selected.
-- Webhook mode uses `delivery.mode = "webhook"` with `delivery.to` set to a valid HTTP(S) webhook URL.
-- For main-session jobs, webhook and none delivery modes are available.
-- Advanced edit controls include delete-after-run, clear agent override, cron exact/stagger options,
-  agent model/thinking overrides, and best-effort delivery toggles.
-- Form validation is inline with field-level errors; invalid values disable the save button until fixed.
-- Set `cron.webhookToken` to send a dedicated bearer token, if omitted the webhook is sent without an auth header.
-- Deprecated fallback: stored legacy jobs with `notify: true` can still use `cron.webhook` until migrated.
+- Đối với công việc cô lập, mặc định giao hàng là thông báo tóm tắt. Bạn có thể chuyển sang không nếu muốn chỉ chạy nội bộ.
+- Các trường kênh/mục tiêu xuất hiện khi chọn thông báo.
+- Chế độ webhook sử dụng `delivery.mode = "webhook"` với `delivery.to` được đặt thành một URL webhook HTTP(S) hợp lệ.
+- Đối với công việc phiên chính, các chế độ giao hàng webhook và không có sẵn.
+- Các điều khiển chỉnh sửa nâng cao bao gồm xóa sau khi chạy, xóa ghi đè agent, tùy chọn cron chính xác/ngẫu nhiên, ghi đè mô hình/suy nghĩ agent, và chuyển đổi giao hàng nỗ lực tốt nhất.
+- Xác thực biểu mẫu là nội tuyến với lỗi cấp trường; các giá trị không hợp lệ vô hiệu hóa nút lưu cho đến khi được sửa.
+- Đặt `cron.webhookToken` để gửi một token bearer chuyên dụng, nếu không có thì webhook được gửi mà không có tiêu đề xác thực.
+- Phương pháp dự phòng không còn được hỗ trợ: các công việc cũ được lưu trữ với `notify: true` vẫn có thể sử dụng `cron.webhook` cho đến khi được di chuyển.
 
-## Chat behavior
+## Hành vi chat
 
-- `chat.send` is **non-blocking**: it acks immediately with `{ runId, status: "started" }` and the response streams via `chat` events.
-- Re-sending with the same `idempotencyKey` returns `{ status: "in_flight" }` while running, and `{ status: "ok" }` after completion.
-- `chat.history` responses are size-bounded for UI safety. When transcript entries are too large, Gateway may truncate long text fields, omit heavy metadata blocks, and replace oversized messages with a placeholder (`[chat.history omitted: message too large]`).
-- `chat.inject` appends an assistant note to the session transcript and broadcasts a `chat` event for UI-only updates (no agent run, no channel delivery).
-- Stop:
-  - Click **Stop** (calls `chat.abort`)
-  - Type `/stop` (or standalone abort phrases like `stop`, `stop action`, `stop run`, `stop openclaw`, `please stop`) to abort out-of-band
-  - `chat.abort` supports `{ sessionKey }` (no `runId`) to abort all active runs for that session
-- Abort partial retention:
-  - When a run is aborted, partial assistant text can still be shown in the UI
-  - Gateway persists aborted partial assistant text into transcript history when buffered output exists
-  - Persisted entries include abort metadata so transcript consumers can tell abort partials from normal completion output
+- `chat.send` là **không chặn**: nó xác nhận ngay lập tức với `{ runId, status: "started" }` và phản hồi được truyền qua các sự kiện `chat`.
+- Gửi lại với cùng `idempotencyKey` trả về `{ status: "in_flight" }` khi đang chạy, và `{ status: "ok" }` sau khi hoàn thành.
+- Phản hồi `chat.history` bị giới hạn kích thước để đảm bảo an toàn cho giao diện. Khi các mục nhập bản ghi quá lớn, Gateway có thể cắt bớt các trường văn bản dài, bỏ qua các khối siêu dữ liệu nặng, và thay thế các tin nhắn quá lớn bằng một chỗ trống (`[chat.history omitted: message too large]`).
+- `chat.inject` thêm một ghi chú trợ lý vào bản ghi phiên và phát một sự kiện `chat` để cập nhật chỉ trên giao diện (không chạy agent, không giao hàng kênh).
+- Dừng:
+  - Nhấp **Dừng** (gọi `chat.abort`)
+  - Gõ `/stop` (hoặc các cụm từ dừng độc lập như `stop`, `stop action`, `stop run`, `stop openclaw`, `please stop`) để dừng ngoài băng
+  - `chat.abort` hỗ trợ `{ sessionKey }` (không `runId`) để dừng tất cả các lần chạy đang hoạt động cho phiên đó
+- Giữ lại một phần khi dừng:
+  - Khi một lần chạy bị dừng, văn bản trợ lý một phần vẫn có thể được hiển thị trong giao diện
+  - Gateway lưu trữ văn bản trợ lý một phần bị dừng vào lịch sử bản ghi khi có đầu ra được đệm
+  - Các mục nhập được lưu trữ bao gồm siêu dữ liệu dừng để người tiêu dùng bản ghi có thể phân biệt giữa các phần dừng và đầu ra hoàn thành bình thường
 
-## Tailnet access (recommended)
+## Truy cập Tailnet (khuyến nghị)
 
-### Integrated Tailscale Serve (preferred)
+### Tích hợp Tailscale Serve (ưu tiên)
 
-Keep the Gateway on loopback and let Tailscale Serve proxy it with HTTPS:
+Giữ Gateway trên loopback và để Tailscale Serve proxy nó với HTTPS:
 
 ```bash
 openclaw gateway --tailscale serve
 ```
 
-Open:
+Mở:
 
-- `https://<magicdns>/` (or your configured `gateway.controlUi.basePath`)
+- `https://<magicdns>/` (hoặc `gateway.controlUi.basePath` đã cấu hình của bạn)
 
-By default, Control UI/WebSocket Serve requests can authenticate via Tailscale identity headers
-(`tailscale-user-login`) when `gateway.auth.allowTailscale` is `true`. OpenClaw
-verifies the identity by resolving the `x-forwarded-for` address with
-`tailscale whois` and matching it to the header, and only accepts these when the
-request hits loopback with Tailscale’s `x-forwarded-*` headers. Set
-`gateway.auth.allowTailscale: false` (or force `gateway.auth.mode: "password"`)
-if you want to require a token/password even for Serve traffic.
-Tokenless Serve auth assumes the gateway host is trusted. If untrusted local
-code may run on that host, require token/password auth.
+Theo mặc định, các yêu cầu Control UI/WebSocket Serve có thể xác thực qua tiêu đề nhận dạng Tailscale (`tailscale-user-login`) khi `gateway.auth.allowTailscale` là `true`. OpenClaw xác minh nhận dạng bằng cách giải quyết địa chỉ `x-forwarded-for` với `tailscale whois` và khớp nó với tiêu đề, và chỉ chấp nhận những yêu cầu này khi yêu cầu đến loopback với các tiêu đề `x-forwarded-*` của Tailscale. Đặt `gateway.auth.allowTailscale: false` (hoặc buộc `gateway.auth.mode: "password"`) nếu bạn muốn yêu cầu token/mật khẩu ngay cả cho lưu lượng Serve.
+Xác thực Serve không cần token giả định rằng máy chủ gateway là đáng tin cậy. Nếu mã cục bộ không đáng tin có thể chạy trên máy chủ đó, yêu cầu xác thực token/mật khẩu.
 
-### Bind to tailnet + token
+### Kết nối với tailnet + token
 
 ```bash
 openclaw gateway --bind tailnet --token "$(openssl rand -hex 32)"
 ```
 
-Then open:
+Sau đó mở:
 
-- `http://<tailscale-ip>:18789/` (or your configured `gateway.controlUi.basePath`)
+- `http://<tailscale-ip>:18789/` (hoặc `gateway.controlUi.basePath` đã cấu hình của bạn)
 
-Paste the token into the UI settings (sent as `connect.params.auth.token`).
+Dán token vào cài đặt giao diện (gửi dưới dạng `connect.params.auth.token`).
 
-## Insecure HTTP
+## HTTP không an toàn
 
-If you open the dashboard over plain HTTP (`http://<lan-ip>` or `http://<tailscale-ip>`),
-the browser runs in a **non-secure context** and blocks WebCrypto. By default,
-OpenClaw **blocks** Control UI connections without device identity.
+Nếu bạn mở dashboard qua HTTP thông thường (`http://<lan-ip>` hoặc `http://<tailscale-ip>`), trình duyệt sẽ chạy trong **ngữ cảnh không an toàn** và chặn WebCrypto. Theo mặc định, OpenClaw **chặn** các kết nối Control UI không có nhận dạng thiết bị.
 
-**Recommended fix:** use HTTPS (Tailscale Serve) or open the UI locally:
+**Khuyến nghị sửa lỗi:** sử dụng HTTPS (Tailscale Serve) hoặc mở giao diện cục bộ:
 
 - `https://<magicdns>/` (Serve)
-- `http://127.0.0.1:18789/` (on the gateway host)
+- `http://127.0.0.1:18789/` (trên máy chủ gateway)
 
-**Insecure-auth toggle behavior:**
+**Hành vi chuyển đổi xác thực không an toàn:**
 
 ```json5
 {
@@ -178,14 +160,13 @@ OpenClaw **blocks** Control UI connections without device identity.
 }
 ```
 
-`allowInsecureAuth` is a local compatibility toggle only:
+`allowInsecureAuth` chỉ là một chuyển đổi tương thích cục bộ:
 
-- It allows localhost Control UI sessions to proceed without device identity in
-  non-secure HTTP contexts.
-- It does not bypass pairing checks.
-- It does not relax remote (non-localhost) device identity requirements.
+- Nó cho phép các phiên Control UI localhost tiếp tục mà không cần nhận dạng thiết bị trong ngữ cảnh HTTP không an toàn.
+- Nó không bỏ qua các kiểm tra ghép nối.
+- Nó không nới lỏng yêu cầu nhận dạng thiết bị từ xa (không phải localhost).
 
-**Break-glass only:**
+**Chỉ sử dụng trong trường hợp khẩn cấp:**
 
 ```json5
 {
@@ -197,70 +178,65 @@ OpenClaw **blocks** Control UI connections without device identity.
 }
 ```
 
-`dangerouslyDisableDeviceAuth` disables Control UI device identity checks and is a
-severe security downgrade. Revert quickly after emergency use.
+`dangerouslyDisableDeviceAuth` vô hiệu hóa các kiểm tra nhận dạng thiết bị Control UI và là một sự hạ cấp bảo mật nghiêm trọng. Nhanh chóng hoàn nguyên sau khi sử dụng khẩn cấp.
 
-See [Tailscale](/gateway/tailscale) for HTTPS setup guidance.
+Xem [Tailscale](/gateway/tailscale) để được hướng dẫn thiết lập HTTPS.
 
-## Building the UI
+## Xây dựng giao diện
 
-The Gateway serves static files from `dist/control-ui`. Build them with:
+Gateway phục vụ các file tĩnh từ `dist/control-ui`. Xây dựng chúng với:
 
 ```bash
-pnpm ui:build # auto-installs UI deps on first run
+pnpm ui:build # tự động cài đặt các phụ thuộc UI lần đầu chạy
 ```
 
-Optional absolute base (when you want fixed asset URLs):
+Cơ sở tuyệt đối tùy chọn (khi bạn muốn URL tài sản cố định):
 
 ```bash
 OPENCLAW_CONTROL_UI_BASE_PATH=/openclaw/ pnpm ui:build
 ```
 
-For local development (separate dev server):
+Đối với phát triển cục bộ (máy chủ dev riêng biệt):
 
 ```bash
-pnpm ui:dev # auto-installs UI deps on first run
+pnpm ui:dev # tự động cài đặt các phụ thuộc UI lần đầu chạy
 ```
 
-Then point the UI at your Gateway WS URL (e.g. `ws://127.0.0.1:18789`).
+Sau đó chỉ định URL Gateway WS của bạn cho giao diện (ví dụ: `ws://127.0.0.1:18789`).
 
-## Debugging/testing: dev server + remote Gateway
+## Gỡ lỗi/kiểm tra: máy chủ dev + Gateway từ xa
 
-The Control UI is static files; the WebSocket target is configurable and can be
-different from the HTTP origin. This is handy when you want the Vite dev server
-locally but the Gateway runs elsewhere.
+Giao diện điều khiển là các file tĩnh; mục tiêu WebSocket có thể cấu hình và có thể khác với nguồn gốc HTTP. Điều này hữu ích khi bạn muốn máy chủ dev Vite cục bộ nhưng Gateway chạy ở nơi khác.
 
-1. Start the UI dev server: `pnpm ui:dev`
-2. Open a URL like:
+1. Khởi động máy chủ dev giao diện: `pnpm ui:dev`
+2. Mở một URL như:
 
 ```text
 http://localhost:5173/?gatewayUrl=ws://<gateway-host>:18789
 ```
 
-Optional one-time auth (if needed):
+Xác thực một lần tùy chọn (nếu cần):
 
 ```text
 http://localhost:5173/?gatewayUrl=wss://<gateway-host>:18789#token=<gateway-token>
 ```
 
-Notes:
+Ghi chú:
 
-- `gatewayUrl` is stored in localStorage after load and removed from the URL.
-- `token` should be passed via the URL fragment (`#token=...`) whenever possible. Fragments are not sent to the server, which avoids request-log and Referer leakage. Legacy `?token=` query params are still imported once for compatibility, but only as a fallback, and are stripped immediately after bootstrap.
-- `password` is kept in memory only.
-- When `gatewayUrl` is set, the UI does not fall back to config or environment credentials.
-  Provide `token` (or `password`) explicitly. Missing explicit credentials is an error.
-- Use `wss://` when the Gateway is behind TLS (Tailscale Serve, HTTPS proxy, etc.).
-- `gatewayUrl` is only accepted in a top-level window (not embedded) to prevent clickjacking.
-- Non-loopback Control UI deployments must set `gateway.controlUi.allowedOrigins`
-  explicitly (full origins). This includes remote dev setups.
-- Do not use `gateway.controlUi.allowedOrigins: ["*"]` except for tightly controlled
-  local testing. It means allow any browser origin, not “match whatever host I am
-  using.”
-- `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback=true` enables
-  Host-header origin fallback mode, but it is a dangerous security mode.
+- `gatewayUrl` được lưu trữ trong localStorage sau khi tải và bị xóa khỏi URL.
+- `token` nên được truyền qua đoạn URL (`#token=...`) bất cứ khi nào có thể. Đoạn URL không được gửi đến máy chủ, điều này tránh rò rỉ nhật ký yêu cầu và Referer. Các tham số truy vấn `?token=` cũ vẫn được nhập một lần để tương thích, nhưng chỉ là phương pháp dự phòng, và bị loại bỏ ngay sau khi khởi động.
+- `password` chỉ được giữ trong bộ nhớ.
+- Khi `gatewayUrl` được đặt, giao diện không quay về cấu hình hoặc thông tin xác thực môi trường.
+  Cung cấp `token` (hoặc `password`) rõ ràng. Thiếu thông tin xác thực rõ ràng là một lỗi.
+- Sử dụng `wss://` khi Gateway nằm sau TLS (Tailscale Serve, proxy HTTPS, v.v.).
+- `gatewayUrl` chỉ được chấp nhận trong cửa sổ cấp cao nhất (không nhúng) để ngăn chặn clickjacking.
+- Các triển khai Control UI không phải loopback phải đặt `gateway.controlUi.allowedOrigins`
+  rõ ràng (các nguồn đầy đủ). Điều này bao gồm các thiết lập dev từ xa.
+- Không sử dụng `gateway.controlUi.allowedOrigins: ["*"]` ngoại trừ cho thử nghiệm cục bộ được kiểm soát chặt chẽ. Nó có nghĩa là cho phép bất kỳ nguồn gốc trình duyệt nào, không phải “khớp với bất kỳ máy chủ nào tôi đang sử dụng.”
+- `gateway.controlUi.dangerouslyAllowHostHeaderOriginFallback=true` kích hoạt
+  chế độ dự phòng nguồn gốc tiêu đề Host, nhưng đây là một chế độ bảo mật nguy hiểm.
 
-Example:
+Ví dụ:
 
 ```json5
 {
@@ -272,4 +248,4 @@ Example:
 }
 ```
 
-Remote access setup details: [Remote access](/gateway/remote).
+Chi tiết thiết lập truy cập từ xa: [Truy cập từ xa](/gateway/remote).
