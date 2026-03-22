@@ -1,67 +1,67 @@
 ---
-summary: "Optional Docker-based setup and onboarding for OpenClaw"
+summary: "Thiết lập và hướng dẫn sử dụng Docker tùy chọn cho OpenClaw"
 read_when:
-  - You want a containerized gateway instead of local installs
-  - You are validating the Docker flow
+  - Bạn muốn một gateway dạng container thay vì cài đặt cục bộ
+  - Bạn đang kiểm tra quy trình Docker
 title: "Docker"
 ---
 
-# Docker (optional)
+# Docker (tùy chọn)
 
-Docker is **optional**. Use it only if you want a containerized gateway or to validate the Docker flow.
+Docker là **tùy chọn**. Chỉ sử dụng nếu bạn muốn một gateway dạng container hoặc để kiểm tra quy trình Docker.
 
-## Is Docker right for me?
+## Docker có phù hợp với bạn không?
 
-- **Yes**: you want an isolated, throwaway gateway environment or to run OpenClaw on a host without local installs.
-- **No**: you are running on your own machine and just want the fastest dev loop. Use the normal install flow instead.
-- **Sandboxing note**: agent sandboxing uses Docker too, but it does **not** require the full gateway to run in Docker. See [Sandboxing](/gateway/sandboxing).
+- **Có**: nếu bạn muốn một môi trường gateway cô lập, có thể xóa bỏ hoặc chạy OpenClaw trên máy chủ mà không cần cài đặt cục bộ.
+- **Không**: nếu bạn đang chạy trên máy của mình và chỉ muốn vòng lặp phát triển nhanh nhất. Thay vào đó, hãy sử dụng quy trình cài đặt thông thường.
+- **Lưu ý về sandboxing**: sandboxing agent cũng sử dụng Docker, nhưng không yêu cầu toàn bộ gateway chạy trong Docker. Xem [Sandboxing](/gateway/sandboxing).
 
-## Prerequisites
+## Yêu cầu trước
 
-- Docker Desktop (or Docker Engine) + Docker Compose v2
-- At least 2 GB RAM for image build (`pnpm install` may be OOM-killed on 1 GB hosts with exit 137)
-- Enough disk for images and logs
-- If running on a VPS/public host, review
-  [Security hardening for network exposure](/gateway/security#0-4-network-exposure-bind-port-firewall),
-  especially Docker `DOCKER-USER` firewall policy.
+- Docker Desktop (hoặc Docker Engine) + Docker Compose v2
+- Ít nhất 2 GB RAM để build image (`pnpm install` có thể bị OOM-killed trên máy chủ 1 GB với exit 137)
+- Đủ dung lượng đĩa cho image và log
+- Nếu chạy trên VPS/máy chủ công cộng, hãy xem xét
+  [Tăng cường bảo mật cho việc phơi bày mạng](/gateway/security#0-4-network-exposure-bind-port-firewall),
+  đặc biệt là chính sách firewall `DOCKER-USER` của Docker.
 
-## Containerized Gateway
+## Gateway dạng Container
 
 <Steps>
-  <Step title="Build the image">
-    From the repo root, run the setup script:
+  <Step title="Build image">
+    Từ thư mục gốc của repo, chạy script thiết lập:
 
     ```bash
     ./scripts/docker/setup.sh
     ```
 
-    This builds the gateway image locally. To use a pre-built image instead:
+    Điều này sẽ build image gateway cục bộ. Để sử dụng image đã build sẵn:
 
     ```bash
     export OPENCLAW_IMAGE="ghcr.io/openclaw/openclaw:latest"
     ./scripts/docker/setup.sh
     ```
 
-    Pre-built images are published at the
+    Các image đã build sẵn được công bố tại
     [GitHub Container Registry](https://github.com/openclaw/openclaw/pkgs/container/openclaw).
-    Common tags: `main`, `latest`, `<version>` (e.g. `2026.2.26`).
+    Các tag phổ biến: `main`, `latest`, `<version>` (ví dụ: `2026.2.26`).
 
   </Step>
 
-  <Step title="Complete onboarding">
-    The setup script runs onboarding automatically. It will:
+  <Step title="Hoàn tất onboarding">
+    Script thiết lập sẽ tự động chạy onboarding. Nó sẽ:
 
-    - prompt for provider API keys
-    - generate a gateway token and write it to `.env`
-    - start the gateway via Docker Compose
+    - yêu cầu khóa API của nhà cung cấp
+    - tạo một token gateway và ghi vào `.env`
+    - khởi động gateway qua Docker Compose
 
   </Step>
 
-  <Step title="Open the Control UI">
-    Open `http://127.0.0.1:18789/` in your browser and paste the token into
+  <Step title="Mở Control UI">
+    Mở `http://127.0.0.1:18789/` trong trình duyệt và dán token vào
     Settings.
 
-    Need the URL again?
+    Cần URL một lần nữa?
 
     ```bash
     docker compose run --rm openclaw-cli dashboard --no-open
@@ -69,8 +69,8 @@ Docker is **optional**. Use it only if you want a containerized gateway or to va
 
   </Step>
 
-  <Step title="Configure channels (optional)">
-    Use the CLI container to add messaging channels:
+  <Step title="Cấu hình kênh (tùy chọn)">
+    Sử dụng container CLI để thêm các kênh nhắn tin:
 
     ```bash
     # WhatsApp (QR)
@@ -83,14 +83,14 @@ Docker is **optional**. Use it only if you want a containerized gateway or to va
     docker compose run --rm openclaw-cli channels add --channel discord --token "<token>"
     ```
 
-    Docs: [WhatsApp](/channels/whatsapp), [Telegram](/channels/telegram), [Discord](/channels/discord)
+    Tài liệu: [WhatsApp](/channels/whatsapp), [Telegram](/channels/telegram), [Discord](/channels/discord)
 
   </Step>
 </Steps>
 
-### Manual flow
+### Quy trình thủ công
 
-If you prefer to run each step yourself instead of using the setup script:
+Nếu bạn muốn tự chạy từng bước thay vì sử dụng script thiết lập:
 
 ```bash
 docker build -t openclaw:local -f Dockerfile .
@@ -99,39 +99,39 @@ docker compose up -d openclaw-gateway
 ```
 
 <Note>
-Run `docker compose` from the repo root. If you enabled `OPENCLAW_EXTRA_MOUNTS`
-or `OPENCLAW_HOME_VOLUME`, the setup script writes `docker-compose.extra.yml`;
-include it with `-f docker-compose.yml -f docker-compose.extra.yml`.
+Chạy `docker compose` từ thư mục gốc của repo. Nếu bạn đã bật `OPENCLAW_EXTRA_MOUNTS`
+hoặc `OPENCLAW_HOME_VOLUME`, script thiết lập sẽ ghi `docker-compose.extra.yml`;
+bao gồm nó với `-f docker-compose.yml -f docker-compose.extra.yml`.
 </Note>
 
-### Environment variables
+### Biến môi trường
 
-The setup script accepts these optional environment variables:
+Script thiết lập chấp nhận các biến môi trường tùy chọn sau:
 
-| Variable                       | Purpose                                                          |
+| Biến                           | Mục đích                                                          |
 | ------------------------------ | ---------------------------------------------------------------- |
-| `OPENCLAW_IMAGE`               | Use a remote image instead of building locally                   |
-| `OPENCLAW_DOCKER_APT_PACKAGES` | Install extra apt packages during build (space-separated)        |
-| `OPENCLAW_EXTENSIONS`          | Pre-install extension deps at build time (space-separated names) |
-| `OPENCLAW_EXTRA_MOUNTS`        | Extra host bind mounts (comma-separated `source:target[:opts]`)  |
-| `OPENCLAW_HOME_VOLUME`         | Persist `/home/node` in a named Docker volume                    |
-| `OPENCLAW_SANDBOX`             | Opt in to sandbox bootstrap (`1`, `true`, `yes`, `on`)           |
-| `OPENCLAW_DOCKER_SOCKET`       | Override Docker socket path                                      |
+| `OPENCLAW_IMAGE`               | Sử dụng image từ xa thay vì build cục bộ                         |
+| `OPENCLAW_DOCKER_APT_PACKAGES` | Cài đặt thêm gói apt trong quá trình build (cách nhau bằng dấu cách) |
+| `OPENCLAW_EXTENSIONS`          | Cài đặt trước các phụ thuộc extension khi build (tên cách nhau bằng dấu cách) |
+| `OPENCLAW_EXTRA_MOUNTS`        | Mount bind thêm từ host (cách nhau bằng dấu phẩy `source:target[:opts]`)  |
+| `OPENCLAW_HOME_VOLUME`         | Duy trì `/home/node` trong một volume Docker được đặt tên        |
+| `OPENCLAW_SANDBOX`             | Chọn tham gia sandbox bootstrap (`1`, `true`, `yes`, `on`)       |
+| `OPENCLAW_DOCKER_SOCKET`       | Ghi đè đường dẫn socket Docker                                   |
 
-### Health checks
+### Kiểm tra sức khỏe
 
-Container probe endpoints (no auth required):
+Các endpoint kiểm tra container (không yêu cầu xác thực):
 
 ```bash
 curl -fsS http://127.0.0.1:18789/healthz   # liveness
 curl -fsS http://127.0.0.1:18789/readyz     # readiness
 ```
 
-The Docker image includes a built-in `HEALTHCHECK` that pings `/healthz`.
-If checks keep failing, Docker marks the container as `unhealthy` and
-orchestration systems can restart or replace it.
+Image Docker bao gồm một `HEALTHCHECK` tích hợp sẵn ping `/healthz`.
+Nếu các kiểm tra liên tục thất bại, Docker đánh dấu container là `unhealthy` và
+các hệ thống điều phối có thể khởi động lại hoặc thay thế nó.
 
-Authenticated deep health snapshot:
+Ảnh chụp nhanh sức khỏe sâu có xác thực:
 
 ```bash
 docker compose exec openclaw-gateway node dist/index.js health --token "$OPENCLAW_GATEWAY_TOKEN"
@@ -139,51 +139,51 @@ docker compose exec openclaw-gateway node dist/index.js health --token "$OPENCLA
 
 ### LAN vs loopback
 
-`scripts/docker/setup.sh` defaults `OPENCLAW_GATEWAY_BIND=lan` so host access to
-`http://127.0.0.1:18789` works with Docker port publishing.
+`scripts/docker/setup.sh` mặc định `OPENCLAW_GATEWAY_BIND=lan` để truy cập host vào
+`http://127.0.0.1:18789` hoạt động với việc xuất cổng Docker.
 
-- `lan` (default): host browser and host CLI can reach the published gateway port.
-- `loopback`: only processes inside the container network namespace can reach
-  the gateway directly.
+- `lan` (mặc định): trình duyệt host và CLI host có thể truy cập cổng gateway đã xuất bản.
+- `loopback`: chỉ các tiến trình bên trong namespace mạng container có thể truy cập
+  trực tiếp vào gateway.
 
 <Note>
-Use bind mode values in `gateway.bind` (`lan` / `loopback` / `custom` /
-`tailnet` / `auto`), not host aliases like `0.0.0.0` or `127.0.0.1`.
+Sử dụng các giá trị chế độ bind trong `gateway.bind` (`lan` / `loopback` / `custom` /
+`tailnet` / `auto`), không sử dụng các alias host như `0.0.0.0` hoặc `127.0.0.1`.
 </Note>
 
-### Storage and persistence
+### Lưu trữ và duy trì
 
-Docker Compose bind-mounts `OPENCLAW_CONFIG_DIR` to `/home/node/.openclaw` and
-`OPENCLAW_WORKSPACE_DIR` to `/home/node/.openclaw/workspace`, so those paths
-survive container replacement.
+Docker Compose bind-mounts `OPENCLAW_CONFIG_DIR` vào `/home/node/.openclaw` và
+`OPENCLAW_WORKSPACE_DIR` vào `/home/node/.openclaw/workspace`, vì vậy các đường dẫn đó
+sẽ tồn tại sau khi thay thế container.
 
-For full persistence details on VM deployments, see
+Để biết chi tiết đầy đủ về duy trì trên các triển khai VM, xem
 [Docker VM Runtime - What persists where](/install/docker-vm-runtime#what-persists-where).
 
-**Disk growth hotspots:** watch `media/`, session JSONL files, `cron/runs/*.jsonl`,
-and rolling file logs under `/tmp/openclaw/`.
+**Điểm nóng tăng trưởng đĩa:** theo dõi `media/`, các file JSONL phiên, `cron/runs/*.jsonl`,
+và các log file cuộn dưới `/tmp/openclaw/`.
 
-### Shell helpers (optional)
+### Trợ giúp shell (tùy chọn)
 
-For easier day-to-day Docker management, install `ClawDock`:
+Để quản lý Docker hàng ngày dễ dàng hơn, cài đặt `ClawDock`:
 
 ```bash
 mkdir -p ~/.clawdock && curl -sL https://raw.githubusercontent.com/openclaw/openclaw/main/scripts/shell-helpers/clawdock-helpers.sh -o ~/.clawdock/clawdock-helpers.sh
 echo 'source ~/.clawdock/clawdock-helpers.sh' >> ~/.zshrc && source ~/.zshrc
 ```
 
-Then use `clawdock-start`, `clawdock-stop`, `clawdock-dashboard`, etc. Run
-`clawdock-help` for all commands.
-See the [`ClawDock` Helper README](https://github.com/openclaw/openclaw/blob/main/scripts/shell-helpers/README.md).
+Sau đó sử dụng `clawdock-start`, `clawdock-stop`, `clawdock-dashboard`, v.v. Chạy
+`clawdock-help` để xem tất cả các lệnh.
+Xem [README Trợ giúp ClawDock](https://github.com/openclaw/openclaw/blob/main/scripts/shell-helpers/README.md).
 
 <AccordionGroup>
-  <Accordion title="Enable agent sandbox for Docker gateway">
+  <Accordion title="Kích hoạt sandbox agent cho gateway Docker">
     ```bash
     export OPENCLAW_SANDBOX=1
     ./scripts/docker/setup.sh
     ```
 
-    Custom socket path (e.g. rootless Docker):
+    Đường dẫn socket tùy chỉnh (ví dụ: Docker không root):
 
     ```bash
     export OPENCLAW_SANDBOX=1
@@ -191,14 +191,14 @@ See the [`ClawDock` Helper README](https://github.com/openclaw/openclaw/blob/mai
     ./scripts/docker/setup.sh
     ```
 
-    The script mounts `docker.sock` only after sandbox prerequisites pass. If
-    sandbox setup cannot complete, the script resets `agents.defaults.sandbox.mode`
-    to `off`.
+    Script chỉ mount `docker.sock` sau khi các điều kiện tiên quyết của sandbox được đáp ứng. Nếu
+    thiết lập sandbox không thể hoàn tất, script sẽ đặt lại `agents.defaults.sandbox.mode`
+    thành `off`.
 
   </Accordion>
 
-  <Accordion title="Automation / CI (non-interactive)">
-    Disable Compose pseudo-TTY allocation with `-T`:
+  <Accordion title="Tự động hóa / CI (không tương tác)">
+    Vô hiệu hóa phân bổ pseudo-TTY của Compose với `-T`:
 
     ```bash
     docker compose run -T --rm openclaw-cli gateway probe
@@ -207,16 +207,15 @@ See the [`ClawDock` Helper README](https://github.com/openclaw/openclaw/blob/mai
 
   </Accordion>
 
-  <Accordion title="Shared-network security note">
-    `openclaw-cli` uses `network_mode: "service:openclaw-gateway"` so CLI
-    commands can reach the gateway over `127.0.0.1`. Treat this as a shared
-    trust boundary. The compose config drops `NET_RAW`/`NET_ADMIN` and enables
-    `no-new-privileges` on `openclaw-cli`.
+  <Accordion title="Lưu ý bảo mật mạng chia sẻ">
+    `openclaw-cli` sử dụng `network_mode: "service:openclaw-gateway"` để các lệnh CLI
+    có thể truy cập gateway qua `127.0.0.1`. Xem đây là một ranh giới tin cậy chia sẻ. Cấu hình compose loại bỏ `NET_RAW`/`NET_ADMIN` và bật
+    `no-new-privileges` trên `openclaw-cli`.
   </Accordion>
 
-  <Accordion title="Permissions and EACCES">
-    The image runs as `node` (uid 1000). If you see permission errors on
-    `/home/node/.openclaw`, make sure your host bind mounts are owned by uid 1000:
+  <Accordion title="Quyền và EACCES">
+    Image chạy dưới dạng `node` (uid 1000). Nếu bạn thấy lỗi quyền trên
+    `/home/node/.openclaw`, hãy đảm bảo các mount bind của host thuộc sở hữu của uid 1000:
 
     ```bash
     sudo chown -R 1000:1000 /path/to/openclaw-config /path/to/openclaw-workspace
@@ -224,9 +223,9 @@ See the [`ClawDock` Helper README](https://github.com/openclaw/openclaw/blob/mai
 
   </Accordion>
 
-  <Accordion title="Faster rebuilds">
-    Order your Dockerfile so dependency layers are cached. This avoids re-running
-    `pnpm install` unless lockfiles change:
+  <Accordion title="Tái build nhanh hơn">
+    Sắp xếp Dockerfile của bạn để các lớp phụ thuộc được cache. Điều này tránh việc chạy lại
+    `pnpm install` trừ khi các file lock thay đổi:
 
     ```dockerfile
     FROM node:24-bookworm
@@ -248,62 +247,59 @@ See the [`ClawDock` Helper README](https://github.com/openclaw/openclaw/blob/mai
 
   </Accordion>
 
-  <Accordion title="Power-user container options">
-    The default image is security-first and runs as non-root `node`. For a more
-    full-featured container:
+  <Accordion title="Tùy chọn container cho người dùng chuyên nghiệp">
+    Image mặc định ưu tiên bảo mật và chạy dưới dạng `node` không root. Để có một container đầy đủ tính năng hơn:
 
-    1. **Persist `/home/node`**: `export OPENCLAW_HOME_VOLUME="openclaw_home"`
-    2. **Bake system deps**: `export OPENCLAW_DOCKER_APT_PACKAGES="git curl jq"`
-    3. **Install Playwright browsers**:
+    1. **Duy trì `/home/node`**: `export OPENCLAW_HOME_VOLUME="openclaw_home"`
+    2. **Nướng các phụ thuộc hệ thống**: `export OPENCLAW_DOCKER_APT_PACKAGES="git curl jq"`
+    3. **Cài đặt trình duyệt Playwright**:
        ```bash
        docker compose run --rm openclaw-cli \
          node /app/node_modules/playwright-core/cli.js install chromium
        ```
-    4. **Persist browser downloads**: set
-       `PLAYWRIGHT_BROWSERS_PATH=/home/node/.cache/ms-playwright` and use
-       `OPENCLAW_HOME_VOLUME` or `OPENCLAW_EXTRA_MOUNTS`.
+    4. **Duy trì tải xuống trình duyệt**: đặt
+       `PLAYWRIGHT_BROWSERS_PATH=/home/node/.cache/ms-playwright` và sử dụng
+       `OPENCLAW_HOME_VOLUME` hoặc `OPENCLAW_EXTRA_MOUNTS`.
 
   </Accordion>
 
-  <Accordion title="OpenAI Codex OAuth (headless Docker)">
-    If you pick OpenAI Codex OAuth in the wizard, it opens a browser URL. In
-    Docker or headless setups, copy the full redirect URL you land on and paste
-    it back into the wizard to finish auth.
+  <Accordion title="OpenAI Codex OAuth (Docker không giao diện)">
+    Nếu bạn chọn OpenAI Codex OAuth trong wizard, nó sẽ mở một URL trình duyệt. Trong
+    Docker hoặc các thiết lập không giao diện, sao chép URL chuyển hướng đầy đủ mà bạn đến và dán
+    nó trở lại vào wizard để hoàn tất xác thực.
   </Accordion>
 
-  <Accordion title="Base image metadata">
-    The main Docker image uses `node:24-bookworm` and publishes OCI base-image
-    annotations including `org.opencontainers.image.base.name`,
-    `org.opencontainers.image.source`, and others. See
-    [OCI image annotations](https://github.com/opencontainers/image-spec/blob/main/annotations.md).
+  <Accordion title="Metadata image cơ sở">
+    Image Docker chính sử dụng `node:24-bookworm` và công bố các chú thích OCI base-image
+    bao gồm `org.opencontainers.image.base.name`,
+    `org.opencontainers.image.source`, và các chú thích khác. Xem
+    [Chú thích image OCI](https://github.com/opencontainers/image-spec/blob/main/annotations.md).
   </Accordion>
 </AccordionGroup>
 
-### Running on a VPS?
+### Chạy trên VPS?
 
-See [Hetzner (Docker VPS)](/install/hetzner) and
-[Docker VM Runtime](/install/docker-vm-runtime) for shared VM deployment steps
-including binary baking, persistence, and updates.
+Xem [Hetzner (Docker VPS)](/install/hetzner) và
+[Docker VM Runtime](/install/docker-vm-runtime) để biết các bước triển khai VM chia sẻ
+bao gồm nướng nhị phân, duy trì và cập nhật.
 
 ## Agent Sandbox
 
-When `agents.defaults.sandbox` is enabled, the gateway runs agent tool execution
-(shell, file read/write, etc.) inside isolated Docker containers while the
-gateway itself stays on the host. This gives you a hard wall around untrusted or
-multi-tenant agent sessions without containerizing the entire gateway.
+Khi `agents.defaults.sandbox` được bật, gateway chạy thực thi công cụ agent
+(shell, đọc/ghi file, v.v.) bên trong các container Docker cô lập trong khi
+gateway tự nó vẫn ở trên host. Điều này cung cấp một bức tường cứng xung quanh các phiên agent không tin cậy hoặc đa người thuê mà không cần container hóa toàn bộ gateway.
 
-Sandbox scope can be per-agent (default), per-session, or shared. Each scope
-gets its own workspace mounted at `/workspace`. You can also configure
-allow/deny tool policies, network isolation, resource limits, and browser
-containers.
+Phạm vi sandbox có thể là theo agent (mặc định), theo phiên, hoặc chia sẻ. Mỗi phạm vi
+có workspace riêng được mount tại `/workspace`. Bạn cũng có thể cấu hình
+chính sách cho phép/từ chối công cụ, cô lập mạng, giới hạn tài nguyên, và các container trình duyệt.
 
-For full configuration, images, security notes, and multi-agent profiles, see:
+Để biết cấu hình đầy đủ, image, ghi chú bảo mật, và các profile đa agent, xem:
 
-- [Sandboxing](/gateway/sandboxing) -- complete sandbox reference
-- [OpenShell](/gateway/openshell) -- interactive shell access to sandbox containers
-- [Multi-Agent Sandbox and Tools](/tools/multi-agent-sandbox-tools) -- per-agent overrides
+- [Sandboxing](/gateway/sandboxing) -- tài liệu tham khảo sandbox đầy đủ
+- [OpenShell](/gateway/openshell) -- truy cập shell tương tác vào các container sandbox
+- [Multi-Agent Sandbox and Tools](/tools/multi-agent-sandbox-tools) -- ghi đè theo agent
 
-### Quick enable
+### Kích hoạt nhanh
 
 ```json5
 {
@@ -318,39 +314,38 @@ For full configuration, images, security notes, and multi-agent profiles, see:
 }
 ```
 
-Build the default sandbox image:
+Build image sandbox mặc định:
 
 ```bash
 scripts/sandbox-setup.sh
 ```
 
-## Troubleshooting
+## Khắc phục sự cố
 
 <AccordionGroup>
-  <Accordion title="Image missing or sandbox container not starting">
-    Build the sandbox image with
+  <Accordion title="Thiếu image hoặc container sandbox không khởi động">
+    Build image sandbox với
     [`scripts/sandbox-setup.sh`](https://github.com/openclaw/openclaw/blob/main/scripts/sandbox-setup.sh)
-    or set `agents.defaults.sandbox.docker.image` to your custom image.
-    Containers are auto-created per session on demand.
+    hoặc đặt `agents.defaults.sandbox.docker.image` thành image tùy chỉnh của bạn.
+    Các container được tạo tự động theo phiên khi cần.
   </Accordion>
 
-  <Accordion title="Permission errors in sandbox">
-    Set `docker.user` to a UID:GID that matches your mounted workspace ownership,
-    or chown the workspace folder.
+  <Accordion title="Lỗi quyền trong sandbox">
+    Đặt `docker.user` thành một UID:GID khớp với quyền sở hữu workspace được mount của bạn,
+    hoặc chown thư mục workspace.
   </Accordion>
 
-  <Accordion title="Custom tools not found in sandbox">
-    OpenClaw runs commands with `sh -lc` (login shell), which sources
-    `/etc/profile` and may reset PATH. Set `docker.env.PATH` to prepend your
-    custom tool paths, or add a script under `/etc/profile.d/` in your Dockerfile.
+  <Accordion title="Công cụ tùy chỉnh không tìm thấy trong sandbox">
+    OpenClaw chạy các lệnh với `sh -lc` (shell đăng nhập), cái mà nguồn
+    `/etc/profile` và có thể đặt lại PATH. Đặt `docker.env.PATH` để thêm vào trước các đường dẫn công cụ tùy chỉnh của bạn, hoặc thêm một script dưới `/etc/profile.d/` trong Dockerfile của bạn.
   </Accordion>
 
-  <Accordion title="OOM-killed during image build (exit 137)">
-    The VM needs at least 2 GB RAM. Use a larger machine class and retry.
+  <Accordion title="Bị OOM-killed trong quá trình build image (exit 137)">
+    VM cần ít nhất 2 GB RAM. Sử dụng một lớp máy lớn hơn và thử lại.
   </Accordion>
 
-  <Accordion title="Unauthorized or pairing required in Control UI">
-    Fetch a fresh dashboard link and approve the browser device:
+  <Accordion title="Không được ủy quyền hoặc yêu cầu ghép đôi trong Control UI">
+    Lấy một liên kết dashboard mới và phê duyệt thiết bị trình duyệt:
 
     ```bash
     docker compose run --rm openclaw-cli dashboard --no-open
@@ -358,12 +353,12 @@ scripts/sandbox-setup.sh
     docker compose run --rm openclaw-cli devices approve <requestId>
     ```
 
-    More detail: [Dashboard](/web/dashboard), [Devices](/cli/devices).
+    Chi tiết thêm: [Dashboard](/web/dashboard), [Devices](/cli/devices).
 
   </Accordion>
 
-  <Accordion title="Gateway target shows ws://172.x.x.x or pairing errors from Docker CLI">
-    Reset gateway mode and bind:
+  <Accordion title="Mục tiêu gateway hiển thị ws://172.x.x.x hoặc lỗi ghép đôi từ Docker CLI">
+    Đặt lại chế độ và bind của gateway:
 
     ```bash
     docker compose run --rm openclaw-cli config set gateway.mode local

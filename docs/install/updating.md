@@ -1,42 +1,42 @@
 ---
-summary: "Updating OpenClaw safely (global install or source), plus rollback strategy"
+summary: "Cập nhật OpenClaw an toàn (cài đặt toàn cầu hoặc từ nguồn), cùng chiến lược quay lui"
 read_when:
-  - Updating OpenClaw
-  - Something breaks after an update
-title: "Updating"
+  - Cập nhật OpenClaw
+  - Có sự cố sau khi cập nhật
+title: "Cập nhật"
 ---
 
-# Updating
+# Cập nhật
 
-Keep OpenClaw up to date.
+Giữ cho OpenClaw luôn được cập nhật.
 
-## Recommended: `openclaw update`
+## Khuyến nghị: `openclaw update`
 
-The fastest way to update. It detects your install type (npm or git), fetches the latest version, runs `openclaw doctor`, and restarts the gateway.
+Cách nhanh nhất để cập nhật. Nó tự động phát hiện kiểu cài đặt (npm hoặc git), tải phiên bản mới nhất, chạy `openclaw doctor`, và khởi động lại gateway.
 
 ```bash
 openclaw update
 ```
 
-To switch channels or target a specific version:
+Để chuyển kênh hoặc chọn phiên bản cụ thể:
 
 ```bash
 openclaw update --channel beta
 openclaw update --tag main
-openclaw update --dry-run   # preview without applying
+openclaw update --dry-run   # xem trước mà không áp dụng
 ```
 
-See [Development channels](/install/development-channels) for channel semantics.
+Xem [Kênh phát triển](/install/development-channels) để biết ý nghĩa của các kênh.
 
-## Alternative: re-run the installer
+## Cách khác: chạy lại trình cài đặt
 
 ```bash
 curl -fsSL https://openclaw.ai/install.sh | bash
 ```
 
-Add `--no-onboard` to skip onboarding. For source installs, pass `--install-method git --no-onboard`.
+Thêm `--no-onboard` để bỏ qua phần giới thiệu. Đối với cài đặt từ nguồn, sử dụng `--install-method git --no-onboard`.
 
-## Alternative: manual npm or pnpm
+## Cách khác: npm hoặc pnpm thủ công
 
 ```bash
 npm i -g openclaw@latest
@@ -46,9 +46,9 @@ npm i -g openclaw@latest
 pnpm add -g openclaw@latest
 ```
 
-## Auto-updater
+## Tự động cập nhật
 
-The auto-updater is off by default. Enable it in `~/.openclaw/openclaw.json`:
+Tính năng tự động cập nhật mặc định bị tắt. Kích hoạt trong `~/.openclaw/openclaw.json`:
 
 ```json5
 {
@@ -64,33 +64,33 @@ The auto-updater is off by default. Enable it in `~/.openclaw/openclaw.json`:
 }
 ```
 
-| Channel  | Behavior                                                                                                      |
+| Kênh     | Hành vi                                                                                                       |
 | -------- | ------------------------------------------------------------------------------------------------------------- |
-| `stable` | Waits `stableDelayHours`, then applies with deterministic jitter across `stableJitterHours` (spread rollout). |
-| `beta`   | Checks every `betaCheckIntervalHours` (default: hourly) and applies immediately.                              |
-| `dev`    | No automatic apply. Use `openclaw update` manually.                                                           |
+| `stable` | Chờ `stableDelayHours`, sau đó áp dụng với độ trễ ngẫu nhiên trong `stableJitterHours` (triển khai dần).     |
+| `beta`   | Kiểm tra mỗi `betaCheckIntervalHours` (mặc định: hàng giờ) và áp dụng ngay lập tức.                          |
+| `dev`    | Không tự động áp dụng. Sử dụng `openclaw update` thủ công.                                                   |
 
-The gateway also logs an update hint on startup (disable with `update.checkOnStart: false`).
+Gateway cũng ghi lại gợi ý cập nhật khi khởi động (tắt với `update.checkOnStart: false`).
 
-## After updating
+## Sau khi cập nhật
 
 <Steps>
 
-### Run doctor
+### Chạy doctor
 
 ```bash
 openclaw doctor
 ```
 
-Migrates config, audits DM policies, and checks gateway health. Details: [Doctor](/gateway/doctor)
+Di chuyển cấu hình, kiểm tra chính sách DM, và kiểm tra sức khỏe gateway. Chi tiết: [Doctor](/gateway/doctor)
 
-### Restart the gateway
+### Khởi động lại gateway
 
 ```bash
 openclaw gateway restart
 ```
 
-### Verify
+### Xác minh
 
 ```bash
 openclaw health
@@ -98,9 +98,9 @@ openclaw health
 
 </Steps>
 
-## Rollback
+## Quay lui
 
-### Pin a version (npm)
+### Ghim một phiên bản (npm)
 
 ```bash
 npm i -g openclaw@<version>
@@ -108,9 +108,9 @@ openclaw doctor
 openclaw gateway restart
 ```
 
-Tip: `npm view openclaw version` shows the current published version.
+Mẹo: `npm view openclaw version` hiển thị phiên bản hiện tại đã phát hành.
 
-### Pin a commit (source)
+### Ghim một commit (nguồn)
 
 ```bash
 git fetch origin
@@ -119,10 +119,10 @@ pnpm install && pnpm build
 openclaw gateway restart
 ```
 
-To return to latest: `git checkout main && git pull`.
+Để quay lại phiên bản mới nhất: `git checkout main && git pull`.
 
-## If you are stuck
+## Nếu gặp khó khăn
 
-- Run `openclaw doctor` again and read the output carefully.
-- Check: [Troubleshooting](/gateway/troubleshooting)
-- Ask in Discord: [https://discord.gg/clawd](https://discord.gg/clawd)
+- Chạy lại `openclaw doctor` và đọc kỹ kết quả.
+- Kiểm tra: [Khắc phục sự cố](/gateway/troubleshooting)
+- Hỏi trên Discord: [https://discord.gg/clawd](https://discord.gg/clawd)

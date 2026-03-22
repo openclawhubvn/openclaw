@@ -1,21 +1,21 @@
 ---
-summary: "CLI reference for `openclaw dns` (wide-area discovery helpers)"
+summary: "Tham khảo CLI cho `openclaw dns` (công cụ hỗ trợ khám phá diện rộng)"
 read_when:
-  - You want wide-area discovery (DNS-SD) via Tailscale + CoreDNS
-  - You’re setting up split DNS for a custom discovery domain (example: openclaw.internal)
+  - Bạn muốn khám phá diện rộng (DNS-SD) qua Tailscale + CoreDNS
+  - Bạn đang thiết lập DNS phân tách cho một miền khám phá tùy chỉnh (ví dụ: openclaw.internal)
 title: "dns"
 ---
 
 # `openclaw dns`
 
-DNS helpers for wide-area discovery (Tailscale + CoreDNS). Currently focused on macOS + Homebrew CoreDNS.
+Công cụ hỗ trợ DNS cho khám phá diện rộng (Tailscale + CoreDNS). Hiện tại tập trung vào macOS + Homebrew CoreDNS.
 
-Related:
+Liên quan:
 
-- Gateway discovery: [Discovery](/gateway/discovery)
-- Wide-area discovery config: [Configuration](/gateway/configuration)
+- Khám phá Gateway: [Discovery](/gateway/discovery)
+- Cấu hình khám phá diện rộng: [Configuration](/gateway/configuration)
 
-## Setup
+## Thiết lập
 
 ```bash
 openclaw dns setup

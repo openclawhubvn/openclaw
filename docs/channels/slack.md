@@ -1,40 +1,40 @@
 ---
-summary: "Slack setup and runtime behavior (Socket Mode + HTTP Events API)"
+summary: "Thiết lập Slack và hành vi runtime (Socket Mode + HTTP Events API)"
 read_when:
-  - Setting up Slack or debugging Slack socket/HTTP mode
+  - Thiết lập Slack hoặc gỡ lỗi chế độ socket/HTTP của Slack
 title: "Slack"
 ---
 
 # Slack
 
-Status: production-ready for DMs + channels via Slack app integrations. Default mode is Socket Mode; HTTP Events API mode is also supported.
+Trạng thái: sẵn sàng cho sản xuất với DMs + kênh thông qua tích hợp ứng dụng Slack. Chế độ mặc định là Socket Mode; cũng hỗ trợ chế độ HTTP Events API.
 
 <CardGroup cols={3}>
-  <Card title="Pairing" icon="link" href="/channels/pairing">
-    Slack DMs default to pairing mode.
+  <Card title="Ghép nối" icon="link" href="/channels/pairing">
+    DMs của Slack mặc định ở chế độ ghép nối.
   </Card>
-  <Card title="Slash commands" icon="terminal" href="/tools/slash-commands">
-    Native command behavior and command catalog.
+  <Card title="Lệnh gạch chéo" icon="terminal" href="/tools/slash-commands">
+    Hành vi lệnh gốc và danh mục lệnh.
   </Card>
-  <Card title="Channel troubleshooting" icon="wrench" href="/channels/troubleshooting">
-    Cross-channel diagnostics and repair playbooks.
+  <Card title="Khắc phục sự cố kênh" icon="wrench" href="/channels/troubleshooting">
+    Chẩn đoán và sửa chữa đa kênh.
   </Card>
 </CardGroup>
 
-## Quick setup
+## Thiết lập nhanh
 
 <Tabs>
-  <Tab title="Socket Mode (default)">
+  <Tab title="Socket Mode (mặc định)">
     <Steps>
-      <Step title="Create Slack app and tokens">
-        In Slack app settings:
+      <Step title="Tạo ứng dụng Slack và token">
+        Trong cài đặt ứng dụng Slack:
 
-        - enable **Socket Mode**
-        - create **App Token** (`xapp-...`) with `connections:write`
-        - install app and copy **Bot Token** (`xoxb-...`)
+        - bật **Socket Mode**
+        - tạo **App Token** (`xapp-...`) với `connections:write`
+        - cài đặt ứng dụng và sao chép **Bot Token** (`xoxb-...`)
       </Step>
 
-      <Step title="Configure OpenClaw">
+      <Step title="Cấu hình OpenClaw">
 
 ```json5
 {
@@ -49,7 +49,7 @@ Status: production-ready for DMs + channels via Slack app integrations. Default 
 }
 ```
 
-        Env fallback (default account only):
+        Biến môi trường dự phòng (chỉ tài khoản mặc định):
 
 ```bash
 SLACK_APP_TOKEN=xapp-...
@@ -58,8 +58,8 @@ SLACK_BOT_TOKEN=xoxb-...
 
       </Step>
 
-      <Step title="Subscribe app events">
-        Subscribe bot events for:
+      <Step title="Đăng ký sự kiện ứng dụng">
+        Đăng ký sự kiện bot cho:
 
         - `app_mention`
         - `message.channels`, `message.groups`, `message.im`, `message.mpim`
@@ -68,10 +68,10 @@ SLACK_BOT_TOKEN=xoxb-...
         - `channel_rename`
         - `pin_added`, `pin_removed`
 
-        Also enable App Home **Messages Tab** for DMs.
+        Cũng bật Tab **Messages** của App Home cho DMs.
       </Step>
 
-      <Step title="Start gateway">
+      <Step title="Khởi động gateway">
 
 ```bash
 openclaw gateway
@@ -82,17 +82,17 @@ openclaw gateway
 
   </Tab>
 
-  <Tab title="HTTP Events API mode">
+  <Tab title="Chế độ HTTP Events API">
     <Steps>
-      <Step title="Configure Slack app for HTTP">
+      <Step title="Cấu hình ứng dụng Slack cho HTTP">
 
-        - set mode to HTTP (`channels.slack.mode="http"`)
-        - copy Slack **Signing Secret**
-        - set Event Subscriptions + Interactivity + Slash command Request URL to the same webhook path (default `/slack/events`)
+        - đặt chế độ thành HTTP (`channels.slack.mode="http"`)
+        - sao chép **Signing Secret** của Slack
+        - đặt URL Yêu cầu Đăng ký Sự kiện + Tương tác + Lệnh gạch chéo thành cùng một đường dẫn webhook (mặc định `/slack/events`)
 
       </Step>
 
-      <Step title="Configure OpenClaw HTTP mode">
+      <Step title="Cấu hình chế độ HTTP của OpenClaw">
 
 ```json5
 {
@@ -110,119 +110,119 @@ openclaw gateway
 
       </Step>
 
-      <Step title="Use unique webhook paths for multi-account HTTP">
-        Per-account HTTP mode is supported.
+      <Step title="Sử dụng đường dẫn webhook riêng cho HTTP đa tài khoản">
+        Chế độ HTTP theo tài khoản được hỗ trợ.
 
-        Give each account a distinct `webhookPath` so registrations do not collide.
+        Cung cấp cho mỗi tài khoản một `webhookPath` riêng biệt để tránh xung đột đăng ký.
       </Step>
     </Steps>
 
   </Tab>
 </Tabs>
 
-## Token model
+## Mô hình token
 
-- `botToken` + `appToken` are required for Socket Mode.
-- HTTP mode requires `botToken` + `signingSecret`.
-- Config tokens override env fallback.
-- `SLACK_BOT_TOKEN` / `SLACK_APP_TOKEN` env fallback applies only to the default account.
-- `userToken` (`xoxp-...`) is config-only (no env fallback) and defaults to read-only behavior (`userTokenReadOnly: true`).
-- Optional: add `chat:write.customize` if you want outgoing messages to use the active agent identity (custom `username` and icon). `icon_emoji` uses `:emoji_name:` syntax.
+- `botToken` + `appToken` là bắt buộc cho Socket Mode.
+- Chế độ HTTP yêu cầu `botToken` + `signingSecret`.
+- Token cấu hình ghi đè biến môi trường dự phòng.
+- Biến môi trường `SLACK_BOT_TOKEN` / `SLACK_APP_TOKEN` chỉ áp dụng cho tài khoản mặc định.
+- `userToken` (`xoxp-...`) chỉ có trong cấu hình (không có dự phòng môi trường) và mặc định là chỉ đọc (`userTokenReadOnly: true`).
+- Tùy chọn: thêm `chat:write.customize` nếu muốn tin nhắn gửi đi sử dụng danh tính tác nhân hiện tại (tùy chỉnh `username` và icon). `icon_emoji` sử dụng cú pháp `:emoji_name:`.
 
 <Tip>
-For actions/directory reads, user token can be preferred when configured. For writes, bot token remains preferred; user-token writes are only allowed when `userTokenReadOnly: false` and bot token is unavailable.
+Đối với các hành động/đọc thư mục, token người dùng có thể được ưu tiên khi được cấu hình. Đối với ghi, token bot vẫn được ưu tiên; ghi token người dùng chỉ được phép khi `userTokenReadOnly: false` và token bot không khả dụng.
 </Tip>
 
-## Access control and routing
+## Kiểm soát truy cập và định tuyến
 
 <Tabs>
-  <Tab title="DM policy">
-    `channels.slack.dmPolicy` controls DM access (legacy: `channels.slack.dm.policy`):
+  <Tab title="Chính sách DM">
+    `channels.slack.dmPolicy` kiểm soát truy cập DM (cũ: `channels.slack.dm.policy`):
 
-    - `pairing` (default)
+    - `pairing` (mặc định)
     - `allowlist`
-    - `open` (requires `channels.slack.allowFrom` to include `"*"`; legacy: `channels.slack.dm.allowFrom`)
+    - `open` (yêu cầu `channels.slack.allowFrom` bao gồm `"*"`; cũ: `channels.slack.dm.allowFrom`)
     - `disabled`
 
-    DM flags:
+    Cờ DM:
 
-    - `dm.enabled` (default true)
-    - `channels.slack.allowFrom` (preferred)
-    - `dm.allowFrom` (legacy)
-    - `dm.groupEnabled` (group DMs default false)
-    - `dm.groupChannels` (optional MPIM allowlist)
+    - `dm.enabled` (mặc định true)
+    - `channels.slack.allowFrom` (ưu tiên)
+    - `dm.allowFrom` (cũ)
+    - `dm.groupEnabled` (DM nhóm mặc định false)
+    - `dm.groupChannels` (danh sách cho phép MPIM tùy chọn)
 
-    Multi-account precedence:
+    Ưu tiên đa tài khoản:
 
-    - `channels.slack.accounts.default.allowFrom` applies only to the `default` account.
-    - Named accounts inherit `channels.slack.allowFrom` when their own `allowFrom` is unset.
-    - Named accounts do not inherit `channels.slack.accounts.default.allowFrom`.
+    - `channels.slack.accounts.default.allowFrom` chỉ áp dụng cho tài khoản `default`.
+    - Các tài khoản được đặt tên kế thừa `channels.slack.allowFrom` khi `allowFrom` của riêng chúng chưa được đặt.
+    - Các tài khoản được đặt tên không kế thừa `channels.slack.accounts.default.allowFrom`.
 
-    Pairing in DMs uses `openclaw pairing approve slack <code>`.
+    Ghép nối trong DMs sử dụng `openclaw pairing approve slack <code>`.
 
   </Tab>
 
-  <Tab title="Channel policy">
-    `channels.slack.groupPolicy` controls channel handling:
+  <Tab title="Chính sách kênh">
+    `channels.slack.groupPolicy` kiểm soát xử lý kênh:
 
     - `open`
     - `allowlist`
     - `disabled`
 
-    Channel allowlist lives under `channels.slack.channels` and should use stable channel IDs.
+    Danh sách cho phép kênh nằm dưới `channels.slack.channels` và nên sử dụng ID kênh ổn định.
 
-    Runtime note: if `channels.slack` is completely missing (env-only setup), runtime falls back to `groupPolicy="allowlist"` and logs a warning (even if `channels.defaults.groupPolicy` is set).
+    Lưu ý runtime: nếu `channels.slack` hoàn toàn thiếu (cài đặt chỉ môi trường), runtime sẽ quay lại `groupPolicy="allowlist"` và ghi nhật ký cảnh báo (ngay cả khi `channels.defaults.groupPolicy` đã được đặt).
 
-    Name/ID resolution:
+    Giải quyết tên/ID:
 
-    - channel allowlist entries and DM allowlist entries are resolved at startup when token access allows
-    - unresolved channel-name entries are kept as configured but ignored for routing by default
-    - inbound authorization and channel routing are ID-first by default; direct username/slug matching requires `channels.slack.dangerouslyAllowNameMatching: true`
+    - các mục danh sách cho phép kênh và danh sách cho phép DM được giải quyết khi khởi động khi quyền truy cập token cho phép
+    - các mục tên kênh chưa được giải quyết được giữ nguyên như đã cấu hình nhưng bị bỏ qua cho định tuyến theo mặc định
+    - ủy quyền đầu vào và định tuyến kênh theo ID trước theo mặc định; khớp tên người dùng/trực tiếp yêu cầu `channels.slack.dangerouslyAllowNameMatching: true`
 
   </Tab>
 
-  <Tab title="Mentions and channel users">
-    Channel messages are mention-gated by default.
+  <Tab title="Đề cập và người dùng kênh">
+    Tin nhắn kênh được kiểm soát bởi đề cập theo mặc định.
 
-    Mention sources:
+    Nguồn đề cập:
 
-    - explicit app mention (`<@botId>`)
-    - mention regex patterns (`agents.list[].groupChat.mentionPatterns`, fallback `messages.groupChat.mentionPatterns`)
-    - implicit reply-to-bot thread behavior
+    - đề cập ứng dụng rõ ràng (`<@botId>`)
+    - mẫu regex đề cập (`agents.list[].groupChat.mentionPatterns`, dự phòng `messages.groupChat.mentionPatterns`)
+    - hành vi trả lời ngầm định cho bot trong luồng
 
-    Per-channel controls (`channels.slack.channels.<id>`; names only via startup resolution or `dangerouslyAllowNameMatching`):
+    Kiểm soát theo kênh (`channels.slack.channels.<id>`; chỉ tên thông qua giải quyết khởi động hoặc `dangerouslyAllowNameMatching`):
 
     - `requireMention`
-    - `users` (allowlist)
+    - `users` (danh sách cho phép)
     - `allowBots`
     - `skills`
     - `systemPrompt`
     - `tools`, `toolsBySender`
-    - `toolsBySender` key format: `id:`, `e164:`, `username:`, `name:`, or `"*"` wildcard
-      (legacy unprefixed keys still map to `id:` only)
+    - định dạng khóa `toolsBySender`: `id:`, `e164:`, `username:`, `name:`, hoặc ký tự đại diện `"*"`
+      (các khóa không có tiền tố cũ vẫn chỉ ánh xạ đến `id:`)
 
   </Tab>
 </Tabs>
 
-## Commands and slash behavior
+## Lệnh và hành vi gạch chéo
 
-- Native command auto-mode is **off** for Slack (`commands.native: "auto"` does not enable Slack native commands).
-- Enable native Slack command handlers with `channels.slack.commands.native: true` (or global `commands.native: true`).
-- When native commands are enabled, register matching slash commands in Slack (`/<command>` names), with one exception:
-  - register `/agentstatus` for the status command (Slack reserves `/status`)
-- If native commands are not enabled, you can run a single configured slash command via `channels.slack.slashCommand`.
-- Native arg menus now adapt their rendering strategy:
-  - up to 5 options: button blocks
-  - 6-100 options: static select menu
-  - more than 100 options: external select with async option filtering when interactivity options handlers are available
-  - if encoded option values exceed Slack limits, the flow falls back to buttons
-- For long option payloads, Slash command argument menus use a confirm dialog before dispatching a selected value.
+- Chế độ tự động lệnh gốc là **tắt** cho Slack (`commands.native: "auto"` không kích hoạt lệnh gốc của Slack).
+- Kích hoạt trình xử lý lệnh gốc của Slack với `channels.slack.commands.native: true` (hoặc toàn cầu `commands.native: true`).
+- Khi lệnh gốc được kích hoạt, đăng ký các lệnh gạch chéo tương ứng trong Slack (`/<command>` tên), với một ngoại lệ:
+  - đăng ký `/agentstatus` cho lệnh trạng thái (Slack dành riêng `/status`)
+- Nếu lệnh gốc không được kích hoạt, bạn có thể chạy một lệnh gạch chéo được cấu hình duy nhất thông qua `channels.slack.slashCommand`.
+- Menu đối số gốc hiện thích ứng với chiến lược hiển thị của chúng:
+  - tối đa 5 tùy chọn: khối nút
+  - 6-100 tùy chọn: menu chọn tĩnh
+  - hơn 100 tùy chọn: chọn bên ngoài với lọc tùy chọn không đồng bộ khi các trình xử lý tùy chọn tương tác có sẵn
+  - nếu các giá trị tùy chọn được mã hóa vượt quá giới hạn của Slack, luồng sẽ quay lại nút
+- Đối với tải trọng tùy chọn dài, menu đối số lệnh gạch chéo sử dụng hộp thoại xác nhận trước khi gửi giá trị đã chọn.
 
-## Interactive replies
+## Phản hồi tương tác
 
-Slack can render agent-authored interactive reply controls, but this feature is disabled by default.
+Slack có thể hiển thị các điều khiển phản hồi tương tác do tác nhân tạo ra, nhưng tính năng này bị tắt theo mặc định.
 
-Enable it globally:
+Kích hoạt toàn cầu:
 
 ```json5
 {
@@ -236,7 +236,7 @@ Enable it globally:
 }
 ```
 
-Or enable it for one Slack account only:
+Hoặc kích hoạt cho một tài khoản Slack duy nhất:
 
 ```json5
 {
@@ -254,89 +254,89 @@ Or enable it for one Slack account only:
 }
 ```
 
-When enabled, agents can emit Slack-only reply directives:
+Khi được kích hoạt, các tác nhân có thể phát ra các chỉ thị phản hồi chỉ dành cho Slack:
 
 - `[[slack_buttons: Approve:approve, Reject:reject]]`
 - `[[slack_select: Choose a target | Canary:canary, Production:production]]`
 
-These directives compile into Slack Block Kit and route clicks or selections back through the existing Slack interaction event path.
+Các chỉ thị này được biên dịch thành Slack Block Kit và định tuyến các lần nhấp hoặc lựa chọn quay lại thông qua đường dẫn sự kiện tương tác Slack hiện có.
 
-Notes:
+Lưu ý:
 
-- This is Slack-specific UI. Other channels do not translate Slack Block Kit directives into their own button systems.
-- The interactive callback values are OpenClaw-generated opaque tokens, not raw agent-authored values.
-- If generated interactive blocks would exceed Slack Block Kit limits, OpenClaw falls back to the original text reply instead of sending an invalid blocks payload.
+- Đây là giao diện người dùng cụ thể của Slack. Các kênh khác không dịch các chỉ thị Slack Block Kit thành hệ thống nút của riêng họ.
+- Các giá trị phản hồi tương tác là các token mờ do OpenClaw tạo ra, không phải là các giá trị do tác nhân tạo ra.
+- Nếu các khối tương tác được tạo ra vượt quá giới hạn của Slack Block Kit, OpenClaw sẽ quay lại phản hồi văn bản gốc thay vì gửi tải trọng khối không hợp lệ.
 
-Default slash command settings:
+Cài đặt lệnh gạch chéo mặc định:
 
 - `enabled: false`
 - `name: "openclaw"`
 - `sessionPrefix: "slack:slash"`
 - `ephemeral: true`
 
-Slash sessions use isolated keys:
+Các phiên gạch chéo sử dụng khóa cách ly:
 
 - `agent:<agentId>:slack:slash:<userId>`
 
-and still route command execution against the target conversation session (`CommandTargetSessionKey`).
+và vẫn định tuyến thực thi lệnh chống lại phiên hội thoại mục tiêu (`CommandTargetSessionKey`).
 
-## Threading, sessions, and reply tags
+## Luồng, phiên và thẻ phản hồi
 
-- DMs route as `direct`; channels as `channel`; MPIMs as `group`.
-- With default `session.dmScope=main`, Slack DMs collapse to agent main session.
-- Channel sessions: `agent:<agentId>:slack:channel:<channelId>`.
-- Thread replies can create thread session suffixes (`:thread:<threadTs>`) when applicable.
-- `channels.slack.thread.historyScope` default is `thread`; `thread.inheritParent` default is `false`.
-- `channels.slack.thread.initialHistoryLimit` controls how many existing thread messages are fetched when a new thread session starts (default `20`; set `0` to disable).
+- DMs định tuyến là `direct`; kênh là `channel`; MPIMs là `group`.
+- Với `session.dmScope=main` mặc định, DMs của Slack sụp đổ thành phiên chính của tác nhân.
+- Phiên kênh: `agent:<agentId>:slack:channel:<channelId>`.
+- Phản hồi luồng có thể tạo hậu tố phiên luồng (`:thread:<threadTs>`) khi áp dụng.
+- `channels.slack.thread.historyScope` mặc định là `thread`; `thread.inheritParent` mặc định là `false`.
+- `channels.slack.thread.initialHistoryLimit` kiểm soát số lượng tin nhắn luồng hiện có được lấy khi một phiên luồng mới bắt đầu (mặc định `20`; đặt `0` để tắt).
 
-Reply threading controls:
+Kiểm soát phản hồi luồng:
 
-- `channels.slack.replyToMode`: `off|first|all` (default `off`)
-- `channels.slack.replyToModeByChatType`: per `direct|group|channel`
-- legacy fallback for direct chats: `channels.slack.dm.replyToMode`
+- `channels.slack.replyToMode`: `off|first|all` (mặc định `off`)
+- `channels.slack.replyToModeByChatType`: theo `direct|group|channel`
+- dự phòng cũ cho các cuộc trò chuyện trực tiếp: `channels.slack.dm.replyToMode`
 
-Manual reply tags are supported:
+Thẻ phản hồi thủ công được hỗ trợ:
 
 - `[[reply_to_current]]`
 - `[[reply_to:<id>]]`
 
-Note: `replyToMode="off"` disables **all** reply threading in Slack, including explicit `[[reply_to_*]]` tags. This differs from Telegram, where explicit tags are still honored in `"off"` mode. The difference reflects the platform threading models: Slack threads hide messages from the channel, while Telegram replies remain visible in the main chat flow.
+Lưu ý: `replyToMode="off"` vô hiệu hóa **tất cả** luồng phản hồi trong Slack, bao gồm cả thẻ `[[reply_to_*]]` rõ ràng. Điều này khác với Telegram, nơi các thẻ rõ ràng vẫn được tôn trọng trong chế độ `"off"`. Sự khác biệt này phản ánh các mô hình luồng của nền tảng: các luồng của Slack ẩn tin nhắn khỏi kênh, trong khi các phản hồi của Telegram vẫn hiển thị trong luồng trò chuyện chính.
 
-## Media, chunking, and delivery
+## Phương tiện, phân đoạn và phân phối
 
 <AccordionGroup>
-  <Accordion title="Inbound attachments">
-    Slack file attachments are downloaded from Slack-hosted private URLs (token-authenticated request flow) and written to the media store when fetch succeeds and size limits permit.
+  <Accordion title="Tệp đính kèm đầu vào">
+    Các tệp đính kèm của Slack được tải xuống từ các URL riêng tư được lưu trữ trên Slack (luồng yêu cầu xác thực token) và được ghi vào kho phương tiện khi tải thành công và giới hạn kích thước cho phép.
 
-    Runtime inbound size cap defaults to `20MB` unless overridden by `channels.slack.mediaMaxMb`.
+    Giới hạn kích thước đầu vào runtime mặc định là `20MB` trừ khi được ghi đè bởi `channels.slack.mediaMaxMb`.
 
   </Accordion>
 
-  <Accordion title="Outbound text and files">
-    - text chunks use `channels.slack.textChunkLimit` (default 4000)
-    - `channels.slack.chunkMode="newline"` enables paragraph-first splitting
-    - file sends use Slack upload APIs and can include thread replies (`thread_ts`)
-    - outbound media cap follows `channels.slack.mediaMaxMb` when configured; otherwise channel sends use MIME-kind defaults from media pipeline
+  <Accordion title="Văn bản và tệp gửi đi">
+    - các đoạn văn bản sử dụng `channels.slack.textChunkLimit` (mặc định 4000)
+    - `channels.slack.chunkMode="newline"` kích hoạt chia đoạn theo đoạn văn trước
+    - gửi tệp sử dụng API tải lên của Slack và có thể bao gồm phản hồi luồng (`thread_ts`)
+    - giới hạn phương tiện gửi đi tuân theo `channels.slack.mediaMaxMb` khi được cấu hình; nếu không, gửi kênh sử dụng mặc định loại MIME từ đường dẫn phương tiện
   </Accordion>
 
-  <Accordion title="Delivery targets">
-    Preferred explicit targets:
+  <Accordion title="Mục tiêu phân phối">
+    Mục tiêu rõ ràng ưu tiên:
 
-    - `user:<id>` for DMs
-    - `channel:<id>` for channels
+    - `user:<id>` cho DMs
+    - `channel:<id>` cho kênh
 
-    Slack DMs are opened via Slack conversation APIs when sending to user targets.
+    DMs của Slack được mở thông qua API hội thoại của Slack khi gửi đến các mục tiêu người dùng.
 
   </Accordion>
 </AccordionGroup>
 
-## Actions and gates
+## Hành động và cổng
 
-Slack actions are controlled by `channels.slack.actions.*`.
+Hành động của Slack được kiểm soát bởi `channels.slack.actions.*`.
 
-Available action groups in current Slack tooling:
+Các nhóm hành động có sẵn trong công cụ Slack hiện tại:
 
-| Group      | Default |
+| Nhóm       | Mặc định |
 | ---------- | ------- |
 | messages   | enabled |
 | reactions  | enabled |
@@ -344,58 +344,58 @@ Available action groups in current Slack tooling:
 | memberInfo | enabled |
 | emojiList  | enabled |
 
-## Events and operational behavior
+## Sự kiện và hành vi hoạt động
 
-- Message edits/deletes/thread broadcasts are mapped into system events.
-- Reaction add/remove events are mapped into system events.
-- Member join/leave, channel created/renamed, and pin add/remove events are mapped into system events.
-- Assistant thread status updates (for "is typing..." indicators in threads) use `assistant.threads.setStatus` and require bot scope `assistant:write`.
-- `channel_id_changed` can migrate channel config keys when `configWrites` is enabled.
-- Channel topic/purpose metadata is treated as untrusted context and can be injected into routing context.
-- Block actions and modal interactions emit structured `Slack interaction: ...` system events with rich payload fields:
-  - block actions: selected values, labels, picker values, and `workflow_*` metadata
-  - modal `view_submission` and `view_closed` events with routed channel metadata and form inputs
+- Chỉnh sửa/xóa tin nhắn/phát sóng luồng được ánh xạ thành sự kiện hệ thống.
+- Sự kiện thêm/xóa phản ứng được ánh xạ thành sự kiện hệ thống.
+- Thành viên tham gia/rời đi, kênh được tạo/đổi tên, và sự kiện thêm/xóa ghim được ánh xạ thành sự kiện hệ thống.
+- Cập nhật trạng thái luồng trợ lý (cho các chỉ báo "đang gõ..." trong luồng) sử dụng `assistant.threads.setStatus` và yêu cầu phạm vi bot `assistant:write`.
+- `channel_id_changed` có thể di chuyển các khóa cấu hình kênh khi `configWrites` được bật.
+- Siêu dữ liệu chủ đề/mục đích của kênh được coi là ngữ cảnh không đáng tin cậy và có thể được tiêm vào ngữ cảnh định tuyến.
+- Hành động khối và tương tác modal phát ra sự kiện hệ thống có cấu trúc `Slack interaction: ...` với các trường tải trọng phong phú:
+  - hành động khối: các giá trị đã chọn, nhãn, giá trị chọn, và siêu dữ liệu `workflow_*`
+  - sự kiện `view_submission` và `view_closed` của modal với siêu dữ liệu kênh được định tuyến và đầu vào biểu mẫu
 
-## Ack reactions
+## Phản ứng xác nhận
 
-`ackReaction` sends an acknowledgement emoji while OpenClaw is processing an inbound message.
+`ackReaction` gửi một emoji xác nhận trong khi OpenClaw đang xử lý một tin nhắn đầu vào.
 
-Resolution order:
+Thứ tự giải quyết:
 
 - `channels.slack.accounts.<accountId>.ackReaction`
 - `channels.slack.ackReaction`
 - `messages.ackReaction`
-- agent identity emoji fallback (`agents.list[].identity.emoji`, else "👀")
+- dự phòng emoji danh tính tác nhân (`agents.list[].identity.emoji`, nếu không "👀")
 
-Notes:
+Lưu ý:
 
-- Slack expects shortcodes (for example `"eyes"`).
-- Use `""` to disable the reaction for the Slack account or globally.
+- Slack mong đợi mã ngắn (ví dụ `"eyes"`).
+- Sử dụng `""` để vô hiệu hóa phản ứng cho tài khoản Slack hoặc toàn cầu.
 
-## Typing reaction fallback
+## Phản ứng gõ dự phòng
 
-`typingReaction` adds a temporary reaction to the inbound Slack message while OpenClaw is processing a reply, then removes it when the run finishes. This is a useful fallback when Slack native assistant typing is unavailable, especially in DMs.
+`typingReaction` thêm một phản ứng tạm thời vào tin nhắn Slack đầu vào trong khi OpenClaw đang xử lý một phản hồi, sau đó xóa nó khi quá trình chạy kết thúc. Đây là một dự phòng hữu ích khi gõ trợ lý gốc của Slack không khả dụng, đặc biệt trong DMs.
 
-Resolution order:
+Thứ tự giải quyết:
 
 - `channels.slack.accounts.<accountId>.typingReaction`
 - `channels.slack.typingReaction`
 
-Notes:
+Lưu ý:
 
-- Slack expects shortcodes (for example `"hourglass_flowing_sand"`).
-- The reaction is best-effort and cleanup is attempted automatically after the reply or failure path completes.
+- Slack mong đợi mã ngắn (ví dụ `"hourglass_flowing_sand"`).
+- Phản ứng là nỗ lực tốt nhất và việc dọn dẹp được thực hiện tự động sau khi phản hồi hoặc đường dẫn thất bại hoàn tất.
 
-## Manifest and scope checklist
+## Danh sách kiểm tra manifest và phạm vi
 
 <AccordionGroup>
-  <Accordion title="Slack app manifest example">
+  <Accordion title="Ví dụ manifest ứng dụng Slack">
 
 ```json
 {
   "display_information": {
     "name": "OpenClaw",
-    "description": "Slack connector for OpenClaw"
+    "description": "Kết nối Slack cho OpenClaw"
   },
   "features": {
     "bot_user": {
@@ -409,7 +409,7 @@ Notes:
     "slash_commands": [
       {
         "command": "/openclaw",
-        "description": "Send a message to OpenClaw",
+        "description": "Gửi tin nhắn đến OpenClaw",
         "should_escape": false
       }
     ]
@@ -465,8 +465,8 @@ Notes:
 
   </Accordion>
 
-  <Accordion title="Optional user-token scopes (read operations)">
-    If you configure `channels.slack.userToken`, typical read scopes are:
+  <Accordion title="Phạm vi token người dùng tùy chọn (hoạt động đọc)">
+    Nếu bạn cấu hình `channels.slack.userToken`, các phạm vi đọc điển hình là:
 
     - `channels:history`, `groups:history`, `im:history`, `mpim:history`
     - `channels:read`, `groups:read`, `im:read`, `mpim:read`
@@ -474,23 +474,23 @@ Notes:
     - `reactions:read`
     - `pins:read`
     - `emoji:read`
-    - `search:read` (if you depend on Slack search reads)
+    - `search:read` (nếu bạn phụ thuộc vào đọc tìm kiếm của Slack)
 
   </Accordion>
 </AccordionGroup>
 
-## Troubleshooting
+## Khắc phục sự cố
 
 <AccordionGroup>
-  <Accordion title="No replies in channels">
-    Check, in order:
+  <Accordion title="Không có phản hồi trong kênh">
+    Kiểm tra, theo thứ tự:
 
     - `groupPolicy`
-    - channel allowlist (`channels.slack.channels`)
+    - danh sách cho phép kênh (`channels.slack.channels`)
     - `requireMention`
-    - per-channel `users` allowlist
+    - danh sách cho phép `users` theo kênh
 
-    Useful commands:
+    Các lệnh hữu ích:
 
 ```bash
 openclaw channels status --probe
@@ -500,12 +500,12 @@ openclaw doctor
 
   </Accordion>
 
-  <Accordion title="DM messages ignored">
-    Check:
+  <Accordion title="Tin nhắn DM bị bỏ qua">
+    Kiểm tra:
 
     - `channels.slack.dm.enabled`
-    - `channels.slack.dmPolicy` (or legacy `channels.slack.dm.policy`)
-    - pairing approvals / allowlist entries
+    - `channels.slack.dmPolicy` (hoặc cũ `channels.slack.dm.policy`)
+    - phê duyệt ghép nối / mục danh sách cho phép
 
 ```bash
 openclaw pairing list slack
@@ -513,45 +513,45 @@ openclaw pairing list slack
 
   </Accordion>
 
-  <Accordion title="Socket mode not connecting">
-    Validate bot + app tokens and Socket Mode enablement in Slack app settings.
+  <Accordion title="Chế độ socket không kết nối">
+    Xác thực bot + token ứng dụng và bật Socket Mode trong cài đặt ứng dụng Slack.
   </Accordion>
 
-  <Accordion title="HTTP mode not receiving events">
-    Validate:
+  <Accordion title="Chế độ HTTP không nhận sự kiện">
+    Xác thực:
 
-    - signing secret
-    - webhook path
-    - Slack Request URLs (Events + Interactivity + Slash Commands)
-    - unique `webhookPath` per HTTP account
+    - ký bí mật
+    - đường dẫn webhook
+    - URL Yêu cầu của Slack (Sự kiện + Tương tác + Lệnh gạch chéo)
+    - `webhookPath` duy nhất cho mỗi tài khoản HTTP
 
   </Accordion>
 
-  <Accordion title="Native/slash commands not firing">
-    Verify whether you intended:
+  <Accordion title="Lệnh gốc/gạch chéo không hoạt động">
+    Xác minh xem bạn có ý định:
 
-    - native command mode (`channels.slack.commands.native: true`) with matching slash commands registered in Slack
-    - or single slash command mode (`channels.slack.slashCommand.enabled: true`)
+    - chế độ lệnh gốc (`channels.slack.commands.native: true`) với các lệnh gạch chéo tương ứng đã đăng ký trong Slack
+    - hoặc chế độ lệnh gạch chéo đơn (`channels.slack.slashCommand.enabled: true`)
 
-    Also check `commands.useAccessGroups` and channel/user allowlists.
+    Cũng kiểm tra `commands.useAccessGroups` và danh sách cho phép kênh/người dùng.
 
   </Accordion>
 </AccordionGroup>
 
-## Text streaming
+## Truyền văn bản
 
-OpenClaw supports Slack native text streaming via the Agents and AI Apps API.
+OpenClaw hỗ trợ truyền văn bản gốc của Slack thông qua API Agents và AI Apps.
 
-`channels.slack.streaming` controls live preview behavior:
+`channels.slack.streaming` kiểm soát hành vi xem trước trực tiếp:
 
-- `off`: disable live preview streaming.
-- `partial` (default): replace preview text with the latest partial output.
-- `block`: append chunked preview updates.
-- `progress`: show progress status text while generating, then send final text.
+- `off`: tắt truyền xem trước trực tiếp.
+- `partial` (mặc định): thay thế văn bản xem trước bằng đầu ra từng phần mới nhất.
+- `block`: thêm các cập nhật xem trước phân đoạn.
+- `progress`: hiển thị văn bản trạng thái tiến độ trong khi tạo, sau đó gửi văn bản cuối cùng.
 
-`channels.slack.nativeStreaming` controls Slack's native streaming API (`chat.startStream` / `chat.appendStream` / `chat.stopStream`) when `streaming` is `partial` (default: `true`).
+`channels.slack.nativeStreaming` kiểm soát API truyền gốc của Slack (`chat.startStream` / `chat.appendStream` / `chat.stopStream`) khi `streaming` là `partial` (mặc định: `true`).
 
-Disable native Slack streaming (keep draft preview behavior):
+Tắt truyền gốc của Slack (giữ hành vi xem trước bản nháp):
 
 ```yaml
 channels:
@@ -560,44 +560,44 @@ channels:
     nativeStreaming: false
 ```
 
-Legacy keys:
+Các khóa cũ:
 
-- `channels.slack.streamMode` (`replace | status_final | append`) is auto-migrated to `channels.slack.streaming`.
-- boolean `channels.slack.streaming` is auto-migrated to `channels.slack.nativeStreaming`.
+- `channels.slack.streamMode` (`replace | status_final | append`) được tự động chuyển đổi thành `channels.slack.streaming`.
+- boolean `channels.slack.streaming` được tự động chuyển đổi thành `channels.slack.nativeStreaming`.
 
-### Requirements
+### Yêu cầu
 
-1. Enable **Agents and AI Apps** in your Slack app settings.
-2. Ensure the app has the `assistant:write` scope.
-3. A reply thread must be available for that message. Thread selection still follows `replyToMode`.
+1. Bật **Agents và AI Apps** trong cài đặt ứng dụng Slack của bạn.
+2. Đảm bảo ứng dụng có phạm vi `assistant:write`.
+3. Một luồng phản hồi phải có sẵn cho tin nhắn đó. Lựa chọn luồng vẫn tuân theo `replyToMode`.
 
-### Behavior
+### Hành vi
 
-- First text chunk starts a stream (`chat.startStream`).
-- Later text chunks append to the same stream (`chat.appendStream`).
-- End of reply finalizes stream (`chat.stopStream`).
-- Media and non-text payloads fall back to normal delivery.
-- If streaming fails mid-reply, OpenClaw falls back to normal delivery for remaining payloads.
+- Khối văn bản đầu tiên bắt đầu một luồng (`chat.startStream`).
+- Các khối văn bản sau đó được thêm vào cùng một luồng (`chat.appendStream`).
+- Kết thúc phản hồi hoàn tất luồng (`chat.stopStream`).
+- Phương tiện và tải trọng không phải văn bản quay lại phân phối bình thường.
+- Nếu truyền thất bại giữa phản hồi, OpenClaw quay lại phân phối bình thường cho các tải trọng còn lại.
 
-## Configuration reference pointers
+## Tham chiếu cấu hình
 
-Primary reference:
+Tham chiếu chính:
 
-- [Configuration reference - Slack](/gateway/configuration-reference#slack)
+- [Tham chiếu cấu hình - Slack](/gateway/configuration-reference#slack)
 
-  High-signal Slack fields:
-  - mode/auth: `mode`, `botToken`, `appToken`, `signingSecret`, `webhookPath`, `accounts.*`
-  - DM access: `dm.enabled`, `dmPolicy`, `allowFrom` (legacy: `dm.policy`, `dm.allowFrom`), `dm.groupEnabled`, `dm.groupChannels`
-  - compatibility toggle: `dangerouslyAllowNameMatching` (break-glass; keep off unless needed)
-  - channel access: `groupPolicy`, `channels.*`, `channels.*.users`, `channels.*.requireMention`
-  - threading/history: `replyToMode`, `replyToModeByChatType`, `thread.*`, `historyLimit`, `dmHistoryLimit`, `dms.*.historyLimit`
-  - delivery: `textChunkLimit`, `chunkMode`, `mediaMaxMb`, `streaming`, `nativeStreaming`
-  - ops/features: `configWrites`, `commands.native`, `slashCommand.*`, `actions.*`, `userToken`, `userTokenReadOnly`
+  Các trường Slack quan trọng:
+  - chế độ/xác thực: `mode`, `botToken`, `appToken`, `signingSecret`, `webhookPath`, `accounts.*`
+  - truy cập DM: `dm.enabled`, `dmPolicy`, `allowFrom` (cũ: `dm.policy`, `dm.allowFrom`), `dm.groupEnabled`, `dm.groupChannels`
+  - chuyển đổi tương thích: `dangerouslyAllowNameMatching` (phá vỡ kính; giữ tắt trừ khi cần thiết)
+  - truy cập kênh: `groupPolicy`, `channels.*`, `channels.*.users`, `channels.*.requireMention`
+  - luồng/lịch sử: `replyToMode`, `replyToModeByChatType`, `thread.*`, `historyLimit`, `dmHistoryLimit`, `dms.*.historyLimit`
+  - phân phối: `textChunkLimit`, `chunkMode`, `mediaMaxMb`, `streaming`, `nativeStreaming`
+  - hoạt động/tính năng: `configWrites`, `commands.native`, `slashCommand.*`, `actions.*`, `userToken`, `userTokenReadOnly`
 
-## Related
+## Liên quan
 
-- [Pairing](/channels/pairing)
-- [Channel routing](/channels/channel-routing)
-- [Troubleshooting](/channels/troubleshooting)
-- [Configuration](/gateway/configuration)
-- [Slash commands](/tools/slash-commands)
+- [Ghép nối](/channels/pairing)
+- [Định tuyến kênh](/channels/channel-routing)
+- [Khắc phục sự cố](/channels/troubleshooting)
+- [Cấu hình](/gateway/configuration)
+- [Lệnh gạch chéo](/tools/slash-commands)

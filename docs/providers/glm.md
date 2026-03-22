@@ -1,33 +1,32 @@
 ---
-summary: "GLM model family overview + how to use it in OpenClaw"
+summary: "Tổng quan về dòng mô hình GLM và cách sử dụng trong OpenClaw"
 read_when:
-  - You want GLM models in OpenClaw
-  - You need the model naming convention and setup
-title: "GLM Models"
+  - Bạn muốn sử dụng mô hình GLM trong OpenClaw
+  - Bạn cần biết quy ước đặt tên và thiết lập mô hình
+title: "Mô hình GLM"
 ---
 
-# GLM models
+# Mô hình GLM
 
-GLM is a **model family** (not a company) available through the Z.AI platform. In OpenClaw, GLM
-models are accessed via the `zai` provider and model IDs like `zai/glm-5`.
+GLM là một **dòng mô hình** (không phải công ty) có sẵn thông qua nền tảng Z.AI. Trong OpenClaw, các mô hình GLM được truy cập qua nhà cung cấp `zai` và các ID mô hình như `zai/glm-5`.
 
-## CLI setup
+## Thiết lập CLI
 
 ```bash
-# Coding Plan Global, recommended for Coding Plan users
+# Kế hoạch mã hóa toàn cầu, khuyến nghị cho người dùng Kế hoạch mã hóa
 openclaw onboard --auth-choice zai-coding-global
 
-# Coding Plan CN (China region), recommended for Coding Plan users
+# Kế hoạch mã hóa CN (khu vực Trung Quốc), khuyến nghị cho người dùng Kế hoạch mã hóa
 openclaw onboard --auth-choice zai-coding-cn
 
-# General API
+# API chung
 openclaw onboard --auth-choice zai-global
 
-# General API CN (China region)
+# API chung CN (khu vực Trung Quốc)
 openclaw onboard --auth-choice zai-cn
 ```
 
-## Config snippet
+## Đoạn cấu hình
 
 ```json5
 {
@@ -36,8 +35,8 @@ openclaw onboard --auth-choice zai-cn
 }
 ```
 
-## Notes
+## Ghi chú
 
-- GLM versions and availability can change; check Z.AI's docs for the latest.
-- Example model IDs include `glm-5`, `glm-4.7`, and `glm-4.6`.
-- For provider details, see [/providers/zai](/providers/zai).
+- Phiên bản và khả dụng của GLM có thể thay đổi; hãy kiểm tra tài liệu của Z.AI để cập nhật mới nhất.
+- Ví dụ về ID mô hình bao gồm `glm-5`, `glm-4.7`, và `glm-4.6`.
+- Để biết chi tiết về nhà cung cấp, xem tại [/providers/zai](/providers/zai).

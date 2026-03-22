@@ -1,21 +1,21 @@
 ---
-summary: "Scripted onboarding and agent setup for the OpenClaw CLI"
+summary: "Tự động hóa onboarding và thiết lập agent cho OpenClaw CLI"
 read_when:
-  - You are automating onboarding in scripts or CI
-  - You need non-interactive examples for specific providers
-title: "CLI Automation"
-sidebarTitle: "CLI automation"
+  - Bạn đang tự động hóa onboarding trong script hoặc CI
+  - Bạn cần ví dụ không tương tác cho các nhà cung cấp cụ thể
+title: "Tự động hóa CLI"
+sidebarTitle: "Tự động hóa CLI"
 ---
 
-# CLI Automation
+# Tự động hóa CLI
 
-Use `--non-interactive` to automate `openclaw onboard`.
+Sử dụng `--non-interactive` để tự động hóa `openclaw onboard`.
 
 <Note>
-`--json` does not imply non-interactive mode. Use `--non-interactive` (and `--workspace`) for scripts.
+`--json` không có nghĩa là chế độ không tương tác. Sử dụng `--non-interactive` (và `--workspace`) cho script.
 </Note>
 
-## Baseline non-interactive example
+## Ví dụ cơ bản không tương tác
 
 ```bash
 openclaw onboard --non-interactive \
@@ -30,15 +30,13 @@ openclaw onboard --non-interactive \
   --skip-skills
 ```
 
-Add `--json` for a machine-readable summary.
+Thêm `--json` để có bản tóm tắt dễ đọc bằng máy.
 
-Use `--secret-input-mode ref` to store env-backed refs in auth profiles instead of plaintext values.
-Interactive selection between env refs and configured provider refs (`file` or `exec`) is available in the onboarding flow.
+Sử dụng `--secret-input-mode ref` để lưu trữ tham chiếu dựa trên môi trường trong hồ sơ xác thực thay vì giá trị văn bản thuần túy. Trong luồng onboarding, có thể chọn tương tác giữa tham chiếu môi trường và tham chiếu nhà cung cấp đã cấu hình (`file` hoặc `exec`).
 
-In non-interactive `ref` mode, provider env vars must be set in the process environment.
-Passing inline key flags without the matching env var now fails fast.
+Trong chế độ `ref` không tương tác, biến môi trường của nhà cung cấp phải được thiết lập trong môi trường quy trình. Việc truyền cờ khóa nội tuyến mà không có biến môi trường tương ứng sẽ thất bại ngay lập tức.
 
-Example:
+Ví dụ:
 
 ```bash
 openclaw onboard --non-interactive \
@@ -48,10 +46,10 @@ openclaw onboard --non-interactive \
   --accept-risk
 ```
 
-## Provider-specific examples
+## Ví dụ cụ thể cho từng nhà cung cấp
 
 <AccordionGroup>
-  <Accordion title="Gemini example">
+  <Accordion title="Ví dụ Gemini">
     ```bash
     openclaw onboard --non-interactive \
       --mode local \
@@ -61,7 +59,7 @@ openclaw onboard --non-interactive \
       --gateway-bind loopback
     ```
   </Accordion>
-  <Accordion title="Z.AI example">
+  <Accordion title="Ví dụ Z.AI">
     ```bash
     openclaw onboard --non-interactive \
       --mode local \
@@ -71,7 +69,7 @@ openclaw onboard --non-interactive \
       --gateway-bind loopback
     ```
   </Accordion>
-  <Accordion title="Vercel AI Gateway example">
+  <Accordion title="Ví dụ Vercel AI Gateway">
     ```bash
     openclaw onboard --non-interactive \
       --mode local \
@@ -81,7 +79,7 @@ openclaw onboard --non-interactive \
       --gateway-bind loopback
     ```
   </Accordion>
-  <Accordion title="Cloudflare AI Gateway example">
+  <Accordion title="Ví dụ Cloudflare AI Gateway">
     ```bash
     openclaw onboard --non-interactive \
       --mode local \
@@ -93,7 +91,7 @@ openclaw onboard --non-interactive \
       --gateway-bind loopback
     ```
   </Accordion>
-  <Accordion title="Moonshot example">
+  <Accordion title="Ví dụ Moonshot">
     ```bash
     openclaw onboard --non-interactive \
       --mode local \
@@ -103,7 +101,7 @@ openclaw onboard --non-interactive \
       --gateway-bind loopback
     ```
   </Accordion>
-  <Accordion title="Mistral example">
+  <Accordion title="Ví dụ Mistral">
     ```bash
     openclaw onboard --non-interactive \
       --mode local \
@@ -113,7 +111,7 @@ openclaw onboard --non-interactive \
       --gateway-bind loopback
     ```
   </Accordion>
-  <Accordion title="Synthetic example">
+  <Accordion title="Ví dụ Synthetic">
     ```bash
     openclaw onboard --non-interactive \
       --mode local \
@@ -123,7 +121,7 @@ openclaw onboard --non-interactive \
       --gateway-bind loopback
     ```
   </Accordion>
-  <Accordion title="OpenCode example">
+  <Accordion title="Ví dụ OpenCode">
     ```bash
     openclaw onboard --non-interactive \
       --mode local \
@@ -132,9 +130,9 @@ openclaw onboard --non-interactive \
       --gateway-port 18789 \
       --gateway-bind loopback
     ```
-    Swap to `--auth-choice opencode-go --opencode-go-api-key "$OPENCODE_API_KEY"` for the Go catalog.
+    Chuyển sang `--auth-choice opencode-go --opencode-go-api-key "$OPENCODE_API_KEY"` cho danh mục Go.
   </Accordion>
-  <Accordion title="Ollama example">
+  <Accordion title="Ví dụ Ollama">
     ```bash
     openclaw onboard --non-interactive \
       --mode local \
@@ -145,7 +143,7 @@ openclaw onboard --non-interactive \
       --gateway-bind loopback
     ```
   </Accordion>
-  <Accordion title="Custom provider example">
+  <Accordion title="Ví dụ nhà cung cấp tùy chỉnh">
     ```bash
     openclaw onboard --non-interactive \
       --mode local \
@@ -159,9 +157,9 @@ openclaw onboard --non-interactive \
       --gateway-bind loopback
     ```
 
-    `--custom-api-key` is optional. If omitted, onboarding checks `CUSTOM_API_KEY`.
+    `--custom-api-key` là tùy chọn. Nếu không có, onboarding sẽ kiểm tra `CUSTOM_API_KEY`.
 
-    Ref-mode variant:
+    Biến thể chế độ tham chiếu:
 
     ```bash
     export CUSTOM_API_KEY="your-key"
@@ -177,15 +175,14 @@ openclaw onboard --non-interactive \
       --gateway-bind loopback
     ```
 
-    In this mode, onboarding stores `apiKey` as `{ source: "env", provider: "default", id: "CUSTOM_API_KEY" }`.
+    Trong chế độ này, onboarding lưu trữ `apiKey` dưới dạng `{ source: "env", provider: "default", id: "CUSTOM_API_KEY" }`.
 
   </Accordion>
 </AccordionGroup>
 
-## Add another agent
+## Thêm một agent khác
 
-Use `openclaw agents add <name>` to create a separate agent with its own workspace,
-sessions, and auth profiles. Running without `--workspace` launches the wizard.
+Sử dụng `openclaw agents add <name>` để tạo một agent riêng với workspace, session và hồ sơ xác thực riêng. Chạy mà không có `--workspace` sẽ khởi động trình hướng dẫn.
 
 ```bash
 openclaw agents add work \
@@ -196,20 +193,20 @@ openclaw agents add work \
   --json
 ```
 
-What it sets:
+Thiết lập bao gồm:
 
 - `agents.list[].name`
 - `agents.list[].workspace`
 - `agents.list[].agentDir`
 
-Notes:
+Lưu ý:
 
-- Default workspaces follow `~/.openclaw/workspace-<agentId>`.
-- Add `bindings` to route inbound messages (the wizard can do this).
-- Non-interactive flags: `--model`, `--agent-dir`, `--bind`, `--non-interactive`.
+- Workspace mặc định theo `~/.openclaw/workspace-<agentId>`.
+- Thêm `bindings` để định tuyến tin nhắn đến (trình hướng dẫn có thể làm điều này).
+- Các cờ không tương tác: `--model`, `--agent-dir`, `--bind`, `--non-interactive`.
 
-## Related docs
+## Tài liệu liên quan
 
-- Onboarding hub: [Onboarding (CLI)](/start/wizard)
-- Full reference: [CLI Setup Reference](/start/wizard-cli-reference)
-- Command reference: [`openclaw onboard`](/cli/onboard)
+- Trung tâm onboarding: [Onboarding (CLI)](/start/wizard)
+- Tham khảo đầy đủ: [Tham khảo thiết lập CLI](/start/wizard-cli-reference)
+- Tham khảo lệnh: [`openclaw onboard`](/cli/onboard)

@@ -1,42 +1,41 @@
 ---
-title: "Release Policy"
-summary: "Public release channels, version naming, and cadence"
+title: "Chính sách phát hành"
+summary: "Các kênh phát hành công khai, cách đặt tên phiên bản và tần suất phát hành"
 read_when:
-  - Looking for public release channel definitions
-  - Looking for version naming and cadence
+  - Tìm kiếm định nghĩa về kênh phát hành công khai
+  - Tìm kiếm cách đặt tên phiên bản và tần suất phát hành
 ---
 
-# Release Policy
+# Chính sách phát hành
 
-OpenClaw has three public release lanes:
+OpenClaw có ba kênh phát hành công khai:
 
-- stable: tagged releases that publish to npm `latest`
-- beta: prerelease tags that publish to npm `beta`
-- dev: the moving head of `main`
+- stable: các phiên bản đã được gắn thẻ và phát hành trên npm `latest`
+- beta: các thẻ phát hành trước và phát hành trên npm `beta`
+- dev: phiên bản mới nhất của `main`
 
-## Version naming
+## Cách đặt tên phiên bản
 
-- Stable release version: `YYYY.M.D`
-  - Git tag: `vYYYY.M.D`
-- Beta prerelease version: `YYYY.M.D-beta.N`
-  - Git tag: `vYYYY.M.D-beta.N`
-- Do not zero-pad month or day
-- `latest` means the current stable npm release
-- `beta` means the current prerelease npm release
-- Beta releases may ship before the macOS app catches up
+- Phiên bản phát hành ổn định: `YYYY.M.D`
+  - Thẻ Git: `vYYYY.M.D`
+- Phiên bản phát hành trước beta: `YYYY.M.D-beta.N`
+  - Thẻ Git: `vYYYY.M.D-beta.N`
+- Không thêm số 0 vào tháng hoặc ngày
+- `latest` nghĩa là phiên bản ổn định hiện tại trên npm
+- `beta` nghĩa là phiên bản phát hành trước hiện tại trên npm
+- Các phiên bản beta có thể phát hành trước khi ứng dụng macOS bắt kịp
 
-## Release cadence
+## Tần suất phát hành
 
-- Releases move beta-first
-- Stable follows only after the latest beta is validated
-- Detailed release procedure, approvals, credentials, and recovery notes are
-  maintainer-only
+- Các phiên bản phát hành theo thứ tự beta trước
+- Phiên bản ổn định chỉ phát hành sau khi phiên bản beta mới nhất được xác nhận
+- Quy trình phát hành chi tiết, phê duyệt, thông tin đăng nhập và ghi chú khôi phục chỉ dành cho người duy trì
 
-## Public references
+## Tham khảo công khai
 
 - [`.github/workflows/openclaw-npm-release.yml`](https://github.com/openclaw/openclaw/blob/main/.github/workflows/openclaw-npm-release.yml)
 - [`scripts/openclaw-npm-release-check.ts`](https://github.com/openclaw/openclaw/blob/main/scripts/openclaw-npm-release-check.ts)
 
-Maintainers use the private release docs in
+Người duy trì sử dụng tài liệu phát hành riêng tư trong
 [`openclaw/maintainers/release/README.md`](https://github.com/openclaw/maintainers/blob/main/release/README.md)
-for the actual runbook.
+cho hướng dẫn thực tế.

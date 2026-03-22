@@ -1,46 +1,43 @@
 ---
-summary: "Tlon/Urbit support status, capabilities, and configuration"
+summary: "Trạng thái hỗ trợ, khả năng và cấu hình của Tlon/Urbit"
 read_when:
-  - Working on Tlon/Urbit channel features
+  - Đang làm việc với các tính năng kênh Tlon/Urbit
 title: "Tlon"
 ---
 
 # Tlon (plugin)
 
-Tlon is a decentralized messenger built on Urbit. OpenClaw connects to your Urbit ship and can
-respond to DMs and group chat messages. Group replies require an @ mention by default and can
-be further restricted via allowlists.
+Tlon là một ứng dụng nhắn tin phi tập trung được xây dựng trên Urbit. OpenClaw kết nối với tàu Urbit của bạn và có thể phản hồi tin nhắn trực tiếp (DM) và tin nhắn nhóm. Mặc định, để phản hồi trong nhóm cần có @ mention và có thể giới hạn thêm qua danh sách cho phép.
 
-Status: supported via plugin. DMs, group mentions, thread replies, rich text formatting, and
-image uploads are supported. Reactions and polls are not yet supported.
+Trạng thái: hỗ trợ qua plugin. Hỗ trợ DMs, @ mention trong nhóm, trả lời theo chuỗi, định dạng văn bản phong phú và tải lên hình ảnh. Chưa hỗ trợ phản ứng và khảo sát.
 
-## Plugin required
+## Cần cài đặt plugin
 
-Tlon ships as a plugin and is not bundled with the core install.
+Tlon được cung cấp dưới dạng plugin và không đi kèm với cài đặt gốc.
 
-Install via CLI (npm registry):
+Cài đặt qua CLI (npm registry):
 
 ```bash
 openclaw plugins install @openclaw/tlon
 ```
 
-Local checkout (when running from a git repo):
+Kiểm tra cục bộ (khi chạy từ git repo):
 
 ```bash
 openclaw plugins install ./extensions/tlon
 ```
 
-Details: [Plugins](/tools/plugin)
+Chi tiết: [Plugins](/tools/plugin)
 
-## Setup
+## Thiết lập
 
-1. Install the Tlon plugin.
-2. Gather your ship URL and login code.
-3. Configure `channels.tlon`.
-4. Restart the gateway.
-5. DM the bot or mention it in a group channel.
+1. Cài đặt plugin Tlon.
+2. Thu thập URL tàu và mã đăng nhập của bạn.
+3. Cấu hình `channels.tlon`.
+4. Khởi động lại gateway.
+5. Gửi DM cho bot hoặc nhắc đến nó trong kênh nhóm.
 
-Minimal config (single account):
+Cấu hình tối thiểu (tài khoản đơn):
 
 ```json5
 {
@@ -50,17 +47,15 @@ Minimal config (single account):
       ship: "~sampel-palnet",
       url: "https://your-ship-host",
       code: "lidlut-tabwed-pillex-ridrup",
-      ownerShip: "~your-main-ship", // recommended: your ship, always allowed
+      ownerShip: "~your-main-ship", // khuyến nghị: tàu của bạn, luôn được phép
     },
   },
 }
 ```
 
-## Private/LAN ships
+## Tàu riêng/LAN
 
-By default, OpenClaw blocks private/internal hostnames and IP ranges for SSRF protection.
-If your ship is running on a private network (localhost, LAN IP, or internal hostname),
-you must explicitly opt in:
+Mặc định, OpenClaw chặn các hostname và dải IP nội bộ để bảo vệ SSRF. Nếu tàu của bạn chạy trên mạng riêng (localhost, IP LAN, hoặc hostname nội bộ), bạn cần cho phép rõ ràng:
 
 ```json5
 {
@@ -73,18 +68,17 @@ you must explicitly opt in:
 }
 ```
 
-This applies to URLs like:
+Áp dụng cho các URL như:
 
 - `http://localhost:8080`
 - `http://192.168.x.x:8080`
 - `http://my-ship.local:8080`
 
-⚠️ Only enable this if you trust your local network. This setting disables SSRF protections
-for requests to your ship URL.
+⚠️ Chỉ bật tính năng này nếu bạn tin tưởng mạng cục bộ của mình. Cài đặt này vô hiệu hóa bảo vệ SSRF cho các yêu cầu đến URL tàu của bạn.
 
-## Group channels
+## Kênh nhóm
 
-Auto-discovery is enabled by default. You can also pin channels manually:
+Tự động phát hiện được bật mặc định. Bạn cũng có thể ghim kênh thủ công:
 
 ```json5
 {
@@ -96,7 +90,7 @@ Auto-discovery is enabled by default. You can also pin channels manually:
 }
 ```
 
-Disable auto-discovery:
+Tắt tự động phát hiện:
 
 ```json5
 {
@@ -108,9 +102,9 @@ Disable auto-discovery:
 }
 ```
 
-## Access control
+## Kiểm soát truy cập
 
-DM allowlist (empty = no DMs allowed, use `ownerShip` for approval flow):
+Danh sách cho phép DM (trống = không cho phép DM, sử dụng `ownerShip` cho luồng phê duyệt):
 
 ```json5
 {
@@ -122,7 +116,7 @@ DM allowlist (empty = no DMs allowed, use `ownerShip` for approval flow):
 }
 ```
 
-Group authorization (restricted by default):
+Ủy quyền nhóm (bị hạn chế mặc định):
 
 ```json5
 {
@@ -145,9 +139,9 @@ Group authorization (restricted by default):
 }
 ```
 
-## Owner and approval system
+## Hệ thống chủ sở hữu và phê duyệt
 
-Set an owner ship to receive approval requests when unauthorized users try to interact:
+Đặt một tàu chủ sở hữu để nhận yêu cầu phê duyệt khi người dùng không được phép cố gắng tương tác:
 
 ```json5
 {
@@ -159,19 +153,17 @@ Set an owner ship to receive approval requests when unauthorized users try to in
 }
 ```
 
-The owner ship is **automatically authorized everywhere** — DM invites are auto-accepted and
-channel messages are always allowed. You don't need to add the owner to `dmAllowlist` or
-`defaultAuthorizedShips`.
+Tàu chủ sở hữu **tự động được phép ở mọi nơi** — lời mời DM được chấp nhận tự động và tin nhắn kênh luôn được phép. Bạn không cần thêm chủ sở hữu vào `dmAllowlist` hoặc `defaultAuthorizedShips`.
 
-When set, the owner receives DM notifications for:
+Khi được đặt, chủ sở hữu nhận thông báo DM cho:
 
-- DM requests from ships not in the allowlist
-- Mentions in channels without authorization
-- Group invite requests
+- Yêu cầu DM từ các tàu không có trong danh sách cho phép
+- Nhắc đến trong các kênh không có ủy quyền
+- Yêu cầu mời nhóm
 
-## Auto-accept settings
+## Cài đặt tự động chấp nhận
 
-Auto-accept DM invites (for ships in dmAllowlist):
+Tự động chấp nhận lời mời DM (cho các tàu trong danh sách cho phép DM):
 
 ```json5
 {
@@ -183,7 +175,7 @@ Auto-accept DM invites (for ships in dmAllowlist):
 }
 ```
 
-Auto-accept group invites:
+Tự động chấp nhận lời mời nhóm:
 
 ```json5
 {
@@ -195,43 +187,42 @@ Auto-accept group invites:
 }
 ```
 
-## Delivery targets (CLI/cron)
+## Mục tiêu gửi (CLI/cron)
 
-Use these with `openclaw message send` or cron delivery:
+Sử dụng với `openclaw message send` hoặc cron delivery:
 
-- DM: `~sampel-palnet` or `dm/~sampel-palnet`
-- Group: `chat/~host-ship/channel` or `group:~host-ship/channel`
+- DM: `~sampel-palnet` hoặc `dm/~sampel-palnet`
+- Nhóm: `chat/~host-ship/channel` hoặc `group:~host-ship/channel`
 
-## Bundled skill
+## Kỹ năng đi kèm
 
-The Tlon plugin includes a bundled skill ([`@tloncorp/tlon-skill`](https://github.com/tloncorp/tlon-skill))
-that provides CLI access to Tlon operations:
+Plugin Tlon bao gồm một kỹ năng đi kèm ([`@tloncorp/tlon-skill`](https://github.com/tloncorp/tlon-skill)) cung cấp truy cập CLI cho các hoạt động Tlon:
 
-- **Contacts**: get/update profiles, list contacts
-- **Channels**: list, create, post messages, fetch history
-- **Groups**: list, create, manage members
-- **DMs**: send messages, react to messages
-- **Reactions**: add/remove emoji reactions to posts and DMs
-- **Settings**: manage plugin permissions via slash commands
+- **Liên hệ**: lấy/cập nhật hồ sơ, danh sách liên hệ
+- **Kênh**: danh sách, tạo, gửi tin nhắn, lấy lịch sử
+- **Nhóm**: danh sách, tạo, quản lý thành viên
+- **DMs**: gửi tin nhắn, phản hồi tin nhắn
+- **Phản ứng**: thêm/xóa phản ứng emoji cho bài viết và DMs
+- **Cài đặt**: quản lý quyền plugin qua lệnh slash
 
-The skill is automatically available when the plugin is installed.
+Kỹ năng này tự động có sẵn khi plugin được cài đặt.
 
-## Capabilities
+## Khả năng
 
-| Feature         | Status                                  |
+| Tính năng       | Trạng thái                              |
 | --------------- | --------------------------------------- |
-| Direct messages | ✅ Supported                            |
-| Groups/channels | ✅ Supported (mention-gated by default) |
-| Threads         | ✅ Supported (auto-replies in thread)   |
-| Rich text       | ✅ Markdown converted to Tlon format    |
-| Images          | ✅ Uploaded to Tlon storage             |
-| Reactions       | ✅ Via [bundled skill](#bundled-skill)  |
-| Polls           | ❌ Not yet supported                    |
-| Native commands | ✅ Supported (owner-only by default)    |
+| Tin nhắn trực tiếp | ✅ Hỗ trợ                            |
+| Nhóm/kênh       | ✅ Hỗ trợ (mặc định cần mention)       |
+| Chuỗi           | ✅ Hỗ trợ (tự động trả lời trong chuỗi) |
+| Văn bản phong phú | ✅ Markdown chuyển đổi sang định dạng Tlon |
+| Hình ảnh        | ✅ Tải lên lưu trữ Tlon                |
+| Phản ứng        | ✅ Qua [kỹ năng đi kèm](#bundled-skill) |
+| Khảo sát        | ❌ Chưa hỗ trợ                         |
+| Lệnh gốc        | ✅ Hỗ trợ (mặc định chỉ chủ sở hữu)    |
 
-## Troubleshooting
+## Khắc phục sự cố
 
-Run this ladder first:
+Chạy các lệnh sau trước:
 
 ```bash
 openclaw status
@@ -240,37 +231,37 @@ openclaw logs --follow
 openclaw doctor
 ```
 
-Common failures:
+Các lỗi phổ biến:
 
-- **DMs ignored**: sender not in `dmAllowlist` and no `ownerShip` configured for approval flow.
-- **Group messages ignored**: channel not discovered or sender not authorized.
-- **Connection errors**: check ship URL is reachable; enable `allowPrivateNetwork` for local ships.
-- **Auth errors**: verify login code is current (codes rotate).
+- **DMs bị bỏ qua**: người gửi không có trong `dmAllowlist` và không có `ownerShip` được cấu hình cho luồng phê duyệt.
+- **Tin nhắn nhóm bị bỏ qua**: kênh không được phát hiện hoặc người gửi không được ủy quyền.
+- **Lỗi kết nối**: kiểm tra URL tàu có thể truy cập; bật `allowPrivateNetwork` cho tàu cục bộ.
+- **Lỗi xác thực**: xác minh mã đăng nhập hiện tại (mã xoay vòng).
 
-## Configuration reference
+## Tham chiếu cấu hình
 
-Full configuration: [Configuration](/gateway/configuration)
+Cấu hình đầy đủ: [Configuration](/gateway/configuration)
 
-Provider options:
+Tùy chọn nhà cung cấp:
 
-- `channels.tlon.enabled`: enable/disable channel startup.
-- `channels.tlon.ship`: bot's Urbit ship name (e.g. `~sampel-palnet`).
-- `channels.tlon.url`: ship URL (e.g. `https://sampel-palnet.tlon.network`).
-- `channels.tlon.code`: ship login code.
-- `channels.tlon.allowPrivateNetwork`: allow localhost/LAN URLs (SSRF bypass).
-- `channels.tlon.ownerShip`: owner ship for approval system (always authorized).
-- `channels.tlon.dmAllowlist`: ships allowed to DM (empty = none).
-- `channels.tlon.autoAcceptDmInvites`: auto-accept DMs from allowlisted ships.
-- `channels.tlon.autoAcceptGroupInvites`: auto-accept all group invites.
-- `channels.tlon.autoDiscoverChannels`: auto-discover group channels (default: true).
-- `channels.tlon.groupChannels`: manually pinned channel nests.
-- `channels.tlon.defaultAuthorizedShips`: ships authorized for all channels.
-- `channels.tlon.authorization.channelRules`: per-channel auth rules.
-- `channels.tlon.showModelSignature`: append model name to messages.
+- `channels.tlon.enabled`: bật/tắt khởi động kênh.
+- `channels.tlon.ship`: tên tàu Urbit của bot (ví dụ: `~sampel-palnet`).
+- `channels.tlon.url`: URL tàu (ví dụ: `https://sampel-palnet.tlon.network`).
+- `channels.tlon.code`: mã đăng nhập tàu.
+- `channels.tlon.allowPrivateNetwork`: cho phép URL localhost/LAN (bỏ qua SSRF).
+- `channels.tlon.ownerShip`: tàu chủ sở hữu cho hệ thống phê duyệt (luôn được phép).
+- `channels.tlon.dmAllowlist`: các tàu được phép DM (trống = không có).
+- `channels.tlon.autoAcceptDmInvites`: tự động chấp nhận DMs từ các tàu trong danh sách cho phép.
+- `channels.tlon.autoAcceptGroupInvites`: tự động chấp nhận tất cả lời mời nhóm.
+- `channels.tlon.autoDiscoverChannels`: tự động phát hiện kênh nhóm (mặc định: true).
+- `channels.tlon.groupChannels`: các kênh được ghim thủ công.
+- `channels.tlon.defaultAuthorizedShips`: các tàu được ủy quyền cho tất cả các kênh.
+- `channels.tlon.authorization.channelRules`: quy tắc ủy quyền theo kênh.
+- `channels.tlon.showModelSignature`: thêm tên mô hình vào tin nhắn.
 
-## Notes
+## Ghi chú
 
-- Group replies require a mention (e.g. `~your-bot-ship`) to respond.
-- Thread replies: if the inbound message is in a thread, OpenClaw replies in-thread.
-- Rich text: Markdown formatting (bold, italic, code, headers, lists) is converted to Tlon's native format.
-- Images: URLs are uploaded to Tlon storage and embedded as image blocks.
+- Trả lời nhóm yêu cầu một mention (ví dụ: `~your-bot-ship`) để phản hồi.
+- Trả lời theo chuỗi: nếu tin nhắn đến nằm trong một chuỗi, OpenClaw sẽ trả lời trong chuỗi đó.
+- Văn bản phong phú: Định dạng Markdown (in đậm, in nghiêng, mã, tiêu đề, danh sách) được chuyển đổi sang định dạng gốc của Tlon.
+- Hình ảnh: URL được tải lên lưu trữ Tlon và nhúng dưới dạng khối hình ảnh.

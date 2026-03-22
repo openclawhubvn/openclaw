@@ -1,26 +1,26 @@
 ---
-summary: "Timezone handling for agents, envelopes, and prompts"
+summary: "Xử lý múi giờ cho agents, envelopes và prompts"
 read_when:
-  - You need to understand how timestamps are normalized for the model
-  - Configuring the user timezone for system prompts
-title: "Timezones"
+  - Cần hiểu cách chuẩn hóa dấu thời gian cho mô hình
+  - Cấu hình múi giờ người dùng cho hệ thống prompts
+title: "Múi giờ"
 ---
 
-# Timezones
+# Múi giờ
 
-OpenClaw standardizes timestamps so the model sees a **single reference time**.
+OpenClaw chuẩn hóa dấu thời gian để mô hình chỉ thấy **một thời gian tham chiếu duy nhất**.
 
-## Message envelopes (local by default)
+## Phong bì tin nhắn (mặc định là theo địa phương)
 
-Inbound messages are wrapped in an envelope like:
+Tin nhắn đến được bao bọc trong một phong bì như sau:
 
 ```
-[Provider ... 2026-01-05 16:26 PST] message text
+[Provider ... 2026-01-05 16:26 PST] nội dung tin nhắn
 ```
 
-The timestamp in the envelope is **host-local by default**, with minutes precision.
+Dấu thời gian trong phong bì **mặc định là theo địa phương**, với độ chính xác đến phút.
 
-You can override this with:
+Bạn có thể ghi đè điều này bằng:
 
 ```json5
 {
@@ -34,46 +34,46 @@ You can override this with:
 }
 ```
 
-- `envelopeTimezone: "utc"` uses UTC.
-- `envelopeTimezone: "user"` uses `agents.defaults.userTimezone` (falls back to host timezone).
-- Use an explicit IANA timezone (e.g., `"Europe/Vienna"`) for a fixed offset.
-- `envelopeTimestamp: "off"` removes absolute timestamps from envelope headers.
-- `envelopeElapsed: "off"` removes elapsed time suffixes (the `+2m` style).
+- `envelopeTimezone: "utc"` sử dụng UTC.
+- `envelopeTimezone: "user"` sử dụng `agents.defaults.userTimezone` (sẽ quay về múi giờ máy chủ nếu không có).
+- Sử dụng múi giờ IANA cụ thể (ví dụ: `"Europe/Vienna"`) để có độ lệch cố định.
+- `envelopeTimestamp: "off"` loại bỏ dấu thời gian tuyệt đối khỏi tiêu đề phong bì.
+- `envelopeElapsed: "off"` loại bỏ hậu tố thời gian đã trôi qua (kiểu `+2m`).
 
-### Examples
+### Ví dụ
 
-**Local (default):**
-
-```
-[Signal Alice +1555 2026-01-18 00:19 PST] hello
-```
-
-**Fixed timezone:**
+**Theo địa phương (mặc định):**
 
 ```
-[Signal Alice +1555 2026-01-18 06:19 GMT+1] hello
+[Signal Alice +1555 2026-01-18 00:19 PST] xin chào
 ```
 
-**Elapsed time:**
+**Múi giờ cố định:**
 
 ```
-[Signal Alice +1555 +2m 2026-01-18T05:19Z] follow-up
+[Signal Alice +1555 2026-01-18 06:19 GMT+1] xin chào
 ```
 
-## Tool payloads (raw provider data + normalized fields)
+**Thời gian đã trôi qua:**
 
-Tool calls (`channels.discord.readMessages`, `channels.slack.readMessages`, etc.) return **raw provider timestamps**.
-We also attach normalized fields for consistency:
+```
+[Signal Alice +1555 +2m 2026-01-18T05:19Z] theo dõi
+```
+
+## Payload công cụ (dữ liệu nhà cung cấp thô + trường chuẩn hóa)
+
+Các cuộc gọi công cụ (`channels.discord.readMessages`, `channels.slack.readMessages`, v.v.) trả về **dấu thời gian nhà cung cấp thô**.
+Chúng tôi cũng đính kèm các trường chuẩn hóa để đảm bảo nhất quán:
 
 - `timestampMs` (UTC epoch milliseconds)
-- `timestampUtc` (ISO 8601 UTC string)
+- `timestampUtc` (chuỗi UTC ISO 8601)
 
-Raw provider fields are preserved.
+Các trường nhà cung cấp thô được giữ nguyên.
 
-## User timezone for the system prompt
+## Múi giờ người dùng cho hệ thống prompt
 
-Set `agents.defaults.userTimezone` to tell the model the user's local time zone. If it is
-unset, OpenClaw resolves the **host timezone at runtime** (no config write).
+Thiết lập `agents.defaults.userTimezone` để thông báo cho mô hình về múi giờ địa phương của người dùng. Nếu không thiết lập,
+OpenClaw sẽ xác định **múi giờ máy chủ tại thời điểm chạy** (không ghi cấu hình).
 
 ```json5
 {
@@ -81,11 +81,11 @@ unset, OpenClaw resolves the **host timezone at runtime** (no config write).
 }
 ```
 
-The system prompt includes:
+Hệ thống prompt bao gồm:
 
-- `Current Date & Time` section with local time and timezone
-- `Time format: 12-hour` or `24-hour`
+- Phần `Current Date & Time` với thời gian và múi giờ địa phương
+- `Time format: 12-hour` hoặc `24-hour`
 
-You can control the prompt format with `agents.defaults.timeFormat` (`auto` | `12` | `24`).
+Bạn có thể kiểm soát định dạng prompt với `agents.defaults.timeFormat` (`auto` | `12` | `24`).
 
-See [Date & Time](/date-time) for the full behavior and examples.
+Xem [Date & Time](/date-time) để biết đầy đủ hành vi và ví dụ.

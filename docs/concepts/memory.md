@@ -1,64 +1,54 @@
 ---
-title: "Memory"
-summary: "How OpenClaw memory works (workspace files + automatic memory flush)"
+title: "Bộ nhớ"
+summary: "Cách hoạt động của bộ nhớ OpenClaw (tệp workspace + tự động xóa bộ nhớ)"
 read_when:
-  - You want the memory file layout and workflow
-  - You want to tune the automatic pre-compaction memory flush
+  - Bạn muốn biết cấu trúc và quy trình làm việc của tệp bộ nhớ
+  - Bạn muốn điều chỉnh tính năng tự động xóa bộ nhớ trước khi nén
 ---
 
-# Memory
+# Bộ nhớ
 
-OpenClaw memory is **plain Markdown in the agent workspace**. The files are the
-source of truth; the model only "remembers" what gets written to disk.
+Bộ nhớ của OpenClaw là **Markdown đơn giản trong workspace của agent**. Các tệp này là nguồn thông tin chính xác; mô hình chỉ "nhớ" những gì được ghi vào đĩa.
 
-Memory search tools are provided by the active memory plugin (default:
-`memory-core`). Disable memory plugins with `plugins.slots.memory = "none"`.
+Công cụ tìm kiếm bộ nhớ được cung cấp bởi plugin bộ nhớ đang hoạt động (mặc định: `memory-core`). Vô hiệu hóa plugin bộ nhớ với `plugins.slots.memory = "none"`.
 
-## Memory files (Markdown)
+## Tệp bộ nhớ (Markdown)
 
-The default workspace layout uses two memory layers:
+Cấu trúc workspace mặc định sử dụng hai lớp bộ nhớ:
 
 - `memory/YYYY-MM-DD.md`
-  - Daily log (append-only).
-  - Read today + yesterday at session start.
-- `MEMORY.md` (optional)
-  - Curated long-term memory.
-  - If both `MEMORY.md` and `memory.md` exist at the workspace root, OpenClaw only loads `MEMORY.md`.
-  - Lowercase `memory.md` is only used as a fallback when `MEMORY.md` is absent.
-  - **Only load in the main, private session** (never in group contexts).
+  - Nhật ký hàng ngày (chỉ thêm vào).
+  - Đọc hôm nay + hôm qua khi bắt đầu phiên.
+- `MEMORY.md` (tùy chọn)
+  - Bộ nhớ dài hạn được chọn lọc.
+  - Nếu cả `MEMORY.md` và `memory.md` đều tồn tại ở gốc workspace, OpenClaw chỉ tải `MEMORY.md`.
+  - `memory.md` viết thường chỉ được dùng khi `MEMORY.md` không có.
+  - **Chỉ tải trong phiên chính, riêng tư** (không bao giờ trong ngữ cảnh nhóm).
 
-These files live under the workspace (`agents.defaults.workspace`, default
-`~/.openclaw/workspace`). See [Agent workspace](/concepts/agent-workspace) for the full layout.
+Các tệp này nằm trong workspace (`agents.defaults.workspace`, mặc định `~/.openclaw/workspace`). Xem [Agent workspace](/concepts/agent-workspace) để biết cấu trúc đầy đủ.
 
-## Memory tools
+## Công cụ bộ nhớ
 
-OpenClaw exposes two agent-facing tools for these Markdown files:
+OpenClaw cung cấp hai công cụ cho agent để làm việc với các tệp Markdown này:
 
-- `memory_search` -- semantic recall over indexed snippets.
-- `memory_get` -- targeted read of a specific Markdown file/line range.
+- `memory_search` -- tìm kiếm ngữ nghĩa trên các đoạn đã được lập chỉ mục.
+- `memory_get` -- đọc mục tiêu của một tệp/đoạn dòng Markdown cụ thể.
 
-`memory_get` now **degrades gracefully when a file doesn't exist** (for example,
-today's daily log before the first write). Both the builtin manager and the QMD
-backend return `{ text: "", path }` instead of throwing `ENOENT`, so agents can
-handle "nothing recorded yet" and continue their workflow without wrapping the
-tool call in try/catch logic.
+`memory_get` hiện **xử lý tốt khi tệp không tồn tại** (ví dụ, nhật ký hàng ngày của hôm nay trước khi có ghi đầu tiên). Cả trình quản lý tích hợp và backend QMD đều trả về `{ text: "", path }` thay vì ném lỗi `ENOENT`, giúp agent xử lý "chưa có gì được ghi lại" và tiếp tục quy trình làm việc mà không cần bọc lệnh gọi công cụ trong logic try/catch.
 
-## When to write memory
+## Khi nào ghi bộ nhớ
 
-- Decisions, preferences, and durable facts go to `MEMORY.md`.
-- Day-to-day notes and running context go to `memory/YYYY-MM-DD.md`.
-- If someone says "remember this," write it down (do not keep it in RAM).
-- This area is still evolving. It helps to remind the model to store memories; it will know what to do.
-- If you want something to stick, **ask the bot to write it** into memory.
+- Quyết định, sở thích và thông tin bền vững nên ghi vào `MEMORY.md`.
+- Ghi chú hàng ngày và ngữ cảnh đang chạy nên ghi vào `memory/YYYY-MM-DD.md`.
+- Nếu ai đó nói "hãy nhớ điều này," hãy ghi lại (không giữ trong RAM).
+- Khu vực này vẫn đang phát triển. Nên nhắc mô hình lưu trữ ký ức; nó sẽ biết phải làm gì.
+- Nếu muốn điều gì đó được ghi nhớ, **yêu cầu bot ghi nó** vào bộ nhớ.
 
-## Automatic memory flush (pre-compaction ping)
+## Tự động xóa bộ nhớ (ping trước khi nén)
 
-When a session is **close to auto-compaction**, OpenClaw triggers a **silent,
-agentic turn** that reminds the model to write durable memory **before** the
-context is compacted. The default prompts explicitly say the model _may reply_,
-but usually `NO_REPLY` is the correct response so the user never sees this turn.
+Khi một phiên **gần đến lúc tự động nén**, OpenClaw kích hoạt một **lượt im lặng, tự động** nhắc mô hình ghi bộ nhớ bền vững **trước khi** ngữ cảnh bị nén. Các lời nhắc mặc định nói rõ mô hình _có thể trả lời_, nhưng thường `NO_REPLY` là phản hồi đúng để người dùng không thấy lượt này.
 
-This is controlled by `agents.defaults.compaction.memoryFlush`:
+Điều này được kiểm soát bởi `agents.defaults.compaction.memoryFlush`:
 
 ```json5
 {
@@ -69,8 +59,8 @@ This is controlled by `agents.defaults.compaction.memoryFlush`:
         memoryFlush: {
           enabled: true,
           softThresholdTokens: 4000,
-          systemPrompt: "Session nearing compaction. Store durable memories now.",
-          prompt: "Write any lasting notes to memory/YYYY-MM-DD.md; reply with NO_REPLY if nothing to store.",
+          systemPrompt: "Phiên gần đến lúc nén. Lưu trữ ký ức bền vững ngay.",
+          prompt: "Ghi bất kỳ ghi chú lâu dài nào vào memory/YYYY-MM-DD.md; trả lời với NO_REPLY nếu không có gì để lưu trữ.",
         },
       },
     },
@@ -78,31 +68,20 @@ This is controlled by `agents.defaults.compaction.memoryFlush`:
 }
 ```
 
-Details:
+Chi tiết:
 
-- **Soft threshold**: flush triggers when the session token estimate crosses
-  `contextWindow - reserveTokensFloor - softThresholdTokens`.
-- **Silent** by default: prompts include `NO_REPLY` so nothing is delivered.
-- **Two prompts**: a user prompt plus a system prompt append the reminder.
-- **One flush per compaction cycle** (tracked in `sessions.json`).
-- **Workspace must be writable**: if the session runs sandboxed with
-  `workspaceAccess: "ro"` or `"none"`, the flush is skipped.
+- **Ngưỡng mềm**: xóa kích hoạt khi ước tính token của phiên vượt qua `contextWindow - reserveTokensFloor - softThresholdTokens`.
+- **Im lặng** theo mặc định: lời nhắc bao gồm `NO_REPLY` để không có gì được gửi đi.
+- **Hai lời nhắc**: một lời nhắc người dùng cộng với một lời nhắc hệ thống thêm vào nhắc nhở.
+- **Một lần xóa mỗi chu kỳ nén** (được theo dõi trong `sessions.json`).
+- **Workspace phải có thể ghi**: nếu phiên chạy trong chế độ sandbox với `workspaceAccess: "ro"` hoặc `"none"`, xóa sẽ bị bỏ qua.
 
-For the full compaction lifecycle, see
-[Session management + compaction](/reference/session-management-compaction).
+Để biết vòng đời nén đầy đủ, xem [Quản lý phiên + nén](/reference/session-management-compaction).
 
-## Vector memory search
+## Tìm kiếm bộ nhớ vector
 
-OpenClaw can build a small vector index over `MEMORY.md` and `memory/*.md` so
-semantic queries can find related notes even when wording differs. Hybrid search
-(BM25 + vector) is available for combining semantic matching with exact keyword
-lookups.
+OpenClaw có thể xây dựng một chỉ mục vector nhỏ trên `MEMORY.md` và `memory/*.md` để các truy vấn ngữ nghĩa có thể tìm thấy các ghi chú liên quan ngay cả khi cách diễn đạt khác nhau. Tìm kiếm kết hợp (BM25 + vector) có sẵn để kết hợp khớp ngữ nghĩa với tìm kiếm từ khóa chính xác.
 
-Memory search supports multiple embedding providers (OpenAI, Gemini, Voyage,
-Mistral, Ollama, and local GGUF models), an optional QMD sidecar backend for
-advanced retrieval, and post-processing features like MMR diversity re-ranking
-and temporal decay.
+Tìm kiếm bộ nhớ hỗ trợ nhiều nhà cung cấp embedding (OpenAI, Gemini, Voyage, Mistral, Ollama, và các mô hình GGUF cục bộ), một backend QMD tùy chọn cho việc truy xuất nâng cao, và các tính năng xử lý hậu kỳ như xếp hạng lại đa dạng MMR và suy giảm theo thời gian.
 
-For the full configuration reference -- including embedding provider setup, QMD
-backend, hybrid search tuning, multimodal memory, and all config knobs -- see
-[Memory configuration reference](/reference/memory-config).
+Để biết cấu hình đầy đủ -- bao gồm thiết lập nhà cung cấp embedding, backend QMD, điều chỉnh tìm kiếm kết hợp, bộ nhớ đa phương tiện, và tất cả các nút cấu hình -- xem [Tham khảo cấu hình bộ nhớ](/reference/memory-config).

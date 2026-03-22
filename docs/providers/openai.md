@@ -1,31 +1,29 @@
 ---
-summary: "Use OpenAI via API keys or Codex subscription in OpenClaw"
+summary: "Sử dụng OpenAI qua API keys hoặc đăng ký Codex trong OpenClaw"
 read_when:
-  - You want to use OpenAI models in OpenClaw
-  - You want Codex subscription auth instead of API keys
+  - Bạn muốn sử dụng mô hình OpenAI trong OpenClaw
+  - Bạn muốn xác thực đăng ký Codex thay vì API keys
 title: "OpenAI"
 ---
 
 # OpenAI
 
-OpenAI provides developer APIs for GPT models. Codex supports **ChatGPT sign-in** for subscription
-access or **API key** sign-in for usage-based access. Codex cloud requires ChatGPT sign-in.
-OpenAI explicitly supports subscription OAuth usage in external tools/workflows like OpenClaw.
+OpenAI cung cấp API cho các nhà phát triển để sử dụng mô hình GPT. Codex hỗ trợ **đăng nhập ChatGPT** cho truy cập đăng ký hoặc **đăng nhập bằng API key** cho truy cập dựa trên sử dụng. Codex cloud yêu cầu đăng nhập ChatGPT. OpenAI hỗ trợ rõ ràng việc sử dụng OAuth đăng ký trong các công cụ/quy trình bên ngoài như OpenClaw.
 
-## Option A: OpenAI API key (OpenAI Platform)
+## Lựa chọn A: API key của OpenAI (Nền tảng OpenAI)
 
-**Best for:** direct API access and usage-based billing.
-Get your API key from the OpenAI dashboard.
+**Phù hợp nhất cho:** truy cập API trực tiếp và thanh toán dựa trên sử dụng.
+Lấy API key từ dashboard của OpenAI.
 
-### CLI setup
+### Thiết lập CLI
 
 ```bash
 openclaw onboard --auth-choice openai-api-key
-# or non-interactive
+# hoặc không tương tác
 openclaw onboard --openai-api-key "$OPENAI_API_KEY"
 ```
 
-### Config snippet
+### Đoạn cấu hình
 
 ```json5
 {
@@ -34,31 +32,26 @@ openclaw onboard --openai-api-key "$OPENAI_API_KEY"
 }
 ```
 
-OpenAI's current API model docs list `gpt-5.4` and `gpt-5.4-pro` for direct
-OpenAI API usage. OpenClaw forwards both through the `openai/*` Responses path.
-OpenClaw intentionally suppresses the stale `openai/gpt-5.3-codex-spark` row,
-because direct OpenAI API calls reject it in live traffic.
+Tài liệu API hiện tại của OpenAI liệt kê `gpt-5.4` và `gpt-5.4-pro` cho việc sử dụng API trực tiếp của OpenAI. OpenClaw chuyển tiếp cả hai qua đường dẫn `openai/*` Responses. OpenClaw cố ý loại bỏ dòng `openai/gpt-5.3-codex-spark` cũ, vì các cuộc gọi API trực tiếp của OpenAI từ chối nó trong lưu lượng truy cập thực tế.
 
-OpenClaw does **not** expose `openai/gpt-5.3-codex-spark` on the direct OpenAI
-API path. `pi-ai` still ships a built-in row for that model, but live OpenAI API
-requests currently reject it. Spark is treated as Codex-only in OpenClaw.
+OpenClaw **không** hiển thị `openai/gpt-5.3-codex-spark` trên đường dẫn API trực tiếp của OpenAI. `pi-ai` vẫn cung cấp một dòng tích hợp cho mô hình đó, nhưng các yêu cầu API trực tiếp của OpenAI hiện tại từ chối nó. Spark được coi là chỉ dành cho Codex trong OpenClaw.
 
-## Option B: OpenAI Code (Codex) subscription
+## Lựa chọn B: Đăng ký OpenAI Code (Codex)
 
-**Best for:** using ChatGPT/Codex subscription access instead of an API key.
-Codex cloud requires ChatGPT sign-in, while the Codex CLI supports ChatGPT or API key sign-in.
+**Phù hợp nhất cho:** sử dụng truy cập đăng ký ChatGPT/Codex thay vì API key.
+Codex cloud yêu cầu đăng nhập ChatGPT, trong khi Codex CLI hỗ trợ đăng nhập ChatGPT hoặc API key.
 
-### CLI setup (Codex OAuth)
+### Thiết lập CLI (Codex OAuth)
 
 ```bash
-# Run Codex OAuth in the wizard
+# Chạy Codex OAuth trong wizard
 openclaw onboard --auth-choice openai-codex
 
-# Or run OAuth directly
+# Hoặc chạy OAuth trực tiếp
 openclaw models auth login --provider openai-codex
 ```
 
-### Config snippet (Codex subscription)
+### Đoạn cấu hình (đăng ký Codex)
 
 ```json5
 {
@@ -66,40 +59,32 @@ openclaw models auth login --provider openai-codex
 }
 ```
 
-OpenAI's current Codex docs list `gpt-5.4` as the current Codex model. OpenClaw
-maps that to `openai-codex/gpt-5.4` for ChatGPT/Codex OAuth usage.
+Tài liệu Codex hiện tại của OpenAI liệt kê `gpt-5.4` là mô hình Codex hiện tại. OpenClaw ánh xạ điều đó thành `openai-codex/gpt-5.4` cho việc sử dụng OAuth ChatGPT/Codex.
 
-If your Codex account is entitled to Codex Spark, OpenClaw also supports:
+Nếu tài khoản Codex của bạn có quyền truy cập Codex Spark, OpenClaw cũng hỗ trợ:
 
 - `openai-codex/gpt-5.3-codex-spark`
 
-OpenClaw treats Codex Spark as Codex-only. It does not expose a direct
-`openai/gpt-5.3-codex-spark` API-key path.
+OpenClaw coi Codex Spark là chỉ dành cho Codex. Nó không hiển thị đường dẫn API-key trực tiếp `openai/gpt-5.3-codex-spark`.
 
-OpenClaw also preserves `openai-codex/gpt-5.3-codex-spark` when `pi-ai`
-discovers it. Treat it as entitlement-dependent and experimental: Codex Spark is
-separate from GPT-5.4 `/fast`, and availability depends on the signed-in Codex /
-ChatGPT account.
+OpenClaw cũng giữ lại `openai-codex/gpt-5.3-codex-spark` khi `pi-ai` phát hiện ra nó. Hãy coi nó là phụ thuộc vào quyền và thử nghiệm: Codex Spark tách biệt với GPT-5.4 `/fast`, và khả dụng phụ thuộc vào tài khoản Codex / ChatGPT đã đăng nhập.
 
-### Transport default
+### Giao thức mặc định
 
-OpenClaw uses `pi-ai` for model streaming. For both `openai/*` and
-`openai-codex/*`, default transport is `"auto"` (WebSocket-first, then SSE
-fallback).
+OpenClaw sử dụng `pi-ai` cho streaming mô hình. Đối với cả `openai/*` và `openai-codex/*`, giao thức mặc định là `"auto"` (ưu tiên WebSocket, sau đó là SSE).
 
-You can set `agents.defaults.models.<provider/model>.params.transport`:
+Bạn có thể thiết lập `agents.defaults.models.<provider/model>.params.transport`:
 
-- `"sse"`: force SSE
-- `"websocket"`: force WebSocket
-- `"auto"`: try WebSocket, then fall back to SSE
+- `"sse"`: buộc dùng SSE
+- `"websocket"`: buộc dùng WebSocket
+- `"auto"`: thử WebSocket, sau đó chuyển sang SSE nếu cần
 
-For `openai/*` (Responses API), OpenClaw also enables WebSocket warm-up by
-default (`openaiWsWarmup: true`) when WebSocket transport is used.
+Đối với `openai/*` (API Responses), OpenClaw cũng kích hoạt warm-up WebSocket mặc định (`openaiWsWarmup: true`) khi sử dụng giao thức WebSocket.
 
-Related OpenAI docs:
+Tài liệu liên quan của OpenAI:
 
-- [Realtime API with WebSocket](https://platform.openai.com/docs/guides/realtime-websocket)
-- [Streaming API responses (SSE)](https://platform.openai.com/docs/guides/streaming-responses)
+- [API thời gian thực với WebSocket](https://platform.openai.com/docs/guides/realtime-websocket)
+- [Phản hồi API streaming (SSE)](https://platform.openai.com/docs/guides/streaming-responses)
 
 ```json5
 {
@@ -118,12 +103,11 @@ Related OpenAI docs:
 }
 ```
 
-### OpenAI WebSocket warm-up
+### Warm-up WebSocket của OpenAI
 
-OpenAI docs describe warm-up as optional. OpenClaw enables it by default for
-`openai/*` to reduce first-turn latency when using WebSocket transport.
+Tài liệu OpenAI mô tả warm-up là tùy chọn. OpenClaw kích hoạt nó mặc định cho `openai/*` để giảm độ trễ lượt đầu tiên khi sử dụng giao thức WebSocket.
 
-### Disable warm-up
+### Tắt warm-up
 
 ```json5
 {
@@ -141,7 +125,7 @@ OpenAI docs describe warm-up as optional. OpenClaw enables it by default for
 }
 ```
 
-### Enable warm-up explicitly
+### Kích hoạt warm-up rõ ràng
 
 ```json5
 {
@@ -159,11 +143,9 @@ OpenAI docs describe warm-up as optional. OpenClaw enables it by default for
 }
 ```
 
-### OpenAI priority processing
+### Xử lý ưu tiên của OpenAI
 
-OpenAI's API exposes priority processing via `service_tier=priority`. In
-OpenClaw, set `agents.defaults.models["openai/<model>"].params.serviceTier` to
-pass that field through on direct `openai/*` Responses requests.
+API của OpenAI cung cấp xử lý ưu tiên qua `service_tier=priority`. Trong OpenClaw, thiết lập `agents.defaults.models["openai/<model>"].params.serviceTier` để truyền trường đó qua các yêu cầu Responses trực tiếp `openai/*`.
 
 ```json5
 {
@@ -181,23 +163,22 @@ pass that field through on direct `openai/*` Responses requests.
 }
 ```
 
-Supported values are `auto`, `default`, `flex`, and `priority`.
+Các giá trị được hỗ trợ là `auto`, `default`, `flex`, và `priority`.
 
-### OpenAI fast mode
+### Chế độ nhanh của OpenAI
 
-OpenClaw exposes a shared fast-mode toggle for both `openai/*` and
-`openai-codex/*` sessions:
+OpenClaw cung cấp một công tắc chế độ nhanh chung cho cả phiên `openai/*` và `openai-codex/*`:
 
 - Chat/UI: `/fast status|on|off`
-- Config: `agents.defaults.models["<provider>/<model>"].params.fastMode`
+- Cấu hình: `agents.defaults.models["<provider>/<model>"].params.fastMode`
 
-When fast mode is enabled, OpenClaw applies a low-latency OpenAI profile:
+Khi chế độ nhanh được kích hoạt, OpenClaw áp dụng một hồ sơ OpenAI độ trễ thấp:
 
-- `reasoning.effort = "low"` when the payload does not already specify reasoning
-- `text.verbosity = "low"` when the payload does not already specify verbosity
-- `service_tier = "priority"` for direct `openai/*` Responses calls to `api.openai.com`
+- `reasoning.effort = "low"` khi payload chưa chỉ định reasoning
+- `text.verbosity = "low"` khi payload chưa chỉ định verbosity
+- `service_tier = "priority"` cho các cuộc gọi Responses trực tiếp `openai/*` tới `api.openai.com`
 
-Example:
+Ví dụ:
 
 ```json5
 {
@@ -220,25 +201,20 @@ Example:
 }
 ```
 
-Session overrides win over config. Clearing the session override in the Sessions UI
-returns the session to the configured default.
+Ghi đè phiên sẽ thắng cấu hình. Xóa ghi đè phiên trong giao diện Sessions sẽ trả phiên về mặc định đã cấu hình.
 
-### OpenAI Responses server-side compaction
+### Nén phía server của OpenAI Responses
 
-For direct OpenAI Responses models (`openai/*` using `api: "openai-responses"` with
-`baseUrl` on `api.openai.com`), OpenClaw now auto-enables OpenAI server-side
-compaction payload hints:
+Đối với các mô hình OpenAI Responses trực tiếp (`openai/*` sử dụng `api: "openai-responses"` với `baseUrl` trên `api.openai.com`), OpenClaw hiện tự động kích hoạt gợi ý nén payload phía server của OpenAI:
 
-- Forces `store: true` (unless model compat sets `supportsStore: false`)
-- Injects `context_management: [{ type: "compaction", compact_threshold: ... }]`
+- Buộc `store: true` (trừ khi mô hình tương thích đặt `supportsStore: false`)
+- Chèn `context_management: [{ type: "compaction", compact_threshold: ... }]`
 
-By default, `compact_threshold` is `70%` of model `contextWindow` (or `80000`
-when unavailable).
+Mặc định, `compact_threshold` là `70%` của `contextWindow` mô hình (hoặc `80000` khi không có sẵn).
 
-### Enable server-side compaction explicitly
+### Kích hoạt nén phía server rõ ràng
 
-Use this when you want to force `context_management` injection on compatible
-Responses models (for example Azure OpenAI Responses):
+Sử dụng điều này khi bạn muốn buộc chèn `context_management` trên các mô hình Responses tương thích (ví dụ Azure OpenAI Responses):
 
 ```json5
 {
@@ -256,7 +232,7 @@ Responses models (for example Azure OpenAI Responses):
 }
 ```
 
-### Enable with a custom threshold
+### Kích hoạt với ngưỡng tùy chỉnh
 
 ```json5
 {
@@ -275,7 +251,7 @@ Responses models (for example Azure OpenAI Responses):
 }
 ```
 
-### Disable server-side compaction
+### Tắt nén phía server
 
 ```json5
 {
@@ -293,11 +269,9 @@ Responses models (for example Azure OpenAI Responses):
 }
 ```
 
-`responsesServerCompaction` only controls `context_management` injection.
-Direct OpenAI Responses models still force `store: true` unless compat sets
-`supportsStore: false`.
+`responsesServerCompaction` chỉ kiểm soát việc chèn `context_management`. Các mô hình OpenAI Responses trực tiếp vẫn buộc `store: true` trừ khi tương thích đặt `supportsStore: false`.
 
-## Notes
+## Ghi chú
 
-- Model refs always use `provider/model` (see [/concepts/models](/concepts/models)).
-- Auth details + reuse rules are in [/concepts/oauth](/concepts/oauth).
+- Tham chiếu mô hình luôn sử dụng `provider/model` (xem [/concepts/models](/concepts/models)).
+- Chi tiết xác thực + quy tắc tái sử dụng có trong [/concepts/oauth](/concepts/oauth).

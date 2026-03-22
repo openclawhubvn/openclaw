@@ -1,14 +1,14 @@
 ---
-summary: "CLI reference for `openclaw reset` (reset local state/config)"
+summary: "Tham khảo CLI cho `openclaw reset` (đặt lại trạng thái/cấu hình cục bộ)"
 read_when:
-  - You want to wipe local state while keeping the CLI installed
-  - You want a dry-run of what would be removed
+  - Bạn muốn xóa trạng thái cục bộ nhưng giữ lại CLI đã cài đặt
+  - Bạn muốn chạy thử để xem những gì sẽ bị xóa
 title: "reset"
 ---
 
 # `openclaw reset`
 
-Reset local config/state (keeps the CLI installed).
+Đặt lại cấu hình/trạng thái cục bộ (giữ nguyên CLI đã cài đặt).
 
 ```bash
 openclaw backup create
@@ -17,4 +17,4 @@ openclaw reset --dry-run
 openclaw reset --scope config+creds+sessions --yes --non-interactive
 ```
 
-Run `openclaw backup create` first if you want a restorable snapshot before removing local state.
+Chạy `openclaw backup create` trước nếu muốn tạo bản sao lưu có thể khôi phục trước khi xóa trạng thái cục bộ.

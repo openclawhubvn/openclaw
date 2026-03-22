@@ -1,160 +1,125 @@
 ---
-summary: "Plugin internals: capability model, ownership, contracts, load pipeline, and runtime helpers"
+summary: "Nội dung bên trong Plugin: mô hình khả năng, quyền sở hữu, hợp đồng, quy trình tải, và các trợ giúp runtime"
 read_when:
-  - Building or debugging native OpenClaw plugins
-  - Understanding the plugin capability model or ownership boundaries
-  - Working on the plugin load pipeline or registry
-  - Implementing provider runtime hooks or channel plugins
-title: "Plugin Internals"
-sidebarTitle: "Internals"
+  - Xây dựng hoặc gỡ lỗi plugin OpenClaw gốc
+  - Hiểu mô hình khả năng của plugin hoặc ranh giới quyền sở hữu
+  - Làm việc trên quy trình tải plugin hoặc registry
+  - Triển khai các hook runtime của provider hoặc plugin kênh
+title: "Nội dung Bên trong Plugin"
+sidebarTitle: "Nội dung Bên trong"
 ---
 
-# Plugin Internals
+# Nội dung Bên trong Plugin
 
 <Info>
-  This page is for **plugin developers and contributors**. If you just want to
-  install and use plugins, see [Plugins](/tools/plugin). If you want to build
-  a plugin, see [Building Plugins](/plugins/building-plugins).
+  Trang này dành cho **nhà phát triển và người đóng góp plugin**. Nếu bạn chỉ muốn
+  cài đặt và sử dụng plugin, xem [Plugins](/tools/plugin). Nếu bạn muốn xây dựng
+  một plugin, xem [Xây dựng Plugins](/plugins/building-plugins).
 </Info>
 
-This page covers the internal architecture of the OpenClaw plugin system.
+Trang này bao gồm kiến trúc nội bộ của hệ thống plugin OpenClaw.
 
-## Public capability model
+## Mô hình khả năng công khai
 
-Capabilities are the public **native plugin** model inside OpenClaw. Every
-native OpenClaw plugin registers against one or more capability types:
+Khả năng là mô hình **plugin gốc** công khai bên trong OpenClaw. Mỗi plugin gốc OpenClaw đăng ký với một hoặc nhiều loại khả năng:
 
-| Capability          | Registration method                           | Example plugins           |
-| ------------------- | --------------------------------------------- | ------------------------- |
-| Text inference      | `api.registerProvider(...)`                   | `openai`, `anthropic`     |
-| Speech              | `api.registerSpeechProvider(...)`             | `elevenlabs`, `microsoft` |
-| Media understanding | `api.registerMediaUnderstandingProvider(...)` | `openai`, `google`        |
-| Image generation    | `api.registerImageGenerationProvider(...)`    | `openai`, `google`        |
-| Web search          | `api.registerWebSearchProvider(...)`          | `google`                  |
-| Channel / messaging | `api.registerChannel(...)`                    | `msteams`, `matrix`       |
+| Khả năng            | Phương thức đăng ký                                | Ví dụ plugin              |
+| ------------------- | -------------------------------------------------- | ------------------------- |
+| Suy luận văn bản    | `api.registerProvider(...)`                       | `openai`, `anthropic`     |
+| Giọng nói           | `api.registerSpeechProvider(...)`                 | `elevenlabs`, `microsoft` |
+| Hiểu biết truyền thông | `api.registerMediaUnderstandingProvider(...)` | `openai`, `google`        |
+| Tạo hình ảnh        | `api.registerImageGenerationProvider(...)`        | `openai`, `google`        |
+| Tìm kiếm web        | `api.registerWebSearchProvider(...)`              | `google`                  |
+| Kênh / nhắn tin     | `api.registerChannel(...)`                        | `msteams`, `matrix`       |
 
-A plugin that registers zero capabilities but provides hooks, tools, or
-services is a **legacy hook-only** plugin. That pattern is still fully supported.
+Một plugin không đăng ký khả năng nào nhưng cung cấp hook, công cụ, hoặc dịch vụ là một plugin **chỉ có hook cũ**. Mẫu này vẫn được hỗ trợ đầy đủ.
 
-### External compatibility stance
+### Quan điểm tương thích bên ngoài
 
-The capability model is landed in core and used by bundled/native plugins
-today, but external plugin compatibility still needs a tighter bar than "it is
-exported, therefore it is frozen."
+Mô hình khả năng đã được tích hợp vào lõi và được sử dụng bởi các plugin gốc/bundled ngày nay, nhưng khả năng tương thích plugin bên ngoài vẫn cần một tiêu chuẩn chặt chẽ hơn "nó được xuất, do đó nó được đóng băng."
 
-Current guidance:
+Hướng dẫn hiện tại:
 
-- **existing external plugins:** keep hook-based integrations working; treat
-  this as the compatibility baseline
-- **new bundled/native plugins:** prefer explicit capability registration over
-  vendor-specific reach-ins or new hook-only designs
-- **external plugins adopting capability registration:** allowed, but treat the
-  capability-specific helper surfaces as evolving unless docs explicitly mark a
-  contract as stable
+- **plugin bên ngoài hiện có:** giữ cho tích hợp dựa trên hook hoạt động; coi đây là tiêu chuẩn tương thích
+- **plugin gốc/bundled mới:** ưu tiên đăng ký khả năng rõ ràng hơn là tiếp cận theo nhà cung cấp hoặc thiết kế chỉ có hook mới
+- **plugin bên ngoài áp dụng đăng ký khả năng:** được phép, nhưng coi các bề mặt trợ giúp cụ thể cho khả năng là đang phát triển trừ khi tài liệu rõ ràng đánh dấu một hợp đồng là ổn định
 
-Practical rule:
+Quy tắc thực tế:
 
-- capability registration APIs are the intended direction
-- legacy hooks remain the safest no-breakage path for external plugins during
-  the transition
-- exported helper subpaths are not all equal; prefer the narrow documented
-  contract, not incidental helper exports
+- API đăng ký khả năng là hướng đi dự định
+- hook cũ vẫn là con đường an toàn nhất không bị phá vỡ cho plugin bên ngoài trong quá trình chuyển đổi
+- các subpath trợ giúp xuất không phải tất cả đều bằng nhau; ưu tiên hợp đồng được tài liệu rõ ràng, không phải các trợ giúp xuất ngẫu nhiên
 
-### Plugin shapes
+### Hình dạng Plugin
 
-OpenClaw classifies every loaded plugin into a shape based on its actual
-registration behavior (not just static metadata):
+OpenClaw phân loại mỗi plugin đã tải vào một hình dạng dựa trên hành vi đăng ký thực tế của nó (không chỉ là metadata tĩnh):
 
-- **plain-capability** -- registers exactly one capability type (for example a
-  provider-only plugin like `mistral`)
-- **hybrid-capability** -- registers multiple capability types (for example
-  `openai` owns text inference, speech, media understanding, and image
-  generation)
-- **hook-only** -- registers only hooks (typed or custom), no capabilities,
-  tools, commands, or services
-- **non-capability** -- registers tools, commands, services, or routes but no
-  capabilities
+- **plain-capability** -- đăng ký chính xác một loại khả năng (ví dụ như một plugin chỉ có provider như `mistral`)
+- **hybrid-capability** -- đăng ký nhiều loại khả năng (ví dụ `openai` sở hữu suy luận văn bản, giọng nói, hiểu biết truyền thông, và tạo hình ảnh)
+- **hook-only** -- chỉ đăng ký hook (đã được gõ hoặc tùy chỉnh), không có khả năng, công cụ, lệnh, hoặc dịch vụ
+- **non-capability** -- đăng ký công cụ, lệnh, dịch vụ, hoặc tuyến đường nhưng không có khả năng
 
-Use `openclaw plugins inspect <id>` to see a plugin's shape and capability
-breakdown. See [CLI reference](/cli/plugins#inspect) for details.
+Sử dụng `openclaw plugins inspect <id>` để xem hình dạng và phân tích khả năng của một plugin. Xem [CLI reference](/cli/plugins#inspect) để biết chi tiết.
 
-### Legacy hooks
+### Hook cũ
 
-The `before_agent_start` hook remains supported as a compatibility path for
-hook-only plugins. Legacy real-world plugins still depend on it.
+Hook `before_agent_start` vẫn được hỗ trợ như một con đường tương thích cho các plugin chỉ có hook. Các plugin thực tế cũ vẫn phụ thuộc vào nó.
 
-Direction:
+Hướng đi:
 
-- keep it working
-- document it as legacy
-- prefer `before_model_resolve` for model/provider override work
-- prefer `before_prompt_build` for prompt mutation work
-- remove only after real usage drops and fixture coverage proves migration safety
+- giữ cho nó hoạt động
+- tài liệu hóa nó như là cũ
+- ưu tiên `before_model_resolve` cho công việc ghi đè model/provider
+- ưu tiên `before_prompt_build` cho công việc biến đổi prompt
+- chỉ loại bỏ sau khi sử dụng thực tế giảm và độ phủ fixture chứng minh an toàn di chuyển
 
-### Compatibility signals
+### Tín hiệu tương thích
 
-When you run `openclaw doctor` or `openclaw plugins inspect <id>`, you may see
-one of these labels:
+Khi bạn chạy `openclaw doctor` hoặc `openclaw plugins inspect <id>`, bạn có thể thấy một trong những nhãn này:
 
-| Signal                     | Meaning                                                      |
-| -------------------------- | ------------------------------------------------------------ |
-| **config valid**           | Config parses fine and plugins resolve                       |
-| **compatibility advisory** | Plugin uses a supported-but-older pattern (e.g. `hook-only`) |
-| **legacy warning**         | Plugin uses `before_agent_start`, which is deprecated        |
-| **hard error**             | Config is invalid or plugin failed to load                   |
+| Tín hiệu                  | Ý nghĩa                                                      |
+| ------------------------- | ------------------------------------------------------------ |
+| **config valid**          | Cấu hình phân tích tốt và plugin được giải quyết             |
+| **compatibility advisory**| Plugin sử dụng một mẫu cũ nhưng được hỗ trợ (ví dụ: `hook-only`) |
+| **legacy warning**        | Plugin sử dụng `before_agent_start`, đã bị loại bỏ           |
+| **hard error**            | Cấu hình không hợp lệ hoặc plugin không tải được             |
 
-Neither `hook-only` nor `before_agent_start` will break your plugin today --
-`hook-only` is advisory, and `before_agent_start` only triggers a warning. These
-signals also appear in `openclaw status --all` and `openclaw plugins doctor`.
+Cả `hook-only` và `before_agent_start` sẽ không phá vỡ plugin của bạn hôm nay -- `hook-only` là lời khuyên, và `before_agent_start` chỉ kích hoạt cảnh báo. Những tín hiệu này cũng xuất hiện trong `openclaw status --all` và `openclaw plugins doctor`.
 
-## Architecture overview
+## Tổng quan kiến trúc
 
-OpenClaw's plugin system has four layers:
+Hệ thống plugin của OpenClaw có bốn lớp:
 
-1. **Manifest + discovery**
-   OpenClaw finds candidate plugins from configured paths, workspace roots,
-   global extension roots, and bundled extensions. Discovery reads native
-   `openclaw.plugin.json` manifests plus supported bundle manifests first.
-2. **Enablement + validation**
-   Core decides whether a discovered plugin is enabled, disabled, blocked, or
-   selected for an exclusive slot such as memory.
-3. **Runtime loading**
-   Native OpenClaw plugins are loaded in-process via jiti and register
-   capabilities into a central registry. Compatible bundles are normalized into
-   registry records without importing runtime code.
-4. **Surface consumption**
-   The rest of OpenClaw reads the registry to expose tools, channels, provider
-   setup, hooks, HTTP routes, CLI commands, and services.
+1. **Manifest + khám phá**
+   OpenClaw tìm các plugin ứng viên từ các đường dẫn được cấu hình, gốc workspace, gốc mở rộng toàn cầu, và các mở rộng bundled. Khám phá đọc các manifest `openclaw.plugin.json` gốc cộng với các manifest bundle được hỗ trợ trước tiên.
+2. **Kích hoạt + xác thực**
+   Lõi quyết định liệu một plugin đã được khám phá có được kích hoạt, vô hiệu hóa, chặn, hay được chọn cho một slot độc quyền như bộ nhớ.
+3. **Tải runtime**
+   Các plugin OpenClaw gốc được tải trong quá trình thông qua jiti và đăng ký khả năng vào một registry trung tâm. Các bundle tương thích được chuẩn hóa thành các bản ghi registry mà không cần nhập mã runtime.
+4. **Tiêu thụ bề mặt**
+   Phần còn lại của OpenClaw đọc registry để hiển thị công cụ, kênh, thiết lập provider, hook, tuyến HTTP, lệnh CLI, và dịch vụ.
 
-The important design boundary:
+Ranh giới thiết kế quan trọng:
 
-- discovery + config validation should work from **manifest/schema metadata**
-  without executing plugin code
-- native runtime behavior comes from the plugin module's `register(api)` path
+- khám phá + xác thực cấu hình nên hoạt động từ **metadata manifest/schema** mà không cần thực thi mã plugin
+- hành vi runtime gốc đến từ đường dẫn `register(api)` của module plugin
 
-That split lets OpenClaw validate config, explain missing/disabled plugins, and
-build UI/schema hints before the full runtime is active.
+Sự phân chia đó cho phép OpenClaw xác thực cấu hình, giải thích các plugin bị thiếu/vô hiệu hóa, và xây dựng gợi ý UI/schema trước khi runtime đầy đủ hoạt động.
 
-### Channel plugins and the shared message tool
+### Plugin kênh và công cụ tin nhắn chia sẻ
 
-Channel plugins do not need to register a separate send/edit/react tool for
-normal chat actions. OpenClaw keeps one shared `message` tool in core, and
-channel plugins own the channel-specific discovery and execution behind it.
+Plugin kênh không cần đăng ký một công cụ gửi/chỉnh sửa/phản hồi riêng cho các hành động chat thông thường. OpenClaw giữ một công cụ `message` chia sẻ trong lõi, và plugin kênh sở hữu việc khám phá và thực thi cụ thể cho kênh đằng sau nó.
 
-The current boundary is:
+Ranh giới hiện tại là:
 
-- core owns the shared `message` tool host, prompt wiring, session/thread
-  bookkeeping, and execution dispatch
-- channel plugins own scoped action discovery, capability discovery, and any
-  channel-specific schema fragments
-- channel plugins execute the final action through their action adapter
+- lõi sở hữu máy chủ công cụ `message` chia sẻ, dây nối prompt, ghi sổ phiên/chủ đề, và phân phối thực thi
+- plugin kênh sở hữu khám phá hành động có phạm vi, khám phá khả năng, và bất kỳ mảnh schema cụ thể cho kênh nào
+- plugin kênh thực thi hành động cuối cùng thông qua bộ điều hợp hành động của họ
 
-For channel plugins, the SDK surface is
-`ChannelMessageActionAdapter.describeMessageTool(...)`. That unified discovery
-call lets a plugin return its visible actions, capabilities, and schema
-contributions together so those pieces do not drift apart.
+Đối với plugin kênh, bề mặt SDK là
+`ChannelMessageActionAdapter.describeMessageTool(...)`. Lời gọi khám phá thống nhất đó cho phép một plugin trả về các hành động, khả năng, và đóng góp schema có thể nhìn thấy của nó cùng nhau để những phần đó không bị tách rời.
 
-Core passes runtime scope into that discovery step. Important fields include:
+Lõi truyền phạm vi runtime vào bước khám phá đó. Các trường quan trọng bao gồm:
 
 - `accountId`
 - `currentChannelId`
@@ -163,117 +128,83 @@ Core passes runtime scope into that discovery step. Important fields include:
 - `sessionKey`
 - `sessionId`
 - `agentId`
-- trusted inbound `requesterSenderId`
+- `requesterSenderId` inbound đáng tin cậy
 
-That matters for context-sensitive plugins. A channel can hide or expose
-message actions based on the active account, current room/thread/message, or
-trusted requester identity without hardcoding channel-specific branches in the
-core `message` tool.
+Điều đó quan trọng cho các plugin nhạy cảm với ngữ cảnh. Một kênh có thể ẩn hoặc hiển thị các hành động tin nhắn dựa trên tài khoản hoạt động, phòng/chủ đề/tin nhắn hiện tại, hoặc danh tính người yêu cầu đáng tin cậy mà không cần mã hóa cứng các nhánh cụ thể cho kênh trong công cụ `message` lõi.
 
-This is why embedded-runner routing changes are still plugin work: the runner is
-responsible for forwarding the current chat/session identity into the plugin
-discovery boundary so the shared `message` tool exposes the right channel-owned
-surface for the current turn.
+Đây là lý do tại sao các thay đổi định tuyến runner nhúng vẫn là công việc của plugin: runner chịu trách nhiệm chuyển tiếp danh tính chat/phiên hiện tại vào ranh giới khám phá plugin để công cụ `message` chia sẻ hiển thị bề mặt thuộc sở hữu kênh đúng cho lượt hiện tại.
 
-For channel-owned execution helpers, bundled plugins should keep the execution
-runtime inside their own extension modules. Core no longer owns the Discord,
-Slack, Telegram, or WhatsApp message-action runtimes under `src/agents/tools`.
-We do not publish separate `plugin-sdk/*-action-runtime` subpaths, and bundled
-plugins should import their own local runtime code directly from their
-extension-owned modules.
+Đối với các trợ giúp thực thi thuộc sở hữu kênh, các plugin bundled nên giữ runtime thực thi bên trong các module mở rộng của riêng họ. Lõi không còn sở hữu các runtime hành động tin nhắn Discord, Slack, Telegram, hoặc WhatsApp dưới `src/agents/tools`. Chúng tôi không xuất bản các subpath `plugin-sdk/*-action-runtime` riêng biệt, và các plugin bundled nên nhập mã runtime cục bộ của riêng họ trực tiếp từ các module thuộc sở hữu mở rộng của họ.
 
-For polls specifically, there are two execution paths:
+Đối với các cuộc thăm dò cụ thể, có hai đường thực thi:
 
-- `outbound.sendPoll` is the shared baseline for channels that fit the common
-  poll model
-- `actions.handleAction("poll")` is the preferred path for channel-specific
-  poll semantics or extra poll parameters
+- `outbound.sendPoll` là cơ sở chia sẻ cho các kênh phù hợp với mô hình thăm dò chung
+- `actions.handleAction("poll")` là đường ưu tiên cho ngữ nghĩa thăm dò cụ thể cho kênh hoặc các tham số thăm dò bổ sung
 
-Core now defers shared poll parsing until after plugin poll dispatch declines
-the action, so plugin-owned poll handlers can accept channel-specific poll
-fields without being blocked by the generic poll parser first.
+Lõi hiện trì hoãn phân tích thăm dò chia sẻ cho đến khi plugin poll dispatch từ chối hành động, do đó các bộ xử lý thăm dò thuộc sở hữu plugin có thể chấp nhận các trường thăm dò cụ thể cho kênh mà không bị chặn bởi trình phân tích thăm dò chung trước.
 
-See [Load pipeline](#load-pipeline) for the full startup sequence.
+Xem [Quy trình tải](#load-pipeline) để biết trình tự khởi động đầy đủ.
 
-## Capability ownership model
+## Mô hình quyền sở hữu khả năng
 
-OpenClaw treats a native plugin as the ownership boundary for a **company** or a
-**feature**, not as a grab bag of unrelated integrations.
+OpenClaw coi một plugin gốc là ranh giới quyền sở hữu cho một **công ty** hoặc một **tính năng**, không phải là một túi tích hợp không liên quan.
 
-That means:
+Điều đó có nghĩa là:
 
-- a company plugin should usually own all of that company's OpenClaw-facing
-  surfaces
-- a feature plugin should usually own the full feature surface it introduces
-- channels should consume shared core capabilities instead of re-implementing
-  provider behavior ad hoc
+- một plugin công ty thường nên sở hữu tất cả các bề mặt hướng OpenClaw của công ty đó
+- một plugin tính năng thường nên sở hữu toàn bộ bề mặt tính năng mà nó giới thiệu
+- các kênh nên tiêu thụ các khả năng lõi chia sẻ thay vì triển khai lại hành vi provider một cách tùy tiện
 
-Examples:
+Ví dụ:
 
-- the bundled `openai` plugin owns OpenAI model-provider behavior and OpenAI
-  speech + media-understanding + image-generation behavior
-- the bundled `elevenlabs` plugin owns ElevenLabs speech behavior
-- the bundled `microsoft` plugin owns Microsoft speech behavior
-- the bundled `google` plugin owns Google model-provider behavior plus Google
-  media-understanding + image-generation + web-search behavior
-- the bundled `minimax`, `mistral`, `moonshot`, and `zai` plugins own their
-  media-understanding backends
-- the `voice-call` plugin is a feature plugin: it owns call transport, tools,
-  CLI, routes, and runtime, but it consumes core TTS/STT capability instead of
-  inventing a second speech stack
+- plugin `openai` bundled sở hữu hành vi model-provider OpenAI và hành vi hiểu biết giọng nói + truyền thông + tạo hình ảnh OpenAI
+- plugin `elevenlabs` bundled sở hữu hành vi giọng nói ElevenLabs
+- plugin `microsoft` bundled sở hữu hành vi giọng nói Microsoft
+- plugin `google` bundled sở hữu hành vi model-provider Google cộng với hành vi hiểu biết truyền thông + tạo hình ảnh + tìm kiếm web Google
+- các plugin `minimax`, `mistral`, `moonshot`, và `zai` bundled sở hữu các backend hiểu biết truyền thông của họ
+- plugin `voice-call` là một plugin tính năng: nó sở hữu vận chuyển cuộc gọi, công cụ, CLI, tuyến đường, và runtime, nhưng nó tiêu thụ khả năng TTS/STT lõi thay vì phát minh ra một ngăn xếp giọng nói thứ hai
 
-The intended end state is:
+Trạng thái cuối cùng dự định là:
 
-- OpenAI lives in one plugin even if it spans text models, speech, images, and
-  future video
-- another vendor can do the same for its own surface area
-- channels do not care which vendor plugin owns the provider; they consume the
-  shared capability contract exposed by core
+- OpenAI sống trong một plugin ngay cả khi nó trải dài các mô hình văn bản, giọng nói, hình ảnh, và video trong tương lai
+- một nhà cung cấp khác có thể làm điều tương tự cho khu vực bề mặt của riêng mình
+- các kênh không quan tâm plugin nhà cung cấp nào sở hữu provider; họ tiêu thụ hợp đồng khả năng chia sẻ được lõi phơi bày
 
-This is the key distinction:
+Đây là sự khác biệt chính:
 
-- **plugin** = ownership boundary
-- **capability** = core contract that multiple plugins can implement or consume
+- **plugin** = ranh giới quyền sở hữu
+- **khả năng** = hợp đồng lõi mà nhiều plugin có thể triển khai hoặc tiêu thụ
 
-So if OpenClaw adds a new domain such as video, the first question is not
-"which provider should hardcode video handling?" The first question is "what is
-the core video capability contract?" Once that contract exists, vendor plugins
-can register against it and channel/feature plugins can consume it.
+Vì vậy, nếu OpenClaw thêm một miền mới như video, câu hỏi đầu tiên không phải là "nhà cung cấp nào nên mã hóa cứng xử lý video?" Câu hỏi đầu tiên là "hợp đồng khả năng video lõi là gì?" Khi hợp đồng đó tồn tại, các plugin nhà cung cấp có thể đăng ký với nó và các plugin kênh/tính năng có thể tiêu thụ nó.
 
-If the capability does not exist yet, the right move is usually:
+Nếu khả năng chưa tồn tại, động thái đúng thường là:
 
-1. define the missing capability in core
-2. expose it through the plugin API/runtime in a typed way
-3. wire channels/features against that capability
-4. let vendor plugins register implementations
+1. định nghĩa khả năng còn thiếu trong lõi
+2. phơi bày nó thông qua API/runtime plugin một cách có gõ
+3. dây nối kênh/tính năng chống lại khả năng đó
+4. để các plugin nhà cung cấp đăng ký triển khai
 
-This keeps ownership explicit while avoiding core behavior that depends on a
-single vendor or a one-off plugin-specific code path.
+Điều này giữ cho quyền sở hữu rõ ràng trong khi tránh hành vi lõi phụ thuộc vào một nhà cung cấp duy nhất hoặc một đường mã plugin cụ thể.
 
-### Capability layering
+### Tầng khả năng
 
-Use this mental model when deciding where code belongs:
+Sử dụng mô hình tinh thần này khi quyết định nơi mã thuộc về:
 
-- **core capability layer**: shared orchestration, policy, fallback, config
-  merge rules, delivery semantics, and typed contracts
-- **vendor plugin layer**: vendor-specific APIs, auth, model catalogs, speech
-  synthesis, image generation, future video backends, usage endpoints
-- **channel/feature plugin layer**: Slack/Discord/voice-call/etc. integration
-  that consumes core capabilities and presents them on a surface
+- **tầng khả năng lõi**: điều phối chia sẻ, chính sách, quy tắc hợp nhất cấu hình, ngữ nghĩa phân phối, và hợp đồng có gõ
+- **tầng plugin nhà cung cấp**: API cụ thể cho nhà cung cấp, xác thực, danh mục mô hình, tổng hợp giọng nói, tạo hình ảnh, backend video trong tương lai, điểm cuối sử dụng
+- **tầng plugin kênh/tính năng**: tích hợp Slack/Discord/cuộc gọi thoại/v.v. tiêu thụ các khả năng lõi và trình bày chúng trên một bề mặt
 
-For example, TTS follows this shape:
+Ví dụ, TTS tuân theo hình dạng này:
 
-- core owns reply-time TTS policy, fallback order, prefs, and channel delivery
-- `openai`, `elevenlabs`, and `microsoft` own synthesis implementations
-- `voice-call` consumes the telephony TTS runtime helper
+- lõi sở hữu chính sách TTS thời gian trả lời, thứ tự dự phòng, sở thích, và phân phối kênh
+- `openai`, `elevenlabs`, và `microsoft` sở hữu các triển khai tổng hợp
+- `voice-call` tiêu thụ trợ giúp runtime TTS điện thoại
 
-That same pattern should be preferred for future capabilities.
+Mẫu đó nên được ưu tiên cho các khả năng trong tương lai.
 
-### Multi-capability company plugin example
+### Ví dụ plugin công ty đa khả năng
 
-A company plugin should feel cohesive from the outside. If OpenClaw has shared
-contracts for models, speech, media understanding, and web search, a vendor can
-own all of its surfaces in one place:
+Một plugin công ty nên cảm thấy gắn kết từ bên ngoài. Nếu OpenClaw có các hợp đồng chia sẻ cho mô hình, giọng nói, hiểu biết truyền thông, và tìm kiếm web, một nhà cung cấp có thể sở hữu tất cả các bề mặt của mình ở một nơi:
 
 ```ts
 import type { OpenClawPluginDefinition } from "openclaw/plugin-sdk";
@@ -331,208 +262,173 @@ const plugin: OpenClawPluginDefinition = {
 export default plugin;
 ```
 
-What matters is not the exact helper names. The shape matters:
+Điều quan trọng không phải là tên trợ giúp chính xác. Hình dạng quan trọng:
 
-- one plugin owns the vendor surface
-- core still owns the capability contracts
-- channels and feature plugins consume `api.runtime.*` helpers, not vendor code
-- contract tests can assert that the plugin registered the capabilities it
-  claims to own
+- một plugin sở hữu bề mặt nhà cung cấp
+- lõi vẫn sở hữu các hợp đồng khả năng
+- các plugin kênh và tính năng tiêu thụ `api.runtime.*` trợ giúp, không phải mã nhà cung cấp
+- các bài kiểm tra hợp đồng có thể khẳng định rằng plugin đã đăng ký các khả năng mà nó tuyên bố sở hữu
 
-### Capability example: video understanding
+### Ví dụ khả năng: hiểu biết video
 
-OpenClaw already treats image/audio/video understanding as one shared
-capability. The same ownership model applies there:
+OpenClaw đã coi hiểu biết hình ảnh/âm thanh/video là một khả năng chia sẻ. Mô hình quyền sở hữu tương tự áp dụng ở đó:
 
-1. core defines the media-understanding contract
-2. vendor plugins register `describeImage`, `transcribeAudio`, and
-   `describeVideo` as applicable
-3. channels and feature plugins consume the shared core behavior instead of
-   wiring directly to vendor code
+1. lõi định nghĩa hợp đồng hiểu biết truyền thông
+2. các plugin nhà cung cấp đăng ký `describeImage`, `transcribeAudio`, và
+   `describeVideo` khi áp dụng
+3. các plugin kênh và tính năng tiêu thụ hành vi lõi chia sẻ thay vì dây nối trực tiếp vào mã nhà cung cấp
 
-That avoids baking one provider's video assumptions into core. The plugin owns
-the vendor surface; core owns the capability contract and fallback behavior.
+Điều đó tránh việc mã hóa cứng các giả định video của một nhà cung cấp vào lõi. Plugin sở hữu bề mặt nhà cung cấp; lõi sở hữu hợp đồng khả năng và hành vi dự phòng.
 
-If OpenClaw adds a new domain later, such as video generation, use the same
-sequence again: define the core capability first, then let vendor plugins
-register implementations against it.
+Nếu OpenClaw thêm một miền mới sau này, chẳng hạn như tạo video, hãy sử dụng lại trình tự tương tự: định nghĩa khả năng lõi trước, sau đó để các plugin nhà cung cấp đăng ký triển khai chống lại nó.
 
-Need a concrete rollout checklist? See
+Cần một danh sách kiểm tra triển khai cụ thể? Xem
 [Capability Cookbook](/tools/capability-cookbook).
 
-## Contracts and enforcement
+## Hợp đồng và thực thi
 
-The plugin API surface is intentionally typed and centralized in
-`OpenClawPluginApi`. That contract defines the supported registration points and
-the runtime helpers a plugin may rely on.
+Bề mặt API plugin được gõ và tập trung trong `OpenClawPluginApi`. Hợp đồng đó định nghĩa các điểm đăng ký được hỗ trợ và các trợ giúp runtime mà một plugin có thể dựa vào.
 
-Why this matters:
+Tại sao điều này quan trọng:
 
-- plugin authors get one stable internal standard
-- core can reject duplicate ownership such as two plugins registering the same
-  provider id
-- startup can surface actionable diagnostics for malformed registration
-- contract tests can enforce bundled-plugin ownership and prevent silent drift
+- tác giả plugin có một tiêu chuẩn nội bộ ổn định
+- lõi có thể từ chối quyền sở hữu trùng lặp như hai plugin đăng ký cùng một id provider
+- khởi động có thể hiển thị chẩn đoán có thể hành động cho đăng ký không đúng định dạng
+- các bài kiểm tra hợp đồng có thể thực thi quyền sở hữu plugin bundled và ngăn chặn sự trôi dạt im lặng
 
-There are two layers of enforcement:
+Có hai lớp thực thi:
 
-1. **runtime registration enforcement**
-   The plugin registry validates registrations as plugins load. Examples:
-   duplicate provider ids, duplicate speech provider ids, and malformed
-   registrations produce plugin diagnostics instead of undefined behavior.
-2. **contract tests**
-   Bundled plugins are captured in contract registries during test runs so
-   OpenClaw can assert ownership explicitly. Today this is used for model
-   providers, speech providers, web search providers, and bundled registration
-   ownership.
+1. **thực thi đăng ký runtime**
+   Registry plugin xác thực các đăng ký khi plugin tải. Ví dụ: id provider trùng lặp, id provider giọng nói trùng lặp, và đăng ký không đúng định dạng tạo ra chẩn đoán plugin thay vì hành vi không xác định.
+2. **bài kiểm tra hợp đồng**
+   Các plugin bundled được ghi lại trong các registry hợp đồng trong quá trình chạy thử nghiệm để OpenClaw có thể khẳng định quyền sở hữu một cách rõ ràng. Ngày nay điều này được sử dụng cho các model provider, speech provider, web search provider, và quyền sở hữu đăng ký bundled.
 
-The practical effect is that OpenClaw knows, up front, which plugin owns which
-surface. That lets core and channels compose seamlessly because ownership is
-declared, typed, and testable rather than implicit.
+Hiệu ứng thực tế là OpenClaw biết, ngay từ đầu, plugin nào sở hữu bề mặt nào. Điều đó cho phép lõi và các kênh kết hợp liền mạch vì quyền sở hữu được tuyên bố, có gõ, và có thể kiểm tra thay vì ngầm định.
 
-### What belongs in a contract
+### Những gì thuộc về một hợp đồng
 
-Good plugin contracts are:
+Hợp đồng plugin tốt là:
 
-- typed
-- small
-- capability-specific
-- owned by core
-- reusable by multiple plugins
-- consumable by channels/features without vendor knowledge
+- có gõ
+- nhỏ
+- cụ thể cho khả năng
+- thuộc sở hữu của lõi
+- có thể tái sử dụng bởi nhiều plugin
+- có thể tiêu thụ bởi các kênh/tính năng mà không cần kiến thức về nhà cung cấp
 
-Bad plugin contracts are:
+Hợp đồng plugin xấu là:
 
-- vendor-specific policy hidden in core
-- one-off plugin escape hatches that bypass the registry
-- channel code reaching straight into a vendor implementation
-- ad hoc runtime objects that are not part of `OpenClawPluginApi` or
-  `api.runtime`
+- chính sách cụ thể cho nhà cung cấp ẩn trong lõi
+- lối thoát plugin một lần bỏ qua registry
+- mã kênh truy cập thẳng vào triển khai nhà cung cấp
+- đối tượng runtime ngẫu nhiên không phải là một phần của `OpenClawPluginApi` hoặc `api.runtime`
 
-When in doubt, raise the abstraction level: define the capability first, then
-let plugins plug into it.
+Khi nghi ngờ, nâng cao mức độ trừu tượng: định nghĩa khả năng trước, sau đó để plugin cắm vào nó.
 
-## Execution model
+## Mô hình thực thi
 
-Native OpenClaw plugins run **in-process** with the Gateway. They are not
-sandboxed. A loaded native plugin has the same process-level trust boundary as
-core code.
+Các plugin OpenClaw gốc chạy **trong quá trình** với Gateway. Chúng không bị sandbox. Một plugin gốc đã tải có cùng ranh giới tin cậy cấp quy trình như mã lõi.
 
-Implications:
+Hệ quả:
 
-- a native plugin can register tools, network handlers, hooks, and services
-- a native plugin bug can crash or destabilize the gateway
-- a malicious native plugin is equivalent to arbitrary code execution inside
-  the OpenClaw process
+- một plugin gốc có thể đăng ký công cụ, bộ xử lý mạng, hook, và dịch vụ
+- lỗi plugin gốc có thể làm sập hoặc làm mất ổn định gateway
+- một plugin gốc độc hại tương đương với thực thi mã tùy ý bên trong quá trình OpenClaw
 
-Compatible bundles are safer by default because OpenClaw currently treats them
-as metadata/content packs. In current releases, that mostly means bundled
-skills.
+Các bundle tương thích an toàn hơn theo mặc định vì OpenClaw hiện coi chúng là các gói metadata/nội dung. Trong các bản phát hành hiện tại, điều đó chủ yếu có nghĩa là các kỹ năng bundled.
 
-Use allowlists and explicit install/load paths for non-bundled plugins. Treat
-workspace plugins as development-time code, not production defaults.
+Sử dụng danh sách cho phép và các đường dẫn cài đặt/tải rõ ràng cho các plugin không bundled. Xem các plugin workspace như mã thời gian phát triển, không phải mặc định sản xuất.
 
-Important trust note:
+Lưu ý tin cậy quan trọng:
 
-- `plugins.allow` trusts **plugin ids**, not source provenance.
-- A workspace plugin with the same id as a bundled plugin intentionally shadows
-  the bundled copy when that workspace plugin is enabled/allowlisted.
-- This is normal and useful for local development, patch testing, and hotfixes.
+- `plugins.allow` tin cậy **id plugin**, không phải nguồn gốc.
+- Một plugin workspace có cùng id với một plugin bundled cố ý che bóng bản sao bundled khi plugin workspace đó được kích hoạt/cho phép.
+- Điều này là bình thường và hữu ích cho phát triển cục bộ, kiểm tra bản vá, và sửa lỗi nóng.
 
-## Export boundary
+## Ranh giới xuất
 
-OpenClaw exports capabilities, not implementation convenience.
+OpenClaw xuất các khả năng, không phải sự tiện lợi triển khai.
 
-Keep capability registration public. Trim non-contract helper exports:
+Giữ đăng ký khả năng công khai. Cắt giảm các trợ giúp xuất không phải hợp đồng:
 
-- bundled-plugin-specific helper subpaths
-- runtime plumbing subpaths not intended as public API
-- vendor-specific convenience helpers
-- setup/onboarding helpers that are implementation details
+- các subpath trợ giúp cụ thể cho plugin bundled
+- các subpath ống dẫn runtime không được dự định là API công khai
+- các trợ giúp tiện lợi cụ thể cho nhà cung cấp
+- các trợ giúp thiết lập/khởi động là chi tiết triển khai
 
-## Load pipeline
+## Quy trình tải
 
-At startup, OpenClaw does roughly this:
+Khi khởi động, OpenClaw thực hiện đại khái như sau:
 
-1. discover candidate plugin roots
-2. read native or compatible bundle manifests and package metadata
-3. reject unsafe candidates
-4. normalize plugin config (`plugins.enabled`, `allow`, `deny`, `entries`,
-   `slots`, `load.paths`)
-5. decide enablement for each candidate
-6. load enabled native modules via jiti
-7. call native `register(api)` hooks and collect registrations into the plugin registry
-8. expose the registry to commands/runtime surfaces
+1. khám phá các gốc plugin ứng viên
+2. đọc các manifest bundle gốc hoặc tương thích và metadata gói
+3. từ chối các ứng viên không an toàn
+4. chuẩn hóa cấu hình plugin (`plugins.enabled`, `allow`, `deny`, `entries`, `slots`, `load.paths`)
+5. quyết định kích hoạt cho mỗi ứng viên
+6. tải các module gốc đã kích hoạt thông qua jiti
+7. gọi các hook `register(api)` gốc và thu thập các đăng ký vào registry plugin
+8. phơi bày registry cho các lệnh/bề mặt runtime
 
-The safety gates happen **before** runtime execution. Candidates are blocked
-when the entry escapes the plugin root, the path is world-writable, or path
-ownership looks suspicious for non-bundled plugins.
+Các cổng an toàn xảy ra **trước** khi thực thi runtime. Các ứng viên bị chặn khi mục thoát khỏi gốc plugin, đường dẫn có thể ghi toàn cầu, hoặc quyền sở hữu đường dẫn trông đáng ngờ đối với các plugin không bundled.
 
-### Manifest-first behavior
+### Hành vi ưu tiên manifest
 
-The manifest is the control-plane source of truth. OpenClaw uses it to:
+Manifest là nguồn sự thật của mặt phẳng điều khiển. OpenClaw sử dụng nó để:
 
-- identify the plugin
-- discover declared channels/skills/config schema or bundle capabilities
-- validate `plugins.entries.<id>.config`
-- augment Control UI labels/placeholders
-- show install/catalog metadata
+- xác định plugin
+- khám phá các kênh/kỹ năng/schema cấu hình đã khai báo hoặc khả năng bundle
+- xác thực `plugins.entries.<id>.config`
+- tăng cường nhãn/placeholder UI điều khiển
+- hiển thị metadata cài đặt/danh mục
 
-For native plugins, the runtime module is the data-plane part. It registers
-actual behavior such as hooks, tools, commands, or provider flows.
+Đối với các plugin gốc, module runtime là phần mặt phẳng dữ liệu. Nó đăng ký hành vi thực tế như hook, công cụ, lệnh, hoặc luồng provider.
 
-### What the loader caches
+### Những gì bộ tải cache
 
-OpenClaw keeps short in-process caches for:
+OpenClaw giữ các cache ngắn trong quá trình cho:
 
-- discovery results
-- manifest registry data
-- loaded plugin registries
+- kết quả khám phá
+- dữ liệu registry manifest
+- các registry plugin đã tải
 
-These caches reduce bursty startup and repeated command overhead. They are safe
-to think of as short-lived performance caches, not persistence.
+Các cache này giảm bớt khởi động đột ngột và chi phí lệnh lặp lại. Chúng an toàn để nghĩ như các cache hiệu suất ngắn hạn, không phải là sự tồn tại.
 
-Performance note:
+Lưu ý hiệu suất:
 
-- Set `OPENCLAW_DISABLE_PLUGIN_DISCOVERY_CACHE=1` or
-  `OPENCLAW_DISABLE_PLUGIN_MANIFEST_CACHE=1` to disable these caches.
-- Tune cache windows with `OPENCLAW_PLUGIN_DISCOVERY_CACHE_MS` and
+- Đặt `OPENCLAW_DISABLE_PLUGIN_DISCOVERY_CACHE=1` hoặc
+  `OPENCLAW_DISABLE_PLUGIN_MANIFEST_CACHE=1` để vô hiệu hóa các cache này.
+- Điều chỉnh cửa sổ cache với `OPENCLAW_PLUGIN_DISCOVERY_CACHE_MS` và
   `OPENCLAW_PLUGIN_MANIFEST_CACHE_MS`.
 
-## Registry model
+## Mô hình registry
 
-Loaded plugins do not directly mutate random core globals. They register into a
-central plugin registry.
+Các plugin đã tải không trực tiếp thay đổi ngẫu nhiên các global lõi. Chúng đăng ký vào một registry plugin trung tâm.
 
-The registry tracks:
+Registry theo dõi:
 
-- plugin records (identity, source, origin, status, diagnostics)
-- tools
-- legacy hooks and typed hooks
-- channels
-- providers
-- gateway RPC handlers
-- HTTP routes
-- CLI registrars
-- background services
-- plugin-owned commands
+- bản ghi plugin (danh tính, nguồn, nguồn gốc, trạng thái, chẩn đoán)
+- công cụ
+- hook cũ và hook đã gõ
+- kênh
+- provider
+- bộ xử lý RPC gateway
+- tuyến HTTP
+- người đăng ký CLI
+- dịch vụ nền
+- lệnh thuộc sở hữu plugin
 
-Core features then read from that registry instead of talking to plugin modules
-directly. This keeps loading one-way:
+Các tính năng lõi sau đó đọc từ registry thay vì nói chuyện trực tiếp với các module plugin. Điều này giữ cho việc tải một chiều:
 
-- plugin module -> registry registration
-- core runtime -> registry consumption
+- module plugin -> đăng ký registry
+- runtime lõi -> tiêu thụ registry
 
-That separation matters for maintainability. It means most core surfaces only
-need one integration point: "read the registry", not "special-case every plugin
-module".
+Sự tách biệt đó quan trọng cho khả năng bảo trì. Nó có nghĩa là hầu hết các bề mặt lõi chỉ cần một điểm tích hợp: "đọc registry", không phải "trường hợp đặc biệt cho mỗi module plugin".
 
-## Conversation binding callbacks
+## Callback ràng buộc cuộc trò chuyện
 
-Plugins that bind a conversation can react when an approval is resolved.
+Các plugin ràng buộc một cuộc trò chuyện có thể phản ứng khi một phê duyệt được giải quyết.
 
-Use `api.onConversationBindingResolved(...)` to receive a callback after a bind
-request is approved or denied:
+Sử dụng `api.onConversationBindingResolved(...)` để nhận một callback sau khi một yêu cầu ràng buộc được phê duyệt hoặc từ chối:
 
 ```ts
 export default {
@@ -540,86 +436,72 @@ export default {
   register(api) {
     api.onConversationBindingResolved(async (event) => {
       if (event.status === "approved") {
-        // A binding now exists for this plugin + conversation.
+        // Một ràng buộc hiện tồn tại cho plugin này + cuộc trò chuyện.
         console.log(event.binding?.conversationId);
         return;
       }
 
-      // The request was denied; clear any local pending state.
+      // Yêu cầu đã bị từ chối; xóa bất kỳ trạng thái chờ cục bộ nào.
       console.log(event.request.conversation.conversationId);
     });
   },
 };
 ```
 
-Callback payload fields:
+Các trường payload callback:
 
-- `status`: `"approved"` or `"denied"`
-- `decision`: `"allow-once"`, `"allow-always"`, or `"deny"`
-- `binding`: the resolved binding for approved requests
-- `request`: the original request summary, detach hint, sender id, and
-  conversation metadata
+- `status`: `"approved"` hoặc `"denied"`
+- `decision`: `"allow-once"`, `"allow-always"`, hoặc `"deny"`
+- `binding`: ràng buộc đã được giải quyết cho các yêu cầu được phê duyệt
+- `request`: tóm tắt yêu cầu ban đầu, gợi ý tách rời, id người gửi, và metadata cuộc trò chuyện
 
-This callback is notification-only. It does not change who is allowed to bind a
-conversation, and it runs after core approval handling finishes.
+Callback này chỉ là thông báo. Nó không thay đổi ai được phép ràng buộc một cuộc trò chuyện, và nó chạy sau khi xử lý phê duyệt lõi hoàn tất.
 
-## Provider runtime hooks
+## Hook runtime của provider
 
-Provider plugins now have two layers:
+Các plugin provider hiện có hai lớp:
 
-- manifest metadata: `providerAuthEnvVars` for cheap env-auth lookup before
-  runtime load, plus `providerAuthChoices` for cheap onboarding/auth-choice
-  labels and CLI flag metadata before runtime load
-- config-time hooks: `catalog` / legacy `discovery`
-- runtime hooks: `resolveDynamicModel`, `prepareDynamicModel`, `normalizeResolvedModel`, `capabilities`, `prepareExtraParams`, `wrapStreamFn`, `formatApiKey`, `refreshOAuth`, `buildAuthDoctorHint`, `isCacheTtlEligible`, `buildMissingAuthMessage`, `suppressBuiltInModel`, `augmentModelCatalog`, `isBinaryThinking`, `supportsXHighThinking`, `resolveDefaultThinkingLevel`, `isModernModelRef`, `prepareRuntimeAuth`, `resolveUsageAuth`, `fetchUsageSnapshot`
+- metadata manifest: `providerAuthEnvVars` cho tra cứu xác thực môi trường rẻ trước khi tải runtime, cộng với `providerAuthChoices` cho nhãn lựa chọn xác thực/khởi động rẻ và metadata cờ CLI trước khi tải runtime
+- hook thời gian cấu hình: `catalog` / `discovery` cũ
+- hook runtime: `resolveDynamicModel`, `prepareDynamicModel`, `normalizeResolvedModel`, `capabilities`, `prepareExtraParams`, `wrapStreamFn`, `formatApiKey`, `refreshOAuth`, `buildAuthDoctorHint`, `isCacheTtlEligible`, `buildMissingAuthMessage`, `suppressBuiltInModel`, `augmentModelCatalog`, `isBinaryThinking`, `supportsXHighThinking`, `resolveDefaultThinkingLevel`, `isModernModelRef`, `prepareRuntimeAuth`, `resolveUsageAuth`, `fetchUsageSnapshot`
 
-OpenClaw still owns the generic agent loop, failover, transcript handling, and
-tool policy. These hooks are the extension surface for provider-specific behavior without
-needing a whole custom inference transport.
+OpenClaw vẫn sở hữu vòng lặp agent chung, dự phòng, xử lý bản ghi, và chính sách công cụ. Các hook này là bề mặt mở rộng cho hành vi cụ thể của provider mà không cần một phương tiện suy luận tùy chỉnh hoàn toàn.
 
-Use manifest `providerAuthEnvVars` when the provider has env-based credentials
-that generic auth/status/model-picker paths should see without loading plugin
-runtime. Use manifest `providerAuthChoices` when onboarding/auth-choice CLI
-surfaces should know the provider's choice id, group labels, and simple
-one-flag auth wiring without loading provider runtime. Keep provider runtime
-`envVars` for operator-facing hints such as onboarding labels or OAuth
-client-id/client-secret setup vars.
+Sử dụng manifest `providerAuthEnvVars` khi provider có thông tin xác thực dựa trên môi trường mà các đường dẫn xác thực/trạng thái/chọn mô hình chung nên thấy mà không cần tải runtime plugin. Sử dụng manifest `providerAuthChoices` khi các bề mặt CLI lựa chọn xác thực/khởi động nên biết id lựa chọn của provider, nhãn nhóm, và dây nối xác thực một cờ đơn giản mà không cần tải runtime provider. Giữ `envVars` runtime provider cho các gợi ý hướng tới nhà điều hành như nhãn khởi động hoặc biến thiết lập client-id/client-secret OAuth.
 
-### Hook order and usage
+### Thứ tự hook và sử dụng
 
-For model/provider plugins, OpenClaw calls hooks in this rough order.
-The "When to use" column is the quick decision guide.
+Đối với các plugin model/provider, OpenClaw gọi các hook theo thứ tự đại khái này.
+Cột "Khi nào sử dụng" là hướng dẫn quyết định nhanh.
 
-| #   | Hook                          | What it does                                                                             | When to use                                                                          |
+| #   | Hook                          | Nó làm gì                                                                             | Khi nào sử dụng                                                                          |
 | --- | ----------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| 1   | `catalog`                     | Publish provider config into `models.providers` during `models.json` generation          | Provider owns a catalog or base URL defaults                                         |
-| --  | _(built-in model lookup)_     | OpenClaw tries the normal registry/catalog path first                                    | _(not a plugin hook)_                                                                |
-| 2   | `resolveDynamicModel`         | Sync fallback for provider-owned model ids not in the local registry yet                 | Provider accepts arbitrary upstream model ids                                        |
-| 3   | `prepareDynamicModel`         | Async warm-up, then `resolveDynamicModel` runs again                                     | Provider needs network metadata before resolving unknown ids                         |
-| 4   | `normalizeResolvedModel`      | Final rewrite before the embedded runner uses the resolved model                         | Provider needs transport rewrites but still uses a core transport                    |
-| 5   | `capabilities`                | Provider-owned transcript/tooling metadata used by shared core logic                     | Provider needs transcript/provider-family quirks                                     |
-| 6   | `prepareExtraParams`          | Request-param normalization before generic stream option wrappers                        | Provider needs default request params or per-provider param cleanup                  |
-| 7   | `wrapStreamFn`                | Stream wrapper after generic wrappers are applied                                        | Provider needs request headers/body/model compat wrappers without a custom transport |
-| 8   | `formatApiKey`                | Auth-profile formatter: stored profile becomes the runtime `apiKey` string               | Provider stores extra auth metadata and needs a custom runtime token shape           |
-| 9   | `refreshOAuth`                | OAuth refresh override for custom refresh endpoints or refresh-failure policy            | Provider does not fit the shared `pi-ai` refreshers                                  |
-| 10  | `buildAuthDoctorHint`         | Repair hint appended when OAuth refresh fails                                            | Provider needs provider-owned auth repair guidance after refresh failure             |
-| 11  | `isCacheTtlEligible`          | Prompt-cache policy for proxy/backhaul providers                                         | Provider needs proxy-specific cache TTL gating                                       |
-| 12  | `buildMissingAuthMessage`     | Replacement for the generic missing-auth recovery message                                | Provider needs a provider-specific missing-auth recovery hint                        |
-| 13  | `suppressBuiltInModel`        | Stale upstream model suppression plus optional user-facing error hint                    | Provider needs to hide stale upstream rows or replace them with a vendor hint        |
-| 14  | `augmentModelCatalog`         | Synthetic/final catalog rows appended after discovery                                    | Provider needs synthetic forward-compat rows in `models list` and pickers            |
-| 15  | `isBinaryThinking`            | On/off reasoning toggle for binary-thinking providers                                    | Provider exposes only binary thinking on/off                                         |
-| 16  | `supportsXHighThinking`       | `xhigh` reasoning support for selected models                                            | Provider wants `xhigh` on only a subset of models                                    |
-| 17  | `resolveDefaultThinkingLevel` | Default `/think` level for a specific model family                                       | Provider owns default `/think` policy for a model family                             |
-| 18  | `isModernModelRef`            | Modern-model matcher for live profile filters and smoke selection                        | Provider owns live/smoke preferred-model matching                                    |
-| 19  | `prepareRuntimeAuth`          | Exchange a configured credential into the actual runtime token/key just before inference | Provider needs a token exchange or short-lived request credential                    |
-| 20  | `resolveUsageAuth`            | Resolve usage/billing credentials for `/usage` and related status surfaces               | Provider needs custom usage/quota token parsing or a different usage credential      |
-| 21  | `fetchUsageSnapshot`          | Fetch and normalize provider-specific usage/quota snapshots after auth is resolved       | Provider needs a provider-specific usage endpoint or payload parser                  |
+| 1   | `catalog`                     | Xuất bản cấu hình provider vào `models.providers` trong quá trình tạo `models.json`          | Provider sở hữu một danh mục hoặc mặc định URL cơ sở                                         |
+| --  | _(tra cứu mô hình tích hợp)_     | OpenClaw thử đường dẫn registry/danh mục bình thường trước                                    | _(không phải là một hook plugin)_                                                                |
+| 2   | `resolveDynamicModel`         | Dự phòng đồng bộ cho các id mô hình thuộc sở hữu provider chưa có trong registry cục bộ                 | Provider chấp nhận các id mô hình upstream tùy ý                                        |
+| 3   | `prepareDynamicModel`         | Khởi động không đồng bộ, sau đó `resolveDynamicModel` chạy lại                                     | Provider cần metadata mạng trước khi giải quyết các id không xác định                         |
+| 4   | `normalizeResolvedModel`      | Viết lại cuối cùng trước khi runner nhúng sử dụng mô hình đã giải quyết                         | Provider cần viết lại phương tiện nhưng vẫn sử dụng một phương tiện lõi                    |
+| 5   | `capabilities`                | Metadata bản ghi/công cụ thuộc sở hữu provider được sử dụng bởi logic lõi chia sẻ                     | Provider cần các quirks bản ghi/gia đình provider                                     |
+| 6   | `prepareExtraParams`          | Bình thường hóa tham số yêu cầu trước khi áp dụng các tùy chọn luồng chung                        | Provider cần các tham số yêu cầu mặc định hoặc dọn dẹp tham số theo provider                  |
+| 7   | `wrapStreamFn`                | Bộ bao luồng sau khi các bộ bao chung được áp dụng                                        | Provider cần các tiêu đề yêu cầu/bộ tương thích mô hình mà không cần một phương tiện tùy chỉnh |
+| 8   | `formatApiKey`                | Bộ định dạng hồ sơ xác thực: hồ sơ lưu trữ trở thành chuỗi `apiKey` runtime               | Provider lưu trữ metadata xác thực bổ sung và cần một hình dạng token runtime tùy chỉnh           |
+| 9   | `refreshOAuth`                | Ghi đè làm mới OAuth cho các điểm cuối làm mới tùy chỉnh hoặc chính sách thất bại làm mới            | Provider không phù hợp với các bộ làm mới `pi-ai` chia sẻ                                  |
+| 10  | `buildAuthDoctorHint`         | Gợi ý sửa chữa được thêm vào khi làm mới OAuth thất bại                                            | Provider cần hướng dẫn sửa chữa xác thực thuộc sở hữu provider sau khi thất bại làm mới             |
+| 11  | `isCacheTtlEligible`          | Chính sách cache prompt cho các provider proxy/backhaul                                         | Provider cần điều chỉnh TTL cache cụ thể cho proxy                                       |
+| 12  | `buildMissingAuthMessage`     | Thay thế cho thông báo khôi phục xác thực thiếu chung                                | Provider cần một gợi ý khôi phục xác thực thiếu cụ thể cho provider                        |
+| 13  | `suppressBuiltInModel`        | Đàn áp mô hình upstream cũ cộng với gợi ý lỗi hướng tới người dùng tùy chọn                    | Provider cần ẩn các hàng upstream cũ hoặc thay thế chúng bằng một gợi ý nhà cung cấp        |
+| 14  | `augmentModelCatalog`         | Các hàng danh mục tổng hợp/cuối cùng được thêm vào sau khi khám phá                                    | Provider cần các hàng tổng hợp tương thích về phía trước trong `models list` và các bộ chọn            |
+| 15  | `isBinaryThinking`            | Chuyển đổi lý luận bật/tắt cho các provider suy nghĩ nhị phân                                    | Provider chỉ phơi bày suy nghĩ nhị phân bật/tắt                                         |
+| 16  | `supportsXHighThinking`       | Hỗ trợ lý luận `xhigh` cho các mô hình được chọn                                            | Provider muốn `xhigh` chỉ trên một tập hợp con của các mô hình                                    |
+| 17  | `resolveDefaultThinkingLevel` | Mức `/think` mặc định cho một gia đình mô hình cụ thể                                       | Provider sở hữu chính sách `/think` mặc định cho một gia đình mô hình                             |
+| 18  | `isModernModelRef`            | Bộ lọc hồ sơ trực tiếp và lựa chọn khói cho bộ so khớp mô hình hiện đại                        | Provider sở hữu so khớp mô hình hiện đại/khói ưu tiên                                    |
+| 19  | `prepareRuntimeAuth`          | Trao đổi thông tin xác thực đã cấu hình thành token/khóa runtime thực tế ngay trước khi suy luận | Provider cần trao đổi token hoặc thông tin xác thực yêu cầu ngắn hạn                    |
+| 20  | `resolveUsageAuth`            | Giải quyết thông tin xác thực sử dụng/thanh toán cho `/usage` và các bề mặt trạng thái liên quan               | Provider cần phân tích token sử dụng/quota tùy chỉnh hoặc thông tin xác thực sử dụng khác      |
+| 21  | `fetchUsageSnapshot`          | Lấy và bình thường hóa các snapshot sử dụng/quota cụ thể cho provider sau khi xác thực được giải quyết       | Provider cần một điểm cuối sử dụng cụ thể cho provider hoặc trình phân tích payload                  |
 
-If the provider needs a fully custom wire protocol or custom request executor,
-that is a different class of extension. These hooks are for provider behavior
-that still runs on OpenClaw's normal inference loop.
+Nếu provider cần một giao thức dây tùy chỉnh hoàn toàn hoặc bộ thực thi yêu cầu tùy chỉnh, đó là một lớp mở rộng khác. Các hook này dành cho hành vi provider vẫn chạy trên vòng lặp suy luận bình thường của OpenClaw.
 
-### Provider example
+### Ví dụ provider
 
 ```ts
 api.registerProvider({
@@ -673,68 +555,61 @@ api.registerProvider({
 });
 ```
 
-### Built-in examples
+### Ví dụ tích hợp
 
-- Anthropic uses `resolveDynamicModel`, `capabilities`, `buildAuthDoctorHint`,
+- Anthropic sử dụng `resolveDynamicModel`, `capabilities`, `buildAuthDoctorHint`,
   `resolveUsageAuth`, `fetchUsageSnapshot`, `isCacheTtlEligible`,
-  `resolveDefaultThinkingLevel`, and `isModernModelRef` because it owns Claude
-  4.6 forward-compat, provider-family hints, auth repair guidance, usage
-  endpoint integration, prompt-cache eligibility, and Claude default/adaptive
-  thinking policy.
-- OpenAI uses `resolveDynamicModel`, `normalizeResolvedModel`, and
-  `capabilities` plus `buildMissingAuthMessage`, `suppressBuiltInModel`,
-  `augmentModelCatalog`, `supportsXHighThinking`, and `isModernModelRef`
-  because it owns GPT-5.4 forward-compat, the direct OpenAI
-  `openai-completions` -> `openai-responses` normalization, Codex-aware auth
-  hints, Spark suppression, synthetic OpenAI list rows, and GPT-5 thinking /
-  live-model policy.
-- OpenRouter uses `catalog` plus `resolveDynamicModel` and
-  `prepareDynamicModel` because the provider is pass-through and may expose new
-  model ids before OpenClaw's static catalog updates; it also uses
-  `capabilities`, `wrapStreamFn`, and `isCacheTtlEligible` to keep
-  provider-specific request headers, routing metadata, reasoning patches, and
-  prompt-cache policy out of core.
-- GitHub Copilot uses `catalog`, `auth`, `resolveDynamicModel`, and
-  `capabilities` plus `prepareRuntimeAuth` and `fetchUsageSnapshot` because it
-  needs provider-owned device login, model fallback behavior, Claude transcript
-  quirks, a GitHub token -> Copilot token exchange, and a provider-owned usage
-  endpoint.
-- OpenAI Codex uses `catalog`, `resolveDynamicModel`,
-  `normalizeResolvedModel`, `refreshOAuth`, and `augmentModelCatalog` plus
-  `prepareExtraParams`, `resolveUsageAuth`, and `fetchUsageSnapshot` because it
-  still runs on core OpenAI transports but owns its transport/base URL
-  normalization, OAuth refresh fallback policy, default transport choice,
-  synthetic Codex catalog rows, and ChatGPT usage endpoint integration.
-- Google AI Studio and Gemini CLI OAuth use `resolveDynamicModel` and
-  `isModernModelRef` because they own Gemini 3.1 forward-compat fallback and
-  modern-model matching; Gemini CLI OAuth also uses `formatApiKey`,
-  `resolveUsageAuth`, and `fetchUsageSnapshot` for token formatting, token
-  parsing, and quota endpoint wiring.
-- Moonshot uses `catalog` plus `wrapStreamFn` because it still uses the shared
-  OpenAI transport but needs provider-owned thinking payload normalization.
-- Kilocode uses `catalog`, `capabilities`, `wrapStreamFn`, and
-  `isCacheTtlEligible` because it needs provider-owned request headers,
-  reasoning payload normalization, Gemini transcript hints, and Anthropic
-  cache-TTL gating.
-- Z.AI uses `resolveDynamicModel`, `prepareExtraParams`, `wrapStreamFn`,
+  `resolveDefaultThinkingLevel`, và `isModernModelRef` vì nó sở hữu Claude
+  4.6 tương thích về phía trước, gợi ý gia đình provider, hướng dẫn sửa chữa xác thực, tích hợp điểm cuối sử dụng, đủ điều kiện cache prompt, và chính sách suy nghĩ mặc định/thích ứng Claude.
+- OpenAI sử dụng `resolveDynamicModel`, `normalizeResolvedModel`, và
+  `capabilities` cộng với `buildMissingAuthMessage`, `suppressBuiltInModel`,
+  `augmentModelCatalog`, `supportsXHighThinking`, và `isModernModelRef`
+  vì nó sở hữu GPT-5.4 tương thích về phía trước, chuẩn hóa trực tiếp OpenAI
+  `openai-completions` -> `openai-responses`, gợi ý xác thực Codex-aware, đàn áp Spark, hàng danh mục tổng hợp OpenAI, và chính sách suy nghĩ GPT-5 /
+  mô hình trực tiếp.
+- OpenRouter sử dụng `catalog` cộng với `resolveDynamicModel` và
+  `prepareDynamicModel` vì provider là pass-through và có thể phơi bày các id mô hình mới trước khi cập nhật danh mục tĩnh của OpenClaw; nó cũng sử dụng
+  `capabilities`, `wrapStreamFn`, và `isCacheTtlEligible` để giữ
+  tiêu đề yêu cầu cụ thể cho provider, metadata định tuyến, bản vá lý luận, và
+  chính sách cache prompt ra khỏi lõi.
+- GitHub Copilot sử dụng `catalog`, `auth`, `resolveDynamicModel`, và
+  `capabilities` cộng với `prepareRuntimeAuth` và `fetchUsageSnapshot` vì nó
+  cần đăng nhập thiết bị thuộc sở hữu provider, hành vi dự phòng mô hình, quirks bản ghi Claude,
+  trao đổi token GitHub -> Copilot, và một điểm cuối sử dụng thuộc sở hữu provider.
+- OpenAI Codex sử dụng `catalog`, `resolveDynamicModel`,
+  `normalizeResolvedModel`, `refreshOAuth`, và `augmentModelCatalog` cộng
+  với `prepareExtraParams`, `resolveUsageAuth`, và `fetchUsageSnapshot` vì nó
+  vẫn chạy trên các phương tiện OpenAI lõi nhưng sở hữu chuẩn hóa phương tiện/URL cơ sở của nó,
+  chính sách dự phòng làm mới OAuth, lựa chọn phương tiện mặc định,
+  hàng danh mục Codex tổng hợp, và tích hợp điểm cuối sử dụng ChatGPT.
+- Google AI Studio và Gemini CLI OAuth sử dụng `resolveDynamicModel` và
+  `isModernModelRef` vì họ sở hữu Gemini 3.1 tương thích về phía trước và
+  so khớp mô hình hiện đại; Gemini CLI OAuth cũng sử dụng `formatApiKey`,
+  `resolveUsageAuth`, và `fetchUsageSnapshot` cho định dạng token, phân tích token,
+  và dây nối điểm cuối quota.
+- Moonshot sử dụng `catalog` cộng với `wrapStreamFn` vì nó vẫn sử dụng phương tiện OpenAI chia sẻ
+  nhưng cần bình thường hóa payload suy nghĩ thuộc sở hữu provider.
+- Kilocode sử dụng `catalog`, `capabilities`, `wrapStreamFn`, và
+  `isCacheTtlEligible` vì nó cần tiêu đề yêu cầu thuộc sở hữu provider,
+  bình thường hóa payload lý luận, gợi ý bản ghi Gemini, và điều chỉnh TTL cache Anthropic.
+- Z.AI sử dụng `resolveDynamicModel`, `prepareExtraParams`, `wrapStreamFn`,
   `isCacheTtlEligible`, `isBinaryThinking`, `isModernModelRef`,
-  `resolveUsageAuth`, and `fetchUsageSnapshot` because it owns GLM-5 fallback,
-  `tool_stream` defaults, binary thinking UX, modern-model matching, and both
-  usage auth + quota fetching.
-- Mistral, OpenCode Zen, and OpenCode Go use `capabilities` only to keep
-  transcript/tooling quirks out of core.
-- Catalog-only bundled providers such as `byteplus`, `cloudflare-ai-gateway`,
+  `resolveUsageAuth`, và `fetchUsageSnapshot` vì nó sở hữu GLM-5 dự phòng,
+  mặc định `tool_stream`, UX suy nghĩ nhị phân, so khớp mô hình hiện đại, và cả
+  thông tin xác thực sử dụng + lấy quota.
+- Mistral, OpenCode Zen, và OpenCode Go chỉ sử dụng `capabilities` để giữ
+  quirks bản ghi/công cụ ra khỏi lõi.
+- Các provider bundled chỉ có danh mục như `byteplus`, `cloudflare-ai-gateway`,
   `huggingface`, `kimi-coding`, `modelstudio`, `nvidia`, `qianfan`,
-  `synthetic`, `together`, `venice`, `vercel-ai-gateway`, and `volcengine` use
-  `catalog` only.
-- Qwen portal uses `catalog`, `auth`, and `refreshOAuth`.
-- MiniMax and Xiaomi use `catalog` plus usage hooks because their `/usage`
-  behavior is plugin-owned even though inference still runs through the shared
-  transports.
+  `synthetic`, `together`, `venice`, `vercel-ai-gateway`, và `volcengine` chỉ sử dụng
+  `catalog`.
+- Cổng Qwen sử dụng `catalog`, `auth`, và `refreshOAuth`.
+- MiniMax và Xiaomi sử dụng `catalog` cộng với các hook sử dụng vì hành vi `/usage`
+  của họ thuộc sở hữu plugin mặc dù suy luận vẫn chạy qua các phương tiện chia sẻ.
 
-## Runtime helpers
+## Trợ giúp runtime
 
-Plugins can access selected core helpers via `api.runtime`. For TTS:
+Các plugin có thể truy cập các trợ giúp lõi đã chọn thông qua `api.runtime`. Đối với TTS:
 
 ```ts
 const clip = await api.runtime.tts.textToSpeech({
@@ -753,16 +628,16 @@ const voices = await api.runtime.tts.listVoices({
 });
 ```
 
-Notes:
+Ghi chú:
 
-- `textToSpeech` returns the normal core TTS output payload for file/voice-note surfaces.
-- Uses core `messages.tts` configuration and provider selection.
-- Returns PCM audio buffer + sample rate. Plugins must resample/encode for providers.
-- `listVoices` is optional per provider. Use it for vendor-owned voice pickers or setup flows.
-- Voice listings can include richer metadata such as locale, gender, and personality tags for provider-aware pickers.
-- OpenAI and ElevenLabs support telephony today. Microsoft does not.
+- `textToSpeech` trả về payload đầu ra TTS lõi bình thường cho các bề mặt file/voice-note.
+- Sử dụng cấu hình `messages.tts` lõi và lựa chọn provider.
+- Trả về bộ đệm âm thanh PCM + tỷ lệ mẫu. Các plugin phải tái mẫu/mã hóa cho các provider.
+- `listVoices` là tùy chọn cho mỗi provider. Sử dụng nó cho các bộ chọn giọng nói thuộc sở hữu nhà cung cấp hoặc các luồng thiết lập.
+- Danh sách giọng nói có thể bao gồm metadata phong phú hơn như ngôn ngữ, giới tính, và thẻ cá nhân cho các bộ chọn nhận thức nhà cung cấp.
+- OpenAI và ElevenLabs hỗ trợ điện thoại hôm nay. Microsoft thì không.
 
-Plugins can also register speech providers via `api.registerSpeechProvider(...)`.
+Các plugin cũng có thể đăng ký các provider giọng nói thông qua `api.registerSpeechProvider(...)`.
 
 ```ts
 api.registerSpeechProvider({
@@ -780,17 +655,17 @@ api.registerSpeechProvider({
 });
 ```
 
-Notes:
+Ghi chú:
 
-- Keep TTS policy, fallback, and reply delivery in core.
-- Use speech providers for vendor-owned synthesis behavior.
-- Legacy Microsoft `edge` input is normalized to the `microsoft` provider id.
-- The preferred ownership model is company-oriented: one vendor plugin can own
-  text, speech, image, and future media providers as OpenClaw adds those
-  capability contracts.
+- Giữ chính sách TTS, dự phòng, và phân phối trả lời trong lõi.
+- Sử dụng các provider giọng nói cho hành vi tổng hợp thuộc sở hữu nhà cung cấp.
+- Đầu vào Microsoft `edge` cũ được bình thường hóa thành id provider `microsoft`.
+- Mô hình quyền sở hữu ưu tiên là hướng tới công ty: một plugin nhà cung cấp có thể sở hữu
+  văn bản, giọng nói, hình ảnh, và các provider truyền thông trong tương lai khi OpenClaw thêm các
+  hợp đồng khả năng đó.
 
-For image/audio/video understanding, plugins register one typed
-media-understanding provider instead of a generic key/value bag:
+Đối với hiểu biết hình ảnh/âm thanh/video, các plugin đăng ký một provider
+hiểu biết truyền thông đã gõ thay vì một túi khóa/giá trị chung:
 
 ```ts
 api.registerMediaUnderstandingProvider({
@@ -802,16 +677,15 @@ api.registerMediaUnderstandingProvider({
 });
 ```
 
-Notes:
+Ghi chú:
 
-- Keep orchestration, fallback, config, and channel wiring in core.
-- Keep vendor behavior in the provider plugin.
-- Additive expansion should stay typed: new optional methods, new optional
-  result fields, new optional capabilities.
-- If OpenClaw adds a new capability such as video generation later, define the
-  core capability contract first, then let vendor plugins register against it.
+- Giữ điều phối, dự phòng, cấu hình, và dây nối kênh trong lõi.
+- Giữ hành vi nhà cung cấp trong plugin provider.
+- Mở rộng bổ sung nên giữ có gõ: phương thức tùy chọn mới, trường kết quả tùy chọn mới, khả năng tùy chọn mới.
+- Nếu OpenClaw thêm một khả năng mới như tạo video sau này, định nghĩa
+  hợp đồng khả năng lõi trước, sau đó để các plugin nhà cung cấp đăng ký chống lại nó.
 
-For media-understanding runtime helpers, plugins can call:
+Đối với các trợ giúp runtime hiểu biết truyền thông, các plugin có thể gọi:
 
 ```ts
 const image = await api.runtime.mediaUnderstanding.describeImageFile({
@@ -826,48 +700,48 @@ const video = await api.runtime.mediaUnderstanding.describeVideoFile({
 });
 ```
 
-For audio transcription, plugins can use either the media-understanding runtime
-or the older STT alias:
+Đối với chuyển đổi âm thanh, các plugin có thể sử dụng runtime hiểu biết truyền thông hoặc
+bí danh STT cũ:
 
 ```ts
 const { text } = await api.runtime.mediaUnderstanding.transcribeAudioFile({
   filePath: "/tmp/inbound-audio.ogg",
   cfg: api.config,
-  // Optional when MIME cannot be inferred reliably:
+  // Tùy chọn khi MIME không thể suy ra một cách đáng tin cậy:
   mime: "audio/ogg",
 });
 ```
 
-Notes:
+Ghi chú:
 
-- `api.runtime.mediaUnderstanding.*` is the preferred shared surface for
-  image/audio/video understanding.
-- Uses core media-understanding audio configuration (`tools.media.audio`) and provider fallback order.
-- Returns `{ text: undefined }` when no transcription output is produced (for example skipped/unsupported input).
-- `api.runtime.stt.transcribeAudioFile(...)` remains as a compatibility alias.
+- `api.runtime.mediaUnderstanding.*` là bề mặt chia sẻ ưu tiên cho
+  hiểu biết hình ảnh/âm thanh/video.
+- Sử dụng cấu hình âm thanh hiểu biết truyền thông lõi (`tools.media.audio`) và thứ tự dự phòng provider.
+- Trả về `{ text: undefined }` khi không có đầu ra chuyển đổi nào được tạo ra (ví dụ như đầu vào bị bỏ qua/không được hỗ trợ).
+- `api.runtime.stt.transcribeAudioFile(...)` vẫn còn như một bí danh tương thích.
 
-Plugins can also launch background subagent runs through `api.runtime.subagent`:
+Các plugin cũng có thể khởi chạy các lần chạy subagent nền thông qua `api.runtime.subagent`:
 
 ```ts
 const result = await api.runtime.subagent.run({
   sessionKey: "agent:main:subagent:search-helper",
-  message: "Expand this query into focused follow-up searches.",
+  message: "Mở rộng truy vấn này thành các tìm kiếm tiếp theo tập trung.",
   provider: "openai",
   model: "gpt-4.1-mini",
   deliver: false,
 });
 ```
 
-Notes:
+Ghi chú:
 
-- `provider` and `model` are optional per-run overrides, not persistent session changes.
-- OpenClaw only honors those override fields for trusted callers.
-- For plugin-owned fallback runs, operators must opt in with `plugins.entries.<id>.subagent.allowModelOverride: true`.
-- Use `plugins.entries.<id>.subagent.allowedModels` to restrict trusted plugins to specific canonical `provider/model` targets, or `"*"` to allow any target explicitly.
-- Untrusted plugin subagent runs still work, but override requests are rejected instead of silently falling back.
+- `provider` và `model` là các ghi đè tùy chọn cho mỗi lần chạy, không phải là các thay đổi phiên liên tục.
+- OpenClaw chỉ tôn trọng các trường ghi đè đó cho các người gọi đáng tin cậy.
+- Đối với các lần chạy dự phòng thuộc sở hữu plugin, các nhà điều hành phải chọn tham gia với `plugins.entries.<id>.subagent.allowModelOverride: true`.
+- Sử dụng `plugins.entries.<id>.subagent.allowedModels` để hạn chế các plugin đáng tin cậy đến các mục tiêu `provider/model` chính thức cụ thể, hoặc `"*"` để cho phép bất kỳ mục tiêu nào một cách rõ ràng.
+- Các lần chạy subagent plugin không đáng tin cậy vẫn hoạt động, nhưng các yêu cầu ghi đè bị từ chối thay vì âm thầm quay lại.
 
-For web search, plugins can consume the shared runtime helper instead of
-reaching into the agent tool wiring:
+Đối với tìm kiếm web, các plugin có thể tiêu thụ trợ giúp runtime chia sẻ thay vì
+truy cập vào dây nối công cụ agent:
 
 ```ts
 const providers = api.runtime.webSearch.listProviders({
@@ -877,24 +751,24 @@ const providers = api.runtime.webSearch.listProviders({
 const result = await api.runtime.webSearch.search({
   config: api.config,
   args: {
-    query: "OpenClaw plugin runtime helpers",
+    query: "Trợ giúp runtime plugin OpenClaw",
     count: 5,
   },
 });
 ```
 
-Plugins can also register web-search providers via
+Các plugin cũng có thể đăng ký các provider tìm kiếm web thông qua
 `api.registerWebSearchProvider(...)`.
 
-Notes:
+Ghi chú:
 
-- Keep provider selection, credential resolution, and shared request semantics in core.
-- Use web-search providers for vendor-specific search transports.
-- `api.runtime.webSearch.*` is the preferred shared surface for feature/channel plugins that need search behavior without depending on the agent tool wrapper.
+- Giữ lựa chọn provider, giải quyết thông tin xác thực, và ngữ nghĩa yêu cầu chia sẻ trong lõi.
+- Sử dụng các provider tìm kiếm web cho các phương tiện tìm kiếm cụ thể cho nhà cung cấp.
+- `api.runtime.webSearch.*` là bề mặt chia sẻ ưu tiên cho các plugin tính năng/kênh cần hành vi tìm kiếm mà không phụ thuộc vào bộ bao công cụ agent.
 
-## Gateway HTTP routes
+## Tuyến HTTP Gateway
 
-Plugins can expose HTTP endpoints with `api.registerHttpRoute(...)`.
+Các plugin có thể phơi bày các điểm cuối HTTP với `api.registerHttpRoute(...)`.
 
 ```ts
 api.registerHttpRoute({
@@ -909,217 +783,143 @@ api.registerHttpRoute({
 });
 ```
 
-Route fields:
+Các trường tuyến:
 
-- `path`: route path under the gateway HTTP server.
-- `auth`: required. Use `"gateway"` to require normal gateway auth, or `"plugin"` for plugin-managed auth/webhook verification.
-- `match`: optional. `"exact"` (default) or `"prefix"`.
-- `replaceExisting`: optional. Allows the same plugin to replace its own existing route registration.
-- `handler`: return `true` when the route handled the request.
+- `path`: đường dẫn tuyến dưới máy chủ HTTP gateway.
+- `auth`: bắt buộc. Sử dụng `"gateway"` để yêu cầu xác thực gateway bình thường, hoặc `"plugin"` cho xác thực/quá trình xác minh webhook do plugin quản lý.
+- `match`: tùy chọn. `"exact"` (mặc định) hoặc `"prefix"`.
+- `replaceExisting`: tùy chọn. Cho phép cùng một plugin thay thế đăng ký tuyến hiện có của chính nó.
+- `handler`: trả về `true` khi tuyến đã xử lý yêu cầu.
 
-Notes:
+Ghi chú:
 
-- `api.registerHttpHandler(...)` is obsolete. Use `api.registerHttpRoute(...)`.
-- Plugin routes must declare `auth` explicitly.
-- Exact `path + match` conflicts are rejected unless `replaceExisting: true`, and one plugin cannot replace another plugin's route.
-- Overlapping routes with different `auth` levels are rejected. Keep `exact`/`prefix` fallthrough chains on the same auth level only.
+- `api.registerHttpHandler(...)` đã lỗi thời. Sử dụng `api.registerHttpRoute(...)`.
+- Các tuyến plugin phải khai báo `auth` một cách rõ ràng.
+- Các xung đột `path + match` chính xác bị từ chối trừ khi `replaceExisting: true`, và một plugin không thể thay thế tuyến của plugin khác.
+- Các tuyến chồng chéo với các mức `auth` khác nhau bị từ chối. Giữ các chuỗi rơi qua `exact`/`prefix` trên cùng một mức xác thực chỉ.
 
-## Plugin SDK import paths
+## Đường dẫn import Plugin SDK
 
-Use SDK subpaths instead of the monolithic `openclaw/plugin-sdk` import when
-authoring plugins:
+Khi viết plugin, hãy sử dụng các subpath của SDK thay vì import toàn bộ từ `openclaw/plugin-sdk`:
 
-- `openclaw/plugin-sdk/plugin-entry` for plugin registration primitives.
-- `openclaw/plugin-sdk/core` for the generic shared plugin-facing contract.
-- Stable channel primitives such as `openclaw/plugin-sdk/channel-setup`,
-  `openclaw/plugin-sdk/channel-pairing`,
-  `openclaw/plugin-sdk/channel-contract`,
-  `openclaw/plugin-sdk/channel-feedback`,
-  `openclaw/plugin-sdk/channel-inbound`,
-  `openclaw/plugin-sdk/channel-lifecycle`,
-  `openclaw/plugin-sdk/channel-reply-pipeline`,
-  `openclaw/plugin-sdk/command-auth`,
-  `openclaw/plugin-sdk/secret-input`, and
-  `openclaw/plugin-sdk/webhook-ingress` for shared setup/auth/reply/webhook
-  wiring. `channel-inbound` is the shared home for debounce, mention matching,
-  envelope formatting, and inbound envelope context helpers.
-- Domain subpaths such as `openclaw/plugin-sdk/channel-config-helpers`,
-  `openclaw/plugin-sdk/allow-from`,
-  `openclaw/plugin-sdk/channel-config-schema`,
-  `openclaw/plugin-sdk/channel-policy`,
-  `openclaw/plugin-sdk/config-runtime`,
-  `openclaw/plugin-sdk/infra-runtime`,
-  `openclaw/plugin-sdk/agent-runtime`,
-  `openclaw/plugin-sdk/lazy-runtime`,
-  `openclaw/plugin-sdk/reply-history`,
-  `openclaw/plugin-sdk/routing`,
-  `openclaw/plugin-sdk/status-helpers`,
-  `openclaw/plugin-sdk/runtime-store`, and
-  `openclaw/plugin-sdk/directory-runtime` for shared runtime/config helpers.
-- `openclaw/plugin-sdk/channel-runtime` remains only as a compatibility shim.
-  New code should import the narrower primitives instead.
-- Bundled extension internals remain private. External plugins should use only
-  `openclaw/plugin-sdk/*` subpaths. OpenClaw core/test code may use the repo
-  public entry points under `extensions/<id>/index.js`, `api.js`, `runtime-api.js`,
-  `setup-entry.js`, and narrowly scoped files such as `login-qr-api.js`. Never
-  import `extensions/<id>/src/*` from core or from another extension.
-- Repo entry point split:
-  `extensions/<id>/api.js` is the helper/types barrel,
-  `extensions/<id>/runtime-api.js` is the runtime-only barrel,
-  `extensions/<id>/index.js` is the bundled plugin entry,
-  and `extensions/<id>/setup-entry.js` is the setup plugin entry.
-- No bundled channel-branded public subpaths remain. Channel-specific helper and
-  runtime seams live under `extensions/<id>/api.js` and `extensions/<id>/runtime-api.js`;
-  the public SDK contract is the generic shared primitives instead.
+- `openclaw/plugin-sdk/plugin-entry` để đăng ký plugin.
+- `openclaw/plugin-sdk/core` cho các hợp đồng chung mà plugin có thể sử dụng.
+- Các thành phần ổn định như `openclaw/plugin-sdk/channel-setup`, `openclaw/plugin-sdk/channel-pairing`, `openclaw/plugin-sdk/channel-contract`, `openclaw/plugin-sdk/channel-feedback`, `openclaw/plugin-sdk/channel-inbound`, `openclaw/plugin-sdk/channel-lifecycle`, `openclaw/plugin-sdk/channel-reply-pipeline`, `openclaw/plugin-sdk/command-auth`, `openclaw/plugin-sdk/secret-input`, và `openclaw/plugin-sdk/webhook-ingress` để thiết lập, xác thực, phản hồi, và kết nối webhook. `channel-inbound` là nơi chứa các công cụ như debounce, khớp mention, định dạng phong bì, và trợ giúp ngữ cảnh phong bì inbound.
+- Các subpath theo domain như `openclaw/plugin-sdk/channel-config-helpers`, `openclaw/plugin-sdk/allow-from`, `openclaw/plugin-sdk/channel-config-schema`, `openclaw/plugin-sdk/channel-policy`, `openclaw/plugin-sdk/config-runtime`, `openclaw/plugin-sdk/infra-runtime`, `openclaw/plugin-sdk/agent-runtime`, `openclaw/plugin-sdk/lazy-runtime`, `openclaw/plugin-sdk/reply-history`, `openclaw/plugin-sdk/routing`, `openclaw/plugin-sdk/status-helpers`, `openclaw/plugin-sdk/runtime-store`, và `openclaw/plugin-sdk/directory-runtime` cho các trợ giúp runtime/config chung.
+- `openclaw/plugin-sdk/channel-runtime` chỉ còn lại như một lớp tương thích. Mã mới nên import các thành phần hẹp hơn.
+- Các phần mở rộng nội bộ được đóng gói vẫn là riêng tư. Plugin bên ngoài chỉ nên sử dụng các subpath `openclaw/plugin-sdk/*`. Mã lõi/test của OpenClaw có thể sử dụng các điểm vào công khai của repo dưới `extensions/<id>/index.js`, `api.js`, `runtime-api.js`, `setup-entry.js`, và các file có phạm vi hẹp như `login-qr-api.js`. Không bao giờ import `extensions/<id>/src/*` từ lõi hoặc từ một phần mở rộng khác.
+- Phân chia điểm vào repo:
+  - `extensions/<id>/api.js` là nơi chứa các helper/types,
+  - `extensions/<id>/runtime-api.js` là nơi chứa runtime-only,
+  - `extensions/<id>/index.js` là điểm vào plugin được đóng gói,
+  - `extensions/<id>/setup-entry.js` là điểm vào plugin setup.
+- Không còn subpath công khai nào được gắn thương hiệu kênh. Các helper và runtime cụ thể của kênh nằm dưới `extensions/<id>/api.js` và `extensions/<id>/runtime-api.js`; hợp đồng SDK công khai là các thành phần chung được chia sẻ.
 
-Compatibility note:
+Lưu ý về tương thích:
 
-- Avoid the root `openclaw/plugin-sdk` barrel for new code.
-- Prefer the narrow stable primitives first. The newer setup/pairing/reply/
-  feedback/contract/inbound/threading/command/secret-input/webhook/infra/
-  allowlist/status/message-tool subpaths are the intended contract for new
-  bundled and external plugin work.
-  Target parsing/matching belongs on `openclaw/plugin-sdk/channel-targets`.
-  Message action gates and reaction message-id helpers belong on
-  `openclaw/plugin-sdk/channel-actions`.
-- Bundled extension-specific helper barrels are not stable by default. If a
-  helper is only needed by a bundled extension, keep it behind the extension's
-  local `api.js` or `runtime-api.js` seam instead of promoting it into
-  `openclaw/plugin-sdk/<extension>`.
-- Channel-branded bundled bars stay private unless they are explicitly added
-  back to the public contract.
-- Capability-specific subpaths such as `image-generation`,
-  `media-understanding`, and `speech` exist because bundled/native plugins use
-  them today. Their presence does not by itself mean every exported helper is a
-  long-term frozen external contract.
+- Tránh sử dụng root `openclaw/plugin-sdk` cho mã mới.
+- Ưu tiên các thành phần hẹp và ổn định trước. Các subpath mới hơn như setup/pairing/reply/feedback/contract/inbound/threading/command/secret-input/webhook/infra/allowlist/status/message-tool là hợp đồng dự định cho công việc plugin mới được đóng gói và bên ngoài.
+- Các helper cụ thể cho phần mở rộng được đóng gói không ổn định theo mặc định. Nếu một helper chỉ cần thiết cho một phần mở rộng được đóng gói, hãy giữ nó sau seam `api.js` hoặc `runtime-api.js` của phần mở rộng thay vì đưa nó vào `openclaw/plugin-sdk/<extension>`.
+- Các thanh được gắn thương hiệu kênh được đóng gói vẫn là riêng tư trừ khi chúng được thêm lại vào hợp đồng công khai.
+- Các subpath cụ thể về khả năng như `image-generation`, `media-understanding`, và `speech` tồn tại vì các plugin được đóng gói/native sử dụng chúng hiện nay. Sự hiện diện của chúng không tự động có nghĩa là mọi helper được xuất ra đều là một hợp đồng bên ngoài đóng băng lâu dài.
 
-## Message tool schemas
+## Sơ đồ công cụ tin nhắn
 
-Plugins should own channel-specific `describeMessageTool(...)` schema
-contributions. Keep provider-specific fields in the plugin, not in shared core.
+Plugin nên sở hữu các đóng góp schema `describeMessageTool(...)` cụ thể cho kênh. Giữ các trường cụ thể của nhà cung cấp trong plugin, không phải trong lõi chia sẻ.
 
-For shared portable schema fragments, reuse the generic helpers exported through
-`openclaw/plugin-sdk/channel-actions`:
+Đối với các đoạn schema có thể chia sẻ, sử dụng lại các helper chung được xuất qua `openclaw/plugin-sdk/channel-actions`:
 
-- `createMessageToolButtonsSchema()` for button-grid style payloads
-- `createMessageToolCardSchema()` for structured card payloads
+- `createMessageToolButtonsSchema()` cho các payload kiểu lưới nút
+- `createMessageToolCardSchema()` cho các payload thẻ có cấu trúc
 
-If a schema shape only makes sense for one provider, define it in that plugin's
-own source instead of promoting it into the shared SDK.
+Nếu một hình dạng schema chỉ có ý nghĩa cho một nhà cung cấp, hãy định nghĩa nó trong nguồn của plugin đó thay vì đưa nó vào SDK chia sẻ.
 
-## Channel target resolution
+## Giải quyết mục tiêu kênh
 
-Channel plugins should own channel-specific target semantics. Keep the shared
-outbound host generic and use the messaging adapter surface for provider rules:
+Plugin kênh nên sở hữu các ngữ nghĩa mục tiêu cụ thể cho kênh. Giữ host outbound chung và sử dụng bề mặt adapter nhắn tin cho các quy tắc của nhà cung cấp:
 
-- `messaging.inferTargetChatType({ to })` decides whether a normalized target
-  should be treated as `direct`, `group`, or `channel` before directory lookup.
-- `messaging.targetResolver.looksLikeId(raw, normalized)` tells core whether an
-  input should skip straight to id-like resolution instead of directory search.
-- `messaging.targetResolver.resolveTarget(...)` is the plugin fallback when
-  core needs a final provider-owned resolution after normalization or after a
-  directory miss.
-- `messaging.resolveOutboundSessionRoute(...)` owns provider-specific session
-  route construction once a target is resolved.
+- `messaging.inferTargetChatType({ to })` quyết định liệu một mục tiêu đã được chuẩn hóa nên được coi là `direct`, `group`, hay `channel` trước khi tra cứu thư mục.
+- `messaging.targetResolver.looksLikeId(raw, normalized)` cho lõi biết liệu một đầu vào nên bỏ qua trực tiếp đến giải quyết giống id thay vì tìm kiếm thư mục.
+- `messaging.targetResolver.resolveTarget(...)` là phương án dự phòng của plugin khi lõi cần một giải quyết cuối cùng do nhà cung cấp sở hữu sau khi chuẩn hóa hoặc sau khi bỏ lỡ thư mục.
+- `messaging.resolveOutboundSessionRoute(...)` sở hữu việc xây dựng tuyến đường phiên cụ thể của nhà cung cấp khi một mục tiêu đã được giải quyết.
 
-Recommended split:
+Phân chia đề xuất:
 
-- Use `inferTargetChatType` for category decisions that should happen before
-  searching peers/groups.
-- Use `looksLikeId` for "treat this as an explicit/native target id" checks.
-- Use `resolveTarget` for provider-specific normalization fallback, not for
-  broad directory search.
-- Keep provider-native ids like chat ids, thread ids, JIDs, handles, and room
-  ids inside `target` values or provider-specific params, not in generic SDK
-  fields.
+- Sử dụng `inferTargetChatType` cho các quyết định phân loại nên xảy ra trước khi tìm kiếm đồng nghiệp/nhóm.
+- Sử dụng `looksLikeId` cho các kiểm tra "xem đây như một id mục tiêu rõ ràng/native".
+- Sử dụng `resolveTarget` cho phương án dự phòng chuẩn hóa cụ thể của nhà cung cấp, không phải cho tìm kiếm thư mục rộng.
+- Giữ các id native của nhà cung cấp như chat ids, thread ids, JIDs, handles, và room ids bên trong các giá trị `target` hoặc các tham số cụ thể của nhà cung cấp, không phải trong các trường SDK chung.
 
-## Config-backed directories
+## Thư mục dựa trên cấu hình
 
-Plugins that derive directory entries from config should keep that logic in the
-plugin and reuse the shared helpers from
-`openclaw/plugin-sdk/directory-runtime`.
+Các plugin tạo ra các mục thư mục từ cấu hình nên giữ logic đó trong plugin và sử dụng lại các helper chia sẻ từ `openclaw/plugin-sdk/directory-runtime`.
 
-Use this when a channel needs config-backed peers/groups such as:
+Sử dụng điều này khi một kênh cần các đồng nghiệp/nhóm dựa trên cấu hình như:
 
-- allowlist-driven DM peers
-- configured channel/group maps
-- account-scoped static directory fallbacks
+- các đồng nghiệp DM dựa trên danh sách cho phép
+- các bản đồ kênh/nhóm được cấu hình
+- các phương án dự phòng thư mục tĩnh theo tài khoản
 
-The shared helpers in `directory-runtime` only handle generic operations:
+Các helper chia sẻ trong `directory-runtime` chỉ xử lý các hoạt động chung:
 
-- query filtering
-- limit application
-- deduping/normalization helpers
-- building `ChannelDirectoryEntry[]`
+- lọc truy vấn
+- áp dụng giới hạn
+- trợ giúp loại bỏ/chuẩn hóa
+- xây dựng `ChannelDirectoryEntry[]`
 
-Channel-specific account inspection and id normalization should stay in the
-plugin implementation.
+Kiểm tra tài khoản cụ thể của kênh và chuẩn hóa id nên giữ trong triển khai plugin.
 
-## Provider catalogs
+## Danh mục nhà cung cấp
 
-Provider plugins can define model catalogs for inference with
-`registerProvider({ catalog: { run(...) { ... } } })`.
+Plugin nhà cung cấp có thể định nghĩa các danh mục mô hình cho suy luận với `registerProvider({ catalog: { run(...) { ... } } })`.
 
-`catalog.run(...)` returns the same shape OpenClaw writes into
-`models.providers`:
+`catalog.run(...)` trả về cùng một hình dạng mà OpenClaw ghi vào `models.providers`:
 
-- `{ provider }` for one provider entry
-- `{ providers }` for multiple provider entries
+- `{ provider }` cho một mục nhà cung cấp
+- `{ providers }` cho nhiều mục nhà cung cấp
 
-Use `catalog` when the plugin owns provider-specific model ids, base URL
-defaults, or auth-gated model metadata.
+Sử dụng `catalog` khi plugin sở hữu các id mô hình cụ thể của nhà cung cấp, các URL cơ sở mặc định, hoặc metadata mô hình được bảo vệ bởi xác thực.
 
-`catalog.order` controls when a plugin's catalog merges relative to OpenClaw's
-built-in implicit providers:
+`catalog.order` kiểm soát khi nào danh mục của plugin hợp nhất so với các nhà cung cấp ngầm định của OpenClaw:
 
-- `simple`: plain API-key or env-driven providers
-- `profile`: providers that appear when auth profiles exist
-- `paired`: providers that synthesize multiple related provider entries
-- `late`: last pass, after other implicit providers
+- `simple`: các nhà cung cấp dựa trên API-key hoặc môi trường đơn giản
+- `profile`: các nhà cung cấp xuất hiện khi có hồ sơ xác thực
+- `paired`: các nhà cung cấp tổng hợp nhiều mục nhà cung cấp liên quan
+- `late`: lượt cuối cùng, sau các nhà cung cấp ngầm định khác
 
-Later providers win on key collision, so plugins can intentionally override a
-built-in provider entry with the same provider id.
+Các nhà cung cấp sau cùng sẽ thắng khi có xung đột khóa, vì vậy các plugin có thể cố ý ghi đè một mục nhà cung cấp tích hợp với cùng id nhà cung cấp.
 
-Compatibility:
+Tương thích:
 
-- `discovery` still works as a legacy alias
-- if both `catalog` and `discovery` are registered, OpenClaw uses `catalog`
+- `discovery` vẫn hoạt động như một bí danh cũ
+- nếu cả `catalog` và `discovery` đều được đăng ký, OpenClaw sẽ sử dụng `catalog`
 
-## Read-only channel inspection
+## Kiểm tra kênh chỉ đọc
 
-If your plugin registers a channel, prefer implementing
-`plugin.config.inspectAccount(cfg, accountId)` alongside `resolveAccount(...)`.
+Nếu plugin của bạn đăng ký một kênh, hãy ưu tiên triển khai `plugin.config.inspectAccount(cfg, accountId)` cùng với `resolveAccount(...)`.
 
-Why:
+Tại sao:
 
-- `resolveAccount(...)` is the runtime path. It is allowed to assume credentials
-  are fully materialized and can fail fast when required secrets are missing.
-- Read-only command paths such as `openclaw status`, `openclaw status --all`,
-  `openclaw channels status`, `openclaw channels resolve`, and doctor/config
-  repair flows should not need to materialize runtime credentials just to
-  describe configuration.
+- `resolveAccount(...)` là đường dẫn runtime. Nó được phép giả định rằng các thông tin xác thực đã được vật chất hóa đầy đủ và có thể thất bại nhanh khi thiếu các bí mật cần thiết.
+- Các đường dẫn lệnh chỉ đọc như `openclaw status`, `openclaw status --all`, `openclaw channels status`, `openclaw channels resolve`, và các luồng sửa chữa doctor/config không nên cần vật chất hóa các thông tin xác thực runtime chỉ để mô tả cấu hình.
 
-Recommended `inspectAccount(...)` behavior:
+Hành vi `inspectAccount(...)` được khuyến nghị:
 
-- Return descriptive account state only.
-- Preserve `enabled` and `configured`.
-- Include credential source/status fields when relevant, such as:
+- Chỉ trả về trạng thái tài khoản mô tả.
+- Bảo toàn `enabled` và `configured`.
+- Bao gồm các trường nguồn/trạng thái thông tin xác thực khi có liên quan, chẳng hạn như:
   - `tokenSource`, `tokenStatus`
   - `botTokenSource`, `botTokenStatus`
   - `appTokenSource`, `appTokenStatus`
   - `signingSecretSource`, `signingSecretStatus`
-- You do not need to return raw token values just to report read-only
-  availability. Returning `tokenStatus: "available"` (and the matching source
-  field) is enough for status-style commands.
-- Use `configured_unavailable` when a credential is configured via SecretRef but
-  unavailable in the current command path.
+- Bạn không cần trả về các giá trị token thô chỉ để báo cáo tính khả dụng chỉ đọc. Trả về `tokenStatus: "available"` (và trường nguồn tương ứng) là đủ cho các lệnh kiểu trạng thái.
+- Sử dụng `configured_unavailable` khi một thông tin xác thực được cấu hình qua SecretRef nhưng không khả dụng trong đường dẫn lệnh hiện tại.
 
-This lets read-only commands report "configured but unavailable in this command
-path" instead of crashing or misreporting the account as not configured.
+Điều này cho phép các lệnh chỉ đọc báo cáo "đã cấu hình nhưng không khả dụng trong đường dẫn lệnh này" thay vì bị lỗi hoặc báo cáo sai rằng tài khoản chưa được cấu hình.
 
-## Package packs
+## Gói package
 
-A plugin directory may include a `package.json` with `openclaw.extensions`:
+Một thư mục plugin có thể bao gồm một `package.json` với `openclaw.extensions`:
 
 ```json
 {
@@ -1131,44 +931,27 @@ A plugin directory may include a `package.json` with `openclaw.extensions`:
 }
 ```
 
-Each entry becomes a plugin. If the pack lists multiple extensions, the plugin id
-becomes `name/<fileBase>`.
+Mỗi mục trở thành một plugin. Nếu gói liệt kê nhiều phần mở rộng, id plugin sẽ trở thành `name/<fileBase>`.
 
-If your plugin imports npm deps, install them in that directory so
-`node_modules` is available (`npm install` / `pnpm install`).
+Nếu plugin của bạn import các phụ thuộc npm, hãy cài đặt chúng trong thư mục đó để `node_modules` có sẵn (`npm install` / `pnpm install`).
 
-Security guardrail: every `openclaw.extensions` entry must stay inside the plugin
-directory after symlink resolution. Entries that escape the package directory are
-rejected.
+Rào chắn bảo mật: mỗi mục `openclaw.extensions` phải ở trong thư mục plugin sau khi giải quyết symlink. Các mục thoát khỏi thư mục package sẽ bị từ chối.
 
-Security note: `openclaw plugins install` installs plugin dependencies with
-`npm install --ignore-scripts` (no lifecycle scripts). Keep plugin dependency
-trees "pure JS/TS" and avoid packages that require `postinstall` builds.
+Lưu ý bảo mật: `openclaw plugins install` cài đặt các phụ thuộc plugin với `npm install --ignore-scripts` (không có script vòng đời). Giữ cây phụ thuộc plugin "JS/TS thuần" và tránh các package yêu cầu xây dựng `postinstall`.
 
-Optional: `openclaw.setupEntry` can point at a lightweight setup-only module.
-When OpenClaw needs setup surfaces for a disabled channel plugin, or
-when a channel plugin is enabled but still unconfigured, it loads `setupEntry`
-instead of the full plugin entry. This keeps startup and setup lighter
-when your main plugin entry also wires tools, hooks, or other runtime-only
-code.
+Tùy chọn: `openclaw.setupEntry` có thể trỏ đến một module chỉ dành cho setup nhẹ. Khi OpenClaw cần các bề mặt setup cho một plugin kênh bị vô hiệu hóa, hoặc khi một plugin kênh được kích hoạt nhưng vẫn chưa được cấu hình, nó tải `setupEntry` thay vì toàn bộ điểm vào plugin. Điều này giúp khởi động và setup nhẹ hơn khi điểm vào plugin chính của bạn cũng kết nối các công cụ, hook, hoặc mã chỉ dành cho runtime khác.
 
-Optional: `openclaw.startup.deferConfiguredChannelFullLoadUntilAfterListen`
-can opt a channel plugin into the same `setupEntry` path during the gateway's
-pre-listen startup phase, even when the channel is already configured.
+Tùy chọn: `openclaw.startup.deferConfiguredChannelFullLoadUntilAfterListen` có thể cho phép một plugin kênh vào cùng đường dẫn `setupEntry` trong giai đoạn khởi động trước khi gateway bắt đầu lắng nghe, ngay cả khi kênh đã được cấu hình.
 
-Use this only when `setupEntry` fully covers the startup surface that must exist
-before the gateway starts listening. In practice, that means the setup entry
-must register every channel-owned capability that startup depends on, such as:
+Chỉ sử dụng điều này khi `setupEntry` bao phủ đầy đủ bề mặt khởi động phải tồn tại trước khi gateway bắt đầu lắng nghe. Trong thực tế, điều đó có nghĩa là mục setup phải đăng ký mọi khả năng mà kênh sở hữu mà khởi động phụ thuộc vào, chẳng hạn như:
 
-- channel registration itself
-- any HTTP routes that must be available before the gateway starts listening
-- any gateway methods, tools, or services that must exist during that same window
+- đăng ký kênh tự nó
+- bất kỳ tuyến HTTP nào phải có sẵn trước khi gateway bắt đầu lắng nghe
+- bất kỳ phương thức, công cụ, hoặc dịch vụ gateway nào phải tồn tại trong cùng cửa sổ đó
 
-If your full entry still owns any required startup capability, do not enable
-this flag. Keep the plugin on the default behavior and let OpenClaw load the
-full entry during startup.
+Nếu mục nhập đầy đủ của bạn vẫn sở hữu bất kỳ khả năng khởi động cần thiết nào, đừng bật cờ này. Giữ plugin ở hành vi mặc định và để OpenClaw tải mục nhập đầy đủ trong quá trình khởi động.
 
-Example:
+Ví dụ:
 
 ```json
 {
@@ -1183,12 +966,11 @@ Example:
 }
 ```
 
-### Channel catalog metadata
+### Metadata danh mục kênh
 
-Channel plugins can advertise setup/discovery metadata via `openclaw.channel` and
-install hints via `openclaw.install`. This keeps the core catalog data-free.
+Plugin kênh có thể quảng cáo metadata setup/discovery qua `openclaw.channel` và gợi ý cài đặt qua `openclaw.install`. Điều này giữ cho dữ liệu danh mục lõi không có dữ liệu.
 
-Example:
+Ví dụ:
 
 ```json
 {
@@ -1214,26 +996,19 @@ Example:
 }
 ```
 
-OpenClaw can also merge **external channel catalogs** (for example, an MPM
-registry export). Drop a JSON file at one of:
+OpenClaw cũng có thể hợp nhất **danh mục kênh bên ngoài** (ví dụ, một xuất khẩu registry MPM). Thả một file JSON tại một trong các vị trí sau:
 
 - `~/.openclaw/mpm/plugins.json`
 - `~/.openclaw/mpm/catalog.json`
 - `~/.openclaw/plugins/catalog.json`
 
-Or point `OPENCLAW_PLUGIN_CATALOG_PATHS` (or `OPENCLAW_MPM_CATALOG_PATHS`) at
-one or more JSON files (comma/semicolon/`PATH`-delimited). Each file should
-contain `{ "entries": [ { "name": "@scope/pkg", "openclaw": { "channel": {...}, "install": {...} } } ] }`.
+Hoặc trỏ `OPENCLAW_PLUGIN_CATALOG_PATHS` (hoặc `OPENCLAW_MPM_CATALOG_PATHS`) đến một hoặc nhiều file JSON (phân tách bằng dấu phẩy/chấm phẩy/`PATH`). Mỗi file nên chứa `{ "entries": [ { "name": "@scope/pkg", "openclaw": { "channel": {...}, "install": {...} } } ] }`.
 
-## Context engine plugins
+## Plugin động cơ ngữ cảnh
 
-Context engine plugins own session context orchestration for ingest, assembly,
-and compaction. Register them from your plugin with
-`api.registerContextEngine(id, factory)`, then select the active engine with
-`plugins.slots.contextEngine`.
+Plugin động cơ ngữ cảnh sở hữu việc điều phối ngữ cảnh phiên cho việc nhập, lắp ráp, và nén. Đăng ký chúng từ plugin của bạn với `api.registerContextEngine(id, factory)`, sau đó chọn động cơ hoạt động với `plugins.slots.contextEngine`.
 
-Use this when your plugin needs to replace or extend the default context
-pipeline rather than just add memory search or hooks.
+Sử dụng điều này khi plugin của bạn cần thay thế hoặc mở rộng pipeline ngữ cảnh mặc định thay vì chỉ thêm tìm kiếm bộ nhớ hoặc hook.
 
 ```ts
 export default function (api) {
@@ -1252,8 +1027,7 @@ export default function (api) {
 }
 ```
 
-If your engine does **not** own the compaction algorithm, keep `compact()`
-implemented and delegate it explicitly:
+Nếu động cơ của bạn **không** sở hữu thuật toán nén, hãy giữ `compact()` được triển khai và ủy quyền nó một cách rõ ràng:
 
 ```ts
 import { delegateCompactionToRuntime } from "openclaw/plugin-sdk/core";
@@ -1278,62 +1052,53 @@ export default function (api) {
 }
 ```
 
-## Adding a new capability
+## Thêm một khả năng mới
 
-When a plugin needs behavior that does not fit the current API, do not bypass
-the plugin system with a private reach-in. Add the missing capability.
+Khi một plugin cần hành vi không phù hợp với API hiện tại, đừng vượt qua hệ thống plugin với một truy cập riêng tư. Thêm khả năng còn thiếu.
 
-Recommended sequence:
+Trình tự được khuyến nghị:
 
-1. define the core contract
-   Decide what shared behavior core should own: policy, fallback, config merge,
-   lifecycle, channel-facing semantics, and runtime helper shape.
-2. add typed plugin registration/runtime surfaces
-   Extend `OpenClawPluginApi` and/or `api.runtime` with the smallest useful
-   typed capability surface.
-3. wire core + channel/feature consumers
-   Channels and feature plugins should consume the new capability through core,
-   not by importing a vendor implementation directly.
-4. register vendor implementations
-   Vendor plugins then register their backends against the capability.
-5. add contract coverage
-   Add tests so ownership and registration shape stay explicit over time.
+1. định nghĩa hợp đồng lõi
+   Quyết định hành vi chia sẻ nào lõi nên sở hữu: chính sách, dự phòng, hợp nhất cấu hình, vòng đời, ngữ nghĩa đối mặt kênh, và hình dạng trợ giúp runtime.
+2. thêm các bề mặt đăng ký/runtime plugin có kiểu
+   Mở rộng `OpenClawPluginApi` và/hoặc `api.runtime` với bề mặt khả năng có kiểu nhỏ nhất hữu ích.
+3. kết nối lõi + người tiêu dùng kênh/tính năng
+   Các kênh và plugin tính năng nên tiêu thụ khả năng mới thông qua lõi, không phải bằng cách import một triển khai của nhà cung cấp trực tiếp.
+4. đăng ký các triển khai của nhà cung cấp
+   Các plugin của nhà cung cấp sau đó đăng ký backend của họ chống lại khả năng.
+5. thêm phạm vi hợp đồng
+   Thêm các bài kiểm tra để quyền sở hữu và hình dạng đăng ký vẫn rõ ràng theo thời gian.
 
-This is how OpenClaw stays opinionated without becoming hardcoded to one
-provider's worldview. See the [Capability Cookbook](/tools/capability-cookbook)
-for a concrete file checklist and worked example.
+Đây là cách OpenClaw giữ quan điểm mà không trở nên cứng nhắc với quan điểm của một nhà cung cấp. Xem [Capability Cookbook](/tools/capability-cookbook) để biết danh sách kiểm tra file cụ thể và ví dụ đã làm việc.
 
-### Capability checklist
+### Danh sách kiểm tra khả năng
 
-When you add a new capability, the implementation should usually touch these
-surfaces together:
+Khi bạn thêm một khả năng mới, triển khai thường nên chạm vào các bề mặt này cùng nhau:
 
-- core contract types in `src/<capability>/types.ts`
-- core runner/runtime helper in `src/<capability>/runtime.ts`
-- plugin API registration surface in `src/plugins/types.ts`
-- plugin registry wiring in `src/plugins/registry.ts`
-- plugin runtime exposure in `src/plugins/runtime/*` when feature/channel
-  plugins need to consume it
-- capture/test helpers in `src/test-utils/plugin-registration.ts`
-- ownership/contract assertions in `src/plugins/contracts/registry.ts`
-- operator/plugin docs in `docs/`
+- các loại hợp đồng lõi trong `src/<capability>/types.ts`
+- trợ giúp runtime/runner lõi trong `src/<capability>/runtime.ts`
+- bề mặt đăng ký API plugin trong `src/plugins/types.ts`
+- kết nối registry plugin trong `src/plugins/registry.ts`
+- phơi bày runtime plugin trong `src/plugins/runtime/*` khi các plugin tính năng/kênh cần tiêu thụ nó
+- trợ giúp kiểm tra/bắt giữ trong `src/test-utils/plugin-registration.ts`
+- các khẳng định quyền sở hữu/hợp đồng trong `src/plugins/contracts/registry.ts`
+- tài liệu operator/plugin trong `docs/`
 
-If one of those surfaces is missing, that is usually a sign the capability is
-not fully integrated yet.
+Nếu một trong những bề mặt đó bị thiếu, đó thường là dấu hiệu khả năng chưa được tích hợp đầy đủ.
 
-### Capability template
+### Mẫu khả năng
 
-Minimal pattern:
+Mẫu tối thiểu:
 
 ```ts
-// core contract
+// hợp đồng lõi
 export type VideoGenerationProviderPlugin = {
   id: string;
   label: string;
   generateVideo: (req: VideoGenerationRequest) => Promise<VideoGenerationResult>;
 };
 
-// plugin API
+// API plugin
 api.registerVideoGenerationProvider({
   id: "openai",
   label: "OpenAI",
@@ -1342,22 +1107,22 @@ api.registerVideoGenerationProvider({
   },
 });
 
-// shared runtime helper for feature/channel plugins
+// trợ giúp runtime chia sẻ cho plugin tính năng/kênh
 const clip = await api.runtime.videoGeneration.generateFile({
   prompt: "Show the robot walking through the lab.",
   cfg,
 });
 ```
 
-Contract test pattern:
+Mẫu kiểm tra hợp đồng:
 
 ```ts
 expect(findVideoGenerationProviderIdsForPlugin("openai")).toEqual(["openai"]);
 ```
 
-That keeps the rule simple:
+Điều đó giữ cho quy tắc đơn giản:
 
-- core owns the capability contract + orchestration
-- vendor plugins own vendor implementations
-- feature/channel plugins consume runtime helpers
-- contract tests keep ownership explicit
+- lõi sở hữu hợp đồng khả năng + điều phối
+- plugin của nhà cung cấp sở hữu các triển khai của nhà cung cấp
+- plugin tính năng/kênh tiêu thụ các trợ giúp runtime
+- các bài kiểm tra hợp đồng giữ quyền sở hữu rõ ràng

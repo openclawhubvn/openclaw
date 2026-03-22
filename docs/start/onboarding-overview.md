@@ -1,67 +1,63 @@
 ---
-summary: "Overview of OpenClaw onboarding options and flows"
+summary: "Tổng quan về các tùy chọn và quy trình onboarding của OpenClaw"
 read_when:
-  - Choosing an onboarding path
-  - Setting up a new environment
-title: "Onboarding Overview"
-sidebarTitle: "Onboarding Overview"
+  - Lựa chọn con đường onboarding
+  - Thiết lập môi trường mới
+title: "Tổng quan Onboarding"
+sidebarTitle: "Tổng quan Onboarding"
 ---
 
-# Onboarding Overview
+# Tổng quan Onboarding
 
-OpenClaw has two onboarding paths. Both configure auth, the Gateway, and
-optional channels — they just differ in how you interact with the setup.
+OpenClaw có hai con đường onboarding. Cả hai đều cấu hình xác thực, Gateway và các kênh tùy chọn — chỉ khác nhau ở cách bạn tương tác với quá trình thiết lập.
 
-## Which path should I use?
+## Nên chọn con đường nào?
 
-|                | CLI onboarding                         | macOS app onboarding      |
-| -------------- | -------------------------------------- | ------------------------- |
-| **Platforms**  | macOS, Linux, Windows (native or WSL2) | macOS only                |
-| **Interface**  | Terminal wizard                        | Guided UI in the app      |
-| **Best for**   | Servers, headless, full control        | Desktop Mac, visual setup |
-| **Automation** | `--non-interactive` for scripts        | Manual only               |
-| **Command**    | `openclaw onboard`                     | Launch the app            |
+|                | Onboarding qua CLI                     | Onboarding qua ứng dụng macOS |
+| -------------- | -------------------------------------- | ----------------------------- |
+| **Nền tảng**   | macOS, Linux, Windows (native hoặc WSL2) | Chỉ macOS                     |
+| **Giao diện**  | Trình hướng dẫn trên Terminal          | Giao diện trực quan trong ứng dụng |
+| **Phù hợp nhất cho** | Máy chủ, không màn hình, kiểm soát hoàn toàn | Máy tính để bàn Mac, thiết lập trực quan |
+| **Tự động hóa** | `--non-interactive` cho script        | Chỉ thủ công                  |
+| **Lệnh**       | `openclaw onboard`                     | Khởi chạy ứng dụng            |
 
-Most users should start with **CLI onboarding** — it works everywhere and gives
-you the most control.
+Hầu hết người dùng nên bắt đầu với **onboarding qua CLI** — hoạt động trên mọi nền tảng và cho phép kiểm soát tối đa.
 
-## What onboarding configures
+## Onboarding cấu hình những gì
 
-Regardless of which path you choose, onboarding sets up:
+Bất kể bạn chọn con đường nào, onboarding sẽ thiết lập:
 
-1. **Model provider and auth** — API key, OAuth, or setup token for your chosen provider
-2. **Workspace** — directory for agent files, bootstrap templates, and memory
-3. **Gateway** — port, bind address, auth mode
-4. **Channels** (optional) — WhatsApp, Telegram, Discord, and more
-5. **Daemon** (optional) — background service so the Gateway starts automatically
+1. **Nhà cung cấp mô hình và xác thực** — API key, OAuth, hoặc token thiết lập cho nhà cung cấp bạn chọn
+2. **Workspace** — thư mục cho các tệp agent, mẫu bootstrap và bộ nhớ
+3. **Gateway** — cổng, địa chỉ bind, chế độ xác thực
+4. **Kênh** (tùy chọn) — WhatsApp, Telegram, Discord và nhiều hơn nữa
+5. **Daemon** (tùy chọn) — dịch vụ nền để Gateway tự động khởi động
 
-## CLI onboarding
+## Onboarding qua CLI
 
-Run in any terminal:
+Chạy trong bất kỳ terminal nào:
 
 ```bash
 openclaw onboard
 ```
 
-Add `--install-daemon` to also install the background service in one step.
+Thêm `--install-daemon` để cài đặt dịch vụ nền trong một bước.
 
-Full reference: [Onboarding (CLI)](/start/wizard)
-CLI command docs: [`openclaw onboard`](/cli/onboard)
+Tham khảo đầy đủ: [Onboarding (CLI)](/start/wizard)
+Tài liệu lệnh CLI: [`openclaw onboard`](/cli/onboard)
 
-## macOS app onboarding
+## Onboarding qua ứng dụng macOS
 
-Open the OpenClaw app. The first-run wizard walks you through the same steps
-with a visual interface.
+Mở ứng dụng OpenClaw. Trình hướng dẫn lần đầu sẽ dẫn bạn qua các bước tương tự với giao diện trực quan.
 
-Full reference: [Onboarding (macOS App)](/start/onboarding)
+Tham khảo đầy đủ: [Onboarding (macOS App)](/start/onboarding)
 
-## Custom or unlisted providers
+## Nhà cung cấp tùy chỉnh hoặc không có trong danh sách
 
-If your provider is not listed in onboarding, choose **Custom Provider** and
-enter:
+Nếu nhà cung cấp của bạn không có trong danh sách onboarding, chọn **Custom Provider** và nhập:
 
-- API compatibility mode (OpenAI-compatible, Anthropic-compatible, or auto-detect)
-- Base URL and API key
-- Model ID and optional alias
+- Chế độ tương thích API (tương thích OpenAI, tương thích Anthropic, hoặc tự động phát hiện)
+- URL cơ bản và API key
+- Model ID và alias tùy chọn
 
-Multiple custom endpoints can coexist — each gets its own endpoint ID.
+Nhiều endpoint tùy chỉnh có thể cùng tồn tại — mỗi cái sẽ có ID endpoint riêng.

@@ -1,54 +1,53 @@
 ---
-summary: "Use MiniMax models in OpenClaw"
+summary: "Sử dụng các mô hình MiniMax trong OpenClaw"
 read_when:
-  - You want MiniMax models in OpenClaw
-  - You need MiniMax setup guidance
+  - Bạn muốn sử dụng mô hình MiniMax trong OpenClaw
+  - Bạn cần hướng dẫn thiết lập MiniMax
 title: "MiniMax"
 ---
 
 # MiniMax
 
-OpenClaw's MiniMax provider defaults to **MiniMax M2.7** and keeps
-**MiniMax M2.5** in the catalog for compatibility.
+Nhà cung cấp MiniMax của OpenClaw mặc định sử dụng **MiniMax M2.7** và giữ lại **MiniMax M2.5** trong danh mục để đảm bảo tương thích.
 
-## Model lineup
+## Danh sách mô hình
 
-- `MiniMax-M2.7`: default hosted text model.
-- `MiniMax-M2.7-highspeed`: faster M2.7 text tier.
-- `MiniMax-M2.5`: previous text model, still available in the MiniMax catalog.
-- `MiniMax-M2.5-highspeed`: faster M2.5 text tier.
-- `MiniMax-VL-01`: vision model for text + image inputs.
+- `MiniMax-M2.7`: mô hình văn bản mặc định được lưu trữ.
+- `MiniMax-M2.7-highspeed`: phiên bản M2.7 nhanh hơn.
+- `MiniMax-M2.5`: mô hình văn bản trước đó, vẫn có sẵn trong danh mục MiniMax.
+- `MiniMax-M2.5-highspeed`: phiên bản M2.5 nhanh hơn.
+- `MiniMax-VL-01`: mô hình xử lý văn bản + hình ảnh.
 
-## Choose a setup
+## Chọn một thiết lập
 
-### MiniMax OAuth (Coding Plan) - recommended
+### MiniMax OAuth (Kế hoạch Coding) - khuyến nghị
 
-**Best for:** quick setup with MiniMax Coding Plan via OAuth, no API key required.
+**Phù hợp nhất cho:** thiết lập nhanh với Kế hoạch Coding của MiniMax qua OAuth, không cần khóa API.
 
-Enable the bundled OAuth plugin and authenticate:
+Kích hoạt plugin OAuth đi kèm và xác thực:
 
 ```bash
-openclaw plugins enable minimax  # skip if already loaded.
-openclaw gateway restart  # restart if gateway is already running
+openclaw plugins enable minimax  # bỏ qua nếu đã tải.
+openclaw gateway restart  # khởi động lại nếu gateway đang chạy
 openclaw onboard --auth-choice minimax-portal
 ```
 
-You will be prompted to select an endpoint:
+Bạn sẽ được yêu cầu chọn một endpoint:
 
-- **Global** - International users (`api.minimax.io`)
-- **CN** - Users in China (`api.minimaxi.com`)
+- **Global** - Người dùng quốc tế (`api.minimax.io`)
+- **CN** - Người dùng tại Trung Quốc (`api.minimaxi.com`)
 
-See [MiniMax plugin README](https://github.com/openclaw/openclaw/tree/main/extensions/minimax) for details.
+Xem [MiniMax plugin README](https://github.com/openclaw/openclaw/tree/main/extensions/minimax) để biết chi tiết.
 
-### MiniMax M2.7 (API key)
+### MiniMax M2.7 (khóa API)
 
-**Best for:** hosted MiniMax with Anthropic-compatible API.
+**Phù hợp nhất cho:** sử dụng MiniMax được lưu trữ với API tương thích Anthropic.
 
-Configure via CLI:
+Cấu hình qua CLI:
 
-- Run `openclaw configure`
-- Select **Model/auth**
-- Choose a **MiniMax** auth option
+- Chạy `openclaw configure`
+- Chọn **Model/auth**
+- Chọn một tùy chọn xác thực **MiniMax**
 
 ```json5
 {
@@ -105,10 +104,9 @@ Configure via CLI:
 }
 ```
 
-### MiniMax M2.7 as fallback (example)
+### MiniMax M2.7 làm dự phòng (ví dụ)
 
-**Best for:** keep your strongest latest-generation model as primary, fail over to MiniMax M2.7.
-Example below uses Opus as a concrete primary; swap to your preferred latest-gen primary model.
+**Phù hợp nhất cho:** giữ mô hình thế hệ mới nhất mạnh nhất làm chính, chuyển sang MiniMax M2.7 khi cần. Ví dụ dưới đây sử dụng Opus làm chính; thay thế bằng mô hình thế hệ mới nhất mà bạn ưa thích.
 
 ```json5
 {
@@ -128,13 +126,11 @@ Example below uses Opus as a concrete primary; swap to your preferred latest-gen
 }
 ```
 
-### Optional: Local via LM Studio (manual)
+### Tùy chọn: Cục bộ qua LM Studio (thủ công)
 
-**Best for:** local inference with LM Studio.
-We have seen strong results with MiniMax M2.5 on powerful hardware (e.g. a
-desktop/server) using LM Studio's local server.
+**Phù hợp nhất cho:** suy luận cục bộ với LM Studio. Chúng tôi đã thấy kết quả tốt với MiniMax M2.5 trên phần cứng mạnh (ví dụ: máy tính để bàn/máy chủ) sử dụng máy chủ cục bộ của LM Studio.
 
-Configure manually via `openclaw.json`:
+Cấu hình thủ công qua `openclaw.json`:
 
 ```json5
 {
@@ -168,56 +164,54 @@ Configure manually via `openclaw.json`:
 }
 ```
 
-## Configure via `openclaw configure`
+## Cấu hình qua `openclaw configure`
 
-Use the interactive config wizard to set MiniMax without editing JSON:
+Sử dụng trình hướng dẫn cấu hình tương tác để thiết lập MiniMax mà không cần chỉnh sửa JSON:
 
-1. Run `openclaw configure`.
-2. Select **Model/auth**.
-3. Choose a **MiniMax** auth option.
-4. Pick your default model when prompted.
+1. Chạy `openclaw configure`.
+2. Chọn **Model/auth**.
+3. Chọn một tùy chọn xác thực **MiniMax**.
+4. Chọn mô hình mặc định khi được yêu cầu.
 
-## Configuration options
+## Tùy chọn cấu hình
 
-- `models.providers.minimax.baseUrl`: prefer `https://api.minimax.io/anthropic` (Anthropic-compatible); `https://api.minimax.io/v1` is optional for OpenAI-compatible payloads.
-- `models.providers.minimax.api`: prefer `anthropic-messages`; `openai-completions` is optional for OpenAI-compatible payloads.
-- `models.providers.minimax.apiKey`: MiniMax API key (`MINIMAX_API_KEY`).
-- `models.providers.minimax.models`: define `id`, `name`, `reasoning`, `contextWindow`, `maxTokens`, `cost`.
-- `agents.defaults.models`: alias models you want in the allowlist.
-- `models.mode`: keep `merge` if you want to add MiniMax alongside built-ins.
+- `models.providers.minimax.baseUrl`: ưu tiên `https://api.minimax.io/anthropic` (tương thích Anthropic); `https://api.minimax.io/v1` là tùy chọn cho payload tương thích OpenAI.
+- `models.providers.minimax.api`: ưu tiên `anthropic-messages`; `openai-completions` là tùy chọn cho payload tương thích OpenAI.
+- `models.providers.minimax.apiKey`: khóa API MiniMax (`MINIMAX_API_KEY`).
+- `models.providers.minimax.models`: định nghĩa `id`, `name`, `reasoning`, `contextWindow`, `maxTokens`, `cost`.
+- `agents.defaults.models`: đặt tên bí danh cho các mô hình bạn muốn trong danh sách cho phép.
+- `models.mode`: giữ `merge` nếu bạn muốn thêm MiniMax cùng với các mô hình tích hợp sẵn.
 
-## Notes
+## Ghi chú
 
-- Model refs are `minimax/<model>`.
-- Default text model: `MiniMax-M2.7`.
-- Alternate text models: `MiniMax-M2.7-highspeed`, `MiniMax-M2.5`, `MiniMax-M2.5-highspeed`.
-- Coding Plan usage API: `https://api.minimaxi.com/v1/api/openplatform/coding_plan/remains` (requires a coding plan key).
-- Update pricing values in `models.json` if you need exact cost tracking.
-- Referral link for MiniMax Coding Plan (10% off): [https://platform.minimax.io/subscribe/coding-plan?code=DbXJTRClnb&source=link](https://platform.minimax.io/subscribe/coding-plan?code=DbXJTRClnb&source=link)
-- See [/concepts/model-providers](/concepts/model-providers) for provider rules.
-- Use `openclaw models list` and `openclaw models set minimax/MiniMax-M2.7` to switch.
+- Tham chiếu mô hình là `minimax/<model>`.
+- Mô hình văn bản mặc định: `MiniMax-M2.7`.
+- Các mô hình văn bản thay thế: `MiniMax-M2.7-highspeed`, `MiniMax-M2.5`, `MiniMax-M2.5-highspeed`.
+- API sử dụng Kế hoạch Coding: `https://api.minimaxi.com/v1/api/openplatform/coding-plan/remains` (yêu cầu khóa kế hoạch coding).
+- Cập nhật giá trị giá trong `models.json` nếu bạn cần theo dõi chi phí chính xác.
+- Liên kết giới thiệu cho Kế hoạch Coding của MiniMax (giảm 10%): [https://platform.minimax.io/subscribe/coding-plan?code=DbXJTRClnb&source=link](https://platform.minimax.io/subscribe/coding-plan?code=DbXJTRClnb&source=link)
+- Xem [/concepts/model-providers](/concepts/model-providers) để biết quy tắc của nhà cung cấp.
+- Sử dụng `openclaw models list` và `openclaw models set minimax/MiniMax-M2.7` để chuyển đổi.
 
-## Troubleshooting
+## Khắc phục sự cố
 
 ### "Unknown model: minimax/MiniMax-M2.7"
 
-This usually means the **MiniMax provider isn’t configured** (no provider entry
-and no MiniMax auth profile/env key found). A fix for this detection is in
-**2026.1.12** (unreleased at the time of writing). Fix by:
+Điều này thường có nghĩa là **nhà cung cấp MiniMax chưa được cấu hình** (không có mục nhà cung cấp và không tìm thấy hồ sơ xác thực MiniMax/khóa môi trường). Một bản sửa lỗi cho việc phát hiện này sẽ có trong **2026.1.12** (chưa phát hành tại thời điểm viết). Khắc phục bằng cách:
 
-- Upgrading to **2026.1.12** (or run from source `main`), then restarting the gateway.
-- Running `openclaw configure` and selecting a **MiniMax** auth option, or
-- Adding the `models.providers.minimax` block manually, or
-- Setting `MINIMAX_API_KEY` (or a MiniMax auth profile) so the provider can be injected.
+- Nâng cấp lên **2026.1.12** (hoặc chạy từ nguồn `main`), sau đó khởi động lại gateway.
+- Chạy `openclaw configure` và chọn một tùy chọn xác thực **MiniMax**, hoặc
+- Thêm thủ công khối `models.providers.minimax`, hoặc
+- Đặt `MINIMAX_API_KEY` (hoặc hồ sơ xác thực MiniMax) để nhà cung cấp có thể được chèn vào.
 
-Make sure the model id is **case‑sensitive**:
+Đảm bảo id mô hình là **phân biệt chữ hoa chữ thường**:
 
 - `minimax/MiniMax-M2.7`
 - `minimax/MiniMax-M2.7-highspeed`
 - `minimax/MiniMax-M2.5`
 - `minimax/MiniMax-M2.5-highspeed`
 
-Then recheck with:
+Sau đó kiểm tra lại với:
 
 ```bash
 openclaw models list

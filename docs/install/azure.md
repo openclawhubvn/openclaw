@@ -1,51 +1,51 @@
 ---
-summary: "Run OpenClaw Gateway 24/7 on an Azure Linux VM with durable state"
+summary: "Chạy OpenClaw Gateway 24/7 trên Azure Linux VM với trạng thái bền vững"
 read_when:
-  - You want OpenClaw running 24/7 on Azure with Network Security Group hardening
-  - You want a production-grade, always-on OpenClaw Gateway on your own Azure Linux VM
-  - You want secure administration with Azure Bastion SSH
+  - Bạn muốn OpenClaw chạy 24/7 trên Azure với bảo mật Network Security Group
+  - Bạn muốn một OpenClaw Gateway chất lượng sản xuất, luôn hoạt động trên Azure Linux VM của mình
+  - Bạn muốn quản trị an toàn với Azure Bastion SSH
 title: "Azure"
 ---
 
-# OpenClaw on Azure Linux VM
+# OpenClaw trên Azure Linux VM
 
-This guide sets up an Azure Linux VM with the Azure CLI, applies Network Security Group (NSG) hardening, configures Azure Bastion for SSH access, and installs OpenClaw.
+Hướng dẫn này thiết lập một Azure Linux VM với Azure CLI, áp dụng bảo mật Network Security Group (NSG), cấu hình Azure Bastion để truy cập SSH, và cài đặt OpenClaw.
 
-## What you'll do
+## Bạn sẽ làm gì
 
-- Create Azure networking (VNet, subnets, NSG) and compute resources with the Azure CLI
-- Apply Network Security Group rules so VM SSH is allowed only from Azure Bastion
-- Use Azure Bastion for SSH access (no public IP on the VM)
-- Install OpenClaw with the installer script
-- Verify the Gateway
+- Tạo mạng Azure (VNet, subnets, NSG) và tài nguyên tính toán với Azure CLI
+- Áp dụng quy tắc Network Security Group để chỉ cho phép SSH từ Azure Bastion
+- Sử dụng Azure Bastion để truy cập SSH (không có IP công cộng trên VM)
+- Cài đặt OpenClaw bằng script cài đặt
+- Xác minh Gateway
 
-## What you need
+## Bạn cần gì
 
-- An Azure subscription with permission to create compute and network resources
-- Azure CLI installed (see [Azure CLI install steps](https://learn.microsoft.com/cli/azure/install-azure-cli) if needed)
-- An SSH key pair (the guide covers generating one if needed)
-- ~20-30 minutes
+- Một tài khoản Azure có quyền tạo tài nguyên tính toán và mạng
+- Azure CLI đã được cài đặt (xem [hướng dẫn cài đặt Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) nếu cần)
+- Một cặp khóa SSH (hướng dẫn sẽ bao gồm cách tạo nếu cần)
+- ~20-30 phút
 
-## Configure deployment
+## Cấu hình triển khai
 
 <Steps>
-  <Step title="Sign in to Azure CLI">
+  <Step title="Đăng nhập vào Azure CLI">
     ```bash
     az login
     az extension add -n ssh
     ```
 
-    The `ssh` extension is required for Azure Bastion native SSH tunneling.
+    Phần mở rộng `ssh` là cần thiết cho việc tạo đường hầm SSH gốc của Azure Bastion.
 
   </Step>
 
-  <Step title="Register required resource providers (one-time)">
+  <Step title="Đăng ký nhà cung cấp tài nguyên cần thiết (một lần)">
     ```bash
     az provider register --namespace Microsoft.Compute
     az provider register --namespace Microsoft.Network
     ```
 
-    Verify registration. Wait until both show `Registered`.
+    Xác minh đăng ký. Chờ cho đến khi cả hai hiển thị `Registered`.
 
     ```bash
     az provider show --namespace Microsoft.Compute --query registrationState -o tsv
@@ -54,7 +54,7 @@ This guide sets up an Azure Linux VM with the Azure CLI, applies Network Securit
 
   </Step>
 
-  <Step title="Set deployment variables">
+  <Step title="Thiết lập biến triển khai">
     ```bash
     RG="rg-openclaw"
     LOCATION="westus2"
@@ -70,18 +70,18 @@ This guide sets up an Azure Linux VM with the Azure CLI, applies Network Securit
     BASTION_PIP_NAME="pip-openclaw-bastion"
     ```
 
-    Adjust names and CIDR ranges to fit your environment. The Bastion subnet must be at least `/26`.
+    Điều chỉnh tên và phạm vi CIDR để phù hợp với môi trường của bạn. Subnet Bastion phải ít nhất là `/26`.
 
   </Step>
 
-  <Step title="Select SSH key">
-    Use your existing public key if you have one:
+  <Step title="Chọn khóa SSH">
+    Sử dụng khóa công khai hiện có nếu bạn đã có:
 
     ```bash
     SSH_PUB_KEY="$(cat ~/.ssh/id_ed25519.pub)"
     ```
 
-    If you don't have an SSH key yet, generate one:
+    Nếu chưa có khóa SSH, tạo một khóa:
 
     ```bash
     ssh-keygen -t ed25519 -a 100 -f ~/.ssh/id_ed25519 -C "you@example.com"
@@ -90,25 +90,25 @@ This guide sets up an Azure Linux VM with the Azure CLI, applies Network Securit
 
   </Step>
 
-  <Step title="Select VM size and OS disk size">
+  <Step title="Chọn kích thước VM và kích thước đĩa OS">
     ```bash
     VM_SIZE="Standard_B2as_v2"
     OS_DISK_SIZE_GB=64
     ```
 
-    Choose a VM size and OS disk size available in your subscription and region:
+    Chọn kích thước VM và kích thước đĩa OS có sẵn trong tài khoản và khu vực của bạn:
 
-    - Start smaller for light usage and scale up later
-    - Use more vCPU/RAM/disk for heavier automation, more channels, or larger model/tool workloads
-    - If a VM size is unavailable in your region or subscription quota, pick the closest available SKU
+    - Bắt đầu nhỏ cho nhu cầu sử dụng nhẹ và mở rộng sau
+    - Sử dụng nhiều vCPU/RAM/đĩa hơn cho tự động hóa nặng, nhiều kênh, hoặc khối lượng công việc mô hình/công cụ lớn hơn
+    - Nếu kích thước VM không có sẵn trong khu vực hoặc hạn ngạch tài khoản của bạn, chọn SKU gần nhất có sẵn
 
-    List VM sizes available in your target region:
+    Liệt kê các kích thước VM có sẵn trong khu vực mục tiêu của bạn:
 
     ```bash
     az vm list-skus --location "${LOCATION}" --resource-type virtualMachines -o table
     ```
 
-    Check your current vCPU and disk usage/quota:
+    Kiểm tra mức sử dụng/hạn ngạch vCPU và đĩa hiện tại của bạn:
 
     ```bash
     az vm list-usage --location "${LOCATION}" -o table
@@ -117,23 +117,23 @@ This guide sets up an Azure Linux VM with the Azure CLI, applies Network Securit
   </Step>
 </Steps>
 
-## Deploy Azure resources
+## Triển khai tài nguyên Azure
 
 <Steps>
-  <Step title="Create the resource group">
+  <Step title="Tạo nhóm tài nguyên">
     ```bash
     az group create -n "${RG}" -l "${LOCATION}"
     ```
   </Step>
 
-  <Step title="Create the network security group">
-    Create the NSG and add rules so only the Bastion subnet can SSH into the VM.
+  <Step title="Tạo nhóm bảo mật mạng">
+    Tạo NSG và thêm quy tắc để chỉ subnet Bastion có thể SSH vào VM.
 
     ```bash
     az network nsg create \
       -g "${RG}" -n "${NSG_NAME}" -l "${LOCATION}"
 
-    # Allow SSH from the Bastion subnet only
+    # Cho phép SSH từ chỉ subnet Bastion
     az network nsg rule create \
       -g "${RG}" --nsg-name "${NSG_NAME}" \
       -n AllowSshFromBastionSubnet --priority 100 \
@@ -141,7 +141,7 @@ This guide sets up an Azure Linux VM with the Azure CLI, applies Network Securit
       --source-address-prefixes "${BASTION_SUBNET_PREFIX}" \
       --destination-port-ranges 22
 
-    # Deny SSH from the public internet
+    # Từ chối SSH từ internet công cộng
     az network nsg rule create \
       -g "${RG}" --nsg-name "${NSG_NAME}" \
       -n DenyInternetSsh --priority 110 \
@@ -149,7 +149,7 @@ This guide sets up an Azure Linux VM with the Azure CLI, applies Network Securit
       --source-address-prefixes Internet \
       --destination-port-ranges 22
 
-    # Deny SSH from other VNet sources
+    # Từ chối SSH từ các nguồn VNet khác
     az network nsg rule create \
       -g "${RG}" --nsg-name "${NSG_NAME}" \
       -n DenyVnetSsh --priority 120 \
@@ -158,12 +158,12 @@ This guide sets up an Azure Linux VM with the Azure CLI, applies Network Securit
       --destination-port-ranges 22
     ```
 
-    The rules are evaluated by priority (lowest number first): Bastion traffic is allowed at 100, then all other SSH is blocked at 110 and 120.
+    Các quy tắc được đánh giá theo thứ tự ưu tiên (số thấp nhất trước): lưu lượng Bastion được cho phép ở mức 100, sau đó tất cả SSH khác bị chặn ở mức 110 và 120.
 
   </Step>
 
-  <Step title="Create the virtual network and subnets">
-    Create the VNet with the VM subnet (NSG attached), then add the Bastion subnet.
+  <Step title="Tạo mạng ảo và subnets">
+    Tạo VNet với subnet VM (đính kèm NSG), sau đó thêm subnet Bastion.
 
     ```bash
     az network vnet create \
@@ -172,12 +172,12 @@ This guide sets up an Azure Linux VM with the Azure CLI, applies Network Securit
       --subnet-name "${VM_SUBNET_NAME}" \
       --subnet-prefixes "${VM_SUBNET_PREFIX}"
 
-    # Attach the NSG to the VM subnet
+    # Đính kèm NSG vào subnet VM
     az network vnet subnet update \
       -g "${RG}" --vnet-name "${VNET_NAME}" \
       -n "${VM_SUBNET_NAME}" --nsg "${NSG_NAME}"
 
-    # AzureBastionSubnet — name is required by Azure
+    # AzureBastionSubnet — tên được yêu cầu bởi Azure
     az network vnet subnet create \
       -g "${RG}" --vnet-name "${VNET_NAME}" \
       -n AzureBastionSubnet \
@@ -186,8 +186,8 @@ This guide sets up an Azure Linux VM with the Azure CLI, applies Network Securit
 
   </Step>
 
-  <Step title="Create the VM">
-    The VM has no public IP. SSH access is exclusively through Azure Bastion.
+  <Step title="Tạo VM">
+    VM không có IP công cộng. Truy cập SSH chỉ thông qua Azure Bastion.
 
     ```bash
     az vm create \
@@ -204,9 +204,9 @@ This guide sets up an Azure Linux VM with the Azure CLI, applies Network Securit
       --nsg ""
     ```
 
-    `--public-ip-address ""` prevents a public IP from being assigned. `--nsg ""` skips creating a per-NIC NSG (the subnet-level NSG handles security).
+    `--public-ip-address ""` ngăn không cho IP công cộng được gán. `--nsg ""` bỏ qua việc tạo NSG cho mỗi NIC (NSG cấp subnet xử lý bảo mật).
 
-    **Reproducibility:** The command above uses `latest` for the Ubuntu image. To pin a specific version, list available versions and replace `latest`:
+    **Tái tạo:** Lệnh trên sử dụng `latest` cho hình ảnh Ubuntu. Để cố định một phiên bản cụ thể, liệt kê các phiên bản có sẵn và thay thế `latest`:
 
     ```bash
     az vm image list \
@@ -216,8 +216,8 @@ This guide sets up an Azure Linux VM with the Azure CLI, applies Network Securit
 
   </Step>
 
-  <Step title="Create Azure Bastion">
-    Azure Bastion provides managed SSH access to the VM without exposing a public IP. Standard SKU with tunneling is required for CLI-based `az network bastion ssh`.
+  <Step title="Tạo Azure Bastion">
+    Azure Bastion cung cấp truy cập SSH được quản lý đến VM mà không cần lộ IP công cộng. SKU tiêu chuẩn với tạo đường hầm là cần thiết cho `az network bastion ssh` dựa trên CLI.
 
     ```bash
     az network public-ip create \
@@ -231,15 +231,15 @@ This guide sets up an Azure Linux VM with the Azure CLI, applies Network Securit
       --sku Standard --enable-tunneling true
     ```
 
-    Bastion provisioning typically takes 5-10 minutes but can take up to 15-30 minutes in some regions.
+    Việc cung cấp Bastion thường mất 5-10 phút nhưng có thể mất đến 15-30 phút ở một số khu vực.
 
   </Step>
 </Steps>
 
-## Install OpenClaw
+## Cài đặt OpenClaw
 
 <Steps>
-  <Step title="SSH into the VM through Azure Bastion">
+  <Step title="SSH vào VM thông qua Azure Bastion">
     ```bash
     VM_ID="$(az vm show -g "${RG}" -n "${VM_NAME}" --query id -o tsv)"
 
@@ -254,58 +254,58 @@ This guide sets up an Azure Linux VM with the Azure CLI, applies Network Securit
 
   </Step>
 
-  <Step title="Install OpenClaw (in the VM shell)">
+  <Step title="Cài đặt OpenClaw (trong shell VM)">
     ```bash
     curl -fsSL https://openclaw.ai/install.sh -o /tmp/install.sh
     bash /tmp/install.sh
     rm -f /tmp/install.sh
     ```
 
-    The installer installs Node LTS and dependencies if not already present, installs OpenClaw, and launches the onboarding wizard. See [Install](/install) for details.
+    Trình cài đặt sẽ cài đặt Node LTS và các phụ thuộc nếu chưa có, cài đặt OpenClaw và khởi chạy trình hướng dẫn onboarding. Xem [Cài đặt](/install) để biết chi tiết.
 
   </Step>
 
-  <Step title="Verify the Gateway">
-    After onboarding completes:
+  <Step title="Xác minh Gateway">
+    Sau khi hoàn tất onboarding:
 
     ```bash
     openclaw gateway status
     ```
 
-    Most enterprise Azure teams already have GitHub Copilot licenses. If that is your case, we recommend choosing the GitHub Copilot provider in the OpenClaw onboarding wizard. See [GitHub Copilot provider](/providers/github-copilot).
+    Hầu hết các nhóm Azure doanh nghiệp đã có giấy phép GitHub Copilot. Nếu bạn thuộc trường hợp này, chúng tôi khuyên bạn nên chọn nhà cung cấp GitHub Copilot trong trình hướng dẫn onboarding của OpenClaw. Xem [nhà cung cấp GitHub Copilot](/providers/github-copilot).
 
   </Step>
 </Steps>
 
-## Cost considerations
+## Cân nhắc chi phí
 
-Azure Bastion Standard SKU runs approximately **\$140/month** and the VM (Standard_B2as_v2) runs approximately **\$55/month**.
+Azure Bastion SKU tiêu chuẩn chạy khoảng **140 USD/tháng** và VM (Standard_B2as_v2) chạy khoảng **55 USD/tháng**.
 
-To reduce costs:
+Để giảm chi phí:
 
-- **Deallocate the VM** when not in use (stops compute billing; disk charges remain). The OpenClaw Gateway will not be reachable while the VM is deallocated — restart it when you need it live again:
+- **Giải phóng VM** khi không sử dụng (ngừng tính phí tính toán; phí đĩa vẫn còn). OpenClaw Gateway sẽ không thể truy cập khi VM bị giải phóng — khởi động lại khi cần sử dụng:
 
   ```bash
   az vm deallocate -g "${RG}" -n "${VM_NAME}"
-  az vm start -g "${RG}" -n "${VM_NAME}"   # restart later
+  az vm start -g "${RG}" -n "${VM_NAME}"   # khởi động lại sau
   ```
 
-- **Delete Bastion when not needed** and recreate it when you need SSH access. Bastion is the largest cost component and takes only a few minutes to provision.
-- **Use the Basic Bastion SKU** (~\$38/month) if you only need Portal-based SSH and don't require CLI tunneling (`az network bastion ssh`).
+- **Xóa Bastion khi không cần thiết** và tạo lại khi cần truy cập SSH. Bastion là thành phần chi phí lớn nhất và chỉ mất vài phút để cung cấp.
+- **Sử dụng SKU Bastion cơ bản** (~38 USD/tháng) nếu bạn chỉ cần SSH dựa trên Portal và không yêu cầu tạo đường hầm CLI (`az network bastion ssh`).
 
-## Cleanup
+## Dọn dẹp
 
-To delete all resources created by this guide:
+Để xóa tất cả tài nguyên được tạo bởi hướng dẫn này:
 
 ```bash
 az group delete -n "${RG}" --yes --no-wait
 ```
 
-This removes the resource group and everything inside it (VM, VNet, NSG, Bastion, public IP).
+Điều này sẽ xóa nhóm tài nguyên và mọi thứ bên trong nó (VM, VNet, NSG, Bastion, IP công cộng).
 
-## Next steps
+## Bước tiếp theo
 
-- Set up messaging channels: [Channels](/channels)
-- Pair local devices as nodes: [Nodes](/nodes)
-- Configure the Gateway: [Gateway configuration](/gateway/configuration)
-- For more details on OpenClaw Azure deployment with the GitHub Copilot model provider: [OpenClaw on Azure with GitHub Copilot](https://github.com/johnsonshi/openclaw-azure-github-copilot)
+- Thiết lập các kênh nhắn tin: [Channels](/channels)
+- Ghép nối thiết bị cục bộ làm node: [Nodes](/nodes)
+- Cấu hình Gateway: [Cấu hình Gateway](/gateway/configuration)
+- Để biết thêm chi tiết về triển khai OpenClaw trên Azure với nhà cung cấp mô hình GitHub Copilot: [OpenClaw trên Azure với GitHub Copilot](https://github.com/johnsonshi/openclaw-azure-github-copilot)

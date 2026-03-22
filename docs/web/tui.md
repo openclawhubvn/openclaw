@@ -1,170 +1,169 @@
 ---
-summary: "Terminal UI (TUI): connect to the Gateway from any machine"
+summary: "Terminal UI (TUI): kết nối với Gateway từ bất kỳ máy nào"
 read_when:
-  - You want a beginner-friendly walkthrough of the TUI
-  - You need the complete list of TUI features, commands, and shortcuts
+  - Bạn muốn hướng dẫn dễ hiểu về TUI
+  - Bạn cần danh sách đầy đủ các tính năng, lệnh và phím tắt của TUI
 title: "TUI"
 ---
 
-# TUI (Terminal UI)
+# TUI (Giao diện dòng lệnh)
 
-## Quick start
+## Bắt đầu nhanh
 
-1. Start the Gateway.
+1. Khởi động Gateway.
 
 ```bash
 openclaw gateway
 ```
 
-2. Open the TUI.
+2. Mở TUI.
 
 ```bash
 openclaw tui
 ```
 
-3. Type a message and press Enter.
+3. Nhập tin nhắn và nhấn Enter.
 
-Remote Gateway:
+Gateway từ xa:
 
 ```bash
 openclaw tui --url ws://<host>:<port> --token <gateway-token>
 ```
 
-Use `--password` if your Gateway uses password auth.
+Sử dụng `--password` nếu Gateway của bạn yêu cầu xác thực bằng mật khẩu.
 
-## What you see
+## Những gì bạn thấy
 
-- Header: connection URL, current agent, current session.
-- Chat log: user messages, assistant replies, system notices, tool cards.
-- Status line: connection/run state (connecting, running, streaming, idle, error).
-- Footer: connection state + agent + session + model + think/fast/verbose/reasoning + token counts + deliver.
-- Input: text editor with autocomplete.
+- Header: URL kết nối, agent hiện tại, session hiện tại.
+- Nhật ký chat: tin nhắn người dùng, phản hồi từ trợ lý, thông báo hệ thống, thẻ công cụ.
+- Dòng trạng thái: trạng thái kết nối/chạy (đang kết nối, đang chạy, đang truyền, nhàn rỗi, lỗi).
+- Footer: trạng thái kết nối + agent + session + model + think/fast/verbose/reasoning + số lượng token + deliver.
+- Input: trình soạn thảo văn bản với tính năng tự động hoàn thành.
 
-## Mental model: agents + sessions
+## Mô hình tư duy: agents + sessions
 
-- Agents are unique slugs (e.g. `main`, `research`). The Gateway exposes the list.
-- Sessions belong to the current agent.
-- Session keys are stored as `agent:<agentId>:<sessionKey>`.
-  - If you type `/session main`, the TUI expands it to `agent:<currentAgent>:main`.
-  - If you type `/session agent:other:main`, you switch to that agent session explicitly.
-- Session scope:
-  - `per-sender` (default): each agent has many sessions.
-  - `global`: the TUI always uses the `global` session (the picker may be empty).
-- The current agent + session are always visible in the footer.
+- Agents là các định danh duy nhất (ví dụ: `main`, `research`). Gateway cung cấp danh sách này.
+- Sessions thuộc về agent hiện tại.
+- Khóa session được lưu trữ dưới dạng `agent:<agentId>:<sessionKey>`.
+  - Nếu nhập `/session main`, TUI sẽ mở rộng thành `agent:<currentAgent>:main`.
+  - Nếu nhập `/session agent:other:main`, bạn sẽ chuyển sang session của agent đó.
+- Phạm vi session:
+  - `per-sender` (mặc định): mỗi agent có nhiều session.
+  - `global`: TUI luôn sử dụng session `global` (trình chọn có thể trống).
+- Agent + session hiện tại luôn hiển thị ở footer.
 
-## Sending + delivery
+## Gửi + chuyển phát
 
-- Messages are sent to the Gateway; delivery to providers is off by default.
-- Turn delivery on:
+- Tin nhắn được gửi đến Gateway; chuyển phát đến các nhà cung cấp mặc định là tắt.
+- Bật chuyển phát:
   - `/deliver on`
-  - or the Settings panel
-  - or start with `openclaw tui --deliver`
+  - hoặc bảng Cài đặt
+  - hoặc bắt đầu với `openclaw tui --deliver`
 
-## Pickers + overlays
+## Trình chọn + lớp phủ
 
-- Model picker: list available models and set the session override.
-- Agent picker: choose a different agent.
-- Session picker: shows only sessions for the current agent.
-- Settings: toggle deliver, tool output expansion, and thinking visibility.
+- Trình chọn model: liệt kê các model có sẵn và đặt ghi đè session.
+- Trình chọn agent: chọn agent khác.
+- Trình chọn session: chỉ hiển thị các session cho agent hiện tại.
+- Cài đặt: bật/tắt chuyển phát, mở rộng đầu ra công cụ, và hiển thị suy nghĩ.
 
-## Keyboard shortcuts
+## Phím tắt
 
-- Enter: send message
-- Esc: abort active run
-- Ctrl+C: clear input (press twice to exit)
-- Ctrl+D: exit
-- Ctrl+L: model picker
-- Ctrl+G: agent picker
-- Ctrl+P: session picker
-- Ctrl+O: toggle tool output expansion
-- Ctrl+T: toggle thinking visibility (reloads history)
+- Enter: gửi tin nhắn
+- Esc: hủy chạy đang hoạt động
+- Ctrl+C: xóa input (nhấn hai lần để thoát)
+- Ctrl+D: thoát
+- Ctrl+L: trình chọn model
+- Ctrl+G: trình chọn agent
+- Ctrl+P: trình chọn session
+- Ctrl+O: bật/tắt mở rộng đầu ra công cụ
+- Ctrl+T: bật/tắt hiển thị suy nghĩ (tải lại lịch sử)
 
-## Slash commands
+## Lệnh gạch chéo
 
-Core:
+Cốt lõi:
 
 - `/help`
 - `/status`
-- `/agent <id>` (or `/agents`)
-- `/session <key>` (or `/sessions`)
-- `/model <provider/model>` (or `/models`)
+- `/agent <id>` (hoặc `/agents`)
+- `/session <key>` (hoặc `/sessions`)
+- `/model <provider/model>` (hoặc `/models`)
 
-Session controls:
+Điều khiển session:
 
 - `/think <off|minimal|low|medium|high>`
 - `/fast <status|on|off>`
 - `/verbose <on|full|off>`
 - `/reasoning <on|off|stream>`
 - `/usage <off|tokens|full>`
-- `/elevated <on|off|ask|full>` (alias: `/elev`)
+- `/elevated <on|off|ask|full>` (bí danh: `/elev`)
 - `/activation <mention|always>`
 - `/deliver <on|off>`
 
-Session lifecycle:
+Vòng đời session:
 
-- `/new` or `/reset` (reset the session)
-- `/abort` (abort the active run)
+- `/new` hoặc `/reset` (đặt lại session)
+- `/abort` (hủy chạy đang hoạt động)
 - `/settings`
 - `/exit`
 
-Other Gateway slash commands (for example, `/context`) are forwarded to the Gateway and shown as system output. See [Slash commands](/tools/slash-commands).
+Các lệnh gạch chéo khác của Gateway (ví dụ, `/context`) được chuyển tiếp đến Gateway và hiển thị dưới dạng đầu ra hệ thống. Xem [Lệnh gạch chéo](/tools/slash-commands).
 
-## Local shell commands
+## Lệnh shell cục bộ
 
-- Prefix a line with `!` to run a local shell command on the TUI host.
-- The TUI prompts once per session to allow local execution; declining keeps `!` disabled for the session.
-- Commands run in a fresh, non-interactive shell in the TUI working directory (no persistent `cd`/env).
-- Local shell commands receive `OPENCLAW_SHELL=tui-local` in their environment.
-- A lone `!` is sent as a normal message; leading spaces do not trigger local exec.
+- Thêm `!` trước dòng để chạy lệnh shell cục bộ trên máy chủ TUI.
+- TUI sẽ hỏi một lần mỗi session để cho phép thực thi cục bộ; từ chối sẽ giữ `!` bị vô hiệu hóa cho session đó.
+- Lệnh chạy trong shell mới, không tương tác trong thư mục làm việc của TUI (không có `cd`/env tồn tại).
+- Lệnh shell cục bộ nhận `OPENCLAW_SHELL=tui-local` trong môi trường của chúng.
+- Một `!` đơn lẻ được gửi như một tin nhắn bình thường; khoảng trắng đầu dòng không kích hoạt thực thi cục bộ.
 
-## Tool output
+## Đầu ra công cụ
 
-- Tool calls show as cards with args + results.
-- Ctrl+O toggles between collapsed/expanded views.
-- While tools run, partial updates stream into the same card.
+- Các cuộc gọi công cụ hiển thị dưới dạng thẻ với tham số + kết quả.
+- Ctrl+O chuyển đổi giữa chế độ thu gọn/mở rộng.
+- Trong khi công cụ chạy, các cập nhật từng phần được truyền vào cùng một thẻ.
 
-## Terminal colors
+## Màu sắc terminal
 
-- The TUI keeps assistant body text in your terminal's default foreground so dark and light terminals both stay readable.
-- If your terminal uses a light background and auto-detection is wrong, set `OPENCLAW_THEME=light` before launching `openclaw tui`.
-- To force the original dark palette instead, set `OPENCLAW_THEME=dark`.
+- TUI giữ văn bản của trợ lý theo màu nền mặc định của terminal để cả terminal tối và sáng đều dễ đọc.
+- Nếu terminal của bạn sử dụng nền sáng và tự động phát hiện sai, đặt `OPENCLAW_THEME=light` trước khi khởi chạy `openclaw tui`.
+- Để buộc sử dụng bảng màu tối gốc, đặt `OPENCLAW_THEME=dark`.
 
-## History + streaming
+## Lịch sử + truyền tải
 
-- On connect, the TUI loads the latest history (default 200 messages).
-- Streaming responses update in place until finalized.
-- The TUI also listens to agent tool events for richer tool cards.
+- Khi kết nối, TUI tải lịch sử mới nhất (mặc định 200 tin nhắn).
+- Phản hồi truyền tải cập nhật tại chỗ cho đến khi hoàn tất.
+- TUI cũng lắng nghe sự kiện công cụ của agent để có thẻ công cụ phong phú hơn.
 
-## Connection details
+## Chi tiết kết nối
 
-- The TUI registers with the Gateway as `mode: "tui"`.
-- Reconnects show a system message; event gaps are surfaced in the log.
+- TUI đăng ký với Gateway dưới dạng `mode: "tui"`.
+- Kết nối lại hiển thị thông báo hệ thống; khoảng trống sự kiện được hiển thị trong nhật ký.
 
-## Options
+## Tùy chọn
 
-- `--url <url>`: Gateway WebSocket URL (defaults to config or `ws://127.0.0.1:<port>`)
-- `--token <token>`: Gateway token (if required)
-- `--password <password>`: Gateway password (if required)
-- `--session <key>`: Session key (default: `main`, or `global` when scope is global)
-- `--deliver`: Deliver assistant replies to the provider (default off)
-- `--thinking <level>`: Override thinking level for sends
-- `--timeout-ms <ms>`: Agent timeout in ms (defaults to `agents.defaults.timeoutSeconds`)
+- `--url <url>`: URL WebSocket của Gateway (mặc định theo cấu hình hoặc `ws://127.0.0.1:<port>`)
+- `--token <token>`: Token của Gateway (nếu cần)
+- `--password <password>`: Mật khẩu của Gateway (nếu cần)
+- `--session <key>`: Khóa session (mặc định: `main`, hoặc `global` khi phạm vi là toàn cầu)
+- `--deliver`: Chuyển phát phản hồi của trợ lý đến nhà cung cấp (mặc định tắt)
+- `--thinking <level>`: Ghi đè mức độ suy nghĩ khi gửi
+- `--timeout-ms <ms>`: Thời gian chờ của agent tính bằng ms (mặc định theo `agents.defaults.timeoutSeconds`)
 
-Note: when you set `--url`, the TUI does not fall back to config or environment credentials.
-Pass `--token` or `--password` explicitly. Missing explicit credentials is an error.
+Lưu ý: khi bạn đặt `--url`, TUI không sử dụng cấu hình hoặc thông tin xác thực môi trường. Phải truyền `--token` hoặc `--password` rõ ràng. Thiếu thông tin xác thực rõ ràng sẽ gây lỗi.
 
-## Troubleshooting
+## Khắc phục sự cố
 
-No output after sending a message:
+Không có đầu ra sau khi gửi tin nhắn:
 
-- Run `/status` in the TUI to confirm the Gateway is connected and idle/busy.
-- Check the Gateway logs: `openclaw logs --follow`.
-- Confirm the agent can run: `openclaw status` and `openclaw models status`.
-- If you expect messages in a chat channel, enable delivery (`/deliver on` or `--deliver`).
-- `--history-limit <n>`: History entries to load (default 200)
+- Chạy `/status` trong TUI để xác nhận Gateway đã kết nối và đang nhàn rỗi/bận.
+- Kiểm tra nhật ký Gateway: `openclaw logs --follow`.
+- Xác nhận agent có thể chạy: `openclaw status` và `openclaw models status`.
+- Nếu bạn mong đợi tin nhắn trong kênh chat, bật chuyển phát (`/deliver on` hoặc `--deliver`).
+- `--history-limit <n>`: Số lượng mục lịch sử để tải (mặc định 200)
 
-## Connection troubleshooting
+## Khắc phục sự cố kết nối
 
-- `disconnected`: ensure the Gateway is running and your `--url/--token/--password` are correct.
-- No agents in picker: check `openclaw agents list` and your routing config.
-- Empty session picker: you might be in global scope or have no sessions yet.
+- `disconnected`: đảm bảo Gateway đang chạy và `--url/--token/--password` của bạn đúng.
+- Không có agent trong trình chọn: kiểm tra `openclaw agents list` và cấu hình định tuyến của bạn.
+- Trình chọn session trống: bạn có thể đang ở phạm vi toàn cầu hoặc chưa có session nào.

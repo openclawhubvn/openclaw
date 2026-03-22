@@ -1,51 +1,51 @@
 ---
-summary: "Location command for nodes (location.get), permission modes, and Android foreground behavior"
+summary: "Lệnh vị trí cho các node (location.get), chế độ quyền truy cập và hành vi nền trên Android"
 read_when:
-  - Adding location node support or permissions UI
-  - Designing Android location permissions or foreground behavior
-title: "Location Command"
+  - Thêm hỗ trợ node vị trí hoặc giao diện quyền truy cập
+  - Thiết kế quyền truy cập vị trí trên Android hoặc hành vi nền
+title: "Lệnh Vị Trí"
 ---
 
-# Location command (nodes)
+# Lệnh vị trí (các node)
 
-## TL;DR
+## Tóm tắt nhanh
 
-- `location.get` is a node command (via `node.invoke`).
-- Off by default.
-- Android app settings use a selector: Off / While Using.
-- Separate toggle: Precise Location.
+- `location.get` là lệnh cho node (thông qua `node.invoke`).
+- Mặc định tắt.
+- Cài đặt ứng dụng Android sử dụng bộ chọn: Tắt / Khi Sử Dụng.
+- Công tắc riêng: Vị trí Chính Xác.
 
-## Why a selector (not just a switch)
+## Tại sao dùng bộ chọn (không chỉ là công tắc)
 
-OS permissions are multi-level. We can expose a selector in-app, but the OS still decides the actual grant.
+Quyền truy cập của hệ điều hành có nhiều cấp độ. Chúng ta có thể hiển thị bộ chọn trong ứng dụng, nhưng hệ điều hành vẫn quyết định quyền thực tế.
 
-- iOS/macOS may expose **While Using** or **Always** in system prompts/Settings.
-- Android app currently supports foreground location only.
-- Precise location is a separate grant (iOS 14+ “Precise”, Android “fine” vs “coarse”).
+- iOS/macOS có thể hiển thị **Khi Sử Dụng** hoặc **Luôn Luôn** trong thông báo hệ thống/Cài đặt.
+- Ứng dụng Android hiện chỉ hỗ trợ vị trí nền trước.
+- Vị trí chính xác là quyền riêng biệt (iOS 14+ “Chính Xác”, Android “chính xác” so với “gần đúng”).
 
-Selector in UI drives our requested mode; actual grant lives in OS settings.
+Bộ chọn trong giao diện điều khiển chế độ yêu cầu của chúng ta; quyền thực tế nằm trong cài đặt hệ điều hành.
 
-## Settings model
+## Mô hình cài đặt
 
-Per node device:
+Theo từng thiết bị node:
 
 - `location.enabledMode`: `off | whileUsing`
 - `location.preciseEnabled`: bool
 
-UI behavior:
+Hành vi giao diện:
 
-- Selecting `whileUsing` requests foreground permission.
-- If OS denies requested level, revert to the highest granted level and show status.
+- Chọn `whileUsing` yêu cầu quyền nền trước.
+- Nếu hệ điều hành từ chối cấp độ yêu cầu, quay lại cấp độ cao nhất đã được cấp và hiển thị trạng thái.
 
-## Permissions mapping (node.permissions)
+## Ánh xạ quyền truy cập (node.permissions)
 
-Optional. macOS node reports `location` via the permissions map; iOS/Android may omit it.
+Tùy chọn. Node macOS báo cáo `location` thông qua bản đồ quyền truy cập; iOS/Android có thể bỏ qua.
 
-## Command: `location.get`
+## Lệnh: `location.get`
 
-Called via `node.invoke`.
+Gọi thông qua `node.invoke`.
 
-Params (suggested):
+Tham số (đề xuất):
 
 ```json
 {
@@ -55,7 +55,7 @@ Params (suggested):
 }
 ```
 
-Response payload:
+Dữ liệu phản hồi:
 
 ```json
 {
@@ -71,28 +71,28 @@ Response payload:
 }
 ```
 
-Errors (stable codes):
+Lỗi (mã ổn định):
 
-- `LOCATION_DISABLED`: selector is off.
-- `LOCATION_PERMISSION_REQUIRED`: permission missing for requested mode.
-- `LOCATION_BACKGROUND_UNAVAILABLE`: app is backgrounded but only While Using allowed.
-- `LOCATION_TIMEOUT`: no fix in time.
-- `LOCATION_UNAVAILABLE`: system failure / no providers.
+- `LOCATION_DISABLED`: bộ chọn đang tắt.
+- `LOCATION_PERMISSION_REQUIRED`: thiếu quyền cho chế độ yêu cầu.
+- `LOCATION_BACKGROUND_UNAVAILABLE`: ứng dụng đang chạy nền nhưng chỉ cho phép Khi Sử Dụng.
+- `LOCATION_TIMEOUT`: không có kết quả trong thời gian quy định.
+- `LOCATION_UNAVAILABLE`: lỗi hệ thống / không có nhà cung cấp.
 
-## Background behavior
+## Hành vi nền
 
-- Android app denies `location.get` while backgrounded.
-- Keep OpenClaw open when requesting location on Android.
-- Other node platforms may differ.
+- Ứng dụng Android từ chối `location.get` khi chạy nền.
+- Giữ OpenClaw mở khi yêu cầu vị trí trên Android.
+- Các nền tảng node khác có thể khác.
 
-## Model/tooling integration
+## Tích hợp mô hình/công cụ
 
-- Tool surface: `nodes` tool adds `location_get` action (node required).
+- Bề mặt công cụ: công cụ `nodes` thêm hành động `location_get` (cần node).
 - CLI: `openclaw nodes location get --node <id>`.
-- Agent guidelines: only call when user enabled location and understands the scope.
+- Hướng dẫn cho agent: chỉ gọi khi người dùng đã bật vị trí và hiểu phạm vi.
 
-## UX copy (suggested)
+## Nội dung UX (đề xuất)
 
-- Off: “Location sharing is disabled.”
-- While Using: “Only when OpenClaw is open.”
-- Precise: “Use precise GPS location. Toggle off to share approximate location.”
+- Tắt: “Chia sẻ vị trí đã bị vô hiệu hóa.”
+- Khi Sử Dụng: “Chỉ khi OpenClaw đang mở.”
+- Chính Xác: “Sử dụng vị trí GPS chính xác. Tắt để chia sẻ vị trí gần đúng.”

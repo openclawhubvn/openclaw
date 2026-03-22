@@ -1,69 +1,55 @@
 ---
-summary: "Gateway lifecycle on macOS (launchd)"
+summary: "Vòng đời Gateway trên macOS (launchd)"
 read_when:
-  - Integrating the mac app with the gateway lifecycle
-title: "Gateway Lifecycle"
+  - Tích hợp ứng dụng mac với vòng đời gateway
+title: "Vòng đời Gateway"
 ---
 
-# Gateway lifecycle on macOS
+# Vòng đời Gateway trên macOS
 
-The macOS app **manages the Gateway via launchd** by default and does not spawn
-the Gateway as a child process. It first tries to attach to an already‑running
-Gateway on the configured port; if none is reachable, it enables the launchd
-service via the external `openclaw` CLI (no embedded runtime). This gives you
-reliable auto‑start at login and restart on crashes.
+Ứng dụng macOS **quản lý Gateway qua launchd** theo mặc định và không khởi chạy Gateway như một tiến trình con. Ứng dụng sẽ cố gắng kết nối với Gateway đang chạy trên cổng đã cấu hình; nếu không có Gateway nào khả dụng, nó sẽ kích hoạt dịch vụ launchd thông qua CLI `openclaw` bên ngoài (không có runtime nhúng). Điều này giúp tự động khởi động khi đăng nhập và khởi động lại khi gặp sự cố.
 
-Child‑process mode (Gateway spawned directly by the app) is **not in use** today.
-If you need tighter coupling to the UI, run the Gateway manually in a terminal.
+Chế độ tiến trình con (Gateway được ứng dụng khởi chạy trực tiếp) **không được sử dụng** hiện nay. Nếu cần kết nối chặt chẽ hơn với giao diện người dùng, hãy chạy Gateway thủ công trong terminal.
 
-## Default behavior (launchd)
+## Hành vi mặc định (launchd)
 
-- The app installs a per‑user LaunchAgent labeled `ai.openclaw.gateway`
-  (or `ai.openclaw.<profile>` when using `--profile`/`OPENCLAW_PROFILE`; legacy `com.openclaw.*` is supported).
-- When Local mode is enabled, the app ensures the LaunchAgent is loaded and
-  starts the Gateway if needed.
-- Logs are written to the launchd gateway log path (visible in Debug Settings).
+- Ứng dụng cài đặt một LaunchAgent cho từng người dùng với nhãn `ai.openclaw.gateway` (hoặc `ai.openclaw.<profile>` khi sử dụng `--profile`/`OPENCLAW_PROFILE`; hỗ trợ `com.openclaw.*` cũ).
+- Khi chế độ Local được kích hoạt, ứng dụng đảm bảo LaunchAgent được tải và khởi động Gateway nếu cần.
+- Nhật ký được ghi vào đường dẫn nhật ký gateway của launchd (có thể xem trong Cài đặt Debug).
 
-Common commands:
+Các lệnh thông dụng:
 
 ```bash
 launchctl kickstart -k gui/$UID/ai.openclaw.gateway
 launchctl bootout gui/$UID/ai.openclaw.gateway
 ```
 
-Replace the label with `ai.openclaw.<profile>` when running a named profile.
+Thay nhãn bằng `ai.openclaw.<profile>` khi chạy một profile có tên.
 
-## Unsigned dev builds
+## Bản dựng dev không ký
 
-`scripts/restart-mac.sh --no-sign` is for fast local builds when you don’t have
-signing keys. To prevent launchd from pointing at an unsigned relay binary, it:
+`scripts/restart-mac.sh --no-sign` dành cho các bản dựng nhanh tại chỗ khi không có khóa ký. Để ngăn launchd trỏ đến một relay binary không ký, nó:
 
-- Writes `~/.openclaw/disable-launchagent`.
+- Ghi vào `~/.openclaw/disable-launchagent`.
 
-Signed runs of `scripts/restart-mac.sh` clear this override if the marker is
-present. To reset manually:
+Các lần chạy có ký của `scripts/restart-mac.sh` sẽ xóa bỏ ghi đè này nếu có dấu hiệu. Để đặt lại thủ công:
 
 ```bash
 rm ~/.openclaw/disable-launchagent
 ```
 
-## Attach-only mode
+## Chế độ chỉ đính kèm
 
-To force the macOS app to **never install or manage launchd**, launch it with
-`--attach-only` (or `--no-launchd`). This sets `~/.openclaw/disable-launchagent`,
-so the app only attaches to an already running Gateway. You can toggle the same
-behavior in Debug Settings.
+Để buộc ứng dụng macOS **không bao giờ cài đặt hoặc quản lý launchd**, khởi chạy với `--attach-only` (hoặc `--no-launchd`). Điều này thiết lập `~/.openclaw/disable-launchagent`, do đó ứng dụng chỉ kết nối với Gateway đang chạy. Bạn có thể chuyển đổi hành vi này trong Cài đặt Debug.
 
-## Remote mode
+## Chế độ từ xa
 
-Remote mode never starts a local Gateway. The app uses an SSH tunnel to the
-remote host and connects over that tunnel.
+Chế độ từ xa không bao giờ khởi động Gateway cục bộ. Ứng dụng sử dụng một đường hầm SSH đến máy chủ từ xa và kết nối qua đường hầm đó.
 
-## Why we prefer launchd
+## Tại sao chúng tôi ưa chuộng launchd
 
-- Auto‑start at login.
-- Built‑in restart/KeepAlive semantics.
-- Predictable logs and supervision.
+- Tự động khởi động khi đăng nhập.
+- Khả năng khởi động lại/KeepAlive tích hợp sẵn.
+- Nhật ký và giám sát dễ dự đoán.
 
-If a true child‑process mode is ever needed again, it should be documented as a
-separate, explicit dev‑only mode.
+Nếu chế độ tiến trình con thực sự cần thiết trở lại, nó nên được tài liệu hóa như một chế độ chỉ dành cho phát triển riêng biệt và rõ ràng.

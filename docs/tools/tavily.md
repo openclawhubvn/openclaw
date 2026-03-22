@@ -1,32 +1,29 @@
 ---
-summary: "Tavily search and extract tools"
+summary: "Công cụ tìm kiếm và trích xuất Tavily"
 read_when:
-  - You want Tavily-backed web search
-  - You need a Tavily API key
-  - You want Tavily as a web_search provider
-  - You want content extraction from URLs
+  - Bạn muốn tìm kiếm web hỗ trợ bởi Tavily
+  - Bạn cần một API key của Tavily
+  - Bạn muốn sử dụng Tavily làm nhà cung cấp web_search
+  - Bạn muốn trích xuất nội dung từ URL
 title: "Tavily"
 ---
 
 # Tavily
 
-OpenClaw can use **Tavily** in two ways:
+OpenClaw có thể sử dụng **Tavily** theo hai cách:
 
-- as the `web_search` provider
-- as explicit plugin tools: `tavily_search` and `tavily_extract`
+- như nhà cung cấp `web_search`
+- như công cụ plugin riêng: `tavily_search` và `tavily_extract`
 
-Tavily is a search API designed for AI applications, returning structured results
-optimized for LLM consumption. It supports configurable search depth, topic
-filtering, domain filters, AI-generated answer summaries, and content extraction
-from URLs (including JavaScript-rendered pages).
+Tavily là một API tìm kiếm được thiết kế cho các ứng dụng AI, trả về kết quả có cấu trúc tối ưu cho việc tiêu thụ bởi LLM. Nó hỗ trợ độ sâu tìm kiếm có thể cấu hình, lọc chủ đề, lọc miền, tóm tắt câu trả lời do AI tạo ra và trích xuất nội dung từ URL (bao gồm cả các trang được render bằng JavaScript).
 
-## Get an API key
+## Lấy API key
 
-1. Create a Tavily account at [tavily.com](https://tavily.com/).
-2. Generate an API key in the dashboard.
-3. Store it in config or set `TAVILY_API_KEY` in the gateway environment.
+1. Tạo tài khoản Tavily tại [tavily.com](https://tavily.com/).
+2. Tạo một API key trong dashboard.
+3. Lưu trữ nó trong cấu hình hoặc đặt `TAVILY_API_KEY` trong môi trường gateway.
 
-## Configure Tavily search
+## Cấu hình tìm kiếm Tavily
 
 ```json5
 {
@@ -36,7 +33,7 @@ from URLs (including JavaScript-rendered pages).
         enabled: true,
         config: {
           webSearch: {
-            apiKey: "tvly-...", // optional if TAVILY_API_KEY is set
+            apiKey: "tvly-...", // không bắt buộc nếu đã đặt TAVILY_API_KEY
             baseUrl: "https://api.tavily.com",
           },
         },
@@ -53,73 +50,68 @@ from URLs (including JavaScript-rendered pages).
 }
 ```
 
-Notes:
+Ghi chú:
 
-- Choosing Tavily in onboarding or `openclaw configure --section web` enables
-  the bundled Tavily plugin automatically.
-- Store Tavily config under `plugins.entries.tavily.config.webSearch.*`.
-- `web_search` with Tavily supports `query` and `count` (up to 20 results).
-- For Tavily-specific controls like `search_depth`, `topic`, `include_answer`,
-  or domain filters, use `tavily_search`.
+- Chọn Tavily trong quá trình onboarding hoặc `openclaw configure --section web` sẽ tự động kích hoạt plugin Tavily đi kèm.
+- Lưu cấu hình Tavily dưới `plugins.entries.tavily.config.webSearch.*`.
+- `web_search` với Tavily hỗ trợ `query` và `count` (tối đa 20 kết quả).
+- Để kiểm soát cụ thể của Tavily như `search_depth`, `topic`, `include_answer`, hoặc lọc miền, sử dụng `tavily_search`.
 
-## Tavily plugin tools
+## Công cụ plugin Tavily
 
 ### `tavily_search`
 
-Use this when you want Tavily-specific search controls instead of generic
-`web_search`.
+Sử dụng khi bạn muốn kiểm soát tìm kiếm cụ thể của Tavily thay vì `web_search` chung chung.
 
-| Parameter         | Description                                                           |
-| ----------------- | --------------------------------------------------------------------- |
-| `query`           | Search query string (keep under 400 characters)                       |
-| `search_depth`    | `basic` (default, balanced) or `advanced` (highest relevance, slower) |
-| `topic`           | `general` (default), `news` (real-time updates), or `finance`         |
-| `max_results`     | Number of results, 1-20 (default: 5)                                  |
-| `include_answer`  | Include an AI-generated answer summary (default: false)               |
-| `time_range`      | Filter by recency: `day`, `week`, `month`, or `year`                  |
-| `include_domains` | Array of domains to restrict results to                               |
-| `exclude_domains` | Array of domains to exclude from results                              |
+| Tham số            | Mô tả                                                               |
+| ------------------ | ------------------------------------------------------------------- |
+| `query`            | Chuỗi truy vấn tìm kiếm (giữ dưới 400 ký tự)                        |
+| `search_depth`     | `basic` (mặc định, cân bằng) hoặc `advanced` (độ liên quan cao nhất, chậm hơn) |
+| `topic`            | `general` (mặc định), `news` (cập nhật thời gian thực), hoặc `finance` |
+| `max_results`      | Số lượng kết quả, 1-20 (mặc định: 5)                                |
+| `include_answer`   | Bao gồm tóm tắt câu trả lời do AI tạo ra (mặc định: false)          |
+| `time_range`       | Lọc theo độ mới: `day`, `week`, `month`, hoặc `year`                |
+| `include_domains`  | Mảng các miền để giới hạn kết quả                                   |
+| `exclude_domains`  | Mảng các miền để loại trừ khỏi kết quả                              |
 
-**Search depth:**
+**Độ sâu tìm kiếm:**
 
-| Depth      | Speed  | Relevance | Best for                            |
-| ---------- | ------ | --------- | ----------------------------------- |
-| `basic`    | Faster | High      | General-purpose queries (default)   |
-| `advanced` | Slower | Highest   | Precision, specific facts, research |
+| Độ sâu     | Tốc độ | Độ liên quan | Tốt nhất cho                          |
+| ---------- | ------ | ------------ | ------------------------------------- |
+| `basic`    | Nhanh hơn | Cao         | Truy vấn mục đích chung (mặc định)   |
+| `advanced` | Chậm hơn | Cao nhất    | Độ chính xác, thông tin cụ thể, nghiên cứu |
 
 ### `tavily_extract`
 
-Use this to extract clean content from one or more URLs. Handles
-JavaScript-rendered pages and supports query-focused chunking for targeted
-extraction.
+Sử dụng để trích xuất nội dung sạch từ một hoặc nhiều URL. Xử lý các trang được render bằng JavaScript và hỗ trợ chia nhỏ theo truy vấn để trích xuất mục tiêu.
 
-| Parameter           | Description                                                |
-| ------------------- | ---------------------------------------------------------- |
-| `urls`              | Array of URLs to extract (1-20 per request)                |
-| `query`             | Rerank extracted chunks by relevance to this query         |
-| `extract_depth`     | `basic` (default, fast) or `advanced` (for JS-heavy pages) |
-| `chunks_per_source` | Chunks per URL, 1-5 (requires `query`)                     |
-| `include_images`    | Include image URLs in results (default: false)             |
+| Tham số              | Mô tả                                                           |
+| -------------------- | --------------------------------------------------------------- |
+| `urls`               | Mảng các URL để trích xuất (1-20 mỗi yêu cầu)                   |
+| `query`              | Xếp hạng lại các phần trích xuất theo độ liên quan đến truy vấn này |
+| `extract_depth`      | `basic` (mặc định, nhanh) hoặc `advanced` (cho các trang nặng JS) |
+| `chunks_per_source`  | Số phần mỗi URL, 1-5 (yêu cầu `query`)                          |
+| `include_images`     | Bao gồm URL hình ảnh trong kết quả (mặc định: false)            |
 
-**Extract depth:**
+**Độ sâu trích xuất:**
 
-| Depth      | When to use                               |
-| ---------- | ----------------------------------------- |
-| `basic`    | Simple pages - try this first             |
-| `advanced` | JS-rendered SPAs, dynamic content, tables |
+| Độ sâu     | Khi nào sử dụng                             |
+| ---------- | ------------------------------------------- |
+| `basic`    | Trang đơn giản - thử cái này trước          |
+| `advanced` | SPAs render bằng JS, nội dung động, bảng    |
 
-Tips:
+Mẹo:
 
-- Max 20 URLs per request. Batch larger lists into multiple calls.
-- Use `query` + `chunks_per_source` to get only relevant content instead of full pages.
-- Try `basic` first; fall back to `advanced` if content is missing or incomplete.
+- Tối đa 20 URL mỗi yêu cầu. Chia danh sách lớn hơn thành nhiều lần gọi.
+- Sử dụng `query` + `chunks_per_source` để chỉ lấy nội dung liên quan thay vì toàn bộ trang.
+- Thử `basic` trước; chuyển sang `advanced` nếu nội dung bị thiếu hoặc không đầy đủ.
 
-## Choosing the right tool
+## Chọn công cụ phù hợp
 
-| Need                                 | Tool             |
+| Nhu cầu                              | Công cụ          |
 | ------------------------------------ | ---------------- |
-| Quick web search, no special options | `web_search`     |
-| Search with depth, topic, AI answers | `tavily_search`  |
-| Extract content from specific URLs   | `tavily_extract` |
+| Tìm kiếm web nhanh, không có tùy chọn đặc biệt | `web_search`     |
+| Tìm kiếm với độ sâu, chủ đề, câu trả lời AI | `tavily_search`  |
+| Trích xuất nội dung từ URL cụ thể    | `tavily_extract` |
 
-See [Web tools](/tools/web) for the full web tool setup and provider comparison.
+Xem [Công cụ web](/tools/web) để biết thiết lập công cụ web đầy đủ và so sánh nhà cung cấp.

@@ -1,22 +1,21 @@
 ---
-summary: "Model providers (LLMs) supported by OpenClaw"
+summary: "Các nhà cung cấp mô hình (LLMs) được OpenClaw hỗ trợ"
 read_when:
-  - You want to choose a model provider
-  - You need a quick overview of supported LLM backends
-title: "Provider Directory"
+  - Bạn muốn chọn một nhà cung cấp mô hình
+  - Bạn cần cái nhìn tổng quan nhanh về các backend LLM được hỗ trợ
+title: "Danh mục Nhà Cung Cấp"
 ---
 
-# Model Providers
+# Nhà Cung Cấp Mô Hình
 
-OpenClaw can use many LLM providers. Pick a provider, authenticate, then set the
-default model as `provider/model`.
+OpenClaw hỗ trợ nhiều nhà cung cấp LLM. Chọn một nhà cung cấp, xác thực, sau đó đặt mô hình mặc định dưới dạng `provider/model`.
 
-Looking for chat channel docs (WhatsApp/Telegram/Discord/Slack/Mattermost (plugin)/etc.)? See [Channels](/channels).
+Tìm tài liệu về kênh chat (WhatsApp/Telegram/Discord/Slack/Mattermost (plugin)/v.v.)? Xem [Channels](/channels).
 
-## Quick start
+## Bắt đầu nhanh
 
-1. Authenticate with the provider (usually via `openclaw onboard`).
-2. Set the default model:
+1. Xác thực với nhà cung cấp (thường qua `openclaw onboard`).
+2. Đặt mô hình mặc định:
 
 ```json5
 {
@@ -24,46 +23,45 @@ Looking for chat channel docs (WhatsApp/Telegram/Discord/Slack/Mattermost (plugi
 }
 ```
 
-## Provider docs
+## Tài liệu nhà cung cấp
 
 - [Amazon Bedrock](/providers/bedrock)
 - [Anthropic (API + Claude Code CLI)](/providers/anthropic)
 - [Cloudflare AI Gateway](/providers/cloudflare-ai-gateway)
-- [GLM models](/providers/glm)
+- [Mô hình GLM](/providers/glm)
 - [Google (Gemini)](/providers/google)
 - [Groq (LPU inference)](/providers/groq)
 - [Hugging Face (Inference)](/providers/huggingface)
 - [Kilocode](/providers/kilocode)
-- [LiteLLM (unified gateway)](/providers/litellm)
+- [LiteLLM (cổng hợp nhất)](/providers/litellm)
 - [MiniMax](/providers/minimax)
 - [Mistral](/providers/mistral)
 - [Model Studio (Alibaba Cloud)](/providers/modelstudio)
 - [Moonshot AI (Kimi + Kimi Coding)](/providers/moonshot)
 - [NVIDIA](/providers/nvidia)
-- [Ollama (cloud + local models)](/providers/ollama)
+- [Ollama (mô hình đám mây + cục bộ)](/providers/ollama)
 - [OpenAI (API + Codex)](/providers/openai)
 - [OpenCode (Zen + Go)](/providers/opencode)
 - [OpenRouter](/providers/openrouter)
-- [Perplexity (web search)](/providers/perplexity-provider)
+- [Perplexity (tìm kiếm web)](/providers/perplexity-provider)
 - [Qianfan](/providers/qianfan)
 - [Qwen (OAuth)](/providers/qwen)
-- [SGLang (local models)](/providers/sglang)
+- [SGLang (mô hình cục bộ)](/providers/sglang)
 - [Together AI](/providers/together)
 - [Vercel AI Gateway](/providers/vercel-ai-gateway)
-- [Venice (Venice AI, privacy-focused)](/providers/venice)
-- [vLLM (local models)](/providers/vllm)
+- [Venice (Venice AI, tập trung vào quyền riêng tư)](/providers/venice)
+- [vLLM (mô hình cục bộ)](/providers/vllm)
 - [Volcengine (Doubao)](/providers/volcengine)
 - [xAI](/providers/xai)
 - [Xiaomi](/providers/xiaomi)
 - [Z.AI](/providers/zai)
 
-## Transcription providers
+## Nhà cung cấp dịch vụ chuyển đổi giọng nói
 
-- [Deepgram (audio transcription)](/providers/deepgram)
+- [Deepgram (chuyển đổi âm thanh)](/providers/deepgram)
 
-## Community tools
+## Công cụ cộng đồng
 
-- [Claude Max API Proxy](/providers/claude-max-api-proxy) - Community proxy for Claude subscription credentials (verify Anthropic policy/terms before use)
+- [Claude Max API Proxy](/providers/claude-max-api-proxy) - Proxy cộng đồng cho thông tin đăng ký Claude (kiểm tra chính sách/điều khoản của Anthropic trước khi sử dụng)
 
-For the full provider catalog (xAI, Groq, Mistral, etc.) and advanced configuration,
-see [Model providers](/concepts/model-providers).
+Để xem toàn bộ danh mục nhà cung cấp (xAI, Groq, Mistral, v.v.) và cấu hình nâng cao, xem [Nhà cung cấp mô hình](/concepts/model-providers).

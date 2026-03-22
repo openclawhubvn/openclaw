@@ -1,41 +1,39 @@
 ---
-summary: "Cron jobs + wakeups for the Gateway scheduler"
+summary: "Cron jobs và wakeups cho bộ lập lịch Gateway"
 read_when:
-  - Scheduling background jobs or wakeups
-  - Wiring automation that should run with or alongside heartbeats
-  - Deciding between heartbeat and cron for scheduled tasks
+  - Lập lịch công việc nền hoặc wakeups
+  - Tích hợp tự động hóa chạy cùng hoặc bên cạnh heartbeats
+  - Quyết định giữa heartbeat và cron cho các tác vụ định kỳ
 title: "Cron Jobs"
 ---
 
-# Cron jobs (Gateway scheduler)
+# Cron jobs (Bộ lập lịch Gateway)
 
-> **Cron vs Heartbeat?** See [Cron vs Heartbeat](/automation/cron-vs-heartbeat) for guidance on when to use each.
+> **Cron vs Heartbeat?** Xem [Cron vs Heartbeat](/automation/cron-vs-heartbeat) để biết khi nào nên sử dụng từng loại.
 
-Cron is the Gateway’s built-in scheduler. It persists jobs, wakes the agent at
-the right time, and can optionally deliver output back to a chat.
+Cron là bộ lập lịch tích hợp của Gateway. Nó lưu trữ các công việc, đánh thức agent vào thời điểm thích hợp và có thể gửi kết quả trở lại một kênh chat.
 
-If you want _“run this every morning”_ or _“poke the agent in 20 minutes”_,
-cron is the mechanism.
+Nếu bạn muốn _“chạy cái này mỗi sáng”_ hoặc _“đánh thức agent sau 20 phút”_, cron là cơ chế phù hợp.
 
-Troubleshooting: [/automation/troubleshooting](/automation/troubleshooting)
+Khắc phục sự cố: [/automation/troubleshooting](/automation/troubleshooting)
 
-## TL;DR
+## Tóm tắt nhanh
 
-- Cron runs **inside the Gateway** (not inside the model).
-- Jobs persist under `~/.openclaw/cron/` so restarts don’t lose schedules.
-- Two execution styles:
-  - **Main session**: enqueue a system event, then run on the next heartbeat.
-  - **Isolated**: run a dedicated agent turn in `cron:<jobId>` or a custom session, with delivery (announce by default or none).
-  - **Current session**: bind to the session where the cron is created (`sessionTarget: "current"`).
-  - **Custom session**: run in a persistent named session (`sessionTarget: "session:custom-id"`).
-- Wakeups are first-class: a job can request “wake now” vs “next heartbeat”.
-- Webhook posting is per job via `delivery.mode = "webhook"` + `delivery.to = "<url>"`.
-- Legacy fallback remains for stored jobs with `notify: true` when `cron.webhook` is set, migrate those jobs to webhook delivery mode.
-- For upgrades, `openclaw doctor --fix` can normalize legacy cron store fields before the scheduler touches them.
+- Cron chạy **bên trong Gateway** (không phải bên trong mô hình).
+- Công việc được lưu trữ dưới `~/.openclaw/cron/` để không mất lịch trình khi khởi động lại.
+- Hai kiểu thực thi:
+  - **Phiên chính**: xếp hàng một sự kiện hệ thống, sau đó chạy vào heartbeat tiếp theo.
+  - **Cô lập**: chạy một lượt agent riêng biệt trong `cron:<jobId>` hoặc một phiên tùy chỉnh, với thông báo (mặc định là thông báo hoặc không có).
+  - **Phiên hiện tại**: gắn với phiên nơi cron được tạo (`sessionTarget: "current"`).
+  - **Phiên tùy chỉnh**: chạy trong một phiên được đặt tên cố định (`sessionTarget: "session:custom-id"`).
+- Wakeups là ưu tiên hàng đầu: một công việc có thể yêu cầu “wake now” hoặc “next heartbeat”.
+- Đăng webhook theo từng công việc qua `delivery.mode = "webhook"` + `delivery.to = "<url>"`.
+- Cơ chế dự phòng cũ vẫn còn cho các công việc lưu trữ với `notify: true` khi `cron.webhook` được thiết lập, chuyển các công việc đó sang chế độ giao hàng webhook.
+- Để nâng cấp, `openclaw doctor --fix` có thể chuẩn hóa các trường lưu trữ cron cũ trước khi bộ lập lịch xử lý chúng.
 
-## Quick start (actionable)
+## Bắt đầu nhanh (hành động)
 
-Create a one-shot reminder, verify it exists, and run it immediately:
+Tạo một lời nhắc một lần, xác minh nó tồn tại và chạy ngay lập tức:
 
 ```bash
 openclaw cron add \
@@ -51,7 +49,7 @@ openclaw cron run <job-id>
 openclaw cron runs --id <job-id>
 ```
 
-Schedule a recurring isolated job with delivery:
+Lập lịch một công việc cô lập định kỳ với thông báo:
 
 ```bash
 openclaw cron add \
@@ -65,239 +63,211 @@ openclaw cron add \
   --to "channel:C1234567890"
 ```
 
-## Tool-call equivalents (Gateway cron tool)
+## Tương đương với lệnh công cụ (Công cụ cron Gateway)
 
-For the canonical JSON shapes and examples, see [JSON schema for tool calls](/automation/cron-jobs#json-schema-for-tool-calls).
+Để biết các hình dạng JSON chuẩn và ví dụ, xem [JSON schema for tool calls](/automation/cron-jobs#json-schema-for-tool-calls).
 
-## Where cron jobs are stored
+## Nơi lưu trữ cron jobs
 
-Cron jobs are persisted on the Gateway host at `~/.openclaw/cron/jobs.json` by default.
-The Gateway loads the file into memory and writes it back on changes, so manual edits
-are only safe when the Gateway is stopped. Prefer `openclaw cron add/edit` or the cron
-tool call API for changes.
+Cron jobs được lưu trữ trên máy chủ Gateway tại `~/.openclaw/cron/jobs.json` theo mặc định. Gateway tải file vào bộ nhớ và ghi lại khi có thay đổi, vì vậy chỉ nên chỉnh sửa thủ công khi Gateway đã dừng. Ưu tiên sử dụng `openclaw cron add/edit` hoặc API gọi công cụ cron để thay đổi.
 
-## Beginner-friendly overview
+## Tổng quan thân thiện với người mới bắt đầu
 
-Think of a cron job as: **when** to run + **what** to do.
+Hãy nghĩ về một cron job như: **khi nào** chạy + **làm gì**.
 
-1. **Choose a schedule**
-   - One-shot reminder → `schedule.kind = "at"` (CLI: `--at`)
-   - Repeating job → `schedule.kind = "every"` or `schedule.kind = "cron"`
-   - If your ISO timestamp omits a timezone, it is treated as **UTC**.
+1. **Chọn lịch trình**
+   - Lời nhắc một lần → `schedule.kind = "at"` (CLI: `--at`)
+   - Công việc lặp lại → `schedule.kind = "every"` hoặc `schedule.kind = "cron"`
+   - Nếu dấu thời gian ISO của bạn không có múi giờ, nó được coi là **UTC**.
 
-2. **Choose where it runs**
-   - `sessionTarget: "main"` → run during the next heartbeat with main context.
-   - `sessionTarget: "isolated"` → run a dedicated agent turn in `cron:<jobId>`.
-   - `sessionTarget: "current"` → bind to the current session (resolved at creation time to `session:<sessionKey>`).
-   - `sessionTarget: "session:custom-id"` → run in a persistent named session that maintains context across runs.
+2. **Chọn nơi nó chạy**
+   - `sessionTarget: "main"` → chạy trong heartbeat tiếp theo với ngữ cảnh chính.
+   - `sessionTarget: "isolated"` → chạy một lượt agent riêng biệt trong `cron:<jobId>`.
+   - `sessionTarget: "current"` → gắn với phiên hiện tại (được giải quyết tại thời điểm tạo thành `session:<sessionKey>`).
+   - `sessionTarget: "session:custom-id"` → chạy trong một phiên được đặt tên cố định duy trì ngữ cảnh qua các lần chạy.
 
-   Default behavior (unchanged):
-   - `systemEvent` payloads default to `main`
-   - `agentTurn` payloads default to `isolated`
+   Hành vi mặc định (không thay đổi):
+   - Payload `systemEvent` mặc định là `main`
+   - Payload `agentTurn` mặc định là `isolated`
 
-   To use current session binding, explicitly set `sessionTarget: "current"`.
+   Để sử dụng gắn kết phiên hiện tại, hãy đặt rõ `sessionTarget: "current"`.
 
-3. **Choose the payload**
-   - Main session → `payload.kind = "systemEvent"`
-   - Isolated session → `payload.kind = "agentTurn"`
+3. **Chọn payload**
+   - Phiên chính → `payload.kind = "systemEvent"`
+   - Phiên cô lập → `payload.kind = "agentTurn"`
 
-Optional: one-shot jobs (`schedule.kind = "at"`) delete after success by default. Set
-`deleteAfterRun: false` to keep them (they will disable after success).
+Tùy chọn: công việc một lần (`schedule.kind = "at"`) tự động xóa sau khi thành công. Đặt `deleteAfterRun: false` để giữ chúng (chúng sẽ bị vô hiệu hóa sau khi thành công).
 
-## Concepts
+## Khái niệm
 
 ### Jobs
 
-A cron job is a stored record with:
+Một cron job là một bản ghi lưu trữ với:
 
-- a **schedule** (when it should run),
-- a **payload** (what it should do),
-- optional **delivery mode** (`announce`, `webhook`, or `none`).
-- optional **agent binding** (`agentId`): run the job under a specific agent; if
-  missing or unknown, the gateway falls back to the default agent.
+- một **lịch trình** (khi nào nó nên chạy),
+- một **payload** (nó nên làm gì),
+- chế độ **giao hàng** tùy chọn (`announce`, `webhook`, hoặc `none`).
+- ràng buộc **agent** tùy chọn (`agentId`): chạy công việc dưới một agent cụ thể; nếu thiếu hoặc không xác định, gateway sẽ quay lại agent mặc định.
 
-Jobs are identified by a stable `jobId` (used by CLI/Gateway APIs).
-In agent tool calls, `jobId` is canonical; legacy `id` is accepted for compatibility.
-One-shot jobs auto-delete after success by default; set `deleteAfterRun: false` to keep them.
+Jobs được xác định bởi một `jobId` ổn định (được sử dụng bởi CLI/Gateway APIs). Trong các cuộc gọi công cụ agent, `jobId` là chuẩn; `id` cũ được chấp nhận để tương thích. Công việc một lần tự động xóa sau khi thành công theo mặc định; đặt `deleteAfterRun: false` để giữ chúng.
 
-### Schedules
+### Lịch trình
 
-Cron supports three schedule kinds:
+Cron hỗ trợ ba loại lịch trình:
 
-- `at`: one-shot timestamp via `schedule.at` (ISO 8601).
-- `every`: fixed interval (ms).
-- `cron`: 5-field cron expression (or 6-field with seconds) with optional IANA timezone.
+- `at`: dấu thời gian một lần qua `schedule.at` (ISO 8601).
+- `every`: khoảng thời gian cố định (ms).
+- `cron`: biểu thức cron 5 trường (hoặc 6 trường với giây) với múi giờ IANA tùy chọn.
 
-Cron expressions use `croner`. If a timezone is omitted, the Gateway host’s
-local timezone is used.
+Biểu thức cron sử dụng `croner`. Nếu một múi giờ bị bỏ qua, múi giờ địa phương của máy chủ Gateway sẽ được sử dụng.
 
-To reduce top-of-hour load spikes across many gateways, OpenClaw applies a
-deterministic per-job stagger window of up to 5 minutes for recurring
-top-of-hour expressions (for example `0 * * * *`, `0 */2 * * *`). Fixed-hour
-expressions such as `0 7 * * *` remain exact.
+Để giảm tải đỉnh giờ trên nhiều gateways, OpenClaw áp dụng một cửa sổ giãn cách xác định theo công việc lên đến 5 phút cho các biểu thức đỉnh giờ định kỳ (ví dụ `0 * * * *`, `0 */2 * * *`). Các biểu thức giờ cố định như `0 7 * * *` vẫn giữ nguyên.
 
-For any cron schedule, you can set an explicit stagger window with `schedule.staggerMs`
-(`0` keeps exact timing). CLI shortcuts:
+Đối với bất kỳ lịch trình cron nào, bạn có thể đặt một cửa sổ giãn cách rõ ràng với `schedule.staggerMs` (`0` giữ thời gian chính xác). Các phím tắt CLI:
 
-- `--stagger 30s` (or `1m`, `5m`) to set an explicit stagger window.
-- `--exact` to force `staggerMs = 0`.
+- `--stagger 30s` (hoặc `1m`, `5m`) để đặt một cửa sổ giãn cách rõ ràng.
+- `--exact` để buộc `staggerMs = 0`.
 
-### Main vs isolated execution
+### Thực thi chính vs cô lập
 
-#### Main session jobs (system events)
+#### Công việc phiên chính (sự kiện hệ thống)
 
-Main jobs enqueue a system event and optionally wake the heartbeat runner.
-They must use `payload.kind = "systemEvent"`.
+Công việc chính xếp hàng một sự kiện hệ thống và tùy chọn đánh thức trình chạy heartbeat. Chúng phải sử dụng `payload.kind = "systemEvent"`.
 
-- `wakeMode: "now"` (default): event triggers an immediate heartbeat run.
-- `wakeMode: "next-heartbeat"`: event waits for the next scheduled heartbeat.
+- `wakeMode: "now"` (mặc định): sự kiện kích hoạt một lần chạy heartbeat ngay lập tức.
+- `wakeMode: "next-heartbeat"`: sự kiện chờ đợi heartbeat tiếp theo được lên lịch.
 
-This is the best fit when you want the normal heartbeat prompt + main-session context.
-See [Heartbeat](/gateway/heartbeat).
+Đây là lựa chọn tốt nhất khi bạn muốn nhắc nhở heartbeat bình thường + ngữ cảnh phiên chính. Xem [Heartbeat](/gateway/heartbeat).
 
-#### Isolated jobs (dedicated cron sessions)
+#### Công việc cô lập (phiên cron riêng biệt)
 
-Isolated jobs run a dedicated agent turn in session `cron:<jobId>` or a custom session.
+Công việc cô lập chạy một lượt agent riêng biệt trong phiên `cron:<jobId>` hoặc một phiên tùy chỉnh.
 
-Key behaviors:
+Các hành vi chính:
 
-- Prompt is prefixed with `[cron:<jobId> <job name>]` for traceability.
-- Each run starts a **fresh session id** (no prior conversation carry-over), unless using a custom session.
-- Custom sessions (`session:xxx`) persist context across runs, enabling workflows like daily standups that build on previous summaries.
-- Default behavior: if `delivery` is omitted, isolated jobs announce a summary (`delivery.mode = "announce"`).
-- `delivery.mode` chooses what happens:
-  - `announce`: deliver a summary to the target channel and post a brief summary to the main session.
-  - `webhook`: POST the finished event payload to `delivery.to` when the finished event includes a summary.
-  - `none`: internal only (no delivery, no main-session summary).
-- `wakeMode` controls when the main-session summary posts:
-  - `now`: immediate heartbeat.
-  - `next-heartbeat`: waits for the next scheduled heartbeat.
+- Lời nhắc được tiền tố với `[cron:<jobId> <job name>]` để dễ dàng theo dõi.
+- Mỗi lần chạy bắt đầu một **id phiên mới** (không có cuộc trò chuyện trước đó), trừ khi sử dụng một phiên tùy chỉnh.
+- Các phiên tùy chỉnh (`session:xxx`) duy trì ngữ cảnh qua các lần chạy, cho phép các quy trình làm việc như các cuộc họp hàng ngày xây dựng trên các bản tóm tắt trước đó.
+- Hành vi mặc định: nếu `delivery` bị bỏ qua, công việc cô lập thông báo một bản tóm tắt (`delivery.mode = "announce"`).
+- `delivery.mode` chọn điều gì xảy ra:
+  - `announce`: gửi một bản tóm tắt đến kênh mục tiêu và đăng một bản tóm tắt ngắn gọn lên phiên chính.
+  - `webhook`: POST payload sự kiện đã hoàn thành đến `delivery.to` khi sự kiện đã hoàn thành bao gồm một bản tóm tắt.
+  - `none`: chỉ nội bộ (không giao hàng, không có bản tóm tắt phiên chính).
+- `wakeMode` kiểm soát khi nào bản tóm tắt phiên chính được đăng:
+  - `now`: heartbeat ngay lập tức.
+  - `next-heartbeat`: chờ đợi heartbeat tiếp theo được lên lịch.
 
-Use isolated jobs for noisy, frequent, or "background chores" that shouldn't spam
-your main chat history.
+Sử dụng công việc cô lập cho các công việc ồn ào, thường xuyên hoặc "công việc nền" không nên làm phiền lịch sử chat chính của bạn.
 
-### Payload shapes (what runs)
+### Hình dạng payload (chạy cái gì)
 
-Two payload kinds are supported:
+Hai loại payload được hỗ trợ:
 
-- `systemEvent`: main-session only, routed through the heartbeat prompt.
-- `agentTurn`: isolated-session only, runs a dedicated agent turn.
+- `systemEvent`: chỉ phiên chính, được định tuyến qua lời nhắc heartbeat.
+- `agentTurn`: chỉ phiên cô lập, chạy một lượt agent riêng biệt.
 
-Common `agentTurn` fields:
+Các trường `agentTurn` phổ biến:
 
-- `message`: required text prompt.
-- `model` / `thinking`: optional overrides (see below).
-- `timeoutSeconds`: optional timeout override.
-- `lightContext`: optional lightweight bootstrap mode for jobs that do not need workspace bootstrap file injection.
+- `message`: lời nhắc văn bản bắt buộc.
+- `model` / `thinking`: ghi đè tùy chọn (xem bên dưới).
+- `timeoutSeconds`: ghi đè thời gian chờ tùy chọn.
+- `lightContext`: chế độ khởi động nhẹ tùy chọn cho các công việc không cần tiêm file khởi động workspace.
 
-Delivery config:
+Cấu hình giao hàng:
 
 - `delivery.mode`: `none` | `announce` | `webhook`.
-- `delivery.channel`: `last` or a specific channel.
-- `delivery.to`: channel-specific target (announce) or webhook URL (webhook mode).
-- `delivery.bestEffort`: avoid failing the job if announce delivery fails.
+- `delivery.channel`: `last` hoặc một kênh cụ thể.
+- `delivery.to`: mục tiêu cụ thể của kênh (announce) hoặc URL webhook (chế độ webhook).
+- `delivery.bestEffort`: tránh thất bại công việc nếu giao hàng thông báo thất bại.
 
-Announce delivery suppresses messaging tool sends for the run; use `delivery.channel`/`delivery.to`
-to target the chat instead. When `delivery.mode = "none"`, no summary is posted to the main session.
+Giao hàng thông báo ngăn chặn gửi công cụ nhắn tin cho lần chạy; sử dụng `delivery.channel`/`delivery.to` để nhắm mục tiêu chat thay thế. Khi `delivery.mode = "none"`, không có bản tóm tắt nào được đăng lên phiên chính.
 
-If `delivery` is omitted for isolated jobs, OpenClaw defaults to `announce`.
+Nếu `delivery` bị bỏ qua cho công việc cô lập, OpenClaw mặc định là `announce`.
 
-#### Announce delivery flow
+#### Luồng giao hàng thông báo
 
-When `delivery.mode = "announce"`, cron delivers directly via the outbound channel adapters.
-The main agent is not spun up to craft or forward the message.
+Khi `delivery.mode = "announce"`, cron giao hàng trực tiếp qua các bộ điều hợp kênh outbound. Agent chính không được khởi động để tạo hoặc chuyển tiếp tin nhắn.
 
-Behavior details:
+Chi tiết hành vi:
 
-- Content: delivery uses the isolated run's outbound payloads (text/media) with normal chunking and
-  channel formatting.
-- Heartbeat-only responses (`HEARTBEAT_OK` with no real content) are not delivered.
-- If the isolated run already sent a message to the same target via the message tool, delivery is
-  skipped to avoid duplicates.
-- Missing or invalid delivery targets fail the job unless `delivery.bestEffort = true`.
-- A short summary is posted to the main session only when `delivery.mode = "announce"`.
-- The main-session summary respects `wakeMode`: `now` triggers an immediate heartbeat and
-  `next-heartbeat` waits for the next scheduled heartbeat.
+- Nội dung: giao hàng sử dụng payload outbound của lần chạy cô lập (văn bản/phương tiện) với phân đoạn và định dạng kênh bình thường.
+- Phản hồi chỉ có heartbeat (`HEARTBEAT_OK` không có nội dung thực) không được giao.
+- Nếu lần chạy cô lập đã gửi một tin nhắn đến cùng mục tiêu qua công cụ nhắn tin, giao hàng bị bỏ qua để tránh trùng lặp.
+- Mục tiêu giao hàng thiếu hoặc không hợp lệ làm thất bại công việc trừ khi `delivery.bestEffort = true`.
+- Một bản tóm tắt ngắn được đăng lên phiên chính chỉ khi `delivery.mode = "announce"`.
+- Bản tóm tắt phiên chính tôn trọng `wakeMode`: `now` kích hoạt một heartbeat ngay lập tức và `next-heartbeat` chờ đợi heartbeat tiếp theo được lên lịch.
 
-#### Webhook delivery flow
+#### Luồng giao hàng webhook
 
-When `delivery.mode = "webhook"`, cron posts the finished event payload to `delivery.to` when the finished event includes a summary.
+Khi `delivery.mode = "webhook"`, cron đăng payload sự kiện đã hoàn thành đến `delivery.to` khi sự kiện đã hoàn thành bao gồm một bản tóm tắt.
 
-Behavior details:
+Chi tiết hành vi:
 
-- The endpoint must be a valid HTTP(S) URL.
-- No channel delivery is attempted in webhook mode.
-- No main-session summary is posted in webhook mode.
-- If `cron.webhookToken` is set, auth header is `Authorization: Bearer <cron.webhookToken>`.
-- Deprecated fallback: stored legacy jobs with `notify: true` still post to `cron.webhook` (if configured), with a warning so you can migrate to `delivery.mode = "webhook"`.
+- Endpoint phải là một URL HTTP(S) hợp lệ.
+- Không có giao hàng kênh nào được thử trong chế độ webhook.
+- Không có bản tóm tắt phiên chính nào được đăng trong chế độ webhook.
+- Nếu `cron.webhookToken` được thiết lập, header xác thực là `Authorization: Bearer <cron.webhookToken>`.
+- Cơ chế dự phòng cũ: các công việc lưu trữ cũ với `notify: true` vẫn đăng lên `cron.webhook` (nếu được cấu hình), với một cảnh báo để bạn có thể chuyển sang `delivery.mode = "webhook"`.
 
-### Model and thinking overrides
+### Ghi đè mô hình và suy nghĩ
 
-Isolated jobs (`agentTurn`) can override the model and thinking level:
+Công việc cô lập (`agentTurn`) có thể ghi đè mô hình và mức độ suy nghĩ:
 
-- `model`: Provider/model string (e.g., `anthropic/claude-sonnet-4-20250514`) or alias (e.g., `opus`)
-- `thinking`: Thinking level (`off`, `minimal`, `low`, `medium`, `high`, `xhigh`; GPT-5.2 + Codex models only)
+- `model`: Chuỗi nhà cung cấp/mô hình (ví dụ: `anthropic/claude-sonnet-4-20250514`) hoặc bí danh (ví dụ: `opus`)
+- `thinking`: Mức độ suy nghĩ (`off`, `minimal`, `low`, `medium`, `high`, `xhigh`; chỉ các mô hình GPT-5.2 + Codex)
 
-Note: You can set `model` on main-session jobs too, but it changes the shared main
-session model. We recommend model overrides only for isolated jobs to avoid
-unexpected context shifts.
+Lưu ý: Bạn có thể đặt `model` trên các công việc phiên chính, nhưng nó thay đổi mô hình phiên chính được chia sẻ. Chúng tôi khuyến nghị chỉ ghi đè mô hình cho các công việc cô lập để tránh các thay đổi ngữ cảnh không mong muốn.
 
-Resolution priority:
+Ưu tiên giải quyết:
 
-1. Job payload override (highest)
-2. Hook-specific defaults (e.g., `hooks.gmail.model`)
-3. Agent config default
+1. Ghi đè payload công việc (cao nhất)
+2. Mặc định cụ thể của hook (ví dụ: `hooks.gmail.model`)
+3. Mặc định cấu hình agent
 
-### Lightweight bootstrap context
+### Ngữ cảnh khởi động nhẹ
 
-Isolated jobs (`agentTurn`) can set `lightContext: true` to run with lightweight bootstrap context.
+Công việc cô lập (`agentTurn`) có thể đặt `lightContext: true` để chạy với ngữ cảnh khởi động nhẹ.
 
-- Use this for scheduled chores that do not need workspace bootstrap file injection.
-- In practice, the embedded runtime runs with `bootstrapContextMode: "lightweight"`, which keeps cron bootstrap context empty on purpose.
-- CLI equivalents: `openclaw cron add --light-context ...` and `openclaw cron edit --light-context`.
+- Sử dụng điều này cho các công việc định kỳ không cần tiêm file khởi động workspace.
+- Trong thực tế, runtime nhúng chạy với `bootstrapContextMode: "lightweight"`, giữ ngữ cảnh khởi động cron trống rỗng có chủ đích.
+- Tương đương CLI: `openclaw cron add --light-context ...` và `openclaw cron edit --light-context`.
 
-### Delivery (channel + target)
+### Giao hàng (kênh + mục tiêu)
 
-Isolated jobs can deliver output to a channel via the top-level `delivery` config:
+Công việc cô lập có thể giao hàng đầu ra đến một kênh qua cấu hình `delivery` cấp cao nhất:
 
-- `delivery.mode`: `announce` (channel delivery), `webhook` (HTTP POST), or `none`.
+- `delivery.mode`: `announce` (giao hàng kênh), `webhook` (HTTP POST), hoặc `none`.
 - `delivery.channel`: `whatsapp` / `telegram` / `discord` / `slack` / `mattermost` (plugin) / `signal` / `imessage` / `last`.
-- `delivery.to`: channel-specific recipient target.
+- `delivery.to`: mục tiêu người nhận cụ thể của kênh.
 
-`announce` delivery is only valid for isolated jobs (`sessionTarget: "isolated"`).
-`webhook` delivery is valid for both main and isolated jobs.
+Giao hàng `announce` chỉ hợp lệ cho các công việc cô lập (`sessionTarget: "isolated"`). Giao hàng `webhook` hợp lệ cho cả công việc chính và cô lập.
 
-If `delivery.channel` or `delivery.to` is omitted, cron can fall back to the main session’s
-“last route” (the last place the agent replied).
+Nếu `delivery.channel` hoặc `delivery.to` bị bỏ qua, cron có thể quay lại “last route” của phiên chính (nơi cuối cùng agent đã trả lời).
 
-Target format reminders:
+Nhắc nhở định dạng mục tiêu:
 
-- Slack/Discord/Mattermost (plugin) targets should use explicit prefixes (e.g. `channel:<id>`, `user:<id>`) to avoid ambiguity.
-  Mattermost bare 26-char IDs are resolved **user-first** (DM if user exists, channel otherwise) — use `user:<id>` or `channel:<id>` for deterministic routing.
-- Telegram topics should use the `:topic:` form (see below).
+- Mục tiêu Slack/Discord/Mattermost (plugin) nên sử dụng tiền tố rõ ràng (ví dụ: `channel:<id>`, `user:<id>`) để tránh mơ hồ. Mattermost ID 26 ký tự không có tiền tố được giải quyết **ưu tiên người dùng** (DM nếu người dùng tồn tại, kênh nếu không) — sử dụng `user:<id>` hoặc `channel:<id>` để định tuyến xác định.
+- Chủ đề Telegram nên sử dụng dạng `:topic:` (xem bên dưới).
 
-#### Telegram delivery targets (topics / forum threads)
+#### Mục tiêu giao hàng Telegram (chủ đề / luồng diễn đàn)
 
-Telegram supports forum topics via `message_thread_id`. For cron delivery, you can encode
-the topic/thread into the `to` field:
+Telegram hỗ trợ chủ đề diễn đàn qua `message_thread_id`. Đối với giao hàng cron, bạn có thể mã hóa chủ đề/luồng vào trường `to`:
 
-- `-1001234567890` (chat id only)
-- `-1001234567890:topic:123` (preferred: explicit topic marker)
-- `-1001234567890:123` (shorthand: numeric suffix)
+- `-1001234567890` (chỉ id chat)
+- `-1001234567890:topic:123` (ưu tiên: dấu chủ đề rõ ràng)
+- `-1001234567890:123` (viết tắt: hậu tố số)
 
-Prefixed targets like `telegram:...` / `telegram:group:...` are also accepted:
+Các mục tiêu có tiền tố như `telegram:...` / `telegram:group:...` cũng được chấp nhận:
 
 - `telegram:group:-1001234567890:topic:123`
 
-## JSON schema for tool calls
+## JSON schema cho các cuộc gọi công cụ
 
-Use these shapes when calling Gateway `cron.*` tools directly (agent tool calls or RPC).
-CLI flags accept human durations like `20m`, but tool calls should use an ISO 8601 string
-for `schedule.at` and milliseconds for `schedule.everyMs`.
+Sử dụng các hình dạng này khi gọi trực tiếp các công cụ `cron.*` của Gateway (cuộc gọi công cụ agent hoặc RPC). Các cờ CLI chấp nhận thời lượng con người như `20m`, nhưng các cuộc gọi công cụ nên sử dụng chuỗi ISO 8601 cho `schedule.at` và mili giây cho `schedule.everyMs`.
 
-### cron.add params
+### Tham số cron.add
 
-One-shot, main session job (system event):
+Công việc một lần, công việc phiên chính (sự kiện hệ thống):
 
 ```json
 {
@@ -310,7 +280,7 @@ One-shot, main session job (system event):
 }
 ```
 
-Recurring, isolated job with delivery:
+Công việc cô lập định kỳ với giao hàng:
 
 ```json
 {
@@ -332,7 +302,7 @@ Recurring, isolated job with delivery:
 }
 ```
 
-Recurring job bound to current session (auto-resolved at creation):
+Công việc định kỳ gắn với phiên hiện tại (tự động giải quyết khi tạo):
 
 ```json
 {
@@ -346,7 +316,7 @@ Recurring job bound to current session (auto-resolved at creation):
 }
 ```
 
-Recurring job in a custom persistent session:
+Công việc định kỳ trong một phiên cố định tùy chỉnh:
 
 ```json
 {
@@ -360,19 +330,18 @@ Recurring job in a custom persistent session:
 }
 ```
 
-Notes:
+Ghi chú:
 
-- `schedule.kind`: `at` (`at`), `every` (`everyMs`), or `cron` (`expr`, optional `tz`).
-- `schedule.at` accepts ISO 8601 (timezone optional; treated as UTC when omitted).
-- `everyMs` is milliseconds.
-- `sessionTarget`: `"main"`, `"isolated"`, `"current"`, or `"session:<custom-id>"`.
-- `"current"` is resolved to `"session:<sessionKey>"` at creation time.
-- Custom sessions (`session:xxx`) maintain persistent context across runs.
-- Optional fields: `agentId`, `description`, `enabled`, `deleteAfterRun` (defaults to true for `at`),
-  `delivery`.
-- `wakeMode` defaults to `"now"` when omitted.
+- `schedule.kind`: `at` (`at`), `every` (`everyMs`), hoặc `cron` (`expr`, `tz` tùy chọn).
+- `schedule.at` chấp nhận ISO 8601 (múi giờ tùy chọn; được coi là UTC khi bị bỏ qua).
+- `everyMs` là mili giây.
+- `sessionTarget`: `"main"`, `"isolated"`, `"current"`, hoặc `"session:<custom-id>"`.
+- `"current"` được giải quyết thành `"session:<sessionKey>"` khi tạo.
+- Các phiên tùy chỉnh (`session:xxx`) duy trì ngữ cảnh cố định qua các lần chạy.
+- Các trường tùy chọn: `agentId`, `description`, `enabled`, `deleteAfterRun` (mặc định là true cho `at`), `delivery`.
+- `wakeMode` mặc định là `"now"` khi bị bỏ qua.
 
-### cron.update params
+### Tham số cron.update
 
 ```json
 {
@@ -384,12 +353,12 @@ Notes:
 }
 ```
 
-Notes:
+Ghi chú:
 
-- `jobId` is canonical; `id` is accepted for compatibility.
-- Use `agentId: null` in the patch to clear an agent binding.
+- `jobId` là chuẩn; `id` được chấp nhận để tương thích.
+- Sử dụng `agentId: null` trong patch để xóa ràng buộc agent.
 
-### cron.run and cron.remove params
+### Tham số cron.run và cron.remove
 
 ```json
 { "jobId": "job-123", "mode": "force" }
@@ -399,129 +368,129 @@ Notes:
 { "jobId": "job-123" }
 ```
 
-## Storage & history
+## Lưu trữ & lịch sử
 
-- Job store: `~/.openclaw/cron/jobs.json` (Gateway-managed JSON).
-- Run history: `~/.openclaw/cron/runs/<jobId>.jsonl` (JSONL, auto-pruned by size and line count).
-- Isolated cron run sessions in `sessions.json` are pruned by `cron.sessionRetention` (default `24h`; set `false` to disable).
-- Override store path: `cron.store` in config.
+- Lưu trữ công việc: `~/.openclaw/cron/jobs.json` (JSON do Gateway quản lý).
+- Lịch sử chạy: `~/.openclaw/cron/runs/<jobId>.jsonl` (JSONL, tự động cắt bớt theo kích thước và số dòng).
+- Các phiên chạy cron cô lập trong `sessions.json` được cắt bớt bởi `cron.sessionRetention` (mặc định `24h`; đặt `false` để vô hiệu hóa).
+- Ghi đè đường dẫn lưu trữ: `cron.store` trong cấu hình.
 
-## Retry policy
+## Chính sách thử lại
 
-When a job fails, OpenClaw classifies errors as **transient** (retryable) or **permanent** (disable immediately).
+Khi một công việc thất bại, OpenClaw phân loại lỗi là **tạm thời** (có thể thử lại) hoặc **vĩnh viễn** (vô hiệu hóa ngay lập tức).
 
-### Transient errors (retried)
+### Lỗi tạm thời (thử lại)
 
-- Rate limit (429, too many requests, resource exhausted)
-- Provider overload (for example Anthropic `529 overloaded_error`, overload fallback summaries)
-- Network errors (timeout, ECONNRESET, fetch failed, socket)
-- Server errors (5xx)
-- Cloudflare-related errors
+- Giới hạn tốc độ (429, quá nhiều yêu cầu, tài nguyên cạn kiệt)
+- Quá tải nhà cung cấp (ví dụ: Anthropic `529 overloaded_error`, tóm tắt dự phòng quá tải)
+- Lỗi mạng (timeout, ECONNRESET, fetch failed, socket)
+- Lỗi máy chủ (5xx)
+- Lỗi liên quan đến Cloudflare
 
-### Permanent errors (no retry)
+### Lỗi vĩnh viễn (không thử lại)
 
-- Auth failures (invalid API key, unauthorized)
-- Config or validation errors
-- Other non-transient errors
+- Lỗi xác thực (API key không hợp lệ, không được phép)
+- Lỗi cấu hình hoặc xác thực
+- Các lỗi không tạm thời khác
 
-### Default behavior (no config)
+### Hành vi mặc định (không cấu hình)
 
-**One-shot jobs (`schedule.kind: "at"`):**
+**Công việc một lần (`schedule.kind: "at"`):**
 
-- On transient error: retry up to 3 times with exponential backoff (30s → 1m → 5m).
-- On permanent error: disable immediately.
-- On success or skip: disable (or delete if `deleteAfterRun: true`).
+- Khi gặp lỗi tạm thời: thử lại tối đa 3 lần với backoff lũy tiến (30s → 1m → 5m).
+- Khi gặp lỗi vĩnh viễn: vô hiệu hóa ngay lập tức.
+- Khi thành công hoặc bỏ qua: vô hiệu hóa (hoặc xóa nếu `deleteAfterRun: true`).
 
-**Recurring jobs (`cron` / `every`):**
+**Công việc định kỳ (`cron` / `every`):**
 
-- On any error: apply exponential backoff (30s → 1m → 5m → 15m → 60m) before the next scheduled run.
-- Job stays enabled; backoff resets after the next successful run.
+- Khi gặp bất kỳ lỗi nào: áp dụng backoff lũy tiến (30s → 1m → 5m → 15m → 60m) trước lần chạy tiếp theo được lên lịch.
+- Công việc vẫn được kích hoạt; backoff được đặt lại sau lần chạy thành công tiếp theo.
 
-Configure `cron.retry` to override these defaults (see [Configuration](/automation/cron-jobs#configuration)).
+Cấu hình `cron.retry` để ghi đè các mặc định này (xem [Configuration](/automation/cron-jobs#configuration)).
 
-## Configuration
+## Cấu hình
 
 ```json5
 {
   cron: {
-    enabled: true, // default true
+    enabled: true, // mặc định true
     store: "~/.openclaw/cron/jobs.json",
-    maxConcurrentRuns: 1, // default 1
-    // Optional: override retry policy for one-shot jobs
+    maxConcurrentRuns: 1, // mặc định 1
+    // Tùy chọn: ghi đè chính sách thử lại cho công việc một lần
     retry: {
       maxAttempts: 3,
       backoffMs: [60000, 120000, 300000],
       retryOn: ["rate_limit", "overloaded", "network", "server_error"],
     },
-    webhook: "https://example.invalid/legacy", // deprecated fallback for stored notify:true jobs
-    webhookToken: "replace-with-dedicated-webhook-token", // optional bearer token for webhook mode
-    sessionRetention: "24h", // duration string or false
+    webhook: "https://example.invalid/legacy", // cơ chế dự phòng cũ cho các công việc lưu trữ notify:true
+    webhookToken: "replace-with-dedicated-webhook-token", // token bearer tùy chọn cho chế độ webhook
+    sessionRetention: "24h", // chuỗi thời lượng hoặc false
     runLog: {
-      maxBytes: "2mb", // default 2_000_000 bytes
-      keepLines: 2000, // default 2000
+      maxBytes: "2mb", // mặc định 2_000_000 bytes
+      keepLines: 2000, // mặc định 2000
     },
   },
 }
 ```
 
-Run-log pruning behavior:
+Hành vi cắt bớt nhật ký chạy:
 
-- `cron.runLog.maxBytes`: max run-log file size before pruning.
-- `cron.runLog.keepLines`: when pruning, keep only the newest N lines.
-- Both apply to `cron/runs/<jobId>.jsonl` files.
+- `cron.runLog.maxBytes`: kích thước file nhật ký chạy tối đa trước khi cắt bớt.
+- `cron.runLog.keepLines`: khi cắt bớt, chỉ giữ lại N dòng mới nhất.
+- Cả hai áp dụng cho các file `cron/runs/<jobId>.jsonl`.
 
-Webhook behavior:
+Hành vi webhook:
 
-- Preferred: set `delivery.mode: "webhook"` with `delivery.to: "https://..."` per job.
-- Webhook URLs must be valid `http://` or `https://` URLs.
-- When posted, payload is the cron finished event JSON.
-- If `cron.webhookToken` is set, auth header is `Authorization: Bearer <cron.webhookToken>`.
-- If `cron.webhookToken` is not set, no `Authorization` header is sent.
-- Deprecated fallback: stored legacy jobs with `notify: true` still use `cron.webhook` when present.
+- Ưu tiên: đặt `delivery.mode: "webhook"` với `delivery.to: "https://..."` cho từng công việc.
+- URL webhook phải là URL `http://` hoặc `https://` hợp lệ.
+- Khi được đăng, payload là JSON sự kiện đã hoàn thành cron.
+- Nếu `cron.webhookToken` được thiết lập, header xác thực là `Authorization: Bearer <cron.webhookToken>`.
+- Nếu `cron.webhookToken` không được thiết lập, không có header `Authorization` nào được gửi.
+- Cơ chế dự phòng cũ: các công việc lưu trữ cũ với `notify: true` vẫn sử dụng `cron.webhook` khi có.
 
-Disable cron entirely:
+Vô hiệu hóa cron hoàn toàn:
 
-- `cron.enabled: false` (config)
-- `OPENCLAW_SKIP_CRON=1` (env)
+- `cron.enabled: false` (cấu hình)
+- `OPENCLAW_SKIP_CRON=1` (biến môi trường)
 
-## Maintenance
+## Bảo trì
 
-Cron has two built-in maintenance paths: isolated run-session retention and run-log pruning.
+Cron có hai đường dẫn bảo trì tích hợp: giữ lại phiên chạy cô lập và cắt bớt nhật ký chạy.
 
-### Defaults
+### Mặc định
 
-- `cron.sessionRetention`: `24h` (set `false` to disable run-session pruning)
+- `cron.sessionRetention`: `24h` (đặt `false` để vô hiệu hóa cắt bớt phiên chạy)
 - `cron.runLog.maxBytes`: `2_000_000` bytes
 - `cron.runLog.keepLines`: `2000`
 
-### How it works
+### Cách hoạt động
 
-- Isolated runs create session entries (`...:cron:<jobId>:run:<uuid>`) and transcript files.
-- The reaper removes expired run-session entries older than `cron.sessionRetention`.
-- For removed run sessions no longer referenced by the session store, OpenClaw archives transcript files and purges old deleted archives on the same retention window.
-- After each run append, `cron/runs/<jobId>.jsonl` is size-checked:
-  - if file size exceeds `runLog.maxBytes`, it is trimmed to the newest `runLog.keepLines` lines.
+- Các lần chạy cô lập tạo các mục phiên (`...:cron:<jobId>:run:<uuid>`) và các file bản ghi.
+- Bộ dọn dẹp loại bỏ các mục phiên chạy đã hết hạn cũ hơn `cron.sessionRetention`.
+- Đối với các phiên chạy đã bị xóa không còn được tham chiếu bởi lưu trữ phiên, OpenClaw lưu trữ các file bản ghi và xóa các bản lưu trữ cũ đã bị xóa trên cùng cửa sổ giữ lại.
+- Sau mỗi lần chạy thêm, `cron/runs/<jobId>.jsonl` được kiểm tra kích thước:
+  - nếu kích thước file vượt quá `runLog.maxBytes`, nó được cắt bớt để giữ lại các dòng `runLog.keepLines` mới nhất.
 
-### Performance caveat for high volume schedulers
+### Cảnh báo hiệu suất cho các bộ lập lịch có tần suất cao
 
-High-frequency cron setups can generate large run-session and run-log footprints. Maintenance is built in, but loose limits can still create avoidable IO and cleanup work.
+Các thiết lập cron có tần suất cao có thể tạo ra dấu chân phiên chạy và nhật ký chạy lớn. Bảo trì được tích hợp, nhưng các giới hạn lỏng lẻo vẫn có thể tạo ra công việc IO và dọn dẹp không cần thiết.
 
-What to watch:
+Những điều cần chú ý:
 
-- long `cron.sessionRetention` windows with many isolated runs
-- high `cron.runLog.keepLines` combined with large `runLog.maxBytes`
-- many noisy recurring jobs writing to the same `cron/runs/<jobId>.jsonl`
+- cửa sổ `cron.sessionRetention` dài với nhiều lần chạy cô lập
+- `cron.runLog.keepLines` cao kết hợp với `runLog.maxBytes` lớn
+- nhiều công việc định kỳ ồn ào ghi vào cùng một file `cron/runs/<jobId>.jsonl`
 
-What to do:
+Những điều cần làm:
 
-- keep `cron.sessionRetention` as short as your debugging/audit needs allow
-- keep run logs bounded with moderate `runLog.maxBytes` and `runLog.keepLines`
-- move noisy background jobs to isolated mode with delivery rules that avoid unnecessary chatter
-- review growth periodically with `openclaw cron runs` and adjust retention before logs become large
+- giữ `cron.sessionRetention` ngắn nhất có thể theo nhu cầu gỡ lỗi/kiểm toán của bạn
+- giữ nhật ký chạy trong giới hạn với `runLog.maxBytes` và `runLog.keepLines` vừa phải
+- chuyển các công việc nền ồn ào sang chế độ cô lập với các quy tắc giao hàng tránh tiếng ồn không cần thiết
+- xem xét tăng trưởng định kỳ với `openclaw cron runs` và điều chỉnh giữ lại trước khi nhật ký trở nên lớn
 
-### Customize examples
+### Ví dụ tùy chỉnh
 
-Keep run sessions for a week and allow bigger run logs:
+Giữ các phiên chạy trong một tuần và cho phép nhật ký chạy lớn hơn:
 
 ```json5
 {
@@ -535,7 +504,7 @@ Keep run sessions for a week and allow bigger run logs:
 }
 ```
 
-Disable isolated run-session pruning but keep run-log pruning:
+Vô hiệu hóa cắt bớt phiên chạy cô lập nhưng giữ cắt bớt nhật ký chạy:
 
 ```json5
 {
@@ -549,7 +518,7 @@ Disable isolated run-session pruning but keep run-log pruning:
 }
 ```
 
-Tune for high-volume cron usage (example):
+Điều chỉnh cho sử dụng cron tần suất cao (ví dụ):
 
 ```json5
 {
@@ -563,9 +532,9 @@ Tune for high-volume cron usage (example):
 }
 ```
 
-## CLI quickstart
+## CLI bắt đầu nhanh
 
-One-shot reminder (UTC ISO, auto-delete after success):
+Lời nhắc một lần (UTC ISO, tự động xóa sau khi thành công):
 
 ```bash
 openclaw cron add \
@@ -577,7 +546,7 @@ openclaw cron add \
   --delete-after-run
 ```
 
-One-shot reminder (main session, wake immediately):
+Lời nhắc một lần (phiên chính, đánh thức ngay lập tức):
 
 ```bash
 openclaw cron add \
@@ -588,7 +557,7 @@ openclaw cron add \
   --wake now
 ```
 
-Recurring isolated job (announce to WhatsApp):
+Công việc cô lập định kỳ (thông báo đến WhatsApp):
 
 ```bash
 openclaw cron add \
@@ -602,7 +571,7 @@ openclaw cron add \
   --to "+15551234567"
 ```
 
-Recurring cron job with explicit 30-second stagger:
+Công việc cron định kỳ với giãn cách 30 giây rõ ràng:
 
 ```bash
 openclaw cron add \
@@ -615,7 +584,7 @@ openclaw cron add \
   --announce
 ```
 
-Recurring isolated job (deliver to a Telegram topic):
+Công việc cô lập định kỳ (giao hàng đến một chủ đề Telegram):
 
 ```bash
 openclaw cron add \
@@ -629,7 +598,7 @@ openclaw cron add \
   --to "-1001234567890:topic:123"
 ```
 
-Isolated job with model and thinking override:
+Công việc cô lập với ghi đè mô hình và suy nghĩ:
 
 ```bash
 openclaw cron add \
@@ -645,27 +614,27 @@ openclaw cron add \
   --to "+15551234567"
 ```
 
-Agent selection (multi-agent setups):
+Lựa chọn agent (thiết lập nhiều agent):
 
 ```bash
-# Pin a job to agent "ops" (falls back to default if that agent is missing)
+# Gắn một công việc vào agent "ops" (quay lại mặc định nếu agent đó thiếu)
 openclaw cron add --name "Ops sweep" --cron "0 6 * * *" --session isolated --message "Check ops queue" --agent ops
 
-# Switch or clear the agent on an existing job
+# Chuyển đổi hoặc xóa agent trên một công việc hiện có
 openclaw cron edit <jobId> --agent ops
 openclaw cron edit <jobId> --clear-agent
 ```
 
-Manual run (force is the default, use `--due` to only run when due):
+Chạy thủ công (force là mặc định, sử dụng `--due` để chỉ chạy khi đến hạn):
 
 ```bash
 openclaw cron run <jobId>
 openclaw cron run <jobId> --due
 ```
 
-`cron.run` now acknowledges once the manual run is queued, not after the job finishes. Successful queue responses look like `{ ok: true, enqueued: true, runId }`. If the job is already running or `--due` finds nothing due, the response stays `{ ok: true, ran: false, reason }`. Use `openclaw cron runs --id <jobId>` or the `cron.runs` gateway method to inspect the eventual finished entry.
+`cron.run` hiện xác nhận khi lần chạy thủ công được xếp hàng, không phải sau khi công việc hoàn thành. Phản hồi hàng đợi thành công trông như `{ ok: true, enqueued: true, runId }`. Nếu công việc đã đang chạy hoặc `--due` không tìm thấy gì đến hạn, phản hồi vẫn là `{ ok: true, ran: false, reason }`. Sử dụng `openclaw cron runs --id <jobId>` hoặc phương thức `cron.runs` của gateway để kiểm tra mục đã hoàn thành cuối cùng.
 
-Edit an existing job (patch fields):
+Chỉnh sửa một công việc hiện có (các trường patch):
 
 ```bash
 openclaw cron edit <jobId> \
@@ -674,54 +643,52 @@ openclaw cron edit <jobId> \
   --thinking low
 ```
 
-Force an existing cron job to run exactly on schedule (no stagger):
+Buộc một công việc cron hiện có chạy chính xác theo lịch trình (không giãn cách):
 
 ```bash
 openclaw cron edit <jobId> --exact
 ```
 
-Run history:
+Lịch sử chạy:
 
 ```bash
 openclaw cron runs --id <jobId> --limit 50
 ```
 
-Immediate system event without creating a job:
+Sự kiện hệ thống ngay lập tức mà không tạo công việc:
 
 ```bash
 openclaw system event --mode now --text "Next heartbeat: check battery."
 ```
 
-## Gateway API surface
+## Bề mặt API Gateway
 
 - `cron.list`, `cron.status`, `cron.add`, `cron.update`, `cron.remove`
-- `cron.run` (force or due), `cron.runs`
-  For immediate system events without a job, use [`openclaw system event`](/cli/system).
+- `cron.run` (force hoặc due), `cron.runs`
+  Đối với các sự kiện hệ thống ngay lập tức mà không có công việc, sử dụng [`openclaw system event`](/cli/system).
 
-## Troubleshooting
+## Khắc phục sự cố
 
-### "Nothing runs"
+### "Không có gì chạy"
 
-- Check cron is enabled: `cron.enabled` and `OPENCLAW_SKIP_CRON`.
-- Check the Gateway is running continuously (cron runs inside the Gateway process).
-- For `cron` schedules: confirm timezone (`--tz`) vs the host timezone.
+- Kiểm tra cron đã được kích hoạt: `cron.enabled` và `OPENCLAW_SKIP_CRON`.
+- Kiểm tra Gateway đang chạy liên tục (cron chạy bên trong quá trình Gateway).
+- Đối với lịch trình `cron`: xác nhận múi giờ (`--tz`) so với múi giờ máy chủ.
 
-### A recurring job keeps delaying after failures
+### Một công việc định kỳ liên tục trì hoãn sau khi thất bại
 
-- OpenClaw applies exponential retry backoff for recurring jobs after consecutive errors:
-  30s, 1m, 5m, 15m, then 60m between retries.
-- Backoff resets automatically after the next successful run.
-- One-shot (`at`) jobs retry transient errors (rate limit, overloaded, network, server_error) up to 3 times with backoff; permanent errors disable immediately. See [Retry policy](/automation/cron-jobs#retry-policy).
+- OpenClaw áp dụng backoff thử lại lũy tiến cho các công việc định kỳ sau các lỗi liên tiếp: 30s, 1m, 5m, 15m, sau đó 60m giữa các lần thử lại.
+- Backoff tự động đặt lại sau lần chạy thành công tiếp theo.
+- Các công việc một lần (`at`) thử lại lỗi tạm thời (giới hạn tốc độ, quá tải, mạng, lỗi máy chủ) tối đa 3 lần với backoff; lỗi vĩnh viễn vô hiệu hóa ngay lập tức. Xem [Chính sách thử lại](/automation/cron-jobs#retry-policy).
 
-### Telegram delivers to the wrong place
+### Telegram giao hàng đến sai nơi
 
-- For forum topics, use `-100…:topic:<id>` so it’s explicit and unambiguous.
-- If you see `telegram:...` prefixes in logs or stored “last route” targets, that’s normal;
-  cron delivery accepts them and still parses topic IDs correctly.
+- Đối với các chủ đề diễn đàn, sử dụng `-100…:topic:<id>` để nó rõ ràng và không mơ hồ.
+- Nếu bạn thấy các tiền tố `telegram:...` trong nhật ký hoặc các mục tiêu “last route” đã lưu trữ, điều đó là bình thường; giao hàng cron chấp nhận chúng và vẫn phân tích cú pháp ID chủ đề chính xác.
 
-### Subagent announce delivery retries
+### Thông báo giao hàng subagent thử lại
 
-- When a subagent run completes, the gateway announces the result to the requester session.
-- If the announce flow returns `false` (e.g. requester session is busy), the gateway retries up to 3 times with tracking via `announceRetryCount`.
-- Announces older than 5 minutes past `endedAt` are force-expired to prevent stale entries from looping indefinitely.
-- If you see repeated announce deliveries in logs, check the subagent registry for entries with high `announceRetryCount` values.
+- Khi một lượt chạy subagent hoàn thành, gateway thông báo kết quả cho phiên yêu cầu.
+- Nếu luồng thông báo trả về `false` (ví dụ: phiên yêu cầu đang bận), gateway thử lại tối đa 3 lần với theo dõi qua `announceRetryCount`.
+- Các thông báo cũ hơn 5 phút sau `endedAt` bị hết hạn cưỡng bức để ngăn các mục cũ lặp lại vô thời hạn.
+- Nếu bạn thấy các thông báo giao hàng lặp lại trong nhật ký, kiểm tra đăng ký subagent để tìm các mục có giá trị `announceRetryCount` cao.

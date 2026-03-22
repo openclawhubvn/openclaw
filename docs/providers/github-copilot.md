@@ -1,61 +1,51 @@
 ---
-summary: "Sign in to GitHub Copilot from OpenClaw using the device flow"
+summary: "Đăng nhập GitHub Copilot từ OpenClaw bằng device flow"
 read_when:
-  - You want to use GitHub Copilot as a model provider
-  - You need the `openclaw models auth login-github-copilot` flow
+  - Bạn muốn sử dụng GitHub Copilot làm nhà cung cấp mô hình
+  - Bạn cần quy trình `openclaw models auth login-github-copilot`
 title: "GitHub Copilot"
 ---
 
 # GitHub Copilot
 
-## What is GitHub Copilot?
+## GitHub Copilot là gì?
 
-GitHub Copilot is GitHub's AI coding assistant. It provides access to Copilot
-models for your GitHub account and plan. OpenClaw can use Copilot as a model
-provider in two different ways.
+GitHub Copilot là trợ lý lập trình AI của GitHub. Nó cung cấp quyền truy cập vào các mô hình Copilot cho tài khoản và gói GitHub của bạn. OpenClaw có thể sử dụng Copilot làm nhà cung cấp mô hình theo hai cách khác nhau.
 
-## Two ways to use Copilot in OpenClaw
+## Hai cách sử dụng Copilot trong OpenClaw
 
-### 1) Built-in GitHub Copilot provider (`github-copilot`)
+### 1) Nhà cung cấp GitHub Copilot tích hợp sẵn (`github-copilot`)
 
-Use the native device-login flow to obtain a GitHub token, then exchange it for
-Copilot API tokens when OpenClaw runs. This is the **default** and simplest path
-because it does not require VS Code.
+Sử dụng quy trình đăng nhập thiết bị gốc để lấy token GitHub, sau đó đổi nó lấy token API Copilot khi OpenClaw chạy. Đây là cách **mặc định** và đơn giản nhất vì không cần VS Code.
 
-### 2) Copilot Proxy plugin (`copilot-proxy`)
+### 2) Plugin Copilot Proxy (`copilot-proxy`)
 
-Use the **Copilot Proxy** VS Code extension as a local bridge. OpenClaw talks to
-the proxy’s `/v1` endpoint and uses the model list you configure there. Choose
-this when you already run Copilot Proxy in VS Code or need to route through it.
-You must enable the plugin and keep the VS Code extension running.
+Sử dụng tiện ích mở rộng **Copilot Proxy** trong VS Code như một cầu nối cục bộ. OpenClaw giao tiếp với endpoint `/v1` của proxy và sử dụng danh sách mô hình bạn cấu hình ở đó. Chọn cách này khi bạn đã chạy Copilot Proxy trong VS Code hoặc cần định tuyến qua nó. Bạn phải kích hoạt plugin và giữ cho tiện ích mở rộng VS Code hoạt động.
 
-Use GitHub Copilot as a model provider (`github-copilot`). The login command runs
-the GitHub device flow, saves an auth profile, and updates your config to use that
-profile.
+Sử dụng GitHub Copilot làm nhà cung cấp mô hình (`github-copilot`). Lệnh đăng nhập chạy quy trình thiết bị GitHub, lưu hồ sơ xác thực và cập nhật cấu hình để sử dụng hồ sơ đó.
 
-## CLI setup
+## Thiết lập CLI
 
 ```bash
 openclaw models auth login-github-copilot
 ```
 
-You'll be prompted to visit a URL and enter a one-time code. Keep the terminal
-open until it completes.
+Bạn sẽ được yêu cầu truy cập một URL và nhập mã dùng một lần. Giữ cửa sổ terminal mở cho đến khi hoàn tất.
 
-### Optional flags
+### Các tùy chọn bổ sung
 
 ```bash
 openclaw models auth login-github-copilot --profile-id github-copilot:work
 openclaw models auth login-github-copilot --yes
 ```
 
-## Set a default model
+## Đặt mô hình mặc định
 
 ```bash
 openclaw models set github-copilot/gpt-4o
 ```
 
-### Config snippet
+### Đoạn cấu hình
 
 ```json5
 {
@@ -63,10 +53,8 @@ openclaw models set github-copilot/gpt-4o
 }
 ```
 
-## Notes
+## Lưu ý
 
-- Requires an interactive TTY; run it directly in a terminal.
-- Copilot model availability depends on your plan; if a model is rejected, try
-  another ID (for example `github-copilot/gpt-4.1`).
-- The login stores a GitHub token in the auth profile store and exchanges it for a
-  Copilot API token when OpenClaw runs.
+- Yêu cầu TTY tương tác; chạy trực tiếp trong terminal.
+- Khả dụng của mô hình Copilot phụ thuộc vào gói của bạn; nếu một mô hình bị từ chối, hãy thử ID khác (ví dụ `github-copilot/gpt-4.1`).
+- Quá trình đăng nhập lưu token GitHub trong kho hồ sơ xác thực và đổi nó lấy token API Copilot khi OpenClaw chạy.

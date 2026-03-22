@@ -1,208 +1,208 @@
 ---
-summary: "CLI reference for `openclaw message` (send + channel actions)"
+summary: "Tham khảo CLI cho `openclaw message` (gửi + hành động kênh)"
 read_when:
-  - Adding or modifying message CLI actions
-  - Changing outbound channel behavior
+  - Thêm hoặc chỉnh sửa hành động CLI tin nhắn
+  - Thay đổi hành vi kênh gửi đi
 title: "message"
 ---
 
 # `openclaw message`
 
-Single outbound command for sending messages and channel actions
+Lệnh gửi đi duy nhất để gửi tin nhắn và thực hiện các hành động kênh
 (Discord/Google Chat/Slack/Mattermost (plugin)/Telegram/WhatsApp/Signal/iMessage/Microsoft Teams).
 
-## Usage
+## Cách sử dụng
 
 ```
 openclaw message <subcommand> [flags]
 ```
 
-Channel selection:
+Lựa chọn kênh:
 
-- `--channel` required if more than one channel is configured.
-- If exactly one channel is configured, it becomes the default.
-- Values: `whatsapp|telegram|discord|googlechat|slack|mattermost|signal|imessage|msteams` (Mattermost requires plugin)
+- `--channel` bắt buộc nếu có hơn một kênh được cấu hình.
+- Nếu chỉ có một kênh được cấu hình, nó sẽ trở thành mặc định.
+- Giá trị: `whatsapp|telegram|discord|googlechat|slack|mattermost|signal|imessage|msteams` (Mattermost yêu cầu plugin)
 
-Target formats (`--target`):
+Định dạng mục tiêu (`--target`):
 
-- WhatsApp: E.164 or group JID
-- Telegram: chat id or `@username`
-- Discord: `channel:<id>` or `user:<id>` (or `<@id>` mention; raw numeric ids are treated as channels)
-- Google Chat: `spaces/<spaceId>` or `users/<userId>`
-- Slack: `channel:<id>` or `user:<id>` (raw channel id is accepted)
-- Mattermost (plugin): `channel:<id>`, `user:<id>`, or `@username` (bare ids are treated as channels)
-- Signal: `+E.164`, `group:<id>`, `signal:+E.164`, `signal:group:<id>`, or `username:<name>`/`u:<name>`
-- iMessage: handle, `chat_id:<id>`, `chat_guid:<guid>`, or `chat_identifier:<id>`
-- Microsoft Teams: conversation id (`19:...@thread.tacv2`) or `conversation:<id>` or `user:<aad-object-id>`
+- WhatsApp: E.164 hoặc group JID
+- Telegram: chat id hoặc `@username`
+- Discord: `channel:<id>` hoặc `user:<id>` (hoặc `<@id>` mention; id số thô được coi là kênh)
+- Google Chat: `spaces/<spaceId>` hoặc `users/<userId>`
+- Slack: `channel:<id>` hoặc `user:<id>` (id kênh thô được chấp nhận)
+- Mattermost (plugin): `channel:<id>`, `user:<id>`, hoặc `@username` (id thô được coi là kênh)
+- Signal: `+E.164`, `group:<id>`, `signal:+E.164`, `signal:group:<id>`, hoặc `username:<name>`/`u:<name>`
+- iMessage: handle, `chat_id:<id>`, `chat_guid:<guid>`, hoặc `chat_identifier:<id>`
+- Microsoft Teams: conversation id (`19:...@thread.tacv2`) hoặc `conversation:<id>` hoặc `user:<aad-object-id>`
 
-Name lookup:
+Tra cứu tên:
 
-- For supported providers (Discord/Slack/etc), channel names like `Help` or `#help` are resolved via the directory cache.
-- On cache miss, OpenClaw will attempt a live directory lookup when the provider supports it.
+- Đối với các nhà cung cấp được hỗ trợ (Discord/Slack/etc), tên kênh như `Help` hoặc `#help` được giải quyết qua bộ nhớ đệm thư mục.
+- Nếu không có trong bộ nhớ đệm, OpenClaw sẽ cố gắng tra cứu thư mục trực tiếp khi nhà cung cấp hỗ trợ.
 
-## Common flags
+## Các cờ thông dụng
 
 - `--channel <name>`
 - `--account <id>`
-- `--target <dest>` (target channel or user for send/poll/read/etc)
-- `--targets <name>` (repeat; broadcast only)
+- `--target <dest>` (kênh hoặc người dùng mục tiêu để gửi/khảo sát/đọc/v.v.)
+- `--targets <name>` (lặp lại; chỉ phát sóng)
 - `--json`
 - `--dry-run`
 - `--verbose`
 
-## SecretRef behavior
+## Hành vi SecretRef
 
-- `openclaw message` resolves supported channel SecretRefs before running the selected action.
-- Resolution is scoped to the active action target when possible:
-  - channel-scoped when `--channel` is set (or inferred from prefixed targets like `discord:...`)
-  - account-scoped when `--account` is set (channel globals + selected account surfaces)
-  - when `--account` is omitted, OpenClaw does not force a `default` account SecretRef scope
-- Unresolved SecretRefs on unrelated channels do not block a targeted message action.
-- If the selected channel/account SecretRef is unresolved, the command fails closed for that action.
+- `openclaw message` giải quyết các SecretRef kênh được hỗ trợ trước khi thực hiện hành động đã chọn.
+- Giải quyết được giới hạn trong mục tiêu hành động đang hoạt động khi có thể:
+  - theo kênh khi `--channel` được đặt (hoặc suy ra từ các mục tiêu có tiền tố như `discord:...`)
+  - theo tài khoản khi `--account` được đặt (toàn cầu kênh + bề mặt tài khoản đã chọn)
+  - khi `--account` bị bỏ qua, OpenClaw không ép buộc phạm vi SecretRef tài khoản `default`
+- SecretRef không được giải quyết trên các kênh không liên quan không chặn hành động tin nhắn mục tiêu.
+- Nếu SecretRef kênh/tài khoản đã chọn không được giải quyết, lệnh sẽ thất bại cho hành động đó.
 
-## Actions
+## Hành động
 
-### Core
+### Cốt lõi
 
 - `send`
-  - Channels: WhatsApp/Telegram/Discord/Google Chat/Slack/Mattermost (plugin)/Signal/iMessage/Microsoft Teams
-  - Required: `--target`, plus `--message` or `--media`
-  - Optional: `--media`, `--reply-to`, `--thread-id`, `--gif-playback`
-  - Telegram only: `--buttons` (requires `channels.telegram.capabilities.inlineButtons` to allow it)
-  - Telegram only: `--force-document` (send images and GIFs as documents to avoid Telegram compression)
-  - Telegram only: `--thread-id` (forum topic id)
-  - Slack only: `--thread-id` (thread timestamp; `--reply-to` uses the same field)
-  - WhatsApp only: `--gif-playback`
+  - Kênh: WhatsApp/Telegram/Discord/Google Chat/Slack/Mattermost (plugin)/Signal/iMessage/Microsoft Teams
+  - Bắt buộc: `--target`, cộng với `--message` hoặc `--media`
+  - Tùy chọn: `--media`, `--reply-to`, `--thread-id`, `--gif-playback`
+  - Chỉ Telegram: `--buttons` (yêu cầu `channels.telegram.capabilities.inlineButtons` để cho phép)
+  - Chỉ Telegram: `--force-document` (gửi hình ảnh và GIF dưới dạng tài liệu để tránh nén của Telegram)
+  - Chỉ Telegram: `--thread-id` (id chủ đề diễn đàn)
+  - Chỉ Slack: `--thread-id` (dấu thời gian chủ đề; `--reply-to` sử dụng cùng trường)
+  - Chỉ WhatsApp: `--gif-playback`
 
 - `poll`
-  - Channels: WhatsApp/Telegram/Discord/Matrix/Microsoft Teams
-  - Required: `--target`, `--poll-question`, `--poll-option` (repeat)
-  - Optional: `--poll-multi`
-  - Discord only: `--poll-duration-hours`, `--silent`, `--message`
-  - Telegram only: `--poll-duration-seconds` (5-600), `--silent`, `--poll-anonymous` / `--poll-public`, `--thread-id`
+  - Kênh: WhatsApp/Telegram/Discord/Matrix/Microsoft Teams
+  - Bắt buộc: `--target`, `--poll-question`, `--poll-option` (lặp lại)
+  - Tùy chọn: `--poll-multi`
+  - Chỉ Discord: `--poll-duration-hours`, `--silent`, `--message`
+  - Chỉ Telegram: `--poll-duration-seconds` (5-600), `--silent`, `--poll-anonymous` / `--poll-public`, `--thread-id`
 
 - `react`
-  - Channels: Discord/Google Chat/Slack/Telegram/WhatsApp/Signal
-  - Required: `--message-id`, `--target`
-  - Optional: `--emoji`, `--remove`, `--participant`, `--from-me`, `--target-author`, `--target-author-uuid`
-  - Note: `--remove` requires `--emoji` (omit `--emoji` to clear own reactions where supported; see /tools/reactions)
-  - WhatsApp only: `--participant`, `--from-me`
-  - Signal group reactions: `--target-author` or `--target-author-uuid` required
+  - Kênh: Discord/Google Chat/Slack/Telegram/WhatsApp/Signal
+  - Bắt buộc: `--message-id`, `--target`
+  - Tùy chọn: `--emoji`, `--remove`, `--participant`, `--from-me`, `--target-author`, `--target-author-uuid`
+  - Lưu ý: `--remove` yêu cầu `--emoji` (bỏ qua `--emoji` để xóa phản ứng của chính mình nếu được hỗ trợ; xem /tools/reactions)
+  - Chỉ WhatsApp: `--participant`, `--from-me`
+  - Phản ứng nhóm Signal: yêu cầu `--target-author` hoặc `--target-author-uuid`
 
 - `reactions`
-  - Channels: Discord/Google Chat/Slack
-  - Required: `--message-id`, `--target`
-  - Optional: `--limit`
+  - Kênh: Discord/Google Chat/Slack
+  - Bắt buộc: `--message-id`, `--target`
+  - Tùy chọn: `--limit`
 
 - `read`
-  - Channels: Discord/Slack
-  - Required: `--target`
-  - Optional: `--limit`, `--before`, `--after`
-  - Discord only: `--around`
+  - Kênh: Discord/Slack
+  - Bắt buộc: `--target`
+  - Tùy chọn: `--limit`, `--before`, `--after`
+  - Chỉ Discord: `--around`
 
 - `edit`
-  - Channels: Discord/Slack
-  - Required: `--message-id`, `--message`, `--target`
+  - Kênh: Discord/Slack
+  - Bắt buộc: `--message-id`, `--message`, `--target`
 
 - `delete`
-  - Channels: Discord/Slack/Telegram
-  - Required: `--message-id`, `--target`
+  - Kênh: Discord/Slack/Telegram
+  - Bắt buộc: `--message-id`, `--target`
 
 - `pin` / `unpin`
-  - Channels: Discord/Slack
-  - Required: `--message-id`, `--target`
+  - Kênh: Discord/Slack
+  - Bắt buộc: `--message-id`, `--target`
 
-- `pins` (list)
-  - Channels: Discord/Slack
-  - Required: `--target`
+- `pins` (danh sách)
+  - Kênh: Discord/Slack
+  - Bắt buộc: `--target`
 
 - `permissions`
-  - Channels: Discord
-  - Required: `--target`
+  - Kênh: Discord
+  - Bắt buộc: `--target`
 
 - `search`
-  - Channels: Discord
-  - Required: `--guild-id`, `--query`
-  - Optional: `--channel-id`, `--channel-ids` (repeat), `--author-id`, `--author-ids` (repeat), `--limit`
+  - Kênh: Discord
+  - Bắt buộc: `--guild-id`, `--query`
+  - Tùy chọn: `--channel-id`, `--channel-ids` (lặp lại), `--author-id`, `--author-ids` (lặp lại), `--limit`
 
-### Threads
+### Chủ đề
 
 - `thread create`
-  - Channels: Discord
-  - Required: `--thread-name`, `--target` (channel id)
-  - Optional: `--message-id`, `--message`, `--auto-archive-min`
+  - Kênh: Discord
+  - Bắt buộc: `--thread-name`, `--target` (id kênh)
+  - Tùy chọn: `--message-id`, `--message`, `--auto-archive-min`
 
 - `thread list`
-  - Channels: Discord
-  - Required: `--guild-id`
-  - Optional: `--channel-id`, `--include-archived`, `--before`, `--limit`
+  - Kênh: Discord
+  - Bắt buộc: `--guild-id`
+  - Tùy chọn: `--channel-id`, `--include-archived`, `--before`, `--limit`
 
 - `thread reply`
-  - Channels: Discord
-  - Required: `--target` (thread id), `--message`
-  - Optional: `--media`, `--reply-to`
+  - Kênh: Discord
+  - Bắt buộc: `--target` (id chủ đề), `--message`
+  - Tùy chọn: `--media`, `--reply-to`
 
 ### Emojis
 
 - `emoji list`
   - Discord: `--guild-id`
-  - Slack: no extra flags
+  - Slack: không có cờ bổ sung
 
 - `emoji upload`
-  - Channels: Discord
-  - Required: `--guild-id`, `--emoji-name`, `--media`
-  - Optional: `--role-ids` (repeat)
+  - Kênh: Discord
+  - Bắt buộc: `--guild-id`, `--emoji-name`, `--media`
+  - Tùy chọn: `--role-ids` (lặp lại)
 
 ### Stickers
 
 - `sticker send`
-  - Channels: Discord
-  - Required: `--target`, `--sticker-id` (repeat)
-  - Optional: `--message`
+  - Kênh: Discord
+  - Bắt buộc: `--target`, `--sticker-id` (lặp lại)
+  - Tùy chọn: `--message`
 
 - `sticker upload`
-  - Channels: Discord
-  - Required: `--guild-id`, `--sticker-name`, `--sticker-desc`, `--sticker-tags`, `--media`
+  - Kênh: Discord
+  - Bắt buộc: `--guild-id`, `--sticker-name`, `--sticker-desc`, `--sticker-tags`, `--media`
 
-### Roles / Channels / Members / Voice
+### Vai trò / Kênh / Thành viên / Giọng nói
 
 - `role info` (Discord): `--guild-id`
 - `role add` / `role remove` (Discord): `--guild-id`, `--user-id`, `--role-id`
 - `channel info` (Discord): `--target`
 - `channel list` (Discord): `--guild-id`
-- `member info` (Discord/Slack): `--user-id` (+ `--guild-id` for Discord)
+- `member info` (Discord/Slack): `--user-id` (+ `--guild-id` cho Discord)
 - `voice status` (Discord): `--guild-id`, `--user-id`
 
-### Events
+### Sự kiện
 
 - `event list` (Discord): `--guild-id`
 - `event create` (Discord): `--guild-id`, `--event-name`, `--start-time`
-  - Optional: `--end-time`, `--desc`, `--channel-id`, `--location`, `--event-type`
+  - Tùy chọn: `--end-time`, `--desc`, `--channel-id`, `--location`, `--event-type`
 
-### Moderation (Discord)
+### Quản lý (Discord)
 
-- `timeout`: `--guild-id`, `--user-id` (optional `--duration-min` or `--until`; omit both to clear timeout)
+- `timeout`: `--guild-id`, `--user-id` (tùy chọn `--duration-min` hoặc `--until`; bỏ qua cả hai để xóa timeout)
 - `kick`: `--guild-id`, `--user-id` (+ `--reason`)
 - `ban`: `--guild-id`, `--user-id` (+ `--delete-days`, `--reason`)
-  - `timeout` also supports `--reason`
+  - `timeout` cũng hỗ trợ `--reason`
 
-### Broadcast
+### Phát sóng
 
 - `broadcast`
-  - Channels: any configured channel; use `--channel all` to target all providers
-  - Required: `--targets` (repeat)
-  - Optional: `--message`, `--media`, `--dry-run`
+  - Kênh: bất kỳ kênh nào đã cấu hình; sử dụng `--channel all` để nhắm mục tiêu tất cả các nhà cung cấp
+  - Bắt buộc: `--targets` (lặp lại)
+  - Tùy chọn: `--message`, `--media`, `--dry-run`
 
-## Examples
+## Ví dụ
 
-Send a Discord reply:
+Gửi một phản hồi trên Discord:
 
 ```
 openclaw message send --channel discord \
   --target channel:123 --message "hi" --reply-to 456
 ```
 
-Send a Discord message with components:
+Gửi một tin nhắn Discord với các thành phần:
 
 ```
 openclaw message send --channel discord \
@@ -210,9 +210,9 @@ openclaw message send --channel discord \
   --components '{"text":"Choose a path","blocks":[{"type":"actions","buttons":[{"label":"Approve","style":"success"},{"label":"Decline","style":"danger"}]}]}'
 ```
 
-See [Discord components](/channels/discord#interactive-components) for the full schema.
+Xem [Discord components](/channels/discord#interactive-components) để biết đầy đủ schema.
 
-Create a Discord poll:
+Tạo một cuộc khảo sát trên Discord:
 
 ```
 openclaw message poll --channel discord \
@@ -222,7 +222,7 @@ openclaw message poll --channel discord \
   --poll-multi --poll-duration-hours 48
 ```
 
-Create a Telegram poll (auto-close in 2 minutes):
+Tạo một cuộc khảo sát trên Telegram (tự động đóng sau 2 phút):
 
 ```
 openclaw message poll --channel telegram \
@@ -232,14 +232,14 @@ openclaw message poll --channel telegram \
   --poll-duration-seconds 120 --silent
 ```
 
-Send a Teams proactive message:
+Gửi một tin nhắn chủ động trên Teams:
 
 ```
 openclaw message send --channel msteams \
   --target conversation:19:abc@thread.tacv2 --message "hi"
 ```
 
-Create a Teams poll:
+Tạo một cuộc khảo sát trên Teams:
 
 ```
 openclaw message poll --channel msteams \
@@ -248,14 +248,14 @@ openclaw message poll --channel msteams \
   --poll-option Pizza --poll-option Sushi
 ```
 
-React in Slack:
+Phản ứng trong Slack:
 
 ```
 openclaw message react --channel slack \
   --target C123 --message-id 456 --emoji "✅"
 ```
 
-React in a Signal group:
+Phản ứng trong một nhóm Signal:
 
 ```
 openclaw message react --channel signal \
@@ -263,14 +263,14 @@ openclaw message react --channel signal \
   --emoji "✅" --target-author-uuid 123e4567-e89b-12d3-a456-426614174000
 ```
 
-Send Telegram inline buttons:
+Gửi các nút inline trên Telegram:
 
 ```
 openclaw message send --channel telegram --target @mychat --message "Choose:" \
   --buttons '[ [{"text":"Yes","callback_data":"cmd:yes"}], [{"text":"No","callback_data":"cmd:no"}] ]'
 ```
 
-Send a Telegram image as a document to avoid compression:
+Gửi một hình ảnh trên Telegram dưới dạng tài liệu để tránh nén:
 
 ```bash
 openclaw message send --channel telegram --target @mychat \

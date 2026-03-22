@@ -1,64 +1,64 @@
 ---
-summary: "Nostr DM channel via NIP-04 encrypted messages"
+summary: "Kênh Nostr DM qua tin nhắn mã hóa NIP-04"
 read_when:
-  - You want OpenClaw to receive DMs via Nostr
-  - You're setting up decentralized messaging
+  - Bạn muốn OpenClaw nhận DMs qua Nostr
+  - Bạn đang thiết lập nhắn tin phi tập trung
 title: "Nostr"
 ---
 
 # Nostr
 
-**Status:** Optional plugin (disabled by default).
+**Trạng thái:** Plugin tùy chọn (mặc định không kích hoạt).
 
-Nostr is a decentralized protocol for social networking. This channel enables OpenClaw to receive and respond to encrypted direct messages (DMs) via NIP-04.
+Nostr là một giao thức phi tập trung cho mạng xã hội. Kênh này cho phép OpenClaw nhận và phản hồi tin nhắn trực tiếp (DM) mã hóa qua NIP-04.
 
-## Install (on demand)
+## Cài đặt (khi cần)
 
-### Onboarding (recommended)
+### Hướng dẫn cài đặt (khuyến nghị)
 
-- Onboarding (`openclaw onboard`) and `openclaw channels add` list optional channel plugins.
-- Selecting Nostr prompts you to install the plugin on demand.
+- Khi onboard (`openclaw onboard`) và `openclaw channels add` sẽ liệt kê các plugin kênh tùy chọn.
+- Chọn Nostr sẽ yêu cầu cài đặt plugin khi cần.
 
-Install defaults:
+Cài đặt mặc định:
 
-- **Dev channel + git checkout available:** uses the local plugin path.
-- **Stable/Beta:** downloads from npm.
+- **Kênh Dev + git checkout có sẵn:** sử dụng đường dẫn plugin cục bộ.
+- **Stable/Beta:** tải về từ npm.
 
-You can always override the choice in the prompt.
+Bạn luôn có thể thay đổi lựa chọn trong prompt.
 
-### Manual install
+### Cài đặt thủ công
 
 ```bash
 openclaw plugins install @openclaw/nostr
 ```
 
-Use a local checkout (dev workflows):
+Sử dụng bản checkout cục bộ (quy trình dev):
 
 ```bash
 openclaw plugins install --link <path-to-openclaw>/extensions/nostr
 ```
 
-Restart the Gateway after installing or enabling plugins.
+Khởi động lại Gateway sau khi cài đặt hoặc kích hoạt plugin.
 
-### Non-interactive setup
+### Thiết lập không tương tác
 
 ```bash
 openclaw channels add --channel nostr --private-key "$NOSTR_PRIVATE_KEY"
 openclaw channels add --channel nostr --private-key "$NOSTR_PRIVATE_KEY" --relay-urls "wss://relay.damus.io,wss://relay.primal.net"
 ```
 
-Use `--use-env` to keep `NOSTR_PRIVATE_KEY` in the environment instead of storing the key in config.
+Sử dụng `--use-env` để giữ `NOSTR_PRIVATE_KEY` trong môi trường thay vì lưu khóa trong cấu hình.
 
-## Quick setup
+## Thiết lập nhanh
 
-1. Generate a Nostr keypair (if needed):
+1. Tạo một cặp khóa Nostr (nếu cần):
 
 ```bash
-# Using nak
+# Sử dụng nak
 nak key generate
 ```
 
-2. Add to config:
+2. Thêm vào cấu hình:
 
 ```json5
 {
@@ -70,31 +70,31 @@ nak key generate
 }
 ```
 
-3. Export the key:
+3. Xuất khóa:
 
 ```bash
 export NOSTR_PRIVATE_KEY="nsec1..."
 ```
 
-4. Restart the Gateway.
+4. Khởi động lại Gateway.
 
-## Configuration reference
+## Tham khảo cấu hình
 
-| Key          | Type     | Default                                     | Description                         |
-| ------------ | -------- | ------------------------------------------- | ----------------------------------- |
-| `privateKey` | string   | required                                    | Private key in `nsec` or hex format |
-| `relays`     | string[] | `['wss://relay.damus.io', 'wss://nos.lol']` | Relay URLs (WebSocket)              |
-| `dmPolicy`   | string   | `pairing`                                   | DM access policy                    |
-| `allowFrom`  | string[] | `[]`                                        | Allowed sender pubkeys              |
-| `enabled`    | boolean  | `true`                                      | Enable/disable channel              |
-| `name`       | string   | -                                           | Display name                        |
-| `profile`    | object   | -                                           | NIP-01 profile metadata             |
+| Khóa         | Loại     | Mặc định                                    | Mô tả                                |
+| ------------ | -------- | ------------------------------------------- | ------------------------------------ |
+| `privateKey` | string   | bắt buộc                                    | Khóa riêng ở định dạng `nsec` hoặc hex |
+| `relays`     | string[] | `['wss://relay.damus.io', 'wss://nos.lol']` | URL Relay (WebSocket)                |
+| `dmPolicy`   | string   | `pairing`                                   | Chính sách truy cập DM               |
+| `allowFrom`  | string[] | `[]`                                        | Pubkey người gửi được phép           |
+| `enabled`    | boolean  | `true`                                      | Bật/tắt kênh                         |
+| `name`       | string   | -                                           | Tên hiển thị                         |
+| `profile`    | object   | -                                           | Metadata hồ sơ NIP-01                |
 
-## Profile metadata
+## Metadata hồ sơ
 
-Profile data is published as a NIP-01 `kind:0` event. You can manage it from the Control UI (Channels -> Nostr -> Profile) or set it directly in config.
+Dữ liệu hồ sơ được công bố dưới dạng sự kiện `kind:0` của NIP-01. Bạn có thể quản lý từ Control UI (Channels -> Nostr -> Profile) hoặc thiết lập trực tiếp trong cấu hình.
 
-Example:
+Ví dụ:
 
 ```json5
 {
@@ -104,7 +104,7 @@ Example:
       profile: {
         name: "openclaw",
         displayName: "OpenClaw",
-        about: "Personal assistant DM bot",
+        about: "Bot trợ lý cá nhân DM",
         picture: "https://example.com/avatar.png",
         banner: "https://example.com/banner.png",
         website: "https://example.com",
@@ -116,21 +116,21 @@ Example:
 }
 ```
 
-Notes:
+Lưu ý:
 
-- Profile URLs must use `https://`.
-- Importing from relays merges fields and preserves local overrides.
+- URL hồ sơ phải sử dụng `https://`.
+- Nhập từ relays sẽ hợp nhất các trường và giữ lại các ghi đè cục bộ.
 
-## Access control
+## Kiểm soát truy cập
 
-### DM policies
+### Chính sách DM
 
-- **pairing** (default): unknown senders get a pairing code.
-- **allowlist**: only pubkeys in `allowFrom` can DM.
-- **open**: public inbound DMs (requires `allowFrom: ["*"]`).
-- **disabled**: ignore inbound DMs.
+- **pairing** (mặc định): người gửi không xác định nhận mã ghép đôi.
+- **allowlist**: chỉ pubkey trong `allowFrom` có thể DM.
+- **open**: DMs công khai (yêu cầu `allowFrom: ["*"]`).
+- **disabled**: bỏ qua DMs đến.
 
-### Allowlist example
+### Ví dụ Allowlist
 
 ```json5
 {
@@ -144,16 +144,16 @@ Notes:
 }
 ```
 
-## Key formats
+## Định dạng khóa
 
-Accepted formats:
+Các định dạng chấp nhận:
 
-- **Private key:** `nsec...` or 64-char hex
-- **Pubkeys (`allowFrom`):** `npub...` or hex
+- **Khóa riêng:** `nsec...` hoặc 64 ký tự hex
+- **Pubkeys (`allowFrom`):** `npub...` hoặc hex
 
 ## Relays
 
-Defaults: `relay.damus.io` and `nos.lol`.
+Mặc định: `relay.damus.io` và `nos.lol`.
 
 ```json5
 {
@@ -166,28 +166,28 @@ Defaults: `relay.damus.io` and `nos.lol`.
 }
 ```
 
-Tips:
+Mẹo:
 
-- Use 2-3 relays for redundancy.
-- Avoid too many relays (latency, duplication).
-- Paid relays can improve reliability.
-- Local relays are fine for testing (`ws://localhost:7777`).
+- Sử dụng 2-3 relays để dự phòng.
+- Tránh quá nhiều relays (độ trễ, trùng lặp).
+- Relays trả phí có thể cải thiện độ tin cậy.
+- Relays cục bộ phù hợp để thử nghiệm (`ws://localhost:7777`).
 
-## Protocol support
+## Hỗ trợ giao thức
 
-| NIP    | Status    | Description                           |
-| ------ | --------- | ------------------------------------- |
-| NIP-01 | Supported | Basic event format + profile metadata |
-| NIP-04 | Supported | Encrypted DMs (`kind:4`)              |
-| NIP-17 | Planned   | Gift-wrapped DMs                      |
-| NIP-44 | Planned   | Versioned encryption                  |
+| NIP    | Trạng thái | Mô tả                                    |
+| ------ | ---------- | ----------------------------------------- |
+| NIP-01 | Hỗ trợ     | Định dạng sự kiện cơ bản + metadata hồ sơ |
+| NIP-04 | Hỗ trợ     | DMs mã hóa (`kind:4`)                     |
+| NIP-17 | Dự kiến    | DMs được gói quà                          |
+| NIP-44 | Dự kiến    | Mã hóa có phiên bản                       |
 
-## Testing
+## Kiểm tra
 
-### Local relay
+### Relay cục bộ
 
 ```bash
-# Start strfry
+# Khởi động strfry
 docker run -p 7777:7777 ghcr.io/hoytech/strfry
 ```
 
@@ -202,41 +202,41 @@ docker run -p 7777:7777 ghcr.io/hoytech/strfry
 }
 ```
 
-### Manual test
+### Kiểm tra thủ công
 
-1. Note the bot pubkey (npub) from logs.
-2. Open a Nostr client (Damus, Amethyst, etc.).
-3. DM the bot pubkey.
-4. Verify the response.
+1. Ghi lại pubkey bot (npub) từ logs.
+2. Mở một client Nostr (Damus, Amethyst, v.v.).
+3. DM pubkey bot.
+4. Xác minh phản hồi.
 
-## Troubleshooting
+## Khắc phục sự cố
 
-### Not receiving messages
+### Không nhận được tin nhắn
 
-- Verify the private key is valid.
-- Ensure relay URLs are reachable and use `wss://` (or `ws://` for local).
-- Confirm `enabled` is not `false`.
-- Check Gateway logs for relay connection errors.
+- Xác minh khóa riêng hợp lệ.
+- Đảm bảo URL relay có thể truy cập và sử dụng `wss://` (hoặc `ws://` cho cục bộ).
+- Xác nhận `enabled` không phải là `false`.
+- Kiểm tra logs Gateway để tìm lỗi kết nối relay.
 
-### Not sending responses
+### Không gửi phản hồi
 
-- Check relay accepts writes.
-- Verify outbound connectivity.
-- Watch for relay rate limits.
+- Kiểm tra relay chấp nhận ghi.
+- Xác minh kết nối ra ngoài.
+- Theo dõi giới hạn tốc độ relay.
 
-### Duplicate responses
+### Phản hồi trùng lặp
 
-- Expected when using multiple relays.
-- Messages are deduplicated by event ID; only the first delivery triggers a response.
+- Dự kiến khi sử dụng nhiều relays.
+- Tin nhắn được loại bỏ trùng lặp theo ID sự kiện; chỉ lần gửi đầu tiên kích hoạt phản hồi.
 
-## Security
+## Bảo mật
 
-- Never commit private keys.
-- Use environment variables for keys.
-- Consider `allowlist` for production bots.
+- Không bao giờ commit khóa riêng.
+- Sử dụng biến môi trường cho khóa.
+- Cân nhắc `allowlist` cho bot sản xuất.
 
-## Limitations (MVP)
+## Giới hạn (MVP)
 
-- Direct messages only (no group chats).
-- No media attachments.
-- NIP-04 only (NIP-17 gift-wrap planned).
+- Chỉ tin nhắn trực tiếp (không có chat nhóm).
+- Không có tệp đính kèm media.
+- Chỉ NIP-04 (NIP-17 gói quà dự kiến).

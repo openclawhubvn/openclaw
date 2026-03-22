@@ -1,14 +1,14 @@
 ---
-summary: "CLI reference for `openclaw backup` (create local backup archives)"
+summary: "Tham khảo CLI cho `openclaw backup` (tạo bản sao lưu cục bộ)"
 read_when:
-  - You want a first-class backup archive for local OpenClaw state
-  - You want to preview which paths would be included before reset or uninstall
+  - Bạn muốn tạo bản sao lưu chất lượng cao cho trạng thái OpenClaw cục bộ
+  - Bạn muốn xem trước các đường dẫn sẽ được bao gồm trước khi reset hoặc gỡ cài đặt
 title: "backup"
 ---
 
 # `openclaw backup`
 
-Create a local backup archive for OpenClaw state, config, credentials, sessions, and optionally workspaces.
+Tạo một bản sao lưu cục bộ cho trạng thái, cấu hình, thông tin xác thực, phiên làm việc của OpenClaw và tùy chọn cho các workspace.
 
 ```bash
 openclaw backup create
@@ -20,57 +20,57 @@ openclaw backup create --only-config
 openclaw backup verify ./2026-03-09T00-00-00.000Z-openclaw-backup.tar.gz
 ```
 
-## Notes
+## Ghi chú
 
-- The archive includes a `manifest.json` file with the resolved source paths and archive layout.
-- Default output is a timestamped `.tar.gz` archive in the current working directory.
-- If the current working directory is inside a backed-up source tree, OpenClaw falls back to your home directory for the default archive location.
-- Existing archive files are never overwritten.
-- Output paths inside the source state/workspace trees are rejected to avoid self-inclusion.
-- `openclaw backup verify <archive>` validates that the archive contains exactly one root manifest, rejects traversal-style archive paths, and checks that every manifest-declared payload exists in the tarball.
-- `openclaw backup create --verify` runs that validation immediately after writing the archive.
-- `openclaw backup create --only-config` backs up just the active JSON config file.
+- Bản sao lưu bao gồm một file `manifest.json` với các đường dẫn nguồn đã được giải quyết và cấu trúc của bản sao lưu.
+- Mặc định, đầu ra là một file `.tar.gz` có dấu thời gian trong thư mục làm việc hiện tại.
+- Nếu thư mục làm việc hiện tại nằm trong cây nguồn đã sao lưu, OpenClaw sẽ chuyển sang thư mục home của bạn làm vị trí lưu trữ mặc định.
+- Các file sao lưu hiện có không bao giờ bị ghi đè.
+- Các đường dẫn đầu ra bên trong cây trạng thái/ workspace nguồn bị từ chối để tránh tự bao gồm.
+- `openclaw backup verify <archive>` xác thực rằng bản sao lưu chứa chính xác một manifest gốc, từ chối các đường dẫn kiểu traversal và kiểm tra rằng mọi payload được khai báo trong manifest đều tồn tại trong tarball.
+- `openclaw backup create --verify` thực hiện xác thực ngay sau khi ghi bản sao lưu.
+- `openclaw backup create --only-config` chỉ sao lưu file cấu hình JSON đang hoạt động.
 
-## What gets backed up
+## Những gì được sao lưu
 
-`openclaw backup create` plans backup sources from your local OpenClaw install:
+`openclaw backup create` lập kế hoạch sao lưu từ cài đặt OpenClaw cục bộ của bạn:
 
-- The state directory returned by OpenClaw's local state resolver, usually `~/.openclaw`
-- The active config file path
-- The OAuth / credentials directory
-- Workspace directories discovered from the current config, unless you pass `--no-include-workspace`
+- Thư mục trạng thái được trả về bởi trình giải quyết trạng thái cục bộ của OpenClaw, thường là `~/.openclaw`
+- Đường dẫn file cấu hình đang hoạt động
+- Thư mục OAuth / thông tin xác thực
+- Các thư mục workspace được phát hiện từ cấu hình hiện tại, trừ khi bạn sử dụng `--no-include-workspace`
 
-If you use `--only-config`, OpenClaw skips state, credentials, and workspace discovery and archives only the active config file path.
+Nếu bạn sử dụng `--only-config`, OpenClaw sẽ bỏ qua trạng thái, thông tin xác thực và phát hiện workspace, chỉ lưu trữ đường dẫn file cấu hình đang hoạt động.
 
-OpenClaw canonicalizes paths before building the archive. If config, credentials, or a workspace already live inside the state directory, they are not duplicated as separate top-level backup sources. Missing paths are skipped.
+OpenClaw chuẩn hóa các đường dẫn trước khi tạo bản sao lưu. Nếu cấu hình, thông tin xác thực hoặc workspace đã nằm trong thư mục trạng thái, chúng sẽ không bị sao chép như các nguồn sao lưu cấp cao riêng biệt. Các đường dẫn thiếu sẽ bị bỏ qua.
 
-The archive payload stores file contents from those source trees, and the embedded `manifest.json` records the resolved absolute source paths plus the archive layout used for each asset.
+Payload của bản sao lưu lưu trữ nội dung file từ các cây nguồn đó, và file `manifest.json` nhúng ghi lại các đường dẫn nguồn tuyệt đối đã được giải quyết cùng với cấu trúc bản sao lưu được sử dụng cho từng tài sản.
 
-## Invalid config behavior
+## Hành vi khi cấu hình không hợp lệ
 
-`openclaw backup` intentionally bypasses the normal config preflight so it can still help during recovery. Because workspace discovery depends on a valid config, `openclaw backup create` now fails fast when the config file exists but is invalid and workspace backup is still enabled.
+`openclaw backup` cố ý bỏ qua kiểm tra cấu hình thông thường để vẫn có thể hỗ trợ trong quá trình khôi phục. Vì phát hiện workspace phụ thuộc vào cấu hình hợp lệ, `openclaw backup create` sẽ thất bại nhanh chóng khi file cấu hình tồn tại nhưng không hợp lệ và sao lưu workspace vẫn được bật.
 
-If you still want a partial backup in that situation, rerun:
+Nếu bạn vẫn muốn sao lưu một phần trong tình huống đó, hãy chạy lại:
 
 ```bash
 openclaw backup create --no-include-workspace
 ```
 
-That keeps state, config, and credentials in scope while skipping workspace discovery entirely.
+Điều này giữ trạng thái, cấu hình và thông tin xác thực trong phạm vi trong khi bỏ qua hoàn toàn việc phát hiện workspace.
 
-If you only need a copy of the config file itself, `--only-config` also works when the config is malformed because it does not rely on parsing the config for workspace discovery.
+Nếu bạn chỉ cần một bản sao của file cấu hình, `--only-config` cũng hoạt động khi cấu hình bị lỗi vì nó không phụ thuộc vào việc phân tích cấu hình để phát hiện workspace.
 
-## Size and performance
+## Kích thước và hiệu suất
 
-OpenClaw does not enforce a built-in maximum backup size or per-file size limit.
+OpenClaw không áp đặt giới hạn kích thước sao lưu tối đa hoặc giới hạn kích thước file.
 
-Practical limits come from the local machine and destination filesystem:
+Giới hạn thực tế đến từ máy tính cục bộ và hệ thống file đích:
 
-- Available space for the temporary archive write plus the final archive
-- Time to walk large workspace trees and compress them into a `.tar.gz`
-- Time to rescan the archive if you use `openclaw backup create --verify` or run `openclaw backup verify`
-- Filesystem behavior at the destination path. OpenClaw prefers a no-overwrite hard-link publish step and falls back to exclusive copy when hard links are unsupported
+- Không gian có sẵn cho việc ghi tạm thời bản sao lưu và bản sao lưu cuối cùng
+- Thời gian để duyệt qua các cây workspace lớn và nén chúng thành `.tar.gz`
+- Thời gian để quét lại bản sao lưu nếu bạn sử dụng `openclaw backup create --verify` hoặc chạy `openclaw backup verify`
+- Hành vi của hệ thống file tại đường dẫn đích. OpenClaw ưu tiên bước xuất bản hard-link không ghi đè và chuyển sang sao chép độc quyền khi hard link không được hỗ trợ
 
-Large workspaces are usually the main driver of archive size. If you want a smaller or faster backup, use `--no-include-workspace`.
+Các workspace lớn thường là nguyên nhân chính làm tăng kích thước bản sao lưu. Nếu bạn muốn sao lưu nhỏ hơn hoặc nhanh hơn, hãy sử dụng `--no-include-workspace`.
 
-For the smallest archive, use `--only-config`.
+Để có bản sao lưu nhỏ nhất, hãy sử dụng `--only-config`.

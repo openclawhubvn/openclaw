@@ -1,80 +1,80 @@
 ---
-summary: "Background exec execution and process management"
+summary: "Thực thi nền và quản lý tiến trình"
 read_when:
-  - Adding or modifying background exec behavior
-  - Debugging long-running exec tasks
-title: "Background Exec and Process Tool"
+  - Thêm hoặc chỉnh sửa hành vi thực thi nền
+  - Gỡ lỗi các tác vụ thực thi dài
+title: "Công Cụ Thực Thi Nền và Quản Lý Tiến Trình"
 ---
 
-# Background Exec + Process Tool
+# Công Cụ Thực Thi Nền + Quản Lý Tiến Trình
 
-OpenClaw runs shell commands through the `exec` tool and keeps long‑running tasks in memory. The `process` tool manages those background sessions.
+OpenClaw thực thi các lệnh shell thông qua công cụ `exec` và giữ các tác vụ dài trong bộ nhớ. Công cụ `process` quản lý các phiên nền đó.
 
-## exec tool
+## Công cụ exec
 
-Key parameters:
+Các tham số chính:
 
-- `command` (required)
-- `yieldMs` (default 10000): auto‑background after this delay
-- `background` (bool): background immediately
-- `timeout` (seconds, default 1800): kill the process after this timeout
-- `elevated` (bool): run on host if elevated mode is enabled/allowed
-- Need a real TTY? Set `pty: true`.
+- `command` (bắt buộc)
+- `yieldMs` (mặc định 10000): tự động chuyển nền sau khoảng thời gian này
+- `background` (bool): chuyển nền ngay lập tức
+- `timeout` (giây, mặc định 1800): dừng tiến trình sau thời gian này
+- `elevated` (bool): chạy trên host nếu chế độ nâng cao được bật/cho phép
+- Cần TTY thực? Đặt `pty: true`.
 - `workdir`, `env`
 
-Behavior:
+Hành vi:
 
-- Foreground runs return output directly.
-- When backgrounded (explicit or timeout), the tool returns `status: "running"` + `sessionId` and a short tail.
-- Output is kept in memory until the session is polled or cleared.
-- If the `process` tool is disallowed, `exec` runs synchronously and ignores `yieldMs`/`background`.
-- Spawned exec commands receive `OPENCLAW_SHELL=exec` for context-aware shell/profile rules.
+- Chạy nền trước trả về kết quả trực tiếp.
+- Khi chuyển nền (tự động hoặc do timeout), công cụ trả về `status: "running"` + `sessionId` và một đoạn ngắn.
+- Kết quả được giữ trong bộ nhớ cho đến khi phiên được kiểm tra hoặc xóa.
+- Nếu công cụ `process` không được phép, `exec` chạy đồng bộ và bỏ qua `yieldMs`/`background`.
+- Các lệnh exec được khởi tạo nhận `OPENCLAW_SHELL=exec` để áp dụng các quy tắc shell/profile theo ngữ cảnh.
 
-## Child process bridging
+## Kết nối tiến trình con
 
-When spawning long-running child processes outside the exec/process tools (for example, CLI respawns or gateway helpers), attach the child-process bridge helper so termination signals are forwarded and listeners are detached on exit/error. This avoids orphaned processes on systemd and keeps shutdown behavior consistent across platforms.
+Khi khởi tạo các tiến trình con dài bên ngoài công cụ exec/process (ví dụ: CLI respawns hoặc gateway helpers), gắn kết nối trợ giúp tiến trình con để tín hiệu kết thúc được chuyển tiếp và các listener được tách ra khi thoát/lỗi. Điều này tránh các tiến trình mồ côi trên systemd và giữ hành vi tắt máy nhất quán trên các nền tảng.
 
-Environment overrides:
+Ghi đè môi trường:
 
-- `PI_BASH_YIELD_MS`: default yield (ms)
-- `PI_BASH_MAX_OUTPUT_CHARS`: in‑memory output cap (chars)
-- `OPENCLAW_BASH_PENDING_MAX_OUTPUT_CHARS`: pending stdout/stderr cap per stream (chars)
-- `PI_BASH_JOB_TTL_MS`: TTL for finished sessions (ms, bounded to 1m–3h)
+- `PI_BASH_YIELD_MS`: thời gian yield mặc định (ms)
+- `PI_BASH_MAX_OUTPUT_CHARS`: giới hạn kết quả trong bộ nhớ (ký tự)
+- `OPENCLAW_BASH_PENDING_MAX_OUTPUT_CHARS`: giới hạn stdout/stderr đang chờ xử lý mỗi luồng (ký tự)
+- `PI_BASH_JOB_TTL_MS`: TTL cho các phiên đã hoàn thành (ms, giới hạn từ 1m–3h)
 
-Config (preferred):
+Cấu hình (ưu tiên):
 
-- `tools.exec.backgroundMs` (default 10000)
-- `tools.exec.timeoutSec` (default 1800)
-- `tools.exec.cleanupMs` (default 1800000)
-- `tools.exec.notifyOnExit` (default true): enqueue a system event + request heartbeat when a backgrounded exec exits.
-- `tools.exec.notifyOnExitEmptySuccess` (default false): when true, also enqueue completion events for successful backgrounded runs that produced no output.
+- `tools.exec.backgroundMs` (mặc định 10000)
+- `tools.exec.timeoutSec` (mặc định 1800)
+- `tools.exec.cleanupMs` (mặc định 1800000)
+- `tools.exec.notifyOnExit` (mặc định true): xếp hàng một sự kiện hệ thống + yêu cầu heartbeat khi một exec nền kết thúc.
+- `tools.exec.notifyOnExitEmptySuccess` (mặc định false): khi true, cũng xếp hàng các sự kiện hoàn thành cho các lần chạy nền thành công không tạo ra kết quả.
 
-## process tool
+## Công cụ process
 
-Actions:
+Các hành động:
 
-- `list`: running + finished sessions
-- `poll`: drain new output for a session (also reports exit status)
-- `log`: read the aggregated output (supports `offset` + `limit`)
-- `write`: send stdin (`data`, optional `eof`)
-- `kill`: terminate a background session
-- `clear`: remove a finished session from memory
-- `remove`: kill if running, otherwise clear if finished
+- `list`: các phiên đang chạy + đã hoàn thành
+- `poll`: lấy kết quả mới cho một phiên (cũng báo cáo trạng thái thoát)
+- `log`: đọc kết quả tổng hợp (hỗ trợ `offset` + `limit`)
+- `write`: gửi stdin (`data`, `eof` tùy chọn)
+- `kill`: kết thúc một phiên nền
+- `clear`: xóa một phiên đã hoàn thành khỏi bộ nhớ
+- `remove`: kết thúc nếu đang chạy, nếu không thì xóa nếu đã hoàn thành
 
-Notes:
+Lưu ý:
 
-- Only backgrounded sessions are listed/persisted in memory.
-- Sessions are lost on process restart (no disk persistence).
-- Session logs are only saved to chat history if you run `process poll/log` and the tool result is recorded.
-- `process` is scoped per agent; it only sees sessions started by that agent.
-- `process list` includes a derived `name` (command verb + target) for quick scans.
-- `process log` uses line-based `offset`/`limit`.
-- When both `offset` and `limit` are omitted, it returns the last 200 lines and includes a paging hint.
-- When `offset` is provided and `limit` is omitted, it returns from `offset` to the end (not capped to 200).
+- Chỉ các phiên nền mới được liệt kê/lưu trữ trong bộ nhớ.
+- Các phiên bị mất khi tiến trình khởi động lại (không lưu trữ trên đĩa).
+- Nhật ký phiên chỉ được lưu vào lịch sử chat nếu bạn chạy `process poll/log` và kết quả công cụ được ghi lại.
+- `process` được giới hạn theo agent; nó chỉ thấy các phiên được khởi tạo bởi agent đó.
+- `process list` bao gồm một `name` được suy ra (động từ lệnh + mục tiêu) để quét nhanh.
+- `process log` sử dụng `offset`/`limit` dựa trên dòng.
+- Khi cả `offset` và `limit` đều bị bỏ qua, nó trả về 200 dòng cuối cùng và bao gồm gợi ý phân trang.
+- Khi `offset` được cung cấp và `limit` bị bỏ qua, nó trả về từ `offset` đến cuối (không giới hạn 200).
 
-## Examples
+## Ví dụ
 
-Run a long task and poll later:
+Chạy một tác vụ dài và kiểm tra sau:
 
 ```json
 { "tool": "exec", "command": "sleep 5 && echo done", "yieldMs": 1000 }
@@ -84,13 +84,13 @@ Run a long task and poll later:
 { "tool": "process", "action": "poll", "sessionId": "<id>" }
 ```
 
-Start immediately in background:
+Bắt đầu ngay lập tức trong nền:
 
 ```json
 { "tool": "exec", "command": "npm run build", "background": true }
 ```
 
-Send stdin:
+Gửi stdin:
 
 ```json
 { "tool": "process", "action": "write", "sessionId": "<id>", "data": "y\n" }

@@ -1,164 +1,161 @@
 ---
-summary: "Advanced setup and development workflows for OpenClaw"
+summary: "Thiết lập nâng cao và quy trình phát triển cho OpenClaw"
 read_when:
-  - Setting up a new machine
-  - You want “latest + greatest” without breaking your personal setup
-title: "Setup"
+  - Thiết lập máy mới
+  - Muốn có phiên bản mới nhất mà không ảnh hưởng đến cấu hình cá nhân
+title: "Thiết lập"
 ---
 
-# Setup
+# Thiết lập
 
 <Note>
-If you are setting up for the first time, start with [Getting Started](/start/getting-started).
-For onboarding details, see [Onboarding (CLI)](/start/wizard).
+Nếu đây là lần đầu thiết lập, hãy bắt đầu với [Bắt đầu](/start/getting-started).
+Để biết chi tiết về onboarding, xem [Onboarding (CLI)](/start/wizard).
 </Note>
 
-## TL;DR
+## Tóm tắt
 
-- **Tailoring lives outside the repo:** `~/.openclaw/workspace` (workspace) + `~/.openclaw/openclaw.json` (config).
-- **Stable workflow:** install the macOS app; let it run the bundled Gateway.
-- **Bleeding edge workflow:** run the Gateway yourself via `pnpm gateway:watch`, then let the macOS app attach in Local mode.
+- **Tùy chỉnh nằm ngoài repo:** `~/.openclaw/workspace` (workspace) + `~/.openclaw/openclaw.json` (cấu hình).
+- **Quy trình ổn định:** cài đặt ứng dụng macOS; để nó chạy Gateway đi kèm.
+- **Quy trình tiên tiến:** tự chạy Gateway qua `pnpm gateway:watch`, sau đó để ứng dụng macOS kết nối ở chế độ Local.
 
-## Prereqs (from source)
+## Yêu cầu trước (từ source)
 
-- Node 24 recommended (Node 22 LTS, currently `22.16+`, still supported)
+- Khuyến nghị dùng Node 24 (Node 22 LTS, hiện tại `22.16+`, vẫn được hỗ trợ)
 - `pnpm`
-- Docker (optional; only for containerized setup/e2e — see [Docker](/install/docker))
+- Docker (tùy chọn; chỉ cho thiết lập container/e2e — xem [Docker](/install/docker))
 
-## Tailoring strategy (so updates do not hurt)
+## Chiến lược tùy chỉnh (để cập nhật không gây ảnh hưởng)
 
-If you want “100% tailored to me” _and_ easy updates, keep your customization in:
+Nếu muốn "tùy chỉnh 100% theo ý mình" _và_ dễ dàng cập nhật, hãy giữ tùy chỉnh trong:
 
-- **Config:** `~/.openclaw/openclaw.json` (JSON/JSON5-ish)
-- **Workspace:** `~/.openclaw/workspace` (skills, prompts, memories; make it a private git repo)
+- **Cấu hình:** `~/.openclaw/openclaw.json` (dạng JSON/JSON5)
+- **Workspace:** `~/.openclaw/workspace` (kỹ năng, gợi ý, ký ức; biến nó thành repo git riêng tư)
 
-Bootstrap once:
-
-```bash
-openclaw setup
-```
-
-From inside this repo, use the local CLI entry:
+Khởi tạo một lần:
 
 ```bash
 openclaw setup
 ```
 
-If you don’t have a global install yet, run it via `pnpm openclaw setup`.
+Từ trong repo này, sử dụng CLI cục bộ:
 
-## Run the Gateway from this repo
+```bash
+openclaw setup
+```
 
-After `pnpm build`, you can run the packaged CLI directly:
+Nếu chưa cài đặt toàn cầu, chạy qua `pnpm openclaw setup`.
+
+## Chạy Gateway từ repo này
+
+Sau `pnpm build`, bạn có thể chạy CLI đã đóng gói trực tiếp:
 
 ```bash
 node openclaw.mjs gateway --port 18789 --verbose
 ```
 
-## Stable workflow (macOS app first)
+## Quy trình ổn định (ứng dụng macOS trước)
 
-1. Install + launch **OpenClaw.app** (menu bar).
-2. Complete the onboarding/permissions checklist (TCC prompts).
-3. Ensure Gateway is **Local** and running (the app manages it).
-4. Link surfaces (example: WhatsApp):
+1. Cài đặt + khởi chạy **OpenClaw.app** (thanh menu).
+2. Hoàn thành danh sách kiểm tra onboarding/permissions (TCC prompts).
+3. Đảm bảo Gateway là **Local** và đang chạy (ứng dụng quản lý nó).
+4. Liên kết các bề mặt (ví dụ: WhatsApp):
 
 ```bash
 openclaw channels login
 ```
 
-5. Sanity check:
+5. Kiểm tra nhanh:
 
 ```bash
 openclaw health
 ```
 
-If onboarding is not available in your build:
+Nếu onboarding không có sẵn trong bản build của bạn:
 
-- Run `openclaw setup`, then `openclaw channels login`, then start the Gateway manually (`openclaw gateway`).
+- Chạy `openclaw setup`, sau đó `openclaw channels login`, rồi khởi động Gateway thủ công (`openclaw gateway`).
 
-## Bleeding edge workflow (Gateway in a terminal)
+## Quy trình tiên tiến (Gateway trong terminal)
 
-Goal: work on the TypeScript Gateway, get hot reload, keep the macOS app UI attached.
+Mục tiêu: làm việc trên TypeScript Gateway, nhận hot reload, giữ giao diện ứng dụng macOS kết nối.
 
-### 0) (Optional) Run the macOS app from source too
+### 0) (Tùy chọn) Chạy ứng dụng macOS từ source
 
-If you also want the macOS app on the bleeding edge:
+Nếu cũng muốn ứng dụng macOS ở phiên bản tiên tiến:
 
 ```bash
 ./scripts/restart-mac.sh
 ```
 
-### 1) Start the dev Gateway
+### 1) Khởi động Gateway dev
 
 ```bash
 pnpm install
 pnpm gateway:watch
 ```
 
-`gateway:watch` runs the gateway in watch mode and reloads on relevant source,
-config, and bundled-plugin metadata changes.
+`gateway:watch` chạy gateway ở chế độ watch và tải lại khi có thay đổi trong source,
+cấu hình, và metadata plugin đi kèm.
 
-### 2) Point the macOS app at your running Gateway
+### 2) Chỉ định ứng dụng macOS kết nối với Gateway đang chạy
 
-In **OpenClaw.app**:
+Trong **OpenClaw.app**:
 
-- Connection Mode: **Local**
-  The app will attach to the running gateway on the configured port.
+- Chế độ kết nối: **Local**
+  Ứng dụng sẽ kết nối với gateway đang chạy trên cổng đã cấu hình.
 
-### 3) Verify
+### 3) Xác minh
 
-- In-app Gateway status should read **“Using existing gateway …”**
-- Or via CLI:
+- Trạng thái Gateway trong ứng dụng nên hiển thị **“Using existing gateway …”**
+- Hoặc qua CLI:
 
 ```bash
 openclaw health
 ```
 
-### Common footguns
+### Lưu ý thường gặp
 
-- **Wrong port:** Gateway WS defaults to `ws://127.0.0.1:18789`; keep app + CLI on the same port.
-- **Where state lives:**
-  - Credentials: `~/.openclaw/credentials/`
-  - Sessions: `~/.openclaw/agents/<agentId>/sessions/`
-  - Logs: `/tmp/openclaw/`
+- **Sai cổng:** Gateway WS mặc định là `ws://127.0.0.1:18789`; giữ ứng dụng + CLI trên cùng một cổng.
+- **Nơi lưu trữ trạng thái:**
+  - Thông tin đăng nhập: `~/.openclaw/credentials/`
+  - Phiên làm việc: `~/.openclaw/agents/<agentId>/sessions/`
+  - Nhật ký: `/tmp/openclaw/`
 
-## Credential storage map
+## Bản đồ lưu trữ thông tin đăng nhập
 
-Use this when debugging auth or deciding what to back up:
+Sử dụng khi gỡ lỗi xác thực hoặc quyết định sao lưu:
 
 - **WhatsApp**: `~/.openclaw/credentials/whatsapp/<accountId>/creds.json`
-- **Telegram bot token**: config/env or `channels.telegram.tokenFile` (regular file only; symlinks rejected)
-- **Discord bot token**: config/env or SecretRef (env/file/exec providers)
-- **Slack tokens**: config/env (`channels.slack.*`)
-- **Pairing allowlists**:
-  - `~/.openclaw/credentials/<channel>-allowFrom.json` (default account)
-  - `~/.openclaw/credentials/<channel>-<accountId>-allowFrom.json` (non-default accounts)
-- **Model auth profiles**: `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
-- **File-backed secrets payload (optional)**: `~/.openclaw/secrets.json`
-- **Legacy OAuth import**: `~/.openclaw/credentials/oauth.json`
-  More detail: [Security](/gateway/security#credential-storage-map).
+- **Telegram bot token**: cấu hình/môi trường hoặc `channels.telegram.tokenFile` (chỉ file thường; từ chối symlinks)
+- **Discord bot token**: cấu hình/môi trường hoặc SecretRef (nhà cung cấp env/file/exec)
+- **Slack tokens**: cấu hình/môi trường (`channels.slack.*`)
+- **Danh sách cho phép ghép đôi**:
+  - `~/.openclaw/credentials/<channel>-allowFrom.json` (tài khoản mặc định)
+  - `~/.openclaw/credentials/<channel>-<accountId>-allowFrom.json` (tài khoản không mặc định)
+- **Hồ sơ xác thực mô hình**: `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
+- **Payload bí mật dựa trên file (tùy chọn)**: `~/.openclaw/secrets.json`
+- **Nhập OAuth cũ**: `~/.openclaw/credentials/oauth.json`
+  Chi tiết thêm: [Bảo mật](/gateway/security#credential-storage-map).
 
-## Updating (without wrecking your setup)
+## Cập nhật (không làm hỏng cấu hình của bạn)
 
-- Keep `~/.openclaw/workspace` and `~/.openclaw/` as “your stuff”; don’t put personal prompts/config into the `openclaw` repo.
-- Updating source: `git pull` + `pnpm install` (when lockfile changed) + keep using `pnpm gateway:watch`.
+- Giữ `~/.openclaw/workspace` và `~/.openclaw/` là "đồ của bạn"; không đặt gợi ý/cấu hình cá nhân vào repo `openclaw`.
+- Cập nhật source: `git pull` + `pnpm install` (khi lockfile thay đổi) + tiếp tục sử dụng `pnpm gateway:watch`.
 
-## Linux (systemd user service)
+## Linux (dịch vụ người dùng systemd)
 
-Linux installs use a systemd **user** service. By default, systemd stops user
-services on logout/idle, which kills the Gateway. Onboarding attempts to enable
-lingering for you (may prompt for sudo). If it’s still off, run:
+Cài đặt Linux sử dụng dịch vụ **người dùng** systemd. Mặc định, systemd dừng dịch vụ người dùng khi logout/idle, điều này làm tắt Gateway. Onboarding cố gắng kích hoạt lingering cho bạn (có thể yêu cầu sudo). Nếu vẫn tắt, chạy:
 
 ```bash
 sudo loginctl enable-linger $USER
 ```
 
-For always-on or multi-user servers, consider a **system** service instead of a
-user service (no lingering needed). See [Gateway runbook](/gateway) for the systemd notes.
+Đối với máy chủ luôn bật hoặc nhiều người dùng, hãy xem xét dịch vụ **hệ thống** thay vì dịch vụ người dùng (không cần lingering). Xem [Gateway runbook](/gateway) để biết ghi chú về systemd.
 
-## Related docs
+## Tài liệu liên quan
 
-- [Gateway runbook](/gateway) (flags, supervision, ports)
-- [Gateway configuration](/gateway/configuration) (config schema + examples)
-- [Discord](/channels/discord) and [Telegram](/channels/telegram) (reply tags + replyToMode settings)
-- [OpenClaw assistant setup](/start/openclaw)
-- [macOS app](/platforms/macos) (gateway lifecycle)
+- [Gateway runbook](/gateway) (cờ, giám sát, cổng)
+- [Cấu hình Gateway](/gateway/configuration) (schema cấu hình + ví dụ)
+- [Discord](/channels/discord) và [Telegram](/channels/telegram) (thẻ trả lời + cài đặt replyToMode)
+- [Thiết lập trợ lý OpenClaw](/start/openclaw)
+- [Ứng dụng macOS](/platforms/macos) (vòng đời gateway)

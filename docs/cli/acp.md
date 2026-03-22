@@ -1,133 +1,115 @@
 ---
-summary: "Run the ACP bridge for IDE integrations"
+summary: "Chạy cầu nối ACP cho tích hợp IDE"
 read_when:
-  - Setting up ACP-based IDE integrations
-  - Debugging ACP session routing to the Gateway
+  - Thiết lập tích hợp IDE dựa trên ACP
+  - Gỡ lỗi định tuyến phiên ACP đến Gateway
 title: "acp"
 ---
 
 # acp
 
-Run the [Agent Client Protocol (ACP)](https://agentclientprotocol.com/) bridge that talks to an OpenClaw Gateway.
+Chạy cầu nối [Agent Client Protocol (ACP)](https://agentclientprotocol.com/) để kết nối với OpenClaw Gateway.
 
-This command speaks ACP over stdio for IDEs and forwards prompts to the Gateway
-over WebSocket. It keeps ACP sessions mapped to Gateway session keys.
+Lệnh này sử dụng ACP qua stdio cho IDEs và chuyển tiếp các yêu cầu đến Gateway qua WebSocket. Nó giữ các phiên ACP được ánh xạ đến các khóa phiên của Gateway.
 
-`openclaw acp` is a Gateway-backed ACP bridge, not a full ACP-native editor
-runtime. It focuses on session routing, prompt delivery, and basic streaming
-updates.
+`openclaw acp` là cầu nối ACP dựa trên Gateway, không phải là môi trường chạy hoàn toàn ACP-native. Nó tập trung vào định tuyến phiên, chuyển giao yêu cầu và cập nhật luồng cơ bản.
 
-## Compatibility Matrix
+## Bảng Tương Thích
 
-| ACP area                                                              | Status      | Notes                                                                                                                                                                                                                                            |
+| Khu vực ACP                                                           | Trạng thái  | Ghi chú                                                                                                                                                                                                                                           |
 | --------------------------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `initialize`, `newSession`, `prompt`, `cancel`                        | Implemented | Core bridge flow over stdio to Gateway chat/send + abort.                                                                                                                                                                                        |
-| `listSessions`, slash commands                                        | Implemented | Session list works against Gateway session state; commands are advertised via `available_commands_update`.                                                                                                                                       |
-| `loadSession`                                                         | Partial     | Rebinds the ACP session to a Gateway session key and replays stored user/assistant text history. Tool/system history is not reconstructed yet.                                                                                                   |
-| Prompt content (`text`, embedded `resource`, images)                  | Partial     | Text/resources are flattened into chat input; images become Gateway attachments.                                                                                                                                                                 |
-| Session modes                                                         | Partial     | `session/set_mode` is supported and the bridge exposes initial Gateway-backed session controls for thought level, tool verbosity, reasoning, usage detail, and elevated actions. Broader ACP-native mode/config surfaces are still out of scope. |
-| Session info and usage updates                                        | Partial     | The bridge emits `session_info_update` and best-effort `usage_update` notifications from cached Gateway session snapshots. Usage is approximate and only sent when Gateway token totals are marked fresh.                                        |
-| Tool streaming                                                        | Partial     | `tool_call` / `tool_call_update` events include raw I/O, text content, and best-effort file locations when Gateway tool args/results expose them. Embedded terminals and richer diff-native output are still not exposed.                        |
-| Per-session MCP servers (`mcpServers`)                                | Unsupported | Bridge mode rejects per-session MCP server requests. Configure MCP on the OpenClaw gateway or agent instead.                                                                                                                                     |
-| Client filesystem methods (`fs/read_text_file`, `fs/write_text_file`) | Unsupported | The bridge does not call ACP client filesystem methods.                                                                                                                                                                                          |
-| Client terminal methods (`terminal/*`)                                | Unsupported | The bridge does not create ACP client terminals or stream terminal ids through tool calls.                                                                                                                                                       |
-| Session plans / thought streaming                                     | Unsupported | The bridge currently emits output text and tool status, not ACP plan or thought updates.                                                                                                                                                         |
+| `initialize`, `newSession`, `prompt`, `cancel`                        | Đã triển khai | Luồng cầu nối chính qua stdio đến Gateway chat/gửi + hủy bỏ.                                                                                                                                                                                     |
+| `listSessions`, lệnh gạch chéo                                        | Đã triển khai | Danh sách phiên hoạt động với trạng thái phiên Gateway; các lệnh được quảng cáo qua `available_commands_update`.                                                                                                                                  |
+| `loadSession`                                                         | Một phần     | Liên kết lại phiên ACP với khóa phiên Gateway và phát lại lịch sử văn bản người dùng/trợ lý đã lưu trữ. Lịch sử công cụ/hệ thống chưa được tái tạo.                                                                                              |
+| Nội dung yêu cầu (`text`, `resource` nhúng, hình ảnh)                 | Một phần     | Văn bản/tài nguyên được làm phẳng thành đầu vào chat; hình ảnh trở thành tệp đính kèm Gateway.                                                                                                                                                   |
+| Chế độ phiên                                                          | Một phần     | `session/set_mode` được hỗ trợ và cầu nối cung cấp các điều khiển phiên ban đầu dựa trên Gateway cho mức độ suy nghĩ, độ chi tiết công cụ, lý luận, chi tiết sử dụng và hành động nâng cao. Các chế độ/cấu hình ACP-native rộng hơn vẫn chưa nằm trong phạm vi. |
+| Thông tin phiên và cập nhật sử dụng                                   | Một phần     | Cầu nối phát ra thông báo `session_info_update` và `usage_update` nỗ lực tốt nhất từ các ảnh chụp nhanh phiên Gateway đã lưu trữ. Sử dụng là ước tính và chỉ được gửi khi tổng số token Gateway được đánh dấu là mới.                           |
+| Truyền dữ liệu công cụ                                                | Một phần     | Các sự kiện `tool_call` / `tool_call_update` bao gồm I/O thô, nội dung văn bản và vị trí tệp nỗ lực tốt nhất khi các tham số/kết quả công cụ Gateway tiết lộ chúng. Các đầu cuối nhúng và đầu ra diff-native phong phú hơn vẫn chưa được tiết lộ. |
+| Máy chủ MCP theo phiên (`mcpServers`)                                 | Không hỗ trợ | Chế độ cầu nối từ chối các yêu cầu máy chủ MCP theo phiên. Cấu hình MCP trên Gateway hoặc agent của OpenClaw thay thế.                                                                                                                           |
+| Phương thức hệ thống tệp khách (`fs/read_text_file`, `fs/write_text_file`) | Không hỗ trợ | Cầu nối không gọi các phương thức hệ thống tệp khách ACP.                                                                                                                                                                                         |
+| Phương thức terminal khách (`terminal/*`)                             | Không hỗ trợ | Cầu nối không tạo các terminal khách ACP hoặc truyền id terminal qua các cuộc gọi công cụ.                                                                                                                                                        |
+| Kế hoạch phiên / truyền dữ liệu suy nghĩ                              | Không hỗ trợ | Cầu nối hiện phát ra văn bản đầu ra và trạng thái công cụ, không phải là cập nhật kế hoạch hoặc suy nghĩ của ACP.                                                                                                                                 |
 
-## Known Limitations
+## Giới Hạn Đã Biết
 
-- `loadSession` replays stored user and assistant text history, but it does not
-  reconstruct historic tool calls, system notices, or richer ACP-native event
-  types.
-- If multiple ACP clients share the same Gateway session key, event and cancel
-  routing are best-effort rather than strictly isolated per client. Prefer the
-  default isolated `acp:<uuid>` sessions when you need clean editor-local
-  turns.
-- Gateway stop states are translated into ACP stop reasons, but that mapping is
-  less expressive than a fully ACP-native runtime.
-- Initial session controls currently surface a focused subset of Gateway knobs:
-  thought level, tool verbosity, reasoning, usage detail, and elevated
-  actions. Model selection and exec-host controls are not yet exposed as ACP
-  config options.
-- `session_info_update` and `usage_update` are derived from Gateway session
-  snapshots, not live ACP-native runtime accounting. Usage is approximate,
-  carries no cost data, and is only emitted when the Gateway marks total token
-  data as fresh.
-- Tool follow-along data is best-effort. The bridge can surface file paths that
-  appear in known tool args/results, but it does not yet emit ACP terminals or
-  structured file diffs.
+- `loadSession` phát lại lịch sử văn bản người dùng và trợ lý đã lưu trữ, nhưng không tái tạo các cuộc gọi công cụ lịch sử, thông báo hệ thống hoặc các loại sự kiện ACP-native phong phú hơn.
+- Nếu nhiều khách hàng ACP chia sẻ cùng một khóa phiên Gateway, định tuyến sự kiện và hủy bỏ là nỗ lực tốt nhất thay vì tách biệt nghiêm ngặt cho từng khách hàng. Ưu tiên các phiên `acp:<uuid>` tách biệt mặc định khi cần các lượt chỉnh sửa cục bộ sạch.
+- Trạng thái dừng Gateway được dịch thành lý do dừng ACP, nhưng ánh xạ đó ít biểu cảm hơn so với môi trường chạy hoàn toàn ACP-native.
+- Các điều khiển phiên ban đầu hiện tại hiển thị một tập hợp con tập trung của các nút Gateway: mức độ suy nghĩ, độ chi tiết công cụ, lý luận, chi tiết sử dụng và hành động nâng cao. Lựa chọn mô hình và điều khiển máy chủ thực thi chưa được hiển thị dưới dạng tùy chọn cấu hình ACP.
+- `session_info_update` và `usage_update` được lấy từ các ảnh chụp nhanh phiên Gateway, không phải là kế toán thời gian thực ACP-native. Sử dụng là ước tính, không mang dữ liệu chi phí và chỉ được phát ra khi Gateway đánh dấu dữ liệu token tổng là mới.
+- Dữ liệu theo dõi công cụ là nỗ lực tốt nhất. Cầu nối có thể hiển thị các đường dẫn tệp xuất hiện trong các tham số/kết quả công cụ đã biết, nhưng chưa phát ra các terminal ACP hoặc các diff tệp có cấu trúc.
 
-## Usage
+## Cách Sử Dụng
 
 ```bash
 openclaw acp
 
-# Remote Gateway
+# Gateway từ xa
 openclaw acp --url wss://gateway-host:18789 --token <token>
 
-# Remote Gateway (token from file)
+# Gateway từ xa (token từ file)
 openclaw acp --url wss://gateway-host:18789 --token-file ~/.openclaw/gateway.token
 
-# Attach to an existing session key
+# Kết nối với khóa phiên hiện có
 openclaw acp --session agent:main:main
 
-# Attach by label (must already exist)
+# Kết nối bằng nhãn (phải đã tồn tại)
 openclaw acp --session-label "support inbox"
 
-# Reset the session key before the first prompt
+# Đặt lại khóa phiên trước yêu cầu đầu tiên
 openclaw acp --session agent:main:main --reset-session
 ```
 
-## ACP client (debug)
+## Khách hàng ACP (gỡ lỗi)
 
-Use the built-in ACP client to sanity-check the bridge without an IDE.
-It spawns the ACP bridge and lets you type prompts interactively.
+Sử dụng khách hàng ACP tích hợp để kiểm tra cầu nối mà không cần IDE.
+Nó khởi chạy cầu nối ACP và cho phép nhập yêu cầu tương tác.
 
 ```bash
 openclaw acp client
 
-# Point the spawned bridge at a remote Gateway
+# Chỉ định cầu nối khởi chạy đến Gateway từ xa
 openclaw acp client --server-args --url wss://gateway-host:18789 --token-file ~/.openclaw/gateway.token
 
-# Override the server command (default: openclaw)
+# Ghi đè lệnh máy chủ (mặc định: openclaw)
 openclaw acp client --server "node" --server-args openclaw.mjs acp --url ws://127.0.0.1:19001
 ```
 
-Permission model (client debug mode):
+Mô hình quyền (chế độ gỡ lỗi khách hàng):
 
-- Auto-approval is allowlist-based and only applies to trusted core tool IDs.
-- `read` auto-approval is scoped to the current working directory (`--cwd` when set).
-- Unknown/non-core tool names, out-of-scope reads, and dangerous tools always require explicit prompt approval.
-- Server-provided `toolCall.kind` is treated as untrusted metadata (not an authorization source).
+- Tự động phê duyệt dựa trên danh sách cho phép và chỉ áp dụng cho các ID công cụ cốt lõi đáng tin cậy.
+- Tự động phê duyệt `read` được giới hạn trong thư mục làm việc hiện tại (`--cwd` khi được đặt).
+- Tên công cụ không xác định/không phải cốt lõi, đọc ngoài phạm vi và công cụ nguy hiểm luôn yêu cầu phê duyệt yêu cầu rõ ràng.
+- `toolCall.kind` do máy chủ cung cấp được coi là siêu dữ liệu không đáng tin cậy (không phải là nguồn ủy quyền).
 
-## How to use this
+## Cách sử dụng
 
-Use ACP when an IDE (or other client) speaks Agent Client Protocol and you want
-it to drive an OpenClaw Gateway session.
+Sử dụng ACP khi một IDE (hoặc khách hàng khác) sử dụng Agent Client Protocol và bạn muốn nó điều khiển một phiên Gateway của OpenClaw.
 
-1. Ensure the Gateway is running (local or remote).
-2. Configure the Gateway target (config or flags).
-3. Point your IDE to run `openclaw acp` over stdio.
+1. Đảm bảo Gateway đang chạy (cục bộ hoặc từ xa).
+2. Cấu hình mục tiêu Gateway (cấu hình hoặc cờ).
+3. Chỉ định IDE chạy `openclaw acp` qua stdio.
 
-Example config (persisted):
+Cấu hình ví dụ (được lưu trữ):
 
 ```bash
 openclaw config set gateway.remote.url wss://gateway-host:18789
 openclaw config set gateway.remote.token <token>
 ```
 
-Example direct run (no config write):
+Chạy trực tiếp ví dụ (không ghi cấu hình):
 
 ```bash
 openclaw acp --url wss://gateway-host:18789 --token <token>
-# preferred for local process safety
+# ưu tiên cho an toàn quy trình cục bộ
 openclaw acp --url wss://gateway-host:18789 --token-file ~/.openclaw/gateway.token
 ```
 
-## Selecting agents
+## Chọn agents
 
-ACP does not pick agents directly. It routes by the Gateway session key.
+ACP không chọn agents trực tiếp. Nó định tuyến theo khóa phiên Gateway.
 
-Use agent-scoped session keys to target a specific agent:
+Sử dụng khóa phiên theo phạm vi agent để nhắm mục tiêu một agent cụ thể:
 
 ```bash
 openclaw acp --session agent:main:main
@@ -135,39 +117,33 @@ openclaw acp --session agent:design:main
 openclaw acp --session agent:qa:bug-123
 ```
 
-Each ACP session maps to a single Gateway session key. One agent can have many
-sessions; ACP defaults to an isolated `acp:<uuid>` session unless you override
-the key or label.
+Mỗi phiên ACP ánh xạ đến một khóa phiên Gateway duy nhất. Một agent có thể có nhiều phiên; ACP mặc định là một phiên `acp:<uuid>` tách biệt trừ khi bạn ghi đè khóa hoặc nhãn.
 
-Per-session `mcpServers` are not supported in bridge mode. If an ACP client
-sends them during `newSession` or `loadSession`, the bridge returns a clear
-error instead of silently ignoring them.
+Các `mcpServers` theo phiên không được hỗ trợ trong chế độ cầu nối. Nếu một khách hàng ACP gửi chúng trong `newSession` hoặc `loadSession`, cầu nối trả về lỗi rõ ràng thay vì bỏ qua chúng một cách âm thầm.
 
-## Use from `acpx` (Codex, Claude, other ACP clients)
+## Sử dụng từ `acpx` (Codex, Claude, các khách hàng ACP khác)
 
-If you want a coding agent such as Codex or Claude Code to talk to your
-OpenClaw bot over ACP, use `acpx` with its built-in `openclaw` target.
+Nếu bạn muốn một agent mã hóa như Codex hoặc Claude Code nói chuyện với bot OpenClaw của bạn qua ACP, sử dụng `acpx` với mục tiêu `openclaw` tích hợp sẵn.
 
-Typical flow:
+Luồng điển hình:
 
-1. Run the Gateway and make sure the ACP bridge can reach it.
-2. Point `acpx openclaw` at `openclaw acp`.
-3. Target the OpenClaw session key you want the coding agent to use.
+1. Chạy Gateway và đảm bảo cầu nối ACP có thể tiếp cận nó.
+2. Chỉ định `acpx openclaw` đến `openclaw acp`.
+3. Nhắm mục tiêu khóa phiên OpenClaw mà bạn muốn agent mã hóa sử dụng.
 
-Examples:
+Ví dụ:
 
 ```bash
-# One-shot request into your default OpenClaw ACP session
-acpx openclaw exec "Summarize the active OpenClaw session state."
+# Yêu cầu một lần vào phiên ACP OpenClaw mặc định của bạn
+acpx openclaw exec "Tóm tắt trạng thái phiên OpenClaw hiện tại."
 
-# Persistent named session for follow-up turns
+# Phiên được đặt tên liên tục cho các lượt theo dõi
 acpx openclaw sessions ensure --name codex-bridge
 acpx openclaw -s codex-bridge --cwd /path/to/repo \
-  "Ask my OpenClaw work agent for recent context relevant to this repo."
+  "Hỏi agent làm việc OpenClaw của tôi về ngữ cảnh gần đây liên quan đến repo này."
 ```
 
-If you want `acpx openclaw` to target a specific Gateway and session key every
-time, override the `openclaw` agent command in `~/.acpx/config.json`:
+Nếu bạn muốn `acpx openclaw` nhắm mục tiêu một Gateway và khóa phiên cụ thể mỗi lần, ghi đè lệnh agent `openclaw` trong `~/.acpx/config.json`:
 
 ```json
 {
@@ -179,19 +155,17 @@ time, override the `openclaw` agent command in `~/.acpx/config.json`:
 }
 ```
 
-For a repo-local OpenClaw checkout, use the direct CLI entrypoint instead of the
-dev runner so the ACP stream stays clean. For example:
+Đối với một bản kiểm tra OpenClaw cục bộ repo, sử dụng điểm vào CLI trực tiếp thay vì trình chạy dev để luồng ACP được giữ sạch. Ví dụ:
 
 ```bash
 env OPENCLAW_HIDE_BANNER=1 OPENCLAW_SUPPRESS_NOTES=1 node openclaw.mjs acp ...
 ```
 
-This is the easiest way to let Codex, Claude Code, or another ACP-aware client
-pull contextual information from an OpenClaw agent without scraping a terminal.
+Đây là cách dễ nhất để cho phép Codex, Claude Code hoặc một khách hàng khác nhận biết ACP lấy thông tin ngữ cảnh từ một agent OpenClaw mà không cần quét một terminal.
 
-## Zed editor setup
+## Thiết lập trình chỉnh sửa Zed
 
-Add a custom ACP agent in `~/.config/zed/settings.json` (or use Zed’s Settings UI):
+Thêm một agent ACP tùy chỉnh trong `~/.config/zed/settings.json` (hoặc sử dụng giao diện cài đặt của Zed):
 
 ```json
 {
@@ -206,7 +180,7 @@ Add a custom ACP agent in `~/.config/zed/settings.json` (or use Zed’s Settings
 }
 ```
 
-To target a specific Gateway or agent:
+Để nhắm mục tiêu một Gateway hoặc agent cụ thể:
 
 ```json
 {
@@ -229,18 +203,17 @@ To target a specific Gateway or agent:
 }
 ```
 
-In Zed, open the Agent panel and select “OpenClaw ACP” to start a thread.
+Trong Zed, mở bảng Agent và chọn “OpenClaw ACP” để bắt đầu một luồng.
 
-## Session mapping
+## Ánh xạ phiên
 
-By default, ACP sessions get an isolated Gateway session key with an `acp:` prefix.
-To reuse a known session, pass a session key or label:
+Theo mặc định, các phiên ACP nhận được một khóa phiên Gateway tách biệt với tiền tố `acp:`. Để sử dụng lại một phiên đã biết, truyền một khóa phiên hoặc nhãn:
 
-- `--session <key>`: use a specific Gateway session key.
-- `--session-label <label>`: resolve an existing session by label.
-- `--reset-session`: mint a fresh session id for that key (same key, new transcript).
+- `--session <key>`: sử dụng một khóa phiên Gateway cụ thể.
+- `--session-label <label>`: giải quyết một phiên hiện có theo nhãn.
+- `--reset-session`: tạo một id phiên mới cho khóa đó (cùng khóa, bản ghi mới).
 
-If your ACP client supports metadata, you can override per session:
+Nếu khách hàng ACP của bạn hỗ trợ siêu dữ liệu, bạn có thể ghi đè theo phiên:
 
 ```json
 {
@@ -252,37 +225,37 @@ If your ACP client supports metadata, you can override per session:
 }
 ```
 
-Learn more about session keys at [/concepts/session](/concepts/session).
+Tìm hiểu thêm về khóa phiên tại [/concepts/session](/concepts/session).
 
-## Options
+## Tùy chọn
 
-- `--url <url>`: Gateway WebSocket URL (defaults to gateway.remote.url when configured).
-- `--token <token>`: Gateway auth token.
-- `--token-file <path>`: read Gateway auth token from file.
-- `--password <password>`: Gateway auth password.
-- `--password-file <path>`: read Gateway auth password from file.
-- `--session <key>`: default session key.
-- `--session-label <label>`: default session label to resolve.
-- `--require-existing`: fail if the session key/label does not exist.
-- `--reset-session`: reset the session key before first use.
-- `--no-prefix-cwd`: do not prefix prompts with the working directory.
-- `--verbose, -v`: verbose logging to stderr.
+- `--url <url>`: URL WebSocket của Gateway (mặc định là gateway.remote.url khi được cấu hình).
+- `--token <token>`: token xác thực Gateway.
+- `--token-file <path>`: đọc token xác thực Gateway từ file.
+- `--password <password>`: mật khẩu xác thực Gateway.
+- `--password-file <path>`: đọc mật khẩu xác thực Gateway từ file.
+- `--session <key>`: khóa phiên mặc định.
+- `--session-label <label>`: nhãn phiên mặc định để giải quyết.
+- `--require-existing`: thất bại nếu khóa/nhãn phiên không tồn tại.
+- `--reset-session`: đặt lại khóa phiên trước khi sử dụng lần đầu.
+- `--no-prefix-cwd`: không thêm tiền tố thư mục làm việc vào yêu cầu.
+- `--verbose, -v`: ghi nhật ký chi tiết vào stderr.
 
-Security note:
+Lưu ý bảo mật:
 
-- `--token` and `--password` can be visible in local process listings on some systems.
-- Prefer `--token-file`/`--password-file` or environment variables (`OPENCLAW_GATEWAY_TOKEN`, `OPENCLAW_GATEWAY_PASSWORD`).
-- Gateway auth resolution follows the shared contract used by other Gateway clients:
-  - local mode: env (`OPENCLAW_GATEWAY_*`) -> `gateway.auth.*` -> `gateway.remote.*` fallback only when `gateway.auth.*` is unset (configured-but-unresolved local SecretRefs fail closed)
-  - remote mode: `gateway.remote.*` with env/config fallback per remote precedence rules
-  - `--url` is override-safe and does not reuse implicit config/env credentials; pass explicit `--token`/`--password` (or file variants)
-- ACP runtime backend child processes receive `OPENCLAW_SHELL=acp`, which can be used for context-specific shell/profile rules.
-- `openclaw acp client` sets `OPENCLAW_SHELL=acp-client` on the spawned bridge process.
+- `--token` và `--password` có thể hiển thị trong danh sách quy trình cục bộ trên một số hệ thống.
+- Ưu tiên `--token-file`/`--password-file` hoặc biến môi trường (`OPENCLAW_GATEWAY_TOKEN`, `OPENCLAW_GATEWAY_PASSWORD`).
+- Giải quyết xác thực Gateway tuân theo hợp đồng chia sẻ được sử dụng bởi các khách hàng Gateway khác:
+  - chế độ cục bộ: env (`OPENCLAW_GATEWAY_*`) -> `gateway.auth.*` -> `gateway.remote.*` chỉ khi `gateway.auth.*` chưa được thiết lập (SecretRefs cục bộ đã cấu hình nhưng chưa giải quyết thất bại)
+  - chế độ từ xa: `gateway.remote.*` với env/cấu hình dự phòng theo quy tắc ưu tiên từ xa
+  - `--url` là an toàn ghi đè và không tái sử dụng thông tin xác thực cấu hình/env ngầm định; truyền `--token`/`--password` rõ ràng (hoặc các biến thể file)
+- Các quy trình con backend runtime ACP nhận `OPENCLAW_SHELL=acp`, có thể được sử dụng cho các quy tắc shell/hồ sơ cụ thể theo ngữ cảnh.
+- `openclaw acp client` đặt `OPENCLAW_SHELL=acp-client` trên quy trình cầu nối được khởi chạy.
 
-### `acp client` options
+### Tùy chọn `acp client`
 
-- `--cwd <dir>`: working directory for the ACP session.
-- `--server <command>`: ACP server command (default: `openclaw`).
-- `--server-args <args...>`: extra arguments passed to the ACP server.
-- `--server-verbose`: enable verbose logging on the ACP server.
-- `--verbose, -v`: verbose client logging.
+- `--cwd <dir>`: thư mục làm việc cho phiên ACP.
+- `--server <command>`: lệnh máy chủ ACP (mặc định: `openclaw`).
+- `--server-args <args...>`: các tham số bổ sung được truyền đến máy chủ ACP.
+- `--server-verbose`: bật ghi nhật ký chi tiết trên máy chủ ACP.
+- `--verbose, -v`: ghi nhật ký chi tiết của khách hàng.

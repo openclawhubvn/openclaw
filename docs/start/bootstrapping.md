@@ -1,41 +1,35 @@
 ---
-summary: "Agent bootstrapping ritual that seeds the workspace and identity files"
+summary: "Nghi thức khởi tạo agent để thiết lập workspace và các file định danh"
 read_when:
-  - Understanding what happens on the first agent run
-  - Explaining where bootstrapping files live
-  - Debugging onboarding identity setup
-title: "Agent Bootstrapping"
-sidebarTitle: "Bootstrapping"
+  - Hiểu những gì xảy ra khi agent chạy lần đầu
+  - Giải thích vị trí lưu trữ các file khởi tạo
+  - Gỡ lỗi thiết lập định danh khi bắt đầu
+title: "Khởi tạo Agent"
+sidebarTitle: "Khởi tạo"
 ---
 
-# Agent Bootstrapping
+# Khởi tạo Agent
 
-Bootstrapping is the **first‑run** ritual that prepares an agent workspace and
-collects identity details. It happens after onboarding, when the agent starts
-for the first time.
+Khởi tạo là nghi thức **chạy lần đầu** để chuẩn bị workspace cho agent và thu thập thông tin định danh. Quá trình này diễn ra sau khi hoàn tất onboarding, khi agent khởi động lần đầu tiên.
 
-## What bootstrapping does
+## Khởi tạo làm gì
 
-On the first agent run, OpenClaw bootstraps the workspace (default
-`~/.openclaw/workspace`):
+Khi agent chạy lần đầu, OpenClaw sẽ khởi tạo workspace (mặc định là `~/.openclaw/workspace`):
 
-- Seeds `AGENTS.md`, `BOOTSTRAP.md`, `IDENTITY.md`, `USER.md`.
-- Runs a short Q&A ritual (one question at a time).
-- Writes identity + preferences to `IDENTITY.md`, `USER.md`, `SOUL.md`.
-- Removes `BOOTSTRAP.md` when finished so it only runs once.
+- Tạo các file `AGENTS.md`, `BOOTSTRAP.md`, `IDENTITY.md`, `USER.md`.
+- Thực hiện một nghi thức hỏi đáp ngắn (từng câu hỏi một).
+- Ghi thông tin định danh và tùy chọn vào `IDENTITY.md`, `USER.md`, `SOUL.md`.
+- Xóa `BOOTSTRAP.md` sau khi hoàn tất để chỉ chạy một lần duy nhất.
 
-## Where it runs
+## Nơi khởi tạo diễn ra
 
-Bootstrapping always runs on the **gateway host**. If the macOS app connects to
-a remote Gateway, the workspace and bootstrapping files live on that remote
-machine.
+Khởi tạo luôn diễn ra trên **gateway host**. Nếu ứng dụng macOS kết nối với một Gateway từ xa, workspace và các file khởi tạo sẽ nằm trên máy từ xa đó.
 
 <Note>
-When the Gateway runs on another machine, edit workspace files on the gateway
-host (for example, `user@gateway-host:~/.openclaw/workspace`).
+Khi Gateway chạy trên một máy khác, hãy chỉnh sửa các file workspace trên gateway host (ví dụ: `user@gateway-host:~/.openclaw/workspace`).
 </Note>
 
-## Related docs
+## Tài liệu liên quan
 
-- macOS app onboarding: [Onboarding](/start/onboarding)
-- Workspace layout: [Agent workspace](/concepts/agent-workspace)
+- Onboarding ứng dụng macOS: [Onboarding](/start/onboarding)
+- Bố cục workspace: [Agent workspace](/concepts/agent-workspace)

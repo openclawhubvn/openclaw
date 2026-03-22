@@ -1,62 +1,62 @@
 ---
-summary: "Uninstall OpenClaw completely (CLI, service, state, workspace)"
+summary: "Gỡ cài đặt OpenClaw hoàn toàn (CLI, dịch vụ, trạng thái, workspace)"
 read_when:
-  - You want to remove OpenClaw from a machine
-  - The gateway service is still running after uninstall
-title: "Uninstall"
+  - Bạn muốn xóa OpenClaw khỏi máy
+  - Dịch vụ gateway vẫn chạy sau khi gỡ cài đặt
+title: "Gỡ cài đặt"
 ---
 
-# Uninstall
+# Gỡ cài đặt
 
-Two paths:
+Có hai cách:
 
-- **Easy path** if `openclaw` is still installed.
-- **Manual service removal** if the CLI is gone but the service is still running.
+- **Cách dễ** nếu `openclaw` vẫn còn cài đặt.
+- **Gỡ dịch vụ thủ công** nếu CLI đã bị xóa nhưng dịch vụ vẫn đang chạy.
 
-## Easy path (CLI still installed)
+## Cách dễ (CLI vẫn còn cài đặt)
 
-Recommended: use the built-in uninstaller:
+Khuyến nghị: sử dụng công cụ gỡ cài đặt tích hợp sẵn:
 
 ```bash
 openclaw uninstall
 ```
 
-Non-interactive (automation / npx):
+Không tương tác (tự động hóa / npx):
 
 ```bash
 openclaw uninstall --all --yes --non-interactive
 npx -y openclaw uninstall --all --yes --non-interactive
 ```
 
-Manual steps (same result):
+Các bước thủ công (kết quả tương tự):
 
-1. Stop the gateway service:
+1. Dừng dịch vụ gateway:
 
 ```bash
 openclaw gateway stop
 ```
 
-2. Uninstall the gateway service (launchd/systemd/schtasks):
+2. Gỡ cài đặt dịch vụ gateway (launchd/systemd/schtasks):
 
 ```bash
 openclaw gateway uninstall
 ```
 
-3. Delete state + config:
+3. Xóa trạng thái + cấu hình:
 
 ```bash
 rm -rf "${OPENCLAW_STATE_DIR:-$HOME/.openclaw}"
 ```
 
-If you set `OPENCLAW_CONFIG_PATH` to a custom location outside the state dir, delete that file too.
+Nếu bạn đã đặt `OPENCLAW_CONFIG_PATH` ở một vị trí tùy chỉnh ngoài thư mục trạng thái, hãy xóa tệp đó.
 
-4. Delete your workspace (optional, removes agent files):
+4. Xóa workspace của bạn (tùy chọn, xóa các tệp agent):
 
 ```bash
 rm -rf ~/.openclaw/workspace
 ```
 
-5. Remove the CLI install (pick the one you used):
+5. Gỡ cài đặt CLI (chọn cách bạn đã sử dụng):
 
 ```bash
 npm rm -g openclaw
@@ -64,35 +64,35 @@ pnpm remove -g openclaw
 bun remove -g openclaw
 ```
 
-6. If you installed the macOS app:
+6. Nếu bạn đã cài đặt ứng dụng macOS:
 
 ```bash
 rm -rf /Applications/OpenClaw.app
 ```
 
-Notes:
+Lưu ý:
 
-- If you used profiles (`--profile` / `OPENCLAW_PROFILE`), repeat step 3 for each state dir (defaults are `~/.openclaw-<profile>`).
-- In remote mode, the state dir lives on the **gateway host**, so run steps 1-4 there too.
+- Nếu bạn sử dụng profiles (`--profile` / `OPENCLAW_PROFILE`), lặp lại bước 3 cho mỗi thư mục trạng thái (mặc định là `~/.openclaw-<profile>`).
+- Ở chế độ remote, thư mục trạng thái nằm trên **gateway host**, vì vậy hãy thực hiện các bước 1-4 ở đó.
 
-## Manual service removal (CLI not installed)
+## Gỡ dịch vụ thủ công (CLI không còn cài đặt)
 
-Use this if the gateway service keeps running but `openclaw` is missing.
+Sử dụng cách này nếu dịch vụ gateway vẫn chạy nhưng `openclaw` đã bị xóa.
 
 ### macOS (launchd)
 
-Default label is `ai.openclaw.gateway` (or `ai.openclaw.<profile>`; legacy `com.openclaw.*` may still exist):
+Nhãn mặc định là `ai.openclaw.gateway` (hoặc `ai.openclaw.<profile>`; có thể vẫn tồn tại `com.openclaw.*` cũ):
 
 ```bash
 launchctl bootout gui/$UID/ai.openclaw.gateway
 rm -f ~/Library/LaunchAgents/ai.openclaw.gateway.plist
 ```
 
-If you used a profile, replace the label and plist name with `ai.openclaw.<profile>`. Remove any legacy `com.openclaw.*` plists if present.
+Nếu bạn sử dụng profile, thay thế nhãn và tên plist bằng `ai.openclaw.<profile>`. Xóa bất kỳ plist `com.openclaw.*` cũ nếu có.
 
 ### Linux (systemd user unit)
 
-Default unit name is `openclaw-gateway.service` (or `openclaw-gateway-<profile>.service`):
+Tên đơn vị mặc định là `openclaw-gateway.service` (hoặc `openclaw-gateway-<profile>.service`):
 
 ```bash
 systemctl --user disable --now openclaw-gateway.service
@@ -102,27 +102,27 @@ systemctl --user daemon-reload
 
 ### Windows (Scheduled Task)
 
-Default task name is `OpenClaw Gateway` (or `OpenClaw Gateway (<profile>)`).
-The task script lives under your state dir.
+Tên tác vụ mặc định là `OpenClaw Gateway` (hoặc `OpenClaw Gateway (<profile>)`).
+Tập lệnh tác vụ nằm trong thư mục trạng thái của bạn.
 
 ```powershell
 schtasks /Delete /F /TN "OpenClaw Gateway"
 Remove-Item -Force "$env:USERPROFILE\.openclaw\gateway.cmd"
 ```
 
-If you used a profile, delete the matching task name and `~\.openclaw-<profile>\gateway.cmd`.
+Nếu bạn sử dụng profile, xóa tên tác vụ tương ứng và `~\.openclaw-<profile>\gateway.cmd`.
 
-## Normal install vs source checkout
+## Cài đặt thông thường vs kiểm tra từ nguồn
 
-### Normal install (install.sh / npm / pnpm / bun)
+### Cài đặt thông thường (install.sh / npm / pnpm / bun)
 
-If you used `https://openclaw.ai/install.sh` or `install.ps1`, the CLI was installed with `npm install -g openclaw@latest`.
-Remove it with `npm rm -g openclaw` (or `pnpm remove -g` / `bun remove -g` if you installed that way).
+Nếu bạn đã sử dụng `https://openclaw.ai/install.sh` hoặc `install.ps1`, CLI đã được cài đặt với `npm install -g openclaw@latest`.
+Gỡ nó bằng `npm rm -g openclaw` (hoặc `pnpm remove -g` / `bun remove -g` nếu bạn đã cài đặt theo cách đó).
 
-### Source checkout (git clone)
+### Kiểm tra từ nguồn (git clone)
 
-If you run from a repo checkout (`git clone` + `openclaw ...` / `bun run openclaw ...`):
+Nếu bạn chạy từ repo đã clone (`git clone` + `openclaw ...` / `bun run openclaw ...`):
 
-1. Uninstall the gateway service **before** deleting the repo (use the easy path above or manual service removal).
-2. Delete the repo directory.
-3. Remove state + workspace as shown above.
+1. Gỡ cài đặt dịch vụ gateway **trước khi** xóa repo (sử dụng cách dễ ở trên hoặc gỡ dịch vụ thủ công).
+2. Xóa thư mục repo.
+3. Xóa trạng thái + workspace như đã chỉ dẫn ở trên.

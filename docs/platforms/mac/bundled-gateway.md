@@ -1,62 +1,57 @@
 ---
-summary: "Gateway runtime on macOS (external launchd service)"
+summary: "Chạy Gateway trên macOS (dịch vụ launchd bên ngoài)"
 read_when:
-  - Packaging OpenClaw.app
-  - Debugging the macOS gateway launchd service
-  - Installing the gateway CLI for macOS
-title: "Gateway on macOS"
+  - Đóng gói OpenClaw.app
+  - Gỡ lỗi dịch vụ launchd gateway trên macOS
+  - Cài đặt gateway CLI cho macOS
+title: "Gateway trên macOS"
 ---
 
-# Gateway on macOS (external launchd)
+# Gateway trên macOS (dịch vụ launchd bên ngoài)
 
-OpenClaw.app no longer bundles Node/Bun or the Gateway runtime. The macOS app
-expects an **external** `openclaw` CLI install, does not spawn the Gateway as a
-child process, and manages a per‑user launchd service to keep the Gateway
-running (or attaches to an existing local Gateway if one is already running).
+OpenClaw.app không còn tích hợp Node/Bun hay runtime Gateway. Ứng dụng macOS yêu cầu cài đặt CLI `openclaw` **bên ngoài**, không khởi chạy Gateway như một tiến trình con, và quản lý một dịch vụ launchd cho từng người dùng để giữ Gateway hoạt động (hoặc kết nối với Gateway cục bộ nếu đã chạy).
 
-## Install the CLI (required for local mode)
+## Cài đặt CLI (cần thiết cho chế độ cục bộ)
 
-Node 24 is the default runtime on the Mac. Node 22 LTS, currently `22.16+`, still works for compatibility. Then install `openclaw` globally:
+Node 24 là runtime mặc định trên Mac. Node 22 LTS, hiện tại là `22.16+`, vẫn hoạt động để tương thích. Sau đó, cài đặt `openclaw` toàn cầu:
 
 ```bash
 npm install -g openclaw@<version>
 ```
 
-The macOS app’s **Install CLI** button runs the same flow via npm/pnpm (bun not recommended for Gateway runtime).
+Nút **Cài đặt CLI** của ứng dụng macOS thực hiện cùng quy trình qua npm/pnpm (không khuyến nghị dùng bun cho runtime Gateway).
 
-## Launchd (Gateway as LaunchAgent)
+## Launchd (Gateway như LaunchAgent)
 
-Label:
+Nhãn:
 
-- `ai.openclaw.gateway` (or `ai.openclaw.<profile>`; legacy `com.openclaw.*` may remain)
+- `ai.openclaw.gateway` (hoặc `ai.openclaw.<profile>`; có thể còn `com.openclaw.*` cũ)
 
-Plist location (per‑user):
+Vị trí Plist (theo người dùng):
 
 - `~/Library/LaunchAgents/ai.openclaw.gateway.plist`
-  (or `~/Library/LaunchAgents/ai.openclaw.<profile>.plist`)
+  (hoặc `~/Library/LaunchAgents/ai.openclaw.<profile>.plist`)
 
-Manager:
+Quản lý:
 
-- The macOS app owns LaunchAgent install/update in Local mode.
-- The CLI can also install it: `openclaw gateway install`.
+- Ứng dụng macOS sở hữu việc cài đặt/cập nhật LaunchAgent trong chế độ cục bộ.
+- CLI cũng có thể cài đặt: `openclaw gateway install`.
 
-Behavior:
+Hành vi:
 
-- “OpenClaw Active” enables/disables the LaunchAgent.
-- App quit does **not** stop the gateway (launchd keeps it alive).
-- If a Gateway is already running on the configured port, the app attaches to
-  it instead of starting a new one.
+- “OpenClaw Active” bật/tắt LaunchAgent.
+- Thoát ứng dụng **không** dừng gateway (launchd giữ nó hoạt động).
+- Nếu Gateway đã chạy trên cổng cấu hình, ứng dụng sẽ kết nối thay vì khởi chạy mới.
 
-Logging:
+Ghi log:
 
 - launchd stdout/err: `/tmp/openclaw/openclaw-gateway.log`
 
-## Version compatibility
+## Tương thích phiên bản
 
-The macOS app checks the gateway version against its own version. If they’re
-incompatible, update the global CLI to match the app version.
+Ứng dụng macOS kiểm tra phiên bản gateway so với phiên bản của nó. Nếu không tương thích, cập nhật CLI toàn cầu để khớp với phiên bản ứng dụng.
 
-## Smoke check
+## Kiểm tra nhanh
 
 ```bash
 openclaw --version
@@ -66,7 +61,7 @@ OPENCLAW_SKIP_CANVAS_HOST=1 \
 openclaw gateway --port 18999 --bind loopback
 ```
 
-Then:
+Sau đó:
 
 ```bash
 openclaw gateway call health --url ws://127.0.0.1:18999 --timeout 3000

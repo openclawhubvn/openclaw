@@ -1,66 +1,66 @@
 ---
-summary: "Global voice wake words (Gateway-owned) and how they sync across nodes"
+summary: "Từ khóa đánh thức giọng nói toàn cầu (do Gateway quản lý) và cách chúng đồng bộ trên các node"
 read_when:
-  - Changing voice wake words behavior or defaults
-  - Adding new node platforms that need wake word sync
-title: "Voice Wake"
+  - Thay đổi hành vi hoặc mặc định của từ khóa đánh thức giọng nói
+  - Thêm nền tảng node mới cần đồng bộ từ khóa đánh thức
+title: "Đánh Thức Giọng Nói"
 ---
 
-# Voice Wake (Global Wake Words)
+# Đánh Thức Giọng Nói (Từ Khóa Đánh Thức Toàn Cầu)
 
-OpenClaw treats **wake words as a single global list** owned by the **Gateway**.
+OpenClaw coi **từ khóa đánh thức là một danh sách toàn cầu duy nhất** do **Gateway** quản lý.
 
-- There are **no per-node custom wake words**.
-- **Any node/app UI may edit** the list; changes are persisted by the Gateway and broadcast to everyone.
-- macOS and iOS keep local **Voice Wake enabled/disabled** toggles (local UX + permissions differ).
-- Android currently keeps Voice Wake off and uses a manual mic flow in the Voice tab.
+- **Không có từ khóa đánh thức tùy chỉnh cho từng node**.
+- **Bất kỳ node hoặc giao diện ứng dụng nào cũng có thể chỉnh sửa** danh sách này; các thay đổi được Gateway lưu trữ và phát sóng đến tất cả mọi người.
+- macOS và iOS giữ các công tắc **bật/tắt Đánh Thức Giọng Nói** cục bộ (UX cục bộ + quyền khác nhau).
+- Android hiện giữ Đánh Thức Giọng Nói tắt và sử dụng luồng mic thủ công trong tab Giọng Nói.
 
-## Storage (Gateway host)
+## Lưu trữ (máy chủ Gateway)
 
-Wake words are stored on the gateway machine at:
+Từ khóa đánh thức được lưu trữ trên máy Gateway tại:
 
 - `~/.openclaw/settings/voicewake.json`
 
-Shape:
+Cấu trúc:
 
 ```json
 { "triggers": ["openclaw", "claude", "computer"], "updatedAtMs": 1730000000000 }
 ```
 
-## Protocol
+## Giao thức
 
-### Methods
+### Phương thức
 
 - `voicewake.get` → `{ triggers: string[] }`
-- `voicewake.set` with params `{ triggers: string[] }` → `{ triggers: string[] }`
+- `voicewake.set` với tham số `{ triggers: string[] }` → `{ triggers: string[] }`
 
-Notes:
+Ghi chú:
 
-- Triggers are normalized (trimmed, empties dropped). Empty lists fall back to defaults.
-- Limits are enforced for safety (count/length caps).
+- Các từ khóa được chuẩn hóa (cắt bỏ khoảng trắng, loại bỏ mục rỗng). Danh sách rỗng sẽ quay về mặc định.
+- Giới hạn được áp dụng để đảm bảo an toàn (giới hạn số lượng/độ dài).
 
-### Events
+### Sự kiện
 
 - `voicewake.changed` payload `{ triggers: string[] }`
 
-Who receives it:
+Ai nhận được:
 
-- All WebSocket clients (macOS app, WebChat, etc.)
-- All connected nodes (iOS/Android), and also on node connect as an initial “current state” push.
+- Tất cả các client WebSocket (ứng dụng macOS, WebChat, v.v.)
+- Tất cả các node kết nối (iOS/Android), và cũng khi node kết nối như một đẩy trạng thái "hiện tại" ban đầu.
 
-## Client behavior
+## Hành vi của client
 
-### macOS app
+### Ứng dụng macOS
 
-- Uses the global list to gate `VoiceWakeRuntime` triggers.
-- Editing “Trigger words” in Voice Wake settings calls `voicewake.set` and then relies on the broadcast to keep other clients in sync.
+- Sử dụng danh sách toàn cầu để kiểm soát các từ khóa trong `VoiceWakeRuntime`.
+- Chỉnh sửa “Từ khóa kích hoạt” trong cài đặt Đánh Thức Giọng Nói sẽ gọi `voicewake.set` và sau đó dựa vào phát sóng để giữ các client khác đồng bộ.
 
-### iOS node
+### Node iOS
 
-- Uses the global list for `VoiceWakeManager` trigger detection.
-- Editing Wake Words in Settings calls `voicewake.set` (over the Gateway WS) and also keeps local wake-word detection responsive.
+- Sử dụng danh sách toàn cầu cho việc phát hiện từ khóa trong `VoiceWakeManager`.
+- Chỉnh sửa Từ Khóa Đánh Thức trong Cài đặt sẽ gọi `voicewake.set` (qua Gateway WS) và cũng giữ cho việc phát hiện từ khóa cục bộ nhạy bén.
 
-### Android node
+### Node Android
 
-- Voice Wake is currently disabled in Android runtime/Settings.
-- Android voice uses manual mic capture in the Voice tab instead of wake-word triggers.
+- Đánh Thức Giọng Nói hiện đang bị vô hiệu hóa trong runtime/Cài đặt Android.
+- Giọng nói trên Android sử dụng ghi âm mic thủ công trong tab Giọng Nói thay vì các từ khóa đánh thức.

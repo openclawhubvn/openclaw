@@ -1,20 +1,19 @@
 ---
-summary: "CLI reference for `openclaw agent` (send one agent turn via the Gateway)"
+summary: "Tham khảo CLI cho `openclaw agent` (gửi một lượt agent qua Gateway)"
 read_when:
-  - You want to run one agent turn from scripts (optionally deliver reply)
+  - Bạn muốn chạy một lượt agent từ script (có thể gửi kèm phản hồi)
 title: "agent"
 ---
 
 # `openclaw agent`
 
-Run an agent turn via the Gateway (use `--local` for embedded).
-Use `--agent <id>` to target a configured agent directly.
+Chạy một lượt agent qua Gateway (sử dụng `--local` cho nhúng). Dùng `--agent <id>` để nhắm đến một agent đã cấu hình trực tiếp.
 
-Related:
+Liên quan:
 
-- Agent send tool: [Agent send](/tools/agent-send)
+- Công cụ gửi Agent: [Agent send](/tools/agent-send)
 
-## Examples
+## Ví dụ
 
 ```bash
 openclaw agent --to +15555550123 --message "status update" --deliver
@@ -23,7 +22,7 @@ openclaw agent --session-id 1234 --message "Summarize inbox" --thinking medium
 openclaw agent --agent ops --message "Generate report" --deliver --reply-channel slack --reply-to "#reports"
 ```
 
-## Notes
+## Lưu ý
 
-- When this command triggers `models.json` regeneration, SecretRef-managed provider credentials are persisted as non-secret markers (for example env var names, `secretref-env:ENV_VAR_NAME`, or `secretref-managed`), not resolved secret plaintext.
-- Marker writes are source-authoritative: OpenClaw persists markers from the active source config snapshot, not from resolved runtime secret values.
+- Khi lệnh này kích hoạt tái tạo `models.json`, thông tin xác thực của nhà cung cấp được quản lý bởi SecretRef sẽ được lưu lại dưới dạng các marker không phải là bí mật (ví dụ tên biến môi trường, `secretref-env:ENV_VAR_NAME`, hoặc `secretref-managed`), không phải là văn bản bí mật đã giải mã.
+- Việc ghi marker là nguồn gốc chính thức: OpenClaw lưu trữ các marker từ bản chụp cấu hình nguồn đang hoạt động, không phải từ các giá trị bí mật đã giải mã trong thời gian chạy.

@@ -1,32 +1,30 @@
 ---
-summary: "Use the OpenCode Go catalog with the shared OpenCode setup"
+summary: "Sử dụng danh mục OpenCode Go với thiết lập OpenCode chung"
 read_when:
-  - You want the OpenCode Go catalog
-  - You need the runtime model refs for Go-hosted models
+  - Bạn muốn danh mục OpenCode Go
+  - Bạn cần tham chiếu mô hình runtime cho các mô hình được lưu trữ trên Go
 title: "OpenCode Go"
 ---
 
 # OpenCode Go
 
-OpenCode Go is the Go catalog within [OpenCode](/providers/opencode).
-It uses the same `OPENCODE_API_KEY` as the Zen catalog, but keeps the runtime
-provider id `opencode-go` so upstream per-model routing stays correct.
+OpenCode Go là danh mục Go trong [OpenCode](/providers/opencode). Nó sử dụng cùng `OPENCODE_API_KEY` như danh mục Zen, nhưng giữ id nhà cung cấp runtime là `opencode-go` để đảm bảo định tuyến theo mô hình ở phía trên vẫn chính xác.
 
-## Supported models
+## Các mô hình được hỗ trợ
 
 - `opencode-go/kimi-k2.5`
 - `opencode-go/glm-5`
 - `opencode-go/minimax-m2.5`
 
-## CLI setup
+## Thiết lập CLI
 
 ```bash
 openclaw onboard --auth-choice opencode-go
-# or non-interactive
+# hoặc không tương tác
 openclaw onboard --opencode-go-api-key "$OPENCODE_API_KEY"
 ```
 
-## Config snippet
+## Đoạn cấu hình
 
 ```json5
 {
@@ -35,11 +33,11 @@ openclaw onboard --opencode-go-api-key "$OPENCODE_API_KEY"
 }
 ```
 
-## Routing behavior
+## Hành vi định tuyến
 
-OpenClaw handles per-model routing automatically when the model ref uses `opencode-go/...`.
+OpenClaw tự động xử lý định tuyến theo mô hình khi tham chiếu mô hình sử dụng `opencode-go/...`.
 
-## Notes
+## Ghi chú
 
-- Use [OpenCode](/providers/opencode) for the shared onboarding and catalog overview.
-- Runtime refs stay explicit: `opencode/...` for Zen, `opencode-go/...` for Go.
+- Sử dụng [OpenCode](/providers/opencode) cho việc onboarding chung và tổng quan danh mục.
+- Tham chiếu runtime được giữ rõ ràng: `opencode/...` cho Zen, `opencode-go/...` cho Go.

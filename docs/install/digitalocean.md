@@ -1,67 +1,67 @@
 ---
-summary: "Host OpenClaw on a DigitalOcean Droplet"
+summary: "Triển khai OpenClaw trên DigitalOcean Droplet"
 read_when:
-  - Setting up OpenClaw on DigitalOcean
-  - Looking for a simple paid VPS for OpenClaw
+  - Cài đặt OpenClaw trên DigitalOcean
+  - Tìm kiếm VPS trả phí đơn giản cho OpenClaw
 title: "DigitalOcean"
 ---
 
 # DigitalOcean
 
-Run a persistent OpenClaw Gateway on a DigitalOcean Droplet.
+Chạy OpenClaw Gateway liên tục trên DigitalOcean Droplet.
 
-## Prerequisites
+## Yêu cầu
 
-- DigitalOcean account ([signup](https://cloud.digitalocean.com/registrations/new))
-- SSH key pair (or willingness to use password auth)
-- About 20 minutes
+- Tài khoản DigitalOcean ([đăng ký](https://cloud.digitalocean.com/registrations/new))
+- Cặp khóa SSH (hoặc sẵn sàng sử dụng xác thực bằng mật khẩu)
+- Khoảng 20 phút
 
-## Setup
+## Thiết lập
 
 <Steps>
-  <Step title="Create a Droplet">
+  <Step title="Tạo Droplet">
     <Warning>
-    Use a clean base image (Ubuntu 24.04 LTS). Avoid third-party Marketplace 1-click images unless you have reviewed their startup scripts and firewall defaults.
+    Sử dụng hình ảnh cơ bản sạch (Ubuntu 24.04 LTS). Tránh sử dụng hình ảnh 1-click từ Marketplace bên thứ ba trừ khi đã kiểm tra kỹ script khởi động và cấu hình tường lửa mặc định.
     </Warning>
 
-    1. Log into [DigitalOcean](https://cloud.digitalocean.com/).
-    2. Click **Create > Droplets**.
-    3. Choose:
-       - **Region:** Closest to you
+    1. Đăng nhập vào [DigitalOcean](https://cloud.digitalocean.com/).
+    2. Nhấp vào **Create > Droplets**.
+    3. Chọn:
+       - **Region:** Gần bạn nhất
        - **Image:** Ubuntu 24.04 LTS
        - **Size:** Basic, Regular, 1 vCPU / 1 GB RAM / 25 GB SSD
-       - **Authentication:** SSH key (recommended) or password
-    4. Click **Create Droplet** and note the IP address.
+       - **Authentication:** Khóa SSH (khuyến nghị) hoặc mật khẩu
+    4. Nhấp vào **Create Droplet** và ghi lại địa chỉ IP.
 
   </Step>
 
-  <Step title="Connect and install">
+  <Step title="Kết nối và cài đặt">
     ```bash
     ssh root@YOUR_DROPLET_IP
 
     apt update && apt upgrade -y
 
-    # Install Node.js 24
+    # Cài đặt Node.js 24
     curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
     apt install -y nodejs
 
-    # Install OpenClaw
+    # Cài đặt OpenClaw
     curl -fsSL https://openclaw.ai/install.sh | bash
     openclaw --version
     ```
 
   </Step>
 
-  <Step title="Run onboarding">
+  <Step title="Chạy onboarding">
     ```bash
     openclaw onboard --install-daemon
     ```
 
-    The wizard walks you through model auth, channel setup, gateway token generation, and daemon installation (systemd).
+    Trình hướng dẫn sẽ dẫn bạn qua các bước xác thực mô hình, thiết lập kênh, tạo token gateway và cài đặt daemon (systemd).
 
   </Step>
 
-  <Step title="Add swap (recommended for 1 GB Droplets)">
+  <Step title="Thêm swap (khuyến nghị cho Droplet 1 GB)">
     ```bash
     fallocate -l 2G /swapfile
     chmod 600 /swapfile
@@ -71,7 +71,7 @@ Run a persistent OpenClaw Gateway on a DigitalOcean Droplet.
     ```
   </Step>
 
-  <Step title="Verify the gateway">
+  <Step title="Xác minh gateway">
     ```bash
     openclaw status
     systemctl --user status openclaw-gateway.service
@@ -79,19 +79,19 @@ Run a persistent OpenClaw Gateway on a DigitalOcean Droplet.
     ```
   </Step>
 
-  <Step title="Access the Control UI">
-    The gateway binds to loopback by default. Pick one of these options.
+  <Step title="Truy cập Control UI">
+    Gateway mặc định kết nối với loopback. Chọn một trong các tùy chọn sau.
 
-    **Option A: SSH tunnel (simplest)**
+    **Tùy chọn A: SSH tunnel (đơn giản nhất)**
 
     ```bash
-    # From your local machine
+    # Từ máy tính của bạn
     ssh -L 18789:localhost:18789 root@YOUR_DROPLET_IP
     ```
 
-    Then open `http://localhost:18789`.
+    Sau đó mở `http://localhost:18789`.
 
-    **Option B: Tailscale Serve**
+    **Tùy chọn B: Tailscale Serve**
 
     ```bash
     curl -fsSL https://tailscale.com/install.sh | sh
@@ -100,30 +100,30 @@ Run a persistent OpenClaw Gateway on a DigitalOcean Droplet.
     openclaw gateway restart
     ```
 
-    Then open `https://<magicdns>/` from any device on your tailnet.
+    Sau đó mở `https://<magicdns>/` từ bất kỳ thiết bị nào trên tailnet của bạn.
 
-    **Option C: Tailnet bind (no Serve)**
+    **Tùy chọn C: Tailnet bind (không dùng Serve)**
 
     ```bash
     openclaw config set gateway.bind tailnet
     openclaw gateway restart
     ```
 
-    Then open `http://<tailscale-ip>:18789` (token required).
+    Sau đó mở `http://<tailscale-ip>:18789` (cần token).
 
   </Step>
 </Steps>
 
-## Troubleshooting
+## Khắc phục sự cố
 
-**Gateway will not start** -- Run `openclaw doctor --non-interactive` and check logs with `journalctl --user -u openclaw-gateway.service -n 50`.
+**Gateway không khởi động** -- Chạy `openclaw doctor --non-interactive` và kiểm tra log với `journalctl --user -u openclaw-gateway.service -n 50`.
 
-**Port already in use** -- Run `lsof -i :18789` to find the process, then stop it.
+**Cổng đã được sử dụng** -- Chạy `lsof -i :18789` để tìm tiến trình, sau đó dừng nó.
 
-**Out of memory** -- Verify swap is active with `free -h`. If still hitting OOM, use API-based models (Claude, GPT) rather than local models, or upgrade to a 2 GB Droplet.
+**Thiếu bộ nhớ** -- Kiểm tra swap đã hoạt động với `free -h`. Nếu vẫn gặp lỗi OOM, sử dụng mô hình dựa trên API (Claude, GPT) thay vì mô hình cục bộ, hoặc nâng cấp lên Droplet 2 GB.
 
-## Next steps
+## Bước tiếp theo
 
-- [Channels](/channels) -- connect Telegram, WhatsApp, Discord, and more
-- [Gateway configuration](/gateway/configuration) -- all config options
-- [Updating](/install/updating) -- keep OpenClaw up to date
+- [Channels](/channels) -- kết nối Telegram, WhatsApp, Discord và nhiều hơn nữa
+- [Cấu hình Gateway](/gateway/configuration) -- tất cả tùy chọn cấu hình
+- [Cập nhật](/install/updating) -- giữ OpenClaw luôn cập nhật

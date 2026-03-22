@@ -1,30 +1,30 @@
 ---
 title: "Vercel AI Gateway"
-summary: "Vercel AI Gateway setup (auth + model selection)"
+summary: "Thiết lập Vercel AI Gateway (xác thực + lựa chọn mô hình)"
 read_when:
-  - You want to use Vercel AI Gateway with OpenClaw
-  - You need the API key env var or CLI auth choice
+  - Bạn muốn sử dụng Vercel AI Gateway với OpenClaw
+  - Bạn cần biến môi trường API key hoặc lựa chọn xác thực CLI
 ---
 
 # Vercel AI Gateway
 
-The [Vercel AI Gateway](https://vercel.com/ai-gateway) provides a unified API to access hundreds of models through a single endpoint.
+[Vercel AI Gateway](https://vercel.com/ai-gateway) cung cấp một API thống nhất để truy cập hàng trăm mô hình thông qua một endpoint duy nhất.
 
-- Provider: `vercel-ai-gateway`
-- Auth: `AI_GATEWAY_API_KEY`
-- API: Anthropic Messages compatible
-- OpenClaw auto-discovers the Gateway `/v1/models` catalog, so `/models vercel-ai-gateway`
-  includes current model refs such as `vercel-ai-gateway/openai/gpt-5.4`.
+- Nhà cung cấp: `vercel-ai-gateway`
+- Xác thực: `AI_GATEWAY_API_KEY`
+- API: Tương thích với Anthropic Messages
+- OpenClaw tự động phát hiện danh mục Gateway `/v1/models`, vì vậy `/models vercel-ai-gateway`
+  bao gồm các tham chiếu mô hình hiện tại như `vercel-ai-gateway/openai/gpt-5.4`.
 
-## Quick start
+## Bắt đầu nhanh
 
-1. Set the API key (recommended: store it for the Gateway):
+1. Thiết lập API key (khuyến nghị: lưu trữ cho Gateway):
 
 ```bash
 openclaw onboard --auth-choice ai-gateway-api-key
 ```
 
-2. Set a default model:
+2. Thiết lập mô hình mặc định:
 
 ```json5
 {
@@ -36,7 +36,7 @@ openclaw onboard --auth-choice ai-gateway-api-key
 }
 ```
 
-## Non-interactive example
+## Ví dụ không tương tác
 
 ```bash
 openclaw onboard --non-interactive \
@@ -45,16 +45,15 @@ openclaw onboard --non-interactive \
   --ai-gateway-api-key "$AI_GATEWAY_API_KEY"
 ```
 
-## Environment note
+## Lưu ý về môi trường
 
-If the Gateway runs as a daemon (launchd/systemd), make sure `AI_GATEWAY_API_KEY`
-is available to that process (for example, in `~/.openclaw/.env` or via
+Nếu Gateway chạy dưới dạng daemon (launchd/systemd), đảm bảo `AI_GATEWAY_API_KEY`
+có sẵn cho tiến trình đó (ví dụ, trong `~/.openclaw/.env` hoặc thông qua
 `env.shellEnv`).
 
-## Model ID shorthand
+## Viết tắt ID mô hình
 
-OpenClaw accepts Vercel Claude shorthand model refs and normalizes them at
-runtime:
+OpenClaw chấp nhận các tham chiếu mô hình viết tắt của Vercel Claude và chuẩn hóa chúng khi chạy:
 
 - `vercel-ai-gateway/claude-opus-4.6` -> `vercel-ai-gateway/anthropic/claude-opus-4.6`
 - `vercel-ai-gateway/opus-4.6` -> `vercel-ai-gateway/anthropic/claude-opus-4-6`

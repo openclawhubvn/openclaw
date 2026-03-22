@@ -1,65 +1,55 @@
 ---
-summary: "PeekabooBridge integration for macOS UI automation"
+summary: "Tích hợp PeekabooBridge cho tự động hóa giao diện người dùng trên macOS"
 read_when:
-  - Hosting PeekabooBridge in OpenClaw.app
-  - Integrating Peekaboo via Swift Package Manager
-  - Changing PeekabooBridge protocol/paths
+  - Lưu trữ PeekabooBridge trong OpenClaw.app
+  - Tích hợp Peekaboo qua Swift Package Manager
+  - Thay đổi giao thức/đường dẫn của PeekabooBridge
 title: "Peekaboo Bridge"
 ---
 
-# Peekaboo Bridge (macOS UI automation)
+# Peekaboo Bridge (Tự động hóa giao diện người dùng trên macOS)
 
-OpenClaw can host **PeekabooBridge** as a local, permission‑aware UI automation
-broker. This lets the `peekaboo` CLI drive UI automation while reusing the
-macOS app’s TCC permissions.
+OpenClaw có thể lưu trữ **PeekabooBridge** như một môi giới tự động hóa giao diện người dùng cục bộ, có nhận thức về quyền. Điều này cho phép CLI `peekaboo` điều khiển tự động hóa giao diện người dùng trong khi tái sử dụng quyền TCC của ứng dụng macOS.
 
-## What this is (and is not)
+## Đây là gì (và không phải là gì)
 
-- **Host**: OpenClaw.app can act as a PeekabooBridge host.
-- **Client**: use the `peekaboo` CLI (no separate `openclaw ui ...` surface).
-- **UI**: visual overlays stay in Peekaboo.app; OpenClaw is a thin broker host.
+- **Host**: OpenClaw.app có thể hoạt động như một host PeekabooBridge.
+- **Client**: sử dụng CLI `peekaboo` (không có giao diện `openclaw ui ...` riêng biệt).
+- **UI**: các lớp phủ hình ảnh vẫn nằm trong Peekaboo.app; OpenClaw chỉ là một host môi giới mỏng.
 
-## Enable the bridge
+## Kích hoạt cầu nối
 
-In the macOS app:
+Trong ứng dụng macOS:
 
-- Settings → **Enable Peekaboo Bridge**
+- Cài đặt → **Kích hoạt Peekaboo Bridge**
 
-When enabled, OpenClaw starts a local UNIX socket server. If disabled, the host
-is stopped and `peekaboo` will fall back to other available hosts.
+Khi được kích hoạt, OpenClaw sẽ khởi động một máy chủ socket UNIX cục bộ. Nếu bị vô hiệu hóa, host sẽ dừng và `peekaboo` sẽ chuyển sang các host khác có sẵn.
 
-## Client discovery order
+## Thứ tự khám phá client
 
-Peekaboo clients typically try hosts in this order:
+Các client Peekaboo thường thử các host theo thứ tự sau:
 
-1. Peekaboo.app (full UX)
-2. Claude.app (if installed)
-3. OpenClaw.app (thin broker)
+1. Peekaboo.app (trải nghiệm người dùng đầy đủ)
+2. Claude.app (nếu đã cài đặt)
+3. OpenClaw.app (môi giới mỏng)
 
-Use `peekaboo bridge status --verbose` to see which host is active and which
-socket path is in use. You can override with:
+Sử dụng `peekaboo bridge status --verbose` để xem host nào đang hoạt động và đường dẫn socket nào đang được sử dụng. Bạn có thể ghi đè bằng:
 
 ```bash
 export PEEKABOO_BRIDGE_SOCKET=/path/to/bridge.sock
 ```
 
-## Security & permissions
+## Bảo mật & quyền
 
-- The bridge validates **caller code signatures**; an allowlist of TeamIDs is
-  enforced (Peekaboo host TeamID + OpenClaw app TeamID).
-- Requests time out after ~10 seconds.
-- If required permissions are missing, the bridge returns a clear error message
-  rather than launching System Settings.
+- Cầu nối xác thực **chữ ký mã của người gọi**; một danh sách cho phép TeamID được thực thi (TeamID của host Peekaboo + TeamID của ứng dụng OpenClaw).
+- Yêu cầu sẽ hết thời gian sau khoảng 10 giây.
+- Nếu thiếu quyền cần thiết, cầu nối sẽ trả về thông báo lỗi rõ ràng thay vì mở Cài đặt Hệ thống.
 
-## Snapshot behavior (automation)
+## Hành vi chụp nhanh (tự động hóa)
 
-Snapshots are stored in memory and expire automatically after a short window.
-If you need longer retention, re‑capture from the client.
+Các ảnh chụp nhanh được lưu trữ trong bộ nhớ và tự động hết hạn sau một khoảng thời gian ngắn. Nếu cần lưu trữ lâu hơn, hãy chụp lại từ client.
 
-## Troubleshooting
+## Khắc phục sự cố
 
-- If `peekaboo` reports “bridge client is not authorized”, ensure the client is
-  properly signed or run the host with `PEEKABOO_ALLOW_UNSIGNED_SOCKET_CLIENTS=1`
-  in **debug** mode only.
-- If no hosts are found, open one of the host apps (Peekaboo.app or OpenClaw.app)
-  and confirm permissions are granted.
+- Nếu `peekaboo` báo cáo “client cầu nối không được ủy quyền”, hãy đảm bảo client được ký đúng cách hoặc chạy host với `PEEKABOO_ALLOW_UNSIGNED_SOCKET_CLIENTS=1` chỉ trong chế độ **debug**.
+- Nếu không tìm thấy host nào, hãy mở một trong các ứng dụng host (Peekaboo.app hoặc OpenClaw.app) và xác nhận quyền đã được cấp.

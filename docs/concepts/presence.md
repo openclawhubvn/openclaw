@@ -1,102 +1,92 @@
 ---
-summary: "How OpenClaw presence entries are produced, merged, and displayed"
+summary: "Cách OpenClaw tạo, hợp nhất và hiển thị các mục hiện diện"
 read_when:
-  - Debugging the Instances tab
-  - Investigating duplicate or stale instance rows
-  - Changing gateway WS connect or system-event beacons
-title: "Presence"
+  - Gỡ lỗi tab Instances
+  - Điều tra các hàng instance trùng lặp hoặc lỗi thời
+  - Thay đổi kết nối gateway WS hoặc beacon sự kiện hệ thống
+title: "Hiện diện"
 ---
 
-# Presence
+# Hiện diện
 
-OpenClaw “presence” is a lightweight, best‑effort view of:
+"Hiện diện" trong OpenClaw là một cái nhìn nhẹ nhàng, nỗ lực tốt nhất về:
 
-- the **Gateway** itself, and
-- **clients connected to the Gateway** (mac app, WebChat, CLI, etc.)
+- chính **Gateway**, và
+- **các client kết nối với Gateway** (ứng dụng mac, WebChat, CLI, v.v.)
 
-Presence is used primarily to render the macOS app’s **Instances** tab and to
-provide quick operator visibility.
+Hiện diện chủ yếu được sử dụng để hiển thị tab **Instances** của ứng dụng macOS và cung cấp khả năng quan sát nhanh cho người vận hành.
 
-## Presence fields (what shows up)
+## Các trường hiện diện (những gì hiển thị)
 
-Presence entries are structured objects with fields like:
+Các mục hiện diện là các đối tượng có cấu trúc với các trường như:
 
-- `instanceId` (optional but strongly recommended): stable client identity (usually `connect.client.instanceId`)
-- `host`: human‑friendly host name
-- `ip`: best‑effort IP address
-- `version`: client version string
-- `deviceFamily` / `modelIdentifier`: hardware hints
+- `instanceId` (không bắt buộc nhưng rất khuyến khích): định danh client ổn định (thường là `connect.client.instanceId`)
+- `host`: tên host thân thiện với người dùng
+- `ip`: địa chỉ IP nỗ lực tốt nhất
+- `version`: chuỗi phiên bản client
+- `deviceFamily` / `modelIdentifier`: gợi ý phần cứng
 - `mode`: `ui`, `webchat`, `cli`, `backend`, `probe`, `test`, `node`, ...
-- `lastInputSeconds`: “seconds since last user input” (if known)
+- `lastInputSeconds`: "số giây kể từ lần nhập cuối cùng của người dùng" (nếu biết)
 - `reason`: `self`, `connect`, `node-connected`, `periodic`, ...
-- `ts`: last update timestamp (ms since epoch)
+- `ts`: dấu thời gian cập nhật cuối cùng (ms kể từ epoch)
 
-## Producers (where presence comes from)
+## Nguồn tạo (hiện diện đến từ đâu)
 
-Presence entries are produced by multiple sources and **merged**.
+Các mục hiện diện được tạo ra từ nhiều nguồn và được **hợp nhất**.
 
-### 1) Gateway self entry
+### 1) Mục tự thân của Gateway
 
-The Gateway always seeds a “self” entry at startup so UIs show the gateway host
-even before any clients connect.
+Gateway luôn khởi tạo một mục "tự thân" khi khởi động để giao diện người dùng hiển thị host gateway ngay cả khi chưa có client nào kết nối.
 
-### 2) WebSocket connect
+### 2) Kết nối WebSocket
 
-Every WS client begins with a `connect` request. On successful handshake the
-Gateway upserts a presence entry for that connection.
+Mỗi client WS bắt đầu với một yêu cầu `connect`. Khi bắt tay thành công, Gateway cập nhật hoặc thêm mới một mục hiện diện cho kết nối đó.
 
-#### Why one-off CLI commands do not show up
+#### Tại sao các lệnh CLI một lần không hiển thị
 
-The CLI often connects for short, one‑off commands. To avoid spamming the
-Instances list, `client.mode === "cli"` is **not** turned into a presence entry.
+CLI thường kết nối để thực hiện các lệnh ngắn, một lần. Để tránh làm đầy danh sách Instances, `client.mode === "cli"` **không** được chuyển thành một mục hiện diện.
 
-### 3) `system-event` beacons
+### 3) Beacon `system-event`
 
-Clients can send richer periodic beacons via the `system-event` method. The mac
-app uses this to report host name, IP, and `lastInputSeconds`.
+Các client có thể gửi các beacon định kỳ phong phú hơn thông qua phương thức `system-event`. Ứng dụng mac sử dụng điều này để báo cáo tên host, IP và `lastInputSeconds`.
 
-### 4) Node connects (role: node)
+### 4) Kết nối Node (vai trò: node)
 
-When a node connects over the Gateway WebSocket with `role: node`, the Gateway
-upserts a presence entry for that node (same flow as other WS clients).
+Khi một node kết nối qua Gateway WebSocket với `role: node`, Gateway cập nhật hoặc thêm mới một mục hiện diện cho node đó (quy trình tương tự như các client WS khác).
 
-## Merge + dedupe rules (why `instanceId` matters)
+## Quy tắc hợp nhất + loại bỏ trùng lặp (tại sao `instanceId` quan trọng)
 
-Presence entries are stored in a single in‑memory map:
+Các mục hiện diện được lưu trữ trong một bản đồ trong bộ nhớ:
 
-- Entries are keyed by a **presence key**.
-- The best key is a stable `instanceId` (from `connect.client.instanceId`) that survives restarts.
-- Keys are case‑insensitive.
+- Các mục được khóa bằng một **khóa hiện diện**.
+- Khóa tốt nhất là `instanceId` ổn định (từ `connect.client.instanceId`) có thể tồn tại qua các lần khởi động lại.
+- Khóa không phân biệt chữ hoa chữ thường.
 
-If a client reconnects without a stable `instanceId`, it may show up as a
-**duplicate** row.
+Nếu một client kết nối lại mà không có `instanceId` ổn định, nó có thể xuất hiện như một hàng **trùng lặp**.
 
-## TTL and bounded size
+## Thời gian tồn tại và kích thước giới hạn
 
-Presence is intentionally ephemeral:
+Hiện diện được thiết kế để tồn tại ngắn hạn:
 
-- **TTL:** entries older than 5 minutes are pruned
-- **Max entries:** 200 (oldest dropped first)
+- **TTL:** các mục cũ hơn 5 phút sẽ bị loại bỏ
+- **Số lượng mục tối đa:** 200 (mục cũ nhất bị loại bỏ trước)
 
-This keeps the list fresh and avoids unbounded memory growth.
+Điều này giữ cho danh sách luôn mới và tránh tăng trưởng bộ nhớ không giới hạn.
 
-## Remote/tunnel caveat (loopback IPs)
+## Lưu ý về kết nối từ xa/đường hầm (IP loopback)
 
-When a client connects over an SSH tunnel / local port forward, the Gateway may
-see the remote address as `127.0.0.1`. To avoid overwriting a good client‑reported
-IP, loopback remote addresses are ignored.
+Khi một client kết nối qua một đường hầm SSH / chuyển tiếp cổng địa phương, Gateway có thể thấy địa chỉ từ xa là `127.0.0.1`. Để tránh ghi đè một địa chỉ IP tốt do client báo cáo, các địa chỉ từ xa loopback bị bỏ qua.
 
-## Consumers
+## Người tiêu dùng
 
-### macOS Instances tab
+### Tab Instances trên macOS
 
-The macOS app renders the output of `system-presence` and applies a small status
-indicator (Active/Idle/Stale) based on the age of the last update.
+Ứng dụng macOS hiển thị đầu ra của `system-presence` và áp dụng một chỉ báo trạng thái nhỏ (Hoạt động/Không hoạt động/Lỗi thời) dựa trên tuổi của lần cập nhật cuối cùng.
 
-## Debugging tips
+## Mẹo gỡ lỗi
 
-- To see the raw list, call `system-presence` against the Gateway.
-- If you see duplicates:
-  - confirm clients send a stable `client.instanceId` in the handshake
-  - confirm periodic beacons use the same `instanceId`
-  - check whether the connection‑derived entry is missing `instanceId` (duplicates are expected)
+- Để xem danh sách thô, gọi `system-presence` đối với Gateway.
+- Nếu thấy trùng lặp:
+  - xác nhận các client gửi một `client.instanceId` ổn định trong quá trình bắt tay
+  - xác nhận các beacon định kỳ sử dụng cùng `instanceId`
+  - kiểm tra xem mục được tạo từ kết nối có thiếu `instanceId` không (trùng lặp là điều có thể xảy ra)

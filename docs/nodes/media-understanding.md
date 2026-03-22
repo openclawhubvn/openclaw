@@ -1,92 +1,89 @@
 ---
-summary: "Inbound image/audio/video understanding (optional) with provider + CLI fallbacks"
+summary: "Hiểu nội dung media (hình ảnh/âm thanh/video) đầu vào (tùy chọn) với provider + CLI dự phòng"
 read_when:
-  - Designing or refactoring media understanding
-  - Tuning inbound audio/video/image preprocessing
-title: "Media Understanding"
+  - Thiết kế hoặc tái cấu trúc việc hiểu media
+  - Tinh chỉnh xử lý trước âm thanh/video/hình ảnh đầu vào
+title: "Hiểu Nội Dung Media"
 ---
 
-# Media Understanding - Inbound (2026-01-17)
+# Hiểu Nội Dung Media - Đầu Vào (2026-01-17)
 
-OpenClaw can **summarize inbound media** (image/audio/video) before the reply pipeline runs. It auto‑detects when local tools or provider keys are available, and can be disabled or customized. If understanding is off, models still receive the original files/URLs as usual.
+OpenClaw có thể **tóm tắt media đầu vào** (hình ảnh/âm thanh/video) trước khi chạy quy trình trả lời. Nó tự động phát hiện khi có sẵn công cụ cục bộ hoặc khóa provider, và có thể tắt hoặc tùy chỉnh. Nếu không bật tính năng hiểu, các mô hình vẫn nhận được file/URL gốc như thường lệ.
 
-Vendor-specific media behavior is registered by vendor plugins, while OpenClaw
-core owns the shared `tools.media` config, fallback order, and reply-pipeline
-integration.
+Hành vi media cụ thể của từng nhà cung cấp được đăng ký bởi plugin của nhà cung cấp, trong khi OpenClaw core quản lý cấu hình `tools.media` chung, thứ tự dự phòng và tích hợp quy trình trả lời.
 
-## Goals
+## Mục tiêu
 
-- Optional: pre‑digest inbound media into short text for faster routing + better command parsing.
-- Preserve original media delivery to the model (always).
-- Support **provider APIs** and **CLI fallbacks**.
-- Allow multiple models with ordered fallback (error/size/timeout).
+- Tùy chọn: xử lý trước media đầu vào thành văn bản ngắn để định tuyến nhanh hơn và phân tích lệnh tốt hơn.
+- Bảo toàn việc chuyển giao media gốc cho mô hình (luôn luôn).
+- Hỗ trợ **API của nhà cung cấp** và **CLI dự phòng**.
+- Cho phép nhiều mô hình với thứ tự dự phòng (lỗi/kích thước/hết thời gian).
 
-## High-level behavior
+## Hành vi tổng quan
 
-1. Collect inbound attachments (`MediaPaths`, `MediaUrls`, `MediaTypes`).
-2. For each enabled capability (image/audio/video), select attachments per policy (default: **first**).
-3. Choose the first eligible model entry (size + capability + auth).
-4. If a model fails or the media is too large, **fall back to the next entry**.
-5. On success:
-   - `Body` becomes `[Image]`, `[Audio]`, or `[Video]` block.
-   - Audio sets `{{Transcript}}`; command parsing uses caption text when present,
-     otherwise the transcript.
-   - Captions are preserved as `User text:` inside the block.
+1. Thu thập tệp đính kèm đầu vào (`MediaPaths`, `MediaUrls`, `MediaTypes`).
+2. Với mỗi khả năng được bật (hình ảnh/âm thanh/video), chọn tệp đính kèm theo chính sách (mặc định: **đầu tiên**).
+3. Chọn mục nhập mô hình đủ điều kiện đầu tiên (kích thước + khả năng + xác thực).
+4. Nếu một mô hình thất bại hoặc media quá lớn, **chuyển sang mục nhập tiếp theo**.
+5. Khi thành công:
+   - `Body` trở thành khối `[Image]`, `[Audio]`, hoặc `[Video]`.
+   - Âm thanh thiết lập `{{Transcript}}`; phân tích lệnh sử dụng văn bản chú thích khi có, nếu không thì dùng bản ghi.
+   - Chú thích được giữ lại dưới dạng `User text:` bên trong khối.
 
-If understanding fails or is disabled, **the reply flow continues** with the original body + attachments.
+Nếu việc hiểu thất bại hoặc bị tắt, **quy trình trả lời tiếp tục** với nội dung gốc + tệp đính kèm.
 
-## Config overview
+## Tổng quan cấu hình
 
-`tools.media` supports **shared models** plus per‑capability overrides:
+`tools.media` hỗ trợ **mô hình chia sẻ** cùng với ghi đè theo khả năng:
 
-- `tools.media.models`: shared model list (use `capabilities` to gate).
+- `tools.media.models`: danh sách mô hình chia sẻ (sử dụng `capabilities` để giới hạn).
 - `tools.media.image` / `tools.media.audio` / `tools.media.video`:
-  - defaults (`prompt`, `maxChars`, `maxBytes`, `timeoutSeconds`, `language`)
-  - provider overrides (`baseUrl`, `headers`, `providerOptions`)
-  - Deepgram audio options via `tools.media.audio.providerOptions.deepgram`
-  - audio transcript echo controls (`echoTranscript`, default `false`; `echoFormat`)
-  - optional **per‑capability `models` list** (preferred before shared models)
-  - `attachments` policy (`mode`, `maxAttachments`, `prefer`)
-  - `scope` (optional gating by channel/chatType/session key)
-- `tools.media.concurrency`: max concurrent capability runs (default **2**).
+  - mặc định (`prompt`, `maxChars`, `maxBytes`, `timeoutSeconds`, `language`)
+  - ghi đè của nhà cung cấp (`baseUrl`, `headers`, `providerOptions`)
+  - tùy chọn âm thanh Deepgram qua `tools.media.audio.providerOptions.deepgram`
+  - kiểm soát echo bản ghi âm thanh (`echoTranscript`, mặc định `false`; `echoFormat`)
+  - danh sách **mô hình theo khả năng** tùy chọn (ưu tiên trước mô hình chia sẻ)
+  - chính sách `attachments` (`mode`, `maxAttachments`, `prefer`)
+  - `scope` (giới hạn tùy chọn theo kênh/loại chat/khóa phiên)
+- `tools.media.concurrency`: số lượng khả năng chạy đồng thời tối đa (mặc định **2**).
 
 ```json5
 {
   tools: {
     media: {
       models: [
-        /* shared list */
+        /* danh sách chia sẻ */
       ],
       image: {
-        /* optional overrides */
+        /* ghi đè tùy chọn */
       },
       audio: {
-        /* optional overrides */
+        /* ghi đè tùy chọn */
         echoTranscript: true,
         echoFormat: '📝 "{transcript}"',
       },
       video: {
-        /* optional overrides */
+        /* ghi đè tùy chọn */
       },
     },
   },
 }
 ```
 
-### Model entries
+### Mục nhập mô hình
 
-Each `models[]` entry can be **provider** or **CLI**:
+Mỗi mục nhập `models[]` có thể là **provider** hoặc **CLI**:
 
 ```json5
 {
-  type: "provider", // default if omitted
+  type: "provider", // mặc định nếu không có
   provider: "openai",
   model: "gpt-5.2",
-  prompt: "Describe the image in <= 500 chars.",
+  prompt: "Mô tả hình ảnh trong <= 500 ký tự.",
   maxChars: 500,
   maxBytes: 10485760,
   timeoutSeconds: 60,
-  capabilities: ["image"], // optional, used for multi‑modal entries
+  capabilities: ["image"], // tùy chọn, dùng cho mục nhập đa phương thức
   profile: "vision-profile",
   preferredProfile: "vision-fallback",
 }
@@ -101,7 +98,7 @@ Each `models[]` entry can be **provider** or **CLI**:
     "gemini-3-flash",
     "--allowed-tools",
     "read_file",
-    "Read the media at {{MediaPath}} and describe it in <= {{MaxChars}} characters.",
+    "Đọc media tại {{MediaPath}} và mô tả nó trong <= {{MaxChars}} ký tự.",
   ],
   maxChars: 500,
   maxBytes: 52428800,
@@ -110,49 +107,46 @@ Each `models[]` entry can be **provider** or **CLI**:
 }
 ```
 
-CLI templates can also use:
+Các mẫu CLI cũng có thể sử dụng:
 
-- `{{MediaDir}}` (directory containing the media file)
-- `{{OutputDir}}` (scratch dir created for this run)
-- `{{OutputBase}}` (scratch file base path, no extension)
+- `{{MediaDir}}` (thư mục chứa file media)
+- `{{OutputDir}}` (thư mục tạm tạo cho lần chạy này)
+- `{{OutputBase}}` (đường dẫn cơ sở file tạm, không có phần mở rộng)
 
-## Defaults and limits
+## Mặc định và giới hạn
 
-Recommended defaults:
+Mặc định được khuyến nghị:
 
-- `maxChars`: **500** for image/video (short, command‑friendly)
-- `maxChars`: **unset** for audio (full transcript unless you set a limit)
+- `maxChars`: **500** cho hình ảnh/video (ngắn, thân thiện với lệnh)
+- `maxChars`: **không đặt** cho âm thanh (bản ghi đầy đủ trừ khi bạn đặt giới hạn)
 - `maxBytes`:
-  - image: **10MB**
-  - audio: **20MB**
+  - hình ảnh: **10MB**
+  - âm thanh: **20MB**
   - video: **50MB**
 
-Rules:
+Quy tắc:
 
-- If media exceeds `maxBytes`, that model is skipped and the **next model is tried**.
-- Audio files smaller than **1024 bytes** are treated as empty/corrupt and skipped before provider/CLI transcription.
-- If the model returns more than `maxChars`, output is trimmed.
-- `prompt` defaults to simple “Describe the {media}.” plus the `maxChars` guidance (image/video only).
-- If `<capability>.enabled: true` but no models are configured, OpenClaw tries the
-  **active reply model** when its provider supports the capability.
+- Nếu media vượt quá `maxBytes`, mô hình đó bị bỏ qua và **mô hình tiếp theo được thử**.
+- File âm thanh nhỏ hơn **1024 byte** được coi là trống/hỏng và bị bỏ qua trước khi chuyển đổi của provider/CLI.
+- Nếu mô hình trả về nhiều hơn `maxChars`, đầu ra sẽ bị cắt ngắn.
+- `prompt` mặc định là “Mô tả {media}.” đơn giản cùng với hướng dẫn `maxChars` (chỉ hình ảnh/video).
+- Nếu `<capability>.enabled: true` nhưng không có mô hình nào được cấu hình, OpenClaw thử **mô hình trả lời đang hoạt động** khi nhà cung cấp của nó hỗ trợ khả năng đó.
 
-### Auto-detect media understanding (default)
+### Tự động phát hiện hiểu media (mặc định)
 
-If `tools.media.<capability>.enabled` is **not** set to `false` and you haven’t
-configured models, OpenClaw auto-detects in this order and **stops at the first
-working option**:
+Nếu `tools.media.<capability>.enabled` **không** được đặt thành `false` và bạn chưa cấu hình mô hình, OpenClaw tự động phát hiện theo thứ tự này và **dừng lại ở tùy chọn hoạt động đầu tiên**:
 
-1. **Local CLIs** (audio only; if installed)
-   - `sherpa-onnx-offline` (requires `SHERPA_ONNX_MODEL_DIR` with encoder/decoder/joiner/tokens)
-   - `whisper-cli` (`whisper-cpp`; uses `WHISPER_CPP_MODEL` or the bundled tiny model)
-   - `whisper` (Python CLI; downloads models automatically)
-2. **Gemini CLI** (`gemini`) using `read_many_files`
-3. **Provider keys**
-   - Audio: OpenAI → Groq → Deepgram → Google
-   - Image: OpenAI → Anthropic → Google → MiniMax
+1. **CLI cục bộ** (chỉ âm thanh; nếu đã cài đặt)
+   - `sherpa-onnx-offline` (yêu cầu `SHERPA_ONNX_MODEL_DIR` với encoder/decoder/joiner/tokens)
+   - `whisper-cli` (`whisper-cpp`; sử dụng `WHISPER_CPP_MODEL` hoặc mô hình nhỏ đi kèm)
+   - `whisper` (Python CLI; tự động tải xuống mô hình)
+2. **Gemini CLI** (`gemini`) sử dụng `read_many_files`
+3. **Khóa provider**
+   - Âm thanh: OpenAI → Groq → Deepgram → Google
+   - Hình ảnh: OpenAI → Anthropic → Google → MiniMax
    - Video: Google
 
-To disable auto-detection, set:
+Để tắt tự động phát hiện, đặt:
 
 ```json5
 {
@@ -166,67 +160,62 @@ To disable auto-detection, set:
 }
 ```
 
-Note: Binary detection is best-effort across macOS/Linux/Windows; ensure the CLI is on `PATH` (we expand `~`), or set an explicit CLI model with a full command path.
+Lưu ý: Phát hiện nhị phân là nỗ lực tốt nhất trên macOS/Linux/Windows; đảm bảo CLI có trong `PATH` (chúng tôi mở rộng `~`), hoặc đặt mô hình CLI rõ ràng với đường dẫn lệnh đầy đủ.
 
-### Proxy environment support (provider models)
+### Hỗ trợ môi trường proxy (mô hình provider)
 
-When provider-based **audio** and **video** media understanding is enabled, OpenClaw
-honors standard outbound proxy environment variables for provider HTTP calls:
+Khi hiểu media **âm thanh** và **video** dựa trên provider được bật, OpenClaw tuân thủ các biến môi trường proxy outbound tiêu chuẩn cho các cuộc gọi HTTP của provider:
 
 - `HTTPS_PROXY`
 - `HTTP_PROXY`
 - `https_proxy`
 - `http_proxy`
 
-If no proxy env vars are set, media understanding uses direct egress.
-If the proxy value is malformed, OpenClaw logs a warning and falls back to direct
-fetch.
+Nếu không có biến môi trường proxy nào được đặt, việc hiểu media sử dụng egress trực tiếp. Nếu giá trị proxy bị sai định dạng, OpenClaw ghi lại cảnh báo và quay lại fetch trực tiếp.
 
-## Capabilities (optional)
+## Khả năng (tùy chọn)
 
-If you set `capabilities`, the entry only runs for those media types. For shared
-lists, OpenClaw can infer defaults:
+Nếu bạn đặt `capabilities`, mục nhập chỉ chạy cho các loại media đó. Đối với danh sách chia sẻ, OpenClaw có thể suy ra mặc định:
 
-- `openai`, `anthropic`, `minimax`: **image**
-- `moonshot`: **image + video**
-- `google` (Gemini API): **image + audio + video**
-- `mistral`: **audio**
-- `zai`: **image**
-- `groq`: **audio**
-- `deepgram`: **audio**
+- `openai`, `anthropic`, `minimax`: **hình ảnh**
+- `moonshot`: **hình ảnh + video**
+- `google` (Gemini API): **hình ảnh + âm thanh + video**
+- `mistral`: **âm thanh**
+- `zai`: **hình ảnh**
+- `groq`: **âm thanh**
+- `deepgram`: **âm thanh**
 
-For CLI entries, **set `capabilities` explicitly** to avoid surprising matches.
-If you omit `capabilities`, the entry is eligible for the list it appears in.
+Đối với các mục nhập CLI, **đặt `capabilities` rõ ràng** để tránh các kết hợp bất ngờ. Nếu bạn bỏ qua `capabilities`, mục nhập đủ điều kiện cho danh sách mà nó xuất hiện.
 
-## Provider support matrix (OpenClaw integrations)
+## Ma trận hỗ trợ provider (tích hợp OpenClaw)
 
-| Capability | Provider integration                               | Notes                                                                   |
-| ---------- | -------------------------------------------------- | ----------------------------------------------------------------------- |
-| Image      | OpenAI, Anthropic, Google, MiniMax, Moonshot, Z.AI | Vendor plugins register image support against core media understanding. |
-| Audio      | OpenAI, Groq, Deepgram, Google, Mistral            | Provider transcription (Whisper/Deepgram/Gemini/Voxtral).               |
-| Video      | Google, Moonshot                                   | Provider video understanding via vendor plugins.                        |
+| Khả năng | Tích hợp provider                                  | Ghi chú                                                                   |
+| -------- | -------------------------------------------------- | ------------------------------------------------------------------------- |
+| Hình ảnh | OpenAI, Anthropic, Google, MiniMax, Moonshot, Z.AI | Plugin của nhà cung cấp đăng ký hỗ trợ hình ảnh với hiểu media cốt lõi.   |
+| Âm thanh | OpenAI, Groq, Deepgram, Google, Mistral            | Chuyển đổi của provider (Whisper/Deepgram/Gemini/Voxtral).                |
+| Video    | Google, Moonshot                                   | Hiểu video của provider qua plugin của nhà cung cấp.                      |
 
-## Model selection guidance
+## Hướng dẫn chọn mô hình
 
-- Prefer the strongest latest-generation model available for each media capability when quality and safety matter.
-- For tool-enabled agents handling untrusted inputs, avoid older/weaker media models.
-- Keep at least one fallback per capability for availability (quality model + faster/cheaper model).
-- CLI fallbacks (`whisper-cli`, `whisper`, `gemini`) are useful when provider APIs are unavailable.
-- `parakeet-mlx` note: with `--output-dir`, OpenClaw reads `<output-dir>/<media-basename>.txt` when output format is `txt` (or unspecified); non-`txt` formats fall back to stdout.
+- Ưu tiên mô hình thế hệ mới mạnh nhất có sẵn cho mỗi khả năng media khi chất lượng và an toàn quan trọng.
+- Đối với các agent có công cụ xử lý đầu vào không đáng tin cậy, tránh các mô hình media cũ/yếu hơn.
+- Giữ ít nhất một dự phòng cho mỗi khả năng để đảm bảo khả dụng (mô hình chất lượng + mô hình nhanh hơn/rẻ hơn).
+- CLI dự phòng (`whisper-cli`, `whisper`, `gemini`) hữu ích khi API của provider không khả dụng.
+- Lưu ý `parakeet-mlx`: với `--output-dir`, OpenClaw đọc `<output-dir>/<media-basename>.txt` khi định dạng đầu ra là `txt` (hoặc không xác định); các định dạng không phải `txt` quay lại stdout.
 
-## Attachment policy
+## Chính sách tệp đính kèm
 
-Per‑capability `attachments` controls which attachments are processed:
+`attachments` theo khả năng kiểm soát tệp đính kèm nào được xử lý:
 
-- `mode`: `first` (default) or `all`
-- `maxAttachments`: cap the number processed (default **1**)
+- `mode`: `first` (mặc định) hoặc `all`
+- `maxAttachments`: giới hạn số lượng được xử lý (mặc định **1**)
 - `prefer`: `first`, `last`, `path`, `url`
 
-When `mode: "all"`, outputs are labeled `[Image 1/2]`, `[Audio 2/2]`, etc.
+Khi `mode: "all"`, đầu ra được gắn nhãn `[Image 1/2]`, `[Audio 2/2]`, v.v.
 
-## Config examples
+## Ví dụ cấu hình
 
-### 1) Shared models list + overrides
+### 1) Danh sách mô hình chia sẻ + ghi đè
 
 ```json5
 {
@@ -247,7 +236,7 @@ When `mode: "all"`, outputs are labeled `[Image 1/2]`, `[Audio 2/2]`, etc.
             "gemini-3-flash",
             "--allowed-tools",
             "read_file",
-            "Read the media at {{MediaPath}} and describe it in <= {{MaxChars}} characters.",
+            "Đọc media tại {{MediaPath}} và mô tả nó trong <= {{MaxChars}} ký tự.",
           ],
           capabilities: ["image", "video"],
         },
@@ -263,7 +252,7 @@ When `mode: "all"`, outputs are labeled `[Image 1/2]`, `[Audio 2/2]`, etc.
 }
 ```
 
-### 2) Audio + Video only (image off)
+### 2) Chỉ Âm thanh + Video (tắt hình ảnh)
 
 ```json5
 {
@@ -293,7 +282,7 @@ When `mode: "all"`, outputs are labeled `[Image 1/2]`, `[Audio 2/2]`, etc.
               "gemini-3-flash",
               "--allowed-tools",
               "read_file",
-              "Read the media at {{MediaPath}} and describe it in <= {{MaxChars}} characters.",
+              "Đọc media tại {{MediaPath}} và mô tả nó trong <= {{MaxChars}} ký tự.",
             ],
           },
         ],
@@ -303,7 +292,7 @@ When `mode: "all"`, outputs are labeled `[Image 1/2]`, `[Audio 2/2]`, etc.
 }
 ```
 
-### 3) Optional image understanding
+### 3) Hiểu hình ảnh tùy chọn
 
 ```json5
 {
@@ -324,7 +313,7 @@ When `mode: "all"`, outputs are labeled `[Image 1/2]`, `[Audio 2/2]`, etc.
               "gemini-3-flash",
               "--allowed-tools",
               "read_file",
-              "Read the media at {{MediaPath}} and describe it in <= {{MaxChars}} characters.",
+              "Đọc media tại {{MediaPath}} và mô tả nó trong <= {{MaxChars}} ký tự.",
             ],
           },
         ],
@@ -334,7 +323,7 @@ When `mode: "all"`, outputs are labeled `[Image 1/2]`, `[Audio 2/2]`, etc.
 }
 ```
 
-### 4) Multi-modal single entry (explicit capabilities)
+### 4) Mục nhập đơn đa phương thức (khả năng rõ ràng)
 
 ```json5
 {
@@ -372,23 +361,23 @@ When `mode: "all"`, outputs are labeled `[Image 1/2]`, `[Audio 2/2]`, etc.
 }
 ```
 
-## Status output
+## Kết quả trạng thái
 
-When media understanding runs, `/status` includes a short summary line:
+Khi hiểu media chạy, `/status` bao gồm một dòng tóm tắt ngắn:
 
 ```
-📎 Media: image ok (openai/gpt-5.2) · audio skipped (maxBytes)
+📎 Media: hình ảnh ok (openai/gpt-5.2) · âm thanh bị bỏ qua (maxBytes)
 ```
 
-This shows per‑capability outcomes and the chosen provider/model when applicable.
+Điều này hiển thị kết quả theo khả năng và nhà cung cấp/mô hình được chọn khi áp dụng.
 
-## Notes
+## Ghi chú
 
-- Understanding is **best‑effort**. Errors do not block replies.
-- Attachments are still passed to models even when understanding is disabled.
-- Use `scope` to limit where understanding runs (e.g. only DMs).
+- Hiểu là **nỗ lực tốt nhất**. Lỗi không chặn trả lời.
+- Tệp đính kèm vẫn được chuyển đến mô hình ngay cả khi hiểu bị tắt.
+- Sử dụng `scope` để giới hạn nơi hiểu chạy (ví dụ: chỉ DMs).
 
-## Related docs
+## Tài liệu liên quan
 
-- [Configuration](/gateway/configuration)
-- [Image & Media Support](/nodes/images)
+- [Cấu hình](/gateway/configuration)
+- [Hỗ trợ Hình ảnh & Media](/nodes/images)

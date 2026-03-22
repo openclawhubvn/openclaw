@@ -1,24 +1,22 @@
 ---
-summary: "Feishu bot overview, features, and configuration"
+summary: "Tổng quan về bot Feishu, các tính năng và cấu hình"
 read_when:
-  - You want to connect a Feishu/Lark bot
-  - You are configuring the Feishu channel
+  - Bạn muốn kết nối một bot Feishu/Lark
+  - Bạn đang cấu hình kênh Feishu
 title: Feishu
 ---
 
-# Feishu bot
+# Bot Feishu
 
-Feishu (Lark) is a team chat platform used by companies for messaging and collaboration. This plugin connects OpenClaw to a Feishu/Lark bot using the platform’s WebSocket event subscription so messages can be received without exposing a public webhook URL.
+Feishu (Lark) là một nền tảng chat nhóm được các công ty sử dụng để nhắn tin và cộng tác. Plugin này kết nối OpenClaw với một bot Feishu/Lark thông qua đăng ký sự kiện WebSocket của nền tảng, cho phép nhận tin nhắn mà không cần công khai URL webhook.
 
 ---
 
-## Bundled plugin
+## Plugin đi kèm
 
-Feishu ships bundled with current OpenClaw releases, so no separate plugin install
-is required.
+Feishu được tích hợp sẵn trong các phiên bản OpenClaw hiện tại, vì vậy không cần cài đặt plugin riêng.
 
-If you are using an older build or a custom install that does not include bundled
-Feishu, install it manually:
+Nếu bạn đang sử dụng bản build cũ hoặc cài đặt tùy chỉnh không bao gồm Feishu, hãy cài đặt thủ công:
 
 ```bash
 openclaw plugins install @openclaw/feishu
@@ -26,40 +24,40 @@ openclaw plugins install @openclaw/feishu
 
 ---
 
-## Quickstart
+## Bắt đầu nhanh
 
-There are two ways to add the Feishu channel:
+Có hai cách để thêm kênh Feishu:
 
-### Method 1: onboarding (recommended)
+### Cách 1: onboarding (khuyến nghị)
 
-If you just installed OpenClaw, run onboarding:
+Nếu bạn vừa cài đặt OpenClaw, chạy onboarding:
 
 ```bash
 openclaw onboard
 ```
 
-The wizard guides you through:
+Trình hướng dẫn sẽ giúp bạn:
 
-1. Creating a Feishu app and collecting credentials
-2. Configuring app credentials in OpenClaw
-3. Starting the gateway
+1. Tạo ứng dụng Feishu và thu thập thông tin xác thực
+2. Cấu hình thông tin xác thực ứng dụng trong OpenClaw
+3. Khởi động gateway
 
-✅ **After configuration**, check gateway status:
+✅ **Sau khi cấu hình**, kiểm tra trạng thái gateway:
 
 - `openclaw gateway status`
 - `openclaw logs --follow`
 
-### Method 2: CLI setup
+### Cách 2: Thiết lập qua CLI
 
-If you already completed initial install, add the channel via CLI:
+Nếu bạn đã hoàn tất cài đặt ban đầu, thêm kênh qua CLI:
 
 ```bash
 openclaw channels add
 ```
 
-Choose **Feishu**, then enter the App ID and App Secret.
+Chọn **Feishu**, sau đó nhập App ID và App Secret.
 
-✅ **After configuration**, manage the gateway:
+✅ **Sau khi cấu hình**, quản lý gateway:
 
 - `openclaw gateway status`
 - `openclaw gateway restart`
@@ -67,36 +65,36 @@ Choose **Feishu**, then enter the App ID and App Secret.
 
 ---
 
-## Step 1: Create a Feishu app
+## Bước 1: Tạo ứng dụng Feishu
 
-### 1. Open Feishu Open Platform
+### 1. Mở Feishu Open Platform
 
-Visit [Feishu Open Platform](https://open.feishu.cn/app) and sign in.
+Truy cập [Feishu Open Platform](https://open.feishu.cn/app) và đăng nhập.
 
-Lark (global) tenants should use [https://open.larksuite.com/app](https://open.larksuite.com/app) and set `domain: "lark"` in the Feishu config.
+Người dùng Lark (toàn cầu) nên sử dụng [https://open.larksuite.com/app](https://open.larksuite.com/app) và đặt `domain: "lark"` trong cấu hình Feishu.
 
-### 2. Create an app
+### 2. Tạo ứng dụng
 
-1. Click **Create enterprise app**
-2. Fill in the app name + description
-3. Choose an app icon
+1. Nhấn **Create enterprise app**
+2. Điền tên và mô tả ứng dụng
+3. Chọn biểu tượng ứng dụng
 
-![Create enterprise app](../images/feishu-step2-create-app.png)
+![Tạo ứng dụng doanh nghiệp](../images/feishu-step2-create-app.png)
 
-### 3. Copy credentials
+### 3. Sao chép thông tin xác thực
 
-From **Credentials & Basic Info**, copy:
+Từ **Credentials & Basic Info**, sao chép:
 
-- **App ID** (format: `cli_xxx`)
+- **App ID** (định dạng: `cli_xxx`)
 - **App Secret**
 
-❗ **Important:** keep the App Secret private.
+❗ **Quan trọng:** giữ bí mật App Secret.
 
-![Get credentials](../images/feishu-step3-credentials.png)
+![Lấy thông tin xác thực](../images/feishu-step3-credentials.png)
 
-### 4. Configure permissions
+### 4. Cấu hình quyền
 
-On **Permissions**, click **Batch import** and paste:
+Trong **Permissions**, nhấn **Batch import** và dán:
 
 ```json
 {
@@ -126,54 +124,54 @@ On **Permissions**, click **Batch import** and paste:
 }
 ```
 
-![Configure permissions](../images/feishu-step4-permissions.png)
+![Cấu hình quyền](../images/feishu-step4-permissions.png)
 
-### 5. Enable bot capability
+### 5. Kích hoạt khả năng bot
 
-In **App Capability** > **Bot**:
+Trong **App Capability** > **Bot**:
 
-1. Enable bot capability
-2. Set the bot name
+1. Kích hoạt khả năng bot
+2. Đặt tên cho bot
 
-![Enable bot capability](../images/feishu-step5-bot-capability.png)
+![Kích hoạt khả năng bot](../images/feishu-step5-bot-capability.png)
 
-### 6. Configure event subscription
+### 6. Cấu hình đăng ký sự kiện
 
-⚠️ **Important:** before setting event subscription, make sure:
+⚠️ **Quan trọng:** trước khi thiết lập đăng ký sự kiện, đảm bảo rằng:
 
-1. You already ran `openclaw channels add` for Feishu
-2. The gateway is running (`openclaw gateway status`)
+1. Bạn đã chạy `openclaw channels add` cho Feishu
+2. Gateway đang chạy (`openclaw gateway status`)
 
-In **Event Subscription**:
+Trong **Event Subscription**:
 
-1. Choose **Use long connection to receive events** (WebSocket)
-2. Add the event: `im.message.receive_v1`
+1. Chọn **Use long connection to receive events** (WebSocket)
+2. Thêm sự kiện: `im.message.receive_v1`
 
-⚠️ If the gateway is not running, the long-connection setup may fail to save.
+⚠️ Nếu gateway không chạy, thiết lập kết nối dài có thể không lưu được.
 
-![Configure event subscription](../images/feishu-step6-event-subscription.png)
+![Cấu hình đăng ký sự kiện](../images/feishu-step6-event-subscription.png)
 
-### 7. Publish the app
+### 7. Phát hành ứng dụng
 
-1. Create a version in **Version Management & Release**
-2. Submit for review and publish
-3. Wait for admin approval (enterprise apps usually auto-approve)
+1. Tạo phiên bản trong **Version Management & Release**
+2. Gửi để xem xét và phát hành
+3. Chờ phê duyệt từ quản trị viên (ứng dụng doanh nghiệp thường tự động phê duyệt)
 
 ---
 
-## Step 2: Configure OpenClaw
+## Bước 2: Cấu hình OpenClaw
 
-### Configure with the wizard (recommended)
+### Cấu hình với trình hướng dẫn (khuyến nghị)
 
 ```bash
 openclaw channels add
 ```
 
-Choose **Feishu** and paste your App ID + App Secret.
+Chọn **Feishu** và dán App ID + App Secret của bạn.
 
-### Configure via config file
+### Cấu hình qua file cấu hình
 
-Edit `~/.openclaw/openclaw.json`:
+Chỉnh sửa `~/.openclaw/openclaw.json`:
 
 ```json5
 {
@@ -185,7 +183,7 @@ Edit `~/.openclaw/openclaw.json`:
         main: {
           appId: "cli_xxx",
           appSecret: "xxx",
-          botName: "My AI assistant",
+          botName: "Trợ lý AI của tôi",
         },
       },
     },
@@ -193,31 +191,31 @@ Edit `~/.openclaw/openclaw.json`:
 }
 ```
 
-If you use `connectionMode: "webhook"`, set both `verificationToken` and `encryptKey`. The Feishu webhook server binds to `127.0.0.1` by default; set `webhookHost` only if you intentionally need a different bind address.
+Nếu bạn sử dụng `connectionMode: "webhook"`, đặt cả `verificationToken` và `encryptKey`. Máy chủ webhook Feishu mặc định gắn với `127.0.0.1`; chỉ đặt `webhookHost` nếu bạn cần địa chỉ gắn khác.
 
-#### Verification Token and Encrypt Key (webhook mode)
+#### Verification Token và Encrypt Key (chế độ webhook)
 
-When using webhook mode, set both `channels.feishu.verificationToken` and `channels.feishu.encryptKey` in your config. To get the values:
+Khi sử dụng chế độ webhook, đặt cả `channels.feishu.verificationToken` và `channels.feishu.encryptKey` trong cấu hình của bạn. Để lấy giá trị:
 
-1. In Feishu Open Platform, open your app
-2. Go to **Development** → **Events & Callbacks** (开发配置 → 事件与回调)
-3. Open the **Encryption** tab (加密策略)
-4. Copy **Verification Token** and **Encrypt Key**
+1. Trong Feishu Open Platform, mở ứng dụng của bạn
+2. Đi tới **Development** → **Events & Callbacks** (开发配置 → 事件与回调)
+3. Mở tab **Encryption** (加密策略)
+4. Sao chép **Verification Token** và **Encrypt Key**
 
-The screenshot below shows where to find the **Verification Token**. The **Encrypt Key** is listed in the same **Encryption** section.
+Hình ảnh dưới đây cho thấy vị trí của **Verification Token**. **Encrypt Key** được liệt kê trong cùng phần **Encryption**.
 
-![Verification Token location](../images/feishu-verification-token.png)
+![Vị trí Verification Token](../images/feishu-verification-token.png)
 
-### Configure via environment variables
+### Cấu hình qua biến môi trường
 
 ```bash
 export FEISHU_APP_ID="cli_xxx"
 export FEISHU_APP_SECRET="xxx"
 ```
 
-### Lark (global) domain
+### Miền Lark (toàn cầu)
 
-If your tenant is on Lark (international), set the domain to `lark` (or a full domain string). You can set it at `channels.feishu.domain` or per account (`channels.feishu.accounts.<id>.domain`).
+Nếu tenant của bạn trên Lark (quốc tế), đặt miền thành `lark` (hoặc chuỗi miền đầy đủ). Bạn có thể đặt tại `channels.feishu.domain` hoặc theo tài khoản (`channels.feishu.accounts.<id>.domain`).
 
 ```json5
 {
@@ -235,14 +233,14 @@ If your tenant is on Lark (international), set the domain to `lark` (or a full d
 }
 ```
 
-### Quota optimization flags
+### Cờ tối ưu hóa hạn ngạch
 
-You can reduce Feishu API usage with two optional flags:
+Bạn có thể giảm sử dụng API Feishu với hai cờ tùy chọn:
 
-- `typingIndicator` (default `true`): when `false`, skip typing reaction calls.
-- `resolveSenderNames` (default `true`): when `false`, skip sender profile lookup calls.
+- `typingIndicator` (mặc định `true`): khi `false`, bỏ qua các cuộc gọi phản ứng gõ.
+- `resolveSenderNames` (mặc định `true`): khi `false`, bỏ qua các cuộc gọi tra cứu hồ sơ người gửi.
 
-Set them at top level or per account:
+Đặt chúng ở cấp cao nhất hoặc theo tài khoản:
 
 ```json5
 {
@@ -265,84 +263,84 @@ Set them at top level or per account:
 
 ---
 
-## Step 3: Start + test
+## Bước 3: Khởi động + kiểm tra
 
-### 1. Start the gateway
+### 1. Khởi động gateway
 
 ```bash
 openclaw gateway
 ```
 
-### 2. Send a test message
+### 2. Gửi tin nhắn thử nghiệm
 
-In Feishu, find your bot and send a message.
+Trong Feishu, tìm bot của bạn và gửi một tin nhắn.
 
-### 3. Approve pairing
+### 3. Phê duyệt ghép đôi
 
-By default, the bot replies with a pairing code. Approve it:
+Mặc định, bot sẽ trả lời với mã ghép đôi. Phê duyệt nó:
 
 ```bash
 openclaw pairing approve feishu <CODE>
 ```
 
-After approval, you can chat normally.
+Sau khi phê duyệt, bạn có thể chat bình thường.
 
 ---
 
-## Overview
+## Tổng quan
 
-- **Feishu bot channel**: Feishu bot managed by the gateway
-- **Deterministic routing**: replies always return to Feishu
-- **Session isolation**: DMs share a main session; groups are isolated
-- **WebSocket connection**: long connection via Feishu SDK, no public URL needed
+- **Kênh bot Feishu**: Bot Feishu được quản lý bởi gateway
+- **Định tuyến quyết định**: trả lời luôn quay lại Feishu
+- **Cách ly phiên**: DMs chia sẻ một phiên chính; nhóm được cách ly
+- **Kết nối WebSocket**: kết nối dài qua SDK Feishu, không cần URL công khai
 
 ---
 
-## Access control
+## Kiểm soát truy cập
 
-### Direct messages
+### Tin nhắn trực tiếp
 
-- **Default**: `dmPolicy: "pairing"` (unknown users get a pairing code)
-- **Approve pairing**:
+- **Mặc định**: `dmPolicy: "pairing"` (người dùng không xác định nhận mã ghép đôi)
+- **Phê duyệt ghép đôi**:
 
   ```bash
   openclaw pairing list feishu
   openclaw pairing approve feishu <CODE>
   ```
 
-- **Allowlist mode**: set `channels.feishu.allowFrom` with allowed Open IDs
+- **Chế độ danh sách cho phép**: đặt `channels.feishu.allowFrom` với các Open ID được phép
 
-### Group chats
+### Chat nhóm
 
-**1. Group policy** (`channels.feishu.groupPolicy`):
+**1. Chính sách nhóm** (`channels.feishu.groupPolicy`):
 
-- `"open"` = allow everyone in groups (default)
-- `"allowlist"` = only allow `groupAllowFrom`
-- `"disabled"` = disable group messages
+- `"open"` = cho phép mọi người trong nhóm (mặc định)
+- `"allowlist"` = chỉ cho phép `groupAllowFrom`
+- `"disabled"` = vô hiệu hóa tin nhắn nhóm
 
-**2. Mention requirement** (`channels.feishu.groups.<chat_id>.requireMention`):
+**2. Yêu cầu đề cập** (`channels.feishu.groups.<chat_id>.requireMention`):
 
-- `true` = require @mention (default)
-- `false` = respond without mentions
+- `true` = yêu cầu @mention (mặc định)
+- `false` = phản hồi mà không cần đề cập
 
 ---
 
-## Group configuration examples
+## Ví dụ cấu hình nhóm
 
-### Allow all groups, require @mention (default)
+### Cho phép tất cả các nhóm, yêu cầu @mention (mặc định)
 
 ```json5
 {
   channels: {
     feishu: {
       groupPolicy: "open",
-      // Default requireMention: true
+      // Mặc định requireMention: true
     },
   },
 }
 ```
 
-### Allow all groups, no @mention required
+### Cho phép tất cả các nhóm, không yêu cầu @mention
 
 ```json5
 {
@@ -356,23 +354,23 @@ After approval, you can chat normally.
 }
 ```
 
-### Allow specific groups only
+### Chỉ cho phép các nhóm cụ thể
 
 ```json5
 {
   channels: {
     feishu: {
       groupPolicy: "allowlist",
-      // Feishu group IDs (chat_id) look like: oc_xxx
+      // ID nhóm Feishu (chat_id) trông như: oc_xxx
       groupAllowFrom: ["oc_xxx", "oc_yyy"],
     },
   },
 }
 ```
 
-### Restrict which senders can message in a group (sender allowlist)
+### Hạn chế người gửi có thể nhắn tin trong nhóm (danh sách cho phép người gửi)
 
-In addition to allowing the group itself, **all messages** in that group are gated by the sender open_id: only users listed in `groups.<chat_id>.allowFrom` have their messages processed; messages from other members are ignored (this is full sender-level gating, not only for control commands like /reset or /new).
+Ngoài việc cho phép nhóm, **tất cả tin nhắn** trong nhóm đó đều bị kiểm soát bởi open_id của người gửi: chỉ những người dùng được liệt kê trong `groups.<chat_id>.allowFrom` mới có tin nhắn được xử lý; tin nhắn từ các thành viên khác bị bỏ qua (đây là kiểm soát cấp độ người gửi đầy đủ, không chỉ cho các lệnh điều khiển như /reset hoặc /new).
 
 ```json5
 {
@@ -382,7 +380,7 @@ In addition to allowing the group itself, **all messages** in that group are gat
       groupAllowFrom: ["oc_xxx"],
       groups: {
         oc_xxx: {
-          // Feishu user IDs (open_id) look like: ou_xxx
+          // ID người dùng Feishu (open_id) trông như: ou_xxx
           allowFrom: ["ou_user1", "ou_user2"],
         },
       },
@@ -393,33 +391,33 @@ In addition to allowing the group itself, **all messages** in that group are gat
 
 ---
 
-## Get group/user IDs
+## Lấy ID nhóm/người dùng
 
-### Group IDs (chat_id)
+### ID nhóm (chat_id)
 
-Group IDs look like `oc_xxx`.
+ID nhóm trông như `oc_xxx`.
 
-**Method 1 (recommended)**
+**Phương pháp 1 (khuyến nghị)**
 
-1. Start the gateway and @mention the bot in the group
-2. Run `openclaw logs --follow` and look for `chat_id`
+1. Khởi động gateway và @mention bot trong nhóm
+2. Chạy `openclaw logs --follow` và tìm `chat_id`
 
-**Method 2**
+**Phương pháp 2**
 
-Use the Feishu API debugger to list group chats.
+Sử dụng trình gỡ lỗi API Feishu để liệt kê các nhóm chat.
 
-### User IDs (open_id)
+### ID người dùng (open_id)
 
-User IDs look like `ou_xxx`.
+ID người dùng trông như `ou_xxx`.
 
-**Method 1 (recommended)**
+**Phương pháp 1 (khuyến nghị)**
 
-1. Start the gateway and DM the bot
-2. Run `openclaw logs --follow` and look for `open_id`
+1. Khởi động gateway và nhắn tin trực tiếp cho bot
+2. Chạy `openclaw logs --follow` và tìm `open_id`
 
-**Method 2**
+**Phương pháp 2**
 
-Check pairing requests for user Open IDs:
+Kiểm tra yêu cầu ghép đôi để lấy Open ID người dùng:
 
 ```bash
 openclaw pairing list feishu
@@ -427,63 +425,63 @@ openclaw pairing list feishu
 
 ---
 
-## Common commands
+## Các lệnh thông dụng
 
-| Command   | Description       |
-| --------- | ----------------- |
-| `/status` | Show bot status   |
-| `/reset`  | Reset the session |
-| `/model`  | Show/switch model |
+| Lệnh      | Mô tả                  |
+| --------- | ---------------------- |
+| `/status` | Hiển thị trạng thái bot|
+| `/reset`  | Đặt lại phiên          |
+| `/model`  | Hiển thị/chuyển đổi mô hình |
 
-> Note: Feishu does not support native command menus yet, so commands must be sent as text.
+> Lưu ý: Feishu chưa hỗ trợ menu lệnh gốc, vì vậy các lệnh phải được gửi dưới dạng văn bản.
 
-## Gateway management commands
+## Lệnh quản lý gateway
 
-| Command                    | Description                   |
-| -------------------------- | ----------------------------- |
-| `openclaw gateway status`  | Show gateway status           |
-| `openclaw gateway install` | Install/start gateway service |
-| `openclaw gateway stop`    | Stop gateway service          |
-| `openclaw gateway restart` | Restart gateway service       |
-| `openclaw logs --follow`   | Tail gateway logs             |
-
----
-
-## Troubleshooting
-
-### Bot does not respond in group chats
-
-1. Ensure the bot is added to the group
-2. Ensure you @mention the bot (default behavior)
-3. Check `groupPolicy` is not set to `"disabled"`
-4. Check logs: `openclaw logs --follow`
-
-### Bot does not receive messages
-
-1. Ensure the app is published and approved
-2. Ensure event subscription includes `im.message.receive_v1`
-3. Ensure **long connection** is enabled
-4. Ensure app permissions are complete
-5. Ensure the gateway is running: `openclaw gateway status`
-6. Check logs: `openclaw logs --follow`
-
-### App Secret leak
-
-1. Reset the App Secret in Feishu Open Platform
-2. Update the App Secret in your config
-3. Restart the gateway
-
-### Message send failures
-
-1. Ensure the app has `im:message:send_as_bot` permission
-2. Ensure the app is published
-3. Check logs for detailed errors
+| Lệnh                       | Mô tả                           |
+| -------------------------- | ------------------------------- |
+| `openclaw gateway status`  | Hiển thị trạng thái gateway     |
+| `openclaw gateway install` | Cài đặt/khởi động dịch vụ gateway|
+| `openclaw gateway stop`    | Dừng dịch vụ gateway            |
+| `openclaw gateway restart` | Khởi động lại dịch vụ gateway   |
+| `openclaw logs --follow`   | Theo dõi log gateway            |
 
 ---
 
-## Advanced configuration
+## Khắc phục sự cố
 
-### Multiple accounts
+### Bot không phản hồi trong chat nhóm
+
+1. Đảm bảo bot đã được thêm vào nhóm
+2. Đảm bảo bạn @mention bot (hành vi mặc định)
+3. Kiểm tra `groupPolicy` không được đặt thành `"disabled"`
+4. Kiểm tra log: `openclaw logs --follow`
+
+### Bot không nhận tin nhắn
+
+1. Đảm bảo ứng dụng đã được phát hành và phê duyệt
+2. Đảm bảo đăng ký sự kiện bao gồm `im.message.receive_v1`
+3. Đảm bảo **kết nối dài** đã được kích hoạt
+4. Đảm bảo quyền ứng dụng đầy đủ
+5. Đảm bảo gateway đang chạy: `openclaw gateway status`
+6. Kiểm tra log: `openclaw logs --follow`
+
+### Rò rỉ App Secret
+
+1. Đặt lại App Secret trong Feishu Open Platform
+2. Cập nhật App Secret trong cấu hình của bạn
+3. Khởi động lại gateway
+
+### Gửi tin nhắn thất bại
+
+1. Đảm bảo ứng dụng có quyền `im:message:send_as_bot`
+2. Đảm bảo ứng dụng đã được phát hành
+3. Kiểm tra log để biết lỗi chi tiết
+
+---
+
+## Cấu hình nâng cao
+
+### Nhiều tài khoản
 
 ```json5
 {
@@ -494,12 +492,12 @@ openclaw pairing list feishu
         main: {
           appId: "cli_xxx",
           appSecret: "xxx",
-          botName: "Primary bot",
+          botName: "Bot chính",
         },
         backup: {
           appId: "cli_yyy",
           appSecret: "yyy",
-          botName: "Backup bot",
+          botName: "Bot dự phòng",
           enabled: false,
         },
       },
@@ -508,42 +506,42 @@ openclaw pairing list feishu
 }
 ```
 
-`defaultAccount` controls which Feishu account is used when outbound APIs do not specify an `accountId` explicitly.
+`defaultAccount` kiểm soát tài khoản Feishu nào được sử dụng khi API outbound không chỉ định `accountId` rõ ràng.
 
-### Message limits
+### Giới hạn tin nhắn
 
-- `textChunkLimit`: outbound text chunk size (default: 2000 chars)
-- `mediaMaxMb`: media upload/download limit (default: 30MB)
+- `textChunkLimit`: kích thước đoạn văn bản outbound (mặc định: 2000 ký tự)
+- `mediaMaxMb`: giới hạn tải lên/tải xuống phương tiện (mặc định: 30MB)
 
 ### Streaming
 
-Feishu supports streaming replies via interactive cards. When enabled, the bot updates a card as it generates text.
+Feishu hỗ trợ streaming phản hồi qua thẻ tương tác. Khi được kích hoạt, bot cập nhật thẻ khi tạo văn bản.
 
 ```json5
 {
   channels: {
     feishu: {
-      streaming: true, // enable streaming card output (default true)
-      blockStreaming: true, // enable block-level streaming (default true)
+      streaming: true, // kích hoạt đầu ra thẻ streaming (mặc định true)
+      blockStreaming: true, // kích hoạt streaming cấp khối (mặc định true)
     },
   },
 }
 ```
 
-Set `streaming: false` to wait for the full reply before sending.
+Đặt `streaming: false` để chờ phản hồi đầy đủ trước khi gửi.
 
-### ACP sessions
+### Phiên ACP
 
-Feishu supports ACP for:
+Feishu hỗ trợ ACP cho:
 
 - DMs
-- group topic conversations
+- cuộc trò chuyện chủ đề nhóm
 
-Feishu ACP is text-command driven. There are no native slash-command menus, so use `/acp ...` messages directly in the conversation.
+Feishu ACP được điều khiển bằng lệnh văn bản. Không có menu lệnh gạch chéo gốc, vì vậy sử dụng tin nhắn `/acp ...` trực tiếp trong cuộc trò chuyện.
 
-#### Persistent ACP bindings
+#### Ràng buộc ACP liên tục
 
-Use top-level typed ACP bindings to pin a Feishu DM or topic conversation to a persistent ACP session.
+Sử dụng ràng buộc ACP kiểu cấp cao nhất để ghim một cuộc trò chuyện DM hoặc chủ đề Feishu vào một phiên ACP liên tục.
 
 ```json5
 {
@@ -587,23 +585,23 @@ Use top-level typed ACP bindings to pin a Feishu DM or topic conversation to a p
 }
 ```
 
-#### Thread-bound ACP spawn from chat
+#### Khởi tạo ACP từ chat
 
-In a Feishu DM or topic conversation, you can spawn and bind an ACP session in place:
+Trong một cuộc trò chuyện DM hoặc chủ đề Feishu, bạn có thể khởi tạo và ràng buộc một phiên ACP tại chỗ:
 
 ```text
 /acp spawn codex --thread here
 ```
 
-Notes:
+Lưu ý:
 
-- `--thread here` works for DMs and Feishu topics.
-- Follow-up messages in the bound DM/topic route directly to that ACP session.
-- v1 does not target generic non-topic group chats.
+- `--thread here` hoạt động cho DMs và chủ đề Feishu.
+- Tin nhắn tiếp theo trong DM/chủ đề được ràng buộc sẽ chuyển trực tiếp đến phiên ACP đó.
+- v1 không nhắm mục tiêu các nhóm không phải chủ đề chung.
 
-### Multi-agent routing
+### Định tuyến nhiều tác nhân
 
-Use `bindings` to route Feishu DMs or groups to different agents.
+Sử dụng `bindings` để định tuyến DMs hoặc nhóm Feishu đến các tác nhân khác nhau.
 
 ```json5
 {
@@ -648,91 +646,91 @@ Use `bindings` to route Feishu DMs or groups to different agents.
 }
 ```
 
-Routing fields:
+Các trường định tuyến:
 
 - `match.channel`: `"feishu"`
-- `match.peer.kind`: `"direct"` or `"group"`
-- `match.peer.id`: user Open ID (`ou_xxx`) or group ID (`oc_xxx`)
+- `match.peer.kind`: `"direct"` hoặc `"group"`
+- `match.peer.id`: Open ID người dùng (`ou_xxx`) hoặc ID nhóm (`oc_xxx`)
 
-See [Get group/user IDs](#get-groupuser-ids) for lookup tips.
+Xem [Lấy ID nhóm/người dùng](#get-groupuser-ids) để biết mẹo tra cứu.
 
 ---
 
-## Configuration reference
+## Tham khảo cấu hình
 
-Full configuration: [Gateway configuration](/gateway/configuration)
+Cấu hình đầy đủ: [Cấu hình Gateway](/gateway/configuration)
 
-Key options:
+Các tùy chọn chính:
 
-| Setting                                           | Description                             | Default          |
+| Cài đặt                                           | Mô tả                                   | Mặc định         |
 | ------------------------------------------------- | --------------------------------------- | ---------------- |
-| `channels.feishu.enabled`                         | Enable/disable channel                  | `true`           |
-| `channels.feishu.domain`                          | API domain (`feishu` or `lark`)         | `feishu`         |
-| `channels.feishu.connectionMode`                  | Event transport mode                    | `websocket`      |
-| `channels.feishu.defaultAccount`                  | Default account ID for outbound routing | `default`        |
-| `channels.feishu.verificationToken`               | Required for webhook mode               | -                |
-| `channels.feishu.encryptKey`                      | Required for webhook mode               | -                |
-| `channels.feishu.webhookPath`                     | Webhook route path                      | `/feishu/events` |
-| `channels.feishu.webhookHost`                     | Webhook bind host                       | `127.0.0.1`      |
-| `channels.feishu.webhookPort`                     | Webhook bind port                       | `3000`           |
+| `channels.feishu.enabled`                         | Bật/tắt kênh                            | `true`           |
+| `channels.feishu.domain`                          | Miền API (`feishu` hoặc `lark`)         | `feishu`         |
+| `channels.feishu.connectionMode`                  | Chế độ truyền sự kiện                   | `websocket`      |
+| `channels.feishu.defaultAccount`                  | ID tài khoản mặc định cho định tuyến outbound | `default`        |
+| `channels.feishu.verificationToken`               | Yêu cầu cho chế độ webhook              | -                |
+| `channels.feishu.encryptKey`                      | Yêu cầu cho chế độ webhook              | -                |
+| `channels.feishu.webhookPath`                     | Đường dẫn route webhook                 | `/feishu/events` |
+| `channels.feishu.webhookHost`                     | Host gắn webhook                        | `127.0.0.1`      |
+| `channels.feishu.webhookPort`                     | Cổng gắn webhook                        | `3000`           |
 | `channels.feishu.accounts.<id>.appId`             | App ID                                  | -                |
 | `channels.feishu.accounts.<id>.appSecret`         | App Secret                              | -                |
-| `channels.feishu.accounts.<id>.domain`            | Per-account API domain override         | `feishu`         |
-| `channels.feishu.dmPolicy`                        | DM policy                               | `pairing`        |
-| `channels.feishu.allowFrom`                       | DM allowlist (open_id list)             | -                |
-| `channels.feishu.groupPolicy`                     | Group policy                            | `open`           |
-| `channels.feishu.groupAllowFrom`                  | Group allowlist                         | -                |
-| `channels.feishu.groups.<chat_id>.requireMention` | Require @mention                        | `true`           |
-| `channels.feishu.groups.<chat_id>.enabled`        | Enable group                            | `true`           |
-| `channels.feishu.textChunkLimit`                  | Message chunk size                      | `2000`           |
-| `channels.feishu.mediaMaxMb`                      | Media size limit                        | `30`             |
-| `channels.feishu.streaming`                       | Enable streaming card output            | `true`           |
-| `channels.feishu.blockStreaming`                  | Enable block streaming                  | `true`           |
+| `channels.feishu.accounts.<id>.domain`            | Ghi đè miền API theo tài khoản          | `feishu`         |
+| `channels.feishu.dmPolicy`                        | Chính sách DM                           | `pairing`        |
+| `channels.feishu.allowFrom`                       | Danh sách cho phép DM (danh sách open_id) | -                |
+| `channels.feishu.groupPolicy`                     | Chính sách nhóm                         | `open`           |
+| `channels.feishu.groupAllowFrom`                  | Danh sách cho phép nhóm                 | -                |
+| `channels.feishu.groups.<chat_id>.requireMention` | Yêu cầu @mention                        | `true`           |
+| `channels.feishu.groups.<chat_id>.enabled`        | Bật nhóm                                | `true`           |
+| `channels.feishu.textChunkLimit`                  | Kích thước đoạn tin nhắn                | `2000`           |
+| `channels.feishu.mediaMaxMb`                      | Giới hạn kích thước phương tiện         | `30`             |
+| `channels.feishu.streaming`                       | Bật đầu ra thẻ streaming                | `true`           |
+| `channels.feishu.blockStreaming`                  | Bật streaming cấp khối                  | `true`           |
 
 ---
 
-## dmPolicy reference
+## Tham khảo dmPolicy
 
-| Value         | Behavior                                                        |
-| ------------- | --------------------------------------------------------------- |
-| `"pairing"`   | **Default.** Unknown users get a pairing code; must be approved |
-| `"allowlist"` | Only users in `allowFrom` can chat                              |
-| `"open"`      | Allow all users (requires `"*"` in allowFrom)                   |
-| `"disabled"`  | Disable DMs                                                     |
+| Giá trị       | Hành vi                                                        |
+| ------------- | -------------------------------------------------------------- |
+| `"pairing"`   | **Mặc định.** Người dùng không xác định nhận mã ghép đôi; cần phê duyệt |
+| `"allowlist"` | Chỉ người dùng trong `allowFrom` có thể chat                  |
+| `"open"`      | Cho phép tất cả người dùng (yêu cầu `"*"` trong allowFrom)    |
+| `"disabled"`  | Vô hiệu hóa DMs                                               |
 
 ---
 
-## Supported message types
+## Các loại tin nhắn được hỗ trợ
 
-### Receive
+### Nhận
 
-- ✅ Text
-- ✅ Rich text (post)
-- ✅ Images
-- ✅ Files
-- ✅ Audio
-- ✅ Video/media
-- ✅ Stickers
+- ✅ Văn bản
+- ✅ Văn bản phong phú (post)
+- ✅ Hình ảnh
+- ✅ Tệp
+- ✅ Âm thanh
+- ✅ Video/phương tiện
+- ✅ Nhãn dán
 
-### Send
+### Gửi
 
-- ✅ Text
-- ✅ Images
-- ✅ Files
-- ✅ Audio
-- ✅ Video/media
-- ✅ Interactive cards
-- ⚠️ Rich text (post-style formatting and cards, not arbitrary Feishu authoring features)
+- ✅ Văn bản
+- ✅ Hình ảnh
+- ✅ Tệp
+- ✅ Âm thanh
+- ✅ Video/phương tiện
+- ✅ Thẻ tương tác
+- ⚠️ Văn bản phong phú (định dạng kiểu post và thẻ, không phải các tính năng tạo nội dung Feishu tùy ý)
 
-### Threads and replies
+### Chủ đề và trả lời
 
-- ✅ Inline replies
-- ✅ Topic-thread replies where Feishu exposes `reply_in_thread`
-- ✅ Media replies stay thread-aware when replying to a thread/topic message
+- ✅ Trả lời nội tuyến
+- ✅ Trả lời theo chủ đề nơi Feishu cung cấp `reply_in_thread`
+- ✅ Trả lời phương tiện giữ nguyên nhận thức chủ đề khi trả lời tin nhắn trong chủ đề
 
-## Runtime action surface
+## Bề mặt hành động runtime
 
-Feishu currently exposes these runtime actions:
+Hiện tại Feishu cung cấp các hành động runtime sau:
 
 - `send`
 - `read`
@@ -744,4 +742,4 @@ Feishu currently exposes these runtime actions:
 - `member-info`
 - `channel-info`
 - `channel-list`
-- `react` and `reactions` when reactions are enabled in config
+- `react` và `reactions` khi các phản ứng được bật trong cấu hình

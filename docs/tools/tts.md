@@ -1,74 +1,50 @@
----
-summary: "Text-to-speech (TTS) for outbound replies"
-read_when:
-  - Enabling text-to-speech for replies
-  - Configuring TTS providers or limits
-  - Using /tts commands
-title: "Text-to-Speech"
----
+# Chuyển văn bản thành giọng nói (TTS)
 
-# Text-to-speech (TTS)
+OpenClaw có thể chuyển đổi các phản hồi gửi đi thành âm thanh bằng cách sử dụng ElevenLabs, Microsoft hoặc OpenAI. Tính năng này hoạt động ở bất kỳ nơi nào OpenClaw có thể gửi âm thanh; trên Telegram, nó sẽ xuất hiện dưới dạng một bong bóng ghi chú giọng nói.
 
-OpenClaw can convert outbound replies into audio using ElevenLabs, Microsoft, or OpenAI.
-It works anywhere OpenClaw can send audio; Telegram gets a round voice-note bubble.
+## Dịch vụ hỗ trợ
 
-## Supported services
+- **ElevenLabs** (nhà cung cấp chính hoặc dự phòng)
+- **Microsoft** (nhà cung cấp chính hoặc dự phòng; hiện tại sử dụng `node-edge-tts`, mặc định khi không có khóa API)
+- **OpenAI** (nhà cung cấp chính hoặc dự phòng; cũng được sử dụng cho tóm tắt)
 
-- **ElevenLabs** (primary or fallback provider)
-- **Microsoft** (primary or fallback provider; current bundled implementation uses `node-edge-tts`, default when no API keys)
-- **OpenAI** (primary or fallback provider; also used for summaries)
+### Ghi chú về giọng nói của Microsoft
 
-### Microsoft speech notes
+Nhà cung cấp giọng nói Microsoft hiện tại sử dụng dịch vụ TTS thần kinh trực tuyến của Microsoft Edge thông qua thư viện `node-edge-tts`. Đây là dịch vụ được lưu trữ (không phải cục bộ), sử dụng các điểm cuối của Microsoft và không yêu cầu khóa API. `node-edge-tts` cung cấp các tùy chọn cấu hình giọng nói và định dạng đầu ra, nhưng không phải tất cả các tùy chọn đều được dịch vụ hỗ trợ. Cấu hình cũ và đầu vào chỉ thị sử dụng `edge` vẫn hoạt động và được chuẩn hóa thành `microsoft`.
 
-The bundled Microsoft speech provider currently uses Microsoft Edge's online
-neural TTS service via the `node-edge-tts` library. It's a hosted service (not
-local), uses Microsoft endpoints, and does not require an API key.
-`node-edge-tts` exposes speech configuration options and output formats, but
-not all options are supported by the service. Legacy config and directive input
-using `edge` still works and is normalized to `microsoft`.
+Vì đây là dịch vụ web công cộng không có SLA hoặc hạn mức công bố, hãy coi nó như một nỗ lực tốt nhất. Nếu cần hạn mức và hỗ trợ đảm bảo, hãy sử dụng OpenAI hoặc ElevenLabs.
 
-Because this path is a public web service without a published SLA or quota,
-treat it as best-effort. If you need guaranteed limits and support, use OpenAI
-or ElevenLabs.
+## Khóa tùy chọn
 
-## Optional keys
+Nếu muốn sử dụng OpenAI hoặc ElevenLabs:
 
-If you want OpenAI or ElevenLabs:
-
-- `ELEVENLABS_API_KEY` (or `XI_API_KEY`)
+- `ELEVENLABS_API_KEY` (hoặc `XI_API_KEY`)
 - `OPENAI_API_KEY`
 
-Microsoft speech does **not** require an API key. If no API keys are found,
-OpenClaw defaults to Microsoft (unless disabled via
-`messages.tts.microsoft.enabled=false` or `messages.tts.edge.enabled=false`).
+Giọng nói của Microsoft **không** yêu cầu khóa API. Nếu không tìm thấy khóa API, OpenClaw mặc định sử dụng Microsoft (trừ khi bị vô hiệu hóa qua `messages.tts.microsoft.enabled=false` hoặc `messages.tts.edge.enabled=false`).
 
-If multiple providers are configured, the selected provider is used first and the others are fallback options.
-Auto-summary uses the configured `summaryModel` (or `agents.defaults.model.primary`),
-so that provider must also be authenticated if you enable summaries.
+Nếu cấu hình nhiều nhà cung cấp, nhà cung cấp được chọn sẽ được sử dụng trước và các nhà cung cấp khác là tùy chọn dự phòng. Tóm tắt tự động sử dụng `summaryModel` đã cấu hình (hoặc `agents.defaults.model.primary`), vì vậy nhà cung cấp đó cũng phải được xác thực nếu bạn bật tóm tắt.
 
-## Service links
+## Liên kết dịch vụ
 
-- [OpenAI Text-to-Speech guide](https://platform.openai.com/docs/guides/text-to-speech)
-- [OpenAI Audio API reference](https://platform.openai.com/docs/api-reference/audio)
-- [ElevenLabs Text to Speech](https://elevenlabs.io/docs/api-reference/text-to-speech)
-- [ElevenLabs Authentication](https://elevenlabs.io/docs/api-reference/authentication)
+- [Hướng dẫn Text-to-Speech của OpenAI](https://platform.openai.com/docs/guides/text-to-speech)
+- [Tham khảo API âm thanh của OpenAI](https://platform.openai.com/docs/api-reference/audio)
+- [Text to Speech của ElevenLabs](https://elevenlabs.io/docs/api-reference/text-to-speech)
+- [Xác thực ElevenLabs](https://elevenlabs.io/docs/api-reference/authentication)
 - [node-edge-tts](https://github.com/SchneeHertz/node-edge-tts)
-- [Microsoft Speech output formats](https://learn.microsoft.com/azure/ai-services/speech-service/rest-text-to-speech#audio-outputs)
+- [Định dạng đầu ra giọng nói của Microsoft](https://learn.microsoft.com/azure/ai-services/speech-service/rest-text-to-speech#audio-outputs)
 
-## Is it enabled by default?
+## Có được bật mặc định không?
 
-No. Auto‑TTS is **off** by default. Enable it in config with
-`messages.tts.auto` or per session with `/tts always` (alias: `/tts on`).
+Không. Tính năng Auto-TTS **tắt** theo mặc định. Bật nó trong cấu hình với `messages.tts.auto` hoặc theo phiên với `/tts always` (bí danh: `/tts on`).
 
-Microsoft speech **is** enabled by default once TTS is on, and is used automatically
-when no OpenAI or ElevenLabs API keys are available.
+Giọng nói của Microsoft **được** bật mặc định khi TTS được bật và được sử dụng tự động khi không có khóa API của OpenAI hoặc ElevenLabs.
 
-## Config
+## Cấu hình
 
-TTS config lives under `messages.tts` in `openclaw.json`.
-Full schema is in [Gateway configuration](/gateway/configuration).
+Cấu hình TTS nằm dưới `messages.tts` trong `openclaw.json`. Toàn bộ schema có trong [Cấu hình Gateway](/gateway/configuration).
 
-### Minimal config (enable + provider)
+### Cấu hình tối thiểu (bật + nhà cung cấp)
 
 ```json5
 {
@@ -81,7 +57,7 @@ Full schema is in [Gateway configuration](/gateway/configuration).
 }
 ```
 
-### OpenAI primary with ElevenLabs fallback
+### OpenAI chính với ElevenLabs dự phòng
 
 ```json5
 {
@@ -120,7 +96,7 @@ Full schema is in [Gateway configuration](/gateway/configuration).
 }
 ```
 
-### Microsoft primary (no API key)
+### Microsoft chính (không cần khóa API)
 
 ```json5
 {
@@ -141,7 +117,7 @@ Full schema is in [Gateway configuration](/gateway/configuration).
 }
 ```
 
-### Disable Microsoft speech
+### Vô hiệu hóa giọng nói của Microsoft
 
 ```json5
 {
@@ -155,7 +131,7 @@ Full schema is in [Gateway configuration](/gateway/configuration).
 }
 ```
 
-### Custom limits + prefs path
+### Giới hạn tùy chỉnh + đường dẫn ưu tiên
 
 ```json5
 {
@@ -170,7 +146,7 @@ Full schema is in [Gateway configuration](/gateway/configuration).
 }
 ```
 
-### Only reply with audio after an inbound voice note
+### Chỉ trả lời bằng âm thanh sau khi nhận ghi chú giọng nói
 
 ```json5
 {
@@ -182,7 +158,7 @@ Full schema is in [Gateway configuration](/gateway/configuration).
 }
 ```
 
-### Disable auto-summary for long replies
+### Vô hiệu hóa tóm tắt tự động cho các phản hồi dài
 
 ```json5
 {
@@ -194,85 +170,79 @@ Full schema is in [Gateway configuration](/gateway/configuration).
 }
 ```
 
-Then run:
+Sau đó chạy:
 
 ```
 /tts summary off
 ```
 
-### Notes on fields
+### Ghi chú về các trường
 
-- `auto`: auto‑TTS mode (`off`, `always`, `inbound`, `tagged`).
-  - `inbound` only sends audio after an inbound voice note.
-  - `tagged` only sends audio when the reply includes `[[tts]]` tags.
-- `enabled`: legacy toggle (doctor migrates this to `auto`).
-- `mode`: `"final"` (default) or `"all"` (includes tool/block replies).
-- `provider`: speech provider id such as `"elevenlabs"`, `"microsoft"`, or `"openai"` (fallback is automatic).
-- If `provider` is **unset**, OpenClaw prefers `openai` (if key), then `elevenlabs` (if key),
-  otherwise `microsoft`.
-- Legacy `provider: "edge"` still works and is normalized to `microsoft`.
-- `summaryModel`: optional cheap model for auto-summary; defaults to `agents.defaults.model.primary`.
-  - Accepts `provider/model` or a configured model alias.
-- `modelOverrides`: allow the model to emit TTS directives (on by default).
-  - `allowProvider` defaults to `false` (provider switching is opt-in).
-- `maxTextLength`: hard cap for TTS input (chars). `/tts audio` fails if exceeded.
-- `timeoutMs`: request timeout (ms).
-- `prefsPath`: override the local prefs JSON path (provider/limit/summary).
-- `apiKey` values fall back to env vars (`ELEVENLABS_API_KEY`/`XI_API_KEY`, `OPENAI_API_KEY`).
-- `elevenlabs.baseUrl`: override ElevenLabs API base URL.
-- `openai.baseUrl`: override the OpenAI TTS endpoint.
-  - Resolution order: `messages.tts.openai.baseUrl` -> `OPENAI_TTS_BASE_URL` -> `https://api.openai.com/v1`
-  - Non-default values are treated as OpenAI-compatible TTS endpoints, so custom model and voice names are accepted.
+- `auto`: chế độ auto-TTS (`off`, `always`, `inbound`, `tagged`).
+  - `inbound` chỉ gửi âm thanh sau khi nhận ghi chú giọng nói.
+  - `tagged` chỉ gửi âm thanh khi phản hồi có thẻ `[[tts]]`.
+- `enabled`: chuyển đổi cũ (bác sĩ di chuyển điều này sang `auto`).
+- `mode`: `"final"` (mặc định) hoặc `"all"` (bao gồm công cụ/phản hồi khối).
+- `provider`: id nhà cung cấp giọng nói như `"elevenlabs"`, `"microsoft"`, hoặc `"openai"` (dự phòng tự động).
+- Nếu `provider` **không được đặt**, OpenClaw ưu tiên `openai` (nếu có khóa), sau đó `elevenlabs` (nếu có khóa), nếu không thì `microsoft`.
+- `summaryModel`: mô hình rẻ tiền tùy chọn cho tóm tắt tự động; mặc định là `agents.defaults.model.primary`.
+  - Chấp nhận `provider/model` hoặc bí danh mô hình đã cấu hình.
+- `modelOverrides`: cho phép mô hình phát ra chỉ thị TTS (bật theo mặc định).
+  - `allowProvider` mặc định là `false` (chuyển đổi nhà cung cấp là tùy chọn).
+- `maxTextLength`: giới hạn cứng cho đầu vào TTS (ký tự). `/tts audio` thất bại nếu vượt quá.
+- `timeoutMs`: thời gian chờ yêu cầu (ms).
+- `prefsPath`: ghi đè đường dẫn JSON ưu tiên cục bộ (nhà cung cấp/giới hạn/tóm tắt).
+- Giá trị `apiKey` dự phòng cho biến môi trường (`ELEVENLABS_API_KEY`/`XI_API_KEY`, `OPENAI_API_KEY`).
+- `elevenlabs.baseUrl`: ghi đè URL cơ sở API của ElevenLabs.
+- `openai.baseUrl`: ghi đè điểm cuối TTS của OpenAI.
+  - Thứ tự giải quyết: `messages.tts.openai.baseUrl` -> `OPENAI_TTS_BASE_URL` -> `https://api.openai.com/v1`
+  - Các giá trị không mặc định được coi là điểm cuối TTS tương thích với OpenAI, vì vậy tên mô hình và giọng nói tùy chỉnh được chấp nhận.
 - `elevenlabs.voiceSettings`:
   - `stability`, `similarityBoost`, `style`: `0..1`
   - `useSpeakerBoost`: `true|false`
-  - `speed`: `0.5..2.0` (1.0 = normal)
+  - `speed`: `0.5..2.0` (1.0 = bình thường)
 - `elevenlabs.applyTextNormalization`: `auto|on|off`
-- `elevenlabs.languageCode`: 2-letter ISO 639-1 (e.g. `en`, `de`)
-- `elevenlabs.seed`: integer `0..4294967295` (best-effort determinism)
-- `microsoft.enabled`: allow Microsoft speech usage (default `true`; no API key).
-- `microsoft.voice`: Microsoft neural voice name (e.g. `en-US-MichelleNeural`).
-- `microsoft.lang`: language code (e.g. `en-US`).
-- `microsoft.outputFormat`: Microsoft output format (e.g. `audio-24khz-48kbitrate-mono-mp3`).
-  - See Microsoft Speech output formats for valid values; not all formats are supported by the bundled Edge-backed transport.
-- `microsoft.rate` / `microsoft.pitch` / `microsoft.volume`: percent strings (e.g. `+10%`, `-5%`).
-- `microsoft.saveSubtitles`: write JSON subtitles alongside the audio file.
-- `microsoft.proxy`: proxy URL for Microsoft speech requests.
-- `microsoft.timeoutMs`: request timeout override (ms).
-- `edge.*`: legacy alias for the same Microsoft settings.
+- `elevenlabs.languageCode`: mã ISO 639-1 gồm 2 chữ cái (ví dụ: `en`, `de`)
+- `elevenlabs.seed`: số nguyên `0..4294967295` (xác định tốt nhất có thể)
+- `microsoft.enabled`: cho phép sử dụng giọng nói của Microsoft (mặc định `true`; không cần khóa API).
+- `microsoft.voice`: tên giọng nói thần kinh của Microsoft (ví dụ: `en-US-MichelleNeural`).
+- `microsoft.lang`: mã ngôn ngữ (ví dụ: `en-US`).
+- `microsoft.outputFormat`: định dạng đầu ra của Microsoft (ví dụ: `audio-24khz-48kbitrate-mono-mp3`).
+  - Xem Định dạng đầu ra giọng nói của Microsoft để biết các giá trị hợp lệ; không phải tất cả các định dạng đều được hỗ trợ bởi phương tiện truyền tải dựa trên Edge.
+- `microsoft.rate` / `microsoft.pitch` / `microsoft.volume`: chuỗi phần trăm (ví dụ: `+10%`, `-5%`).
+- `microsoft.saveSubtitles`: ghi phụ đề JSON cùng với tệp âm thanh.
+- `microsoft.proxy`: URL proxy cho các yêu cầu giọng nói của Microsoft.
+- `microsoft.timeoutMs`: ghi đè thời gian chờ yêu cầu (ms).
+- `edge.*`: bí danh cũ cho các cài đặt Microsoft tương tự.
 
-## Model-driven overrides (default on)
+## Ghi đè theo mô hình (mặc định bật)
 
-By default, the model **can** emit TTS directives for a single reply.
-When `messages.tts.auto` is `tagged`, these directives are required to trigger audio.
+Theo mặc định, mô hình **có thể** phát ra chỉ thị TTS cho một phản hồi duy nhất. Khi `messages.tts.auto` là `tagged`, các chỉ thị này là bắt buộc để kích hoạt âm thanh.
 
-When enabled, the model can emit `[[tts:...]]` directives to override the voice
-for a single reply, plus an optional `[[tts:text]]...[[/tts:text]]` block to
-provide expressive tags (laughter, singing cues, etc) that should only appear in
-the audio.
+Khi được bật, mô hình có thể phát ra chỉ thị `[[tts:...]]` để ghi đè giọng nói cho một phản hồi duy nhất, cùng với một khối `[[tts:text]]...[[/tts:text]]` tùy chọn để cung cấp các thẻ biểu cảm (cười, hát, v.v.) chỉ xuất hiện trong âm thanh.
 
-`provider=...` directives are ignored unless `modelOverrides.allowProvider: true`.
+Chỉ thị `provider=...` bị bỏ qua trừ khi `modelOverrides.allowProvider: true`.
 
-Example reply payload:
+Ví dụ về payload phản hồi:
 
 ```
-Here you go.
+Đây là của bạn.
 
 [[tts:voiceId=pMsXgVXv3BLzUgSXRplE model=eleven_v3 speed=1.1]]
-[[tts:text]](laughs) Read the song once more.[[/tts:text]]
+[[tts:text]](cười) Đọc bài hát một lần nữa.[[/tts:text]]
 ```
 
-Available directive keys (when enabled):
+Các khóa chỉ thị có sẵn (khi được bật):
 
-- `provider` (registered speech provider id, for example `openai`, `elevenlabs`, or `microsoft`; requires `allowProvider: true`)
-- `voice` (OpenAI voice) or `voiceId` (ElevenLabs)
-- `model` (OpenAI TTS model or ElevenLabs model id)
+- `provider` (id nhà cung cấp giọng nói đã đăng ký, ví dụ `openai`, `elevenlabs`, hoặc `microsoft`; yêu cầu `allowProvider: true`)
+- `voice` (giọng nói OpenAI) hoặc `voiceId` (ElevenLabs)
+- `model` (mô hình TTS của OpenAI hoặc id mô hình ElevenLabs)
 - `stability`, `similarityBoost`, `style`, `speed`, `useSpeakerBoost`
 - `applyTextNormalization` (`auto|on|off`)
 - `languageCode` (ISO 639-1)
 - `seed`
 
-Disable all model overrides:
+Vô hiệu hóa tất cả ghi đè mô hình:
 
 ```json5
 {
@@ -286,7 +256,7 @@ Disable all model overrides:
 }
 ```
 
-Optional allowlist (enable provider switching while keeping other knobs configurable):
+Danh sách cho phép tùy chọn (bật chuyển đổi nhà cung cấp trong khi giữ các nút khác có thể cấu hình):
 
 ```json5
 {
@@ -302,71 +272,64 @@ Optional allowlist (enable provider switching while keeping other knobs configur
 }
 ```
 
-## Per-user preferences
+## Tùy chọn theo người dùng
 
-Slash commands write local overrides to `prefsPath` (default:
-`~/.openclaw/settings/tts.json`, override with `OPENCLAW_TTS_PREFS` or
-`messages.tts.prefsPath`).
+Các lệnh gạch chéo ghi đè cục bộ vào `prefsPath` (mặc định: `~/.openclaw/settings/tts.json`, ghi đè với `OPENCLAW_TTS_PREFS` hoặc `messages.tts.prefsPath`).
 
-Stored fields:
+Các trường được lưu trữ:
 
 - `enabled`
 - `provider`
-- `maxLength` (summary threshold; default 1500 chars)
-- `summarize` (default `true`)
+- `maxLength` (ngưỡng tóm tắt; mặc định 1500 ký tự)
+- `summarize` (mặc định `true`)
 
-These override `messages.tts.*` for that host.
+Những điều này ghi đè `messages.tts.*` cho máy chủ đó.
 
-## Output formats (fixed)
+## Định dạng đầu ra (cố định)
 
-- **Telegram**: Opus voice note (`opus_48000_64` from ElevenLabs, `opus` from OpenAI).
-  - 48kHz / 64kbps is a good voice-note tradeoff and required for the round bubble.
-- **Other channels**: MP3 (`mp3_44100_128` from ElevenLabs, `mp3` from OpenAI).
-  - 44.1kHz / 128kbps is the default balance for speech clarity.
-- **Microsoft**: uses `microsoft.outputFormat` (default `audio-24khz-48kbitrate-mono-mp3`).
-  - The bundled transport accepts an `outputFormat`, but not all formats are available from the service.
-  - Output format values follow Microsoft Speech output formats (including Ogg/WebM Opus).
-  - Telegram `sendVoice` accepts OGG/MP3/M4A; use OpenAI/ElevenLabs if you need
-    guaranteed Opus voice notes. citeturn1search1
-  - If the configured Microsoft output format fails, OpenClaw retries with MP3.
+- **Telegram**: Ghi chú giọng nói Opus (`opus_48000_64` từ ElevenLabs, `opus` từ OpenAI).
+  - 48kHz / 64kbps là sự cân bằng tốt cho ghi chú giọng nói và cần thiết cho bong bóng tròn.
+- **Các kênh khác**: MP3 (`mp3_44100_128` từ ElevenLabs, `mp3` từ OpenAI).
+  - 44.1kHz / 128kbps là sự cân bằng mặc định cho độ rõ của giọng nói.
+- **Microsoft**: sử dụng `microsoft.outputFormat` (mặc định `audio-24khz-48kbitrate-mono-mp3`).
+  - Phương tiện truyền tải đi kèm chấp nhận một `outputFormat`, nhưng không phải tất cả các định dạng đều có sẵn từ dịch vụ.
+  - Các giá trị định dạng đầu ra tuân theo Định dạng đầu ra giọng nói của Microsoft (bao gồm Ogg/WebM Opus).
+  - Telegram `sendVoice` chấp nhận OGG/MP3/M4A; sử dụng OpenAI/ElevenLabs nếu bạn cần ghi chú giọng nói Opus đảm bảo.
+  - Nếu định dạng đầu ra Microsoft được cấu hình thất bại, OpenClaw sẽ thử lại với MP3.
 
-OpenAI/ElevenLabs formats are fixed; Telegram expects Opus for voice-note UX.
+Các định dạng OpenAI/ElevenLabs là cố định; Telegram yêu cầu Opus cho trải nghiệm ghi chú giọng nói.
 
-## Auto-TTS behavior
+## Hành vi Auto-TTS
 
-When enabled, OpenClaw:
+Khi được bật, OpenClaw:
 
-- skips TTS if the reply already contains media or a `MEDIA:` directive.
-- skips very short replies (< 10 chars).
-- summarizes long replies when enabled using `agents.defaults.model.primary` (or `summaryModel`).
-- attaches the generated audio to the reply.
+- bỏ qua TTS nếu phản hồi đã chứa phương tiện hoặc chỉ thị `MEDIA:`.
+- bỏ qua các phản hồi rất ngắn (< 10 ký tự).
+- tóm tắt các phản hồi dài khi được bật bằng cách sử dụng `agents.defaults.model.primary` (hoặc `summaryModel`).
+- đính kèm âm thanh đã tạo vào phản hồi.
 
-If the reply exceeds `maxLength` and summary is off (or no API key for the
-summary model), audio
-is skipped and the normal text reply is sent.
+Nếu phản hồi vượt quá `maxLength` và tóm tắt bị tắt (hoặc không có khóa API cho mô hình tóm tắt), âm thanh sẽ bị bỏ qua và phản hồi văn bản thông thường sẽ được gửi.
 
-## Flow diagram
+## Sơ đồ luồng
 
 ```
-Reply -> TTS enabled?
-  no  -> send text
-  yes -> has media / MEDIA: / short?
-          yes -> send text
-          no  -> length > limit?
-                   no  -> TTS -> attach audio
-                   yes -> summary enabled?
-                            no  -> send text
-                            yes -> summarize (summaryModel or agents.defaults.model.primary)
-                                      -> TTS -> attach audio
+Phản hồi -> TTS được bật?
+  không  -> gửi văn bản
+  có -> có phương tiện / MEDIA: / ngắn?
+          có -> gửi văn bản
+          không  -> độ dài > giới hạn?
+                   không  -> TTS -> đính kèm âm thanh
+                   có -> tóm tắt được bật?
+                            không  -> gửi văn bản
+                            có -> tóm tắt (summaryModel hoặc agents.defaults.model.primary)
+                                      -> TTS -> đính kèm âm thanh
 ```
 
-## Slash command usage
+## Sử dụng lệnh gạch chéo
 
-There is a single command: `/tts`.
-See [Slash commands](/tools/slash-commands) for enablement details.
+Có một lệnh duy nhất: `/tts`. Xem [Lệnh gạch chéo](/tools/slash-commands) để biết chi tiết về việc bật.
 
-Discord note: `/tts` is a built-in Discord command, so OpenClaw registers
-`/voice` as the native command there. Text `/tts ...` still works.
+Ghi chú Discord: `/tts` là lệnh tích hợp sẵn của Discord, vì vậy OpenClaw đăng ký `/voice` làm lệnh gốc ở đó. Văn bản `/tts ...` vẫn hoạt động.
 
 ```
 /tts off
@@ -380,23 +343,21 @@ Discord note: `/tts` is a built-in Discord command, so OpenClaw registers
 /tts audio Hello from OpenClaw
 ```
 
-Notes:
+Ghi chú:
 
-- Commands require an authorized sender (allowlist/owner rules still apply).
-- `commands.text` or native command registration must be enabled.
-- `off|always|inbound|tagged` are per‑session toggles (`/tts on` is an alias for `/tts always`).
-- `limit` and `summary` are stored in local prefs, not the main config.
-- `/tts audio` generates a one-off audio reply (does not toggle TTS on).
+- Các lệnh yêu cầu người gửi được ủy quyền (quy tắc danh sách cho phép/chủ sở hữu vẫn áp dụng).
+- `commands.text` hoặc đăng ký lệnh gốc phải được bật.
+- `off|always|inbound|tagged` là các chuyển đổi theo phiên (`/tts on` là bí danh cho `/tts always`).
+- `limit` và `summary` được lưu trữ trong ưu tiên cục bộ, không phải cấu hình chính.
+- `/tts audio` tạo một phản hồi âm thanh một lần (không bật TTS).
 
-## Agent tool
+## Công cụ Agent
 
-The `tts` tool converts text to speech and returns an audio attachment for
-reply delivery. When the result is Telegram-compatible, OpenClaw marks it for
-voice-bubble delivery.
+Công cụ `tts` chuyển đổi văn bản thành giọng nói và trả về một tệp đính kèm âm thanh để gửi phản hồi. Khi kết quả tương thích với Telegram, OpenClaw đánh dấu nó để gửi dưới dạng bong bóng giọng nói.
 
 ## Gateway RPC
 
-Gateway methods:
+Các phương thức Gateway:
 
 - `tts.status`
 - `tts.enable`

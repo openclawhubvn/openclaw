@@ -1,76 +1,74 @@
 ---
-summary: "Linux support + companion app status"
+summary: "Hỗ trợ Linux + trạng thái ứng dụng đi kèm"
 read_when:
-  - Looking for Linux companion app status
-  - Planning platform coverage or contributions
-title: "Linux App"
+  - Tìm kiếm trạng thái ứng dụng đi kèm trên Linux
+  - Lên kế hoạch hỗ trợ nền tảng hoặc đóng góp
+title: "Ứng dụng Linux"
 ---
 
-# Linux App
+# Ứng dụng Linux
 
-The Gateway is fully supported on Linux. **Node is the recommended runtime**.
-Bun is not recommended for the Gateway (WhatsApp/Telegram bugs).
+Gateway được hỗ trợ hoàn toàn trên Linux. **Node là runtime được khuyến nghị**.
+Bun không được khuyến nghị cho Gateway (lỗi WhatsApp/Telegram).
 
-Native Linux companion apps are planned. Contributions are welcome if you want to help build one.
+Các ứng dụng đi kèm gốc trên Linux đang được lên kế hoạch. Chúng tôi hoan nghênh các đóng góp nếu bạn muốn tham gia phát triển.
 
-## Beginner quick path (VPS)
+## Lộ trình nhanh cho người mới (VPS)
 
-1. Install Node 24 (recommended; Node 22 LTS, currently `22.16+`, still works for compatibility)
+1. Cài đặt Node 24 (khuyến nghị; Node 22 LTS, hiện tại `22.16+`, vẫn hoạt động để tương thích)
 2. `npm i -g openclaw@latest`
 3. `openclaw onboard --install-daemon`
-4. From your laptop: `ssh -N -L 18789:127.0.0.1:18789 <user>@<host>`
-5. Open `http://127.0.0.1:18789/` and paste your token
+4. Từ máy tính xách tay của bạn: `ssh -N -L 18789:127.0.0.1:18789 <user>@<host>`
+5. Mở `http://127.0.0.1:18789/` và dán token của bạn
 
-Full Linux server guide: [Linux Server](/vps). Step-by-step VPS example: [exe.dev](/install/exe-dev)
+Hướng dẫn đầy đủ cho máy chủ Linux: [Máy chủ Linux](/vps). Ví dụ từng bước với VPS: [exe.dev](/install/exe-dev)
 
-## Install
+## Cài đặt
 
-- [Getting Started](/start/getting-started)
-- [Install & updates](/install/updating)
-- Optional flows: [Bun (experimental)](/install/bun), [Nix](/install/nix), [Docker](/install/docker)
+- [Bắt đầu](/start/getting-started)
+- [Cài đặt & cập nhật](/install/updating)
+- Các luồng tùy chọn: [Bun (thử nghiệm)](/install/bun), [Nix](/install/nix), [Docker](/install/docker)
 
 ## Gateway
 
-- [Gateway runbook](/gateway)
-- [Configuration](/gateway/configuration)
+- [Sổ tay Gateway](/gateway)
+- [Cấu hình](/gateway/configuration)
 
-## Gateway service install (CLI)
+## Cài đặt dịch vụ Gateway (CLI)
 
-Use one of these:
+Sử dụng một trong các lệnh sau:
 
 ```
 openclaw onboard --install-daemon
 ```
 
-Or:
+Hoặc:
 
 ```
 openclaw gateway install
 ```
 
-Or:
+Hoặc:
 
 ```
 openclaw configure
 ```
 
-Select **Gateway service** when prompted.
+Chọn **dịch vụ Gateway** khi được yêu cầu.
 
-Repair/migrate:
+Sửa chữa/di chuyển:
 
 ```
 openclaw doctor
 ```
 
-## System control (systemd user unit)
+## Kiểm soát hệ thống (đơn vị người dùng systemd)
 
-OpenClaw installs a systemd **user** service by default. Use a **system**
-service for shared or always-on servers. The full unit example and guidance
-live in the [Gateway runbook](/gateway).
+OpenClaw cài đặt một dịch vụ **người dùng** systemd theo mặc định. Sử dụng dịch vụ **hệ thống** cho các máy chủ chia sẻ hoặc luôn bật. Ví dụ đầy đủ về đơn vị và hướng dẫn có trong [sổ tay Gateway](/gateway).
 
-Minimal setup:
+Cài đặt tối thiểu:
 
-Create `~/.config/systemd/user/openclaw-gateway[-<profile>].service`:
+Tạo `~/.config/systemd/user/openclaw-gateway[-<profile>].service`:
 
 ```
 [Unit]
@@ -87,7 +85,7 @@ RestartSec=5
 WantedBy=default.target
 ```
 
-Enable it:
+Kích hoạt nó:
 
 ```
 systemctl --user enable --now openclaw-gateway[-<profile>].service

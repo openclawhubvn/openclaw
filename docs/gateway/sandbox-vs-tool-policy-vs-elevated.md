@@ -1,21 +1,21 @@
 ---
-title: Sandbox vs Tool Policy vs Elevated
-summary: "Why a tool is blocked: sandbox runtime, tool allow/deny policy, and elevated exec gates"
-read_when: "You hit 'sandbox jail' or see a tool/elevated refusal and want the exact config key to change."
+title: Sandbox vs Chính sách Công cụ vs Chế độ Nâng cao
+summary: "Tại sao một công cụ bị chặn: runtime sandbox, chính sách cho phép/từ chối công cụ, và cổng thực thi nâng cao"
+read_when: "Khi gặp 'sandbox jail' hoặc thấy từ chối công cụ/chế độ nâng cao và muốn biết chính xác khóa cấu hình cần thay đổi."
 status: active
 ---
 
-# Sandbox vs Tool Policy vs Elevated
+# Sandbox vs Chính sách Công cụ vs Chế độ Nâng cao
 
-OpenClaw has three related (but different) controls:
+OpenClaw có ba cơ chế kiểm soát liên quan nhưng khác nhau:
 
-1. **Sandbox** (`agents.defaults.sandbox.*` / `agents.list[].sandbox.*`) decides **where tools run** (Docker vs host).
-2. **Tool policy** (`tools.*`, `tools.sandbox.tools.*`, `agents.list[].tools.*`) decides **which tools are available/allowed**.
-3. **Elevated** (`tools.elevated.*`, `agents.list[].tools.elevated.*`) is an **exec-only escape hatch** to run on the host when you’re sandboxed.
+1. **Sandbox** (`agents.defaults.sandbox.*` / `agents.list[].sandbox.*`) quyết định **nơi công cụ chạy** (Docker hay host).
+2. **Chính sách công cụ** (`tools.*`, `tools.sandbox.tools.*`, `agents.list[].tools.*`) quyết định **công cụ nào được phép sử dụng**.
+3. **Chế độ Nâng cao** (`tools.elevated.*`, `agents.list[].tools.elevated.*`) là một **cổng thoát chỉ dành cho thực thi** để chạy trên host khi đang bị sandbox.
 
-## Quick debug
+## Kiểm tra nhanh
 
-Use the inspector to see what OpenClaw is _actually_ doing:
+Sử dụng công cụ kiểm tra để xem OpenClaw thực sự đang làm gì:
 
 ```bash
 openclaw sandbox explain
@@ -24,52 +24,52 @@ openclaw sandbox explain --agent work
 openclaw sandbox explain --json
 ```
 
-It prints:
+Nó sẽ hiển thị:
 
-- effective sandbox mode/scope/workspace access
-- whether the session is currently sandboxed (main vs non-main)
-- effective sandbox tool allow/deny (and whether it came from agent/global/default)
-- elevated gates and fix-it key paths
+- chế độ/scope/sandbox truy cập workspace hiệu quả
+- phiên hiện tại có bị sandbox hay không (main vs non-main)
+- công cụ sandbox cho phép/từ chối hiệu quả (và nó đến từ agent/toàn cầu/mặc định)
+- cổng nâng cao và đường dẫn khóa sửa lỗi
 
-## Sandbox: where tools run
+## Sandbox: nơi công cụ chạy
 
-Sandboxing is controlled by `agents.defaults.sandbox.mode`:
+Sandboxing được kiểm soát bởi `agents.defaults.sandbox.mode`:
 
-- `"off"`: everything runs on the host.
-- `"non-main"`: only non-main sessions are sandboxed (common “surprise” for groups/channels).
-- `"all"`: everything is sandboxed.
+- `"off"`: mọi thứ chạy trên host.
+- `"non-main"`: chỉ các phiên không phải main bị sandbox (thường gây "ngạc nhiên" cho nhóm/kênh).
+- `"all"`: mọi thứ đều bị sandbox.
 
-See [Sandboxing](/gateway/sandboxing) for the full matrix (scope, workspace mounts, images).
+Xem [Sandboxing](/gateway/sandboxing) để biết ma trận đầy đủ (scope, mounts workspace, images).
 
-### Bind mounts (security quick check)
+### Bind mounts (kiểm tra nhanh bảo mật)
 
-- `docker.binds` _pierces_ the sandbox filesystem: whatever you mount is visible inside the container with the mode you set (`:ro` or `:rw`).
-- Default is read-write if you omit the mode; prefer `:ro` for source/secrets.
-- `scope: "shared"` ignores per-agent binds (only global binds apply).
-- Binding `/var/run/docker.sock` effectively hands host control to the sandbox; only do this intentionally.
-- Workspace access (`workspaceAccess: "ro"`/`"rw"`) is independent of bind modes.
+- `docker.binds` _xuyên qua_ hệ thống tệp sandbox: bất kỳ thứ gì bạn mount sẽ hiển thị bên trong container với chế độ bạn đặt (`:ro` hoặc `:rw`).
+- Mặc định là đọc-ghi nếu bạn bỏ qua chế độ; ưu tiên `:ro` cho nguồn/tài liệu bí mật.
+- `scope: "shared"` bỏ qua các bind theo từng agent (chỉ áp dụng bind toàn cầu).
+- Binding `/var/run/docker.sock` thực sự trao quyền kiểm soát host cho sandbox; chỉ làm điều này khi có chủ đích.
+- Truy cập workspace (`workspaceAccess: "ro"`/`"rw"`) độc lập với chế độ bind.
 
-## Tool policy: which tools exist/are callable
+## Chính sách công cụ: công cụ nào tồn tại/được gọi
 
-Two layers matter:
+Hai lớp quan trọng:
 
-- **Tool profile**: `tools.profile` and `agents.list[].tools.profile` (base allowlist)
-- **Provider tool profile**: `tools.byProvider[provider].profile` and `agents.list[].tools.byProvider[provider].profile`
-- **Global/per-agent tool policy**: `tools.allow`/`tools.deny` and `agents.list[].tools.allow`/`agents.list[].tools.deny`
-- **Provider tool policy**: `tools.byProvider[provider].allow/deny` and `agents.list[].tools.byProvider[provider].allow/deny`
-- **Sandbox tool policy** (only applies when sandboxed): `tools.sandbox.tools.allow`/`tools.sandbox.tools.deny` and `agents.list[].tools.sandbox.tools.*`
+- **Hồ sơ công cụ**: `tools.profile` và `agents.list[].tools.profile` (danh sách cho phép cơ bản)
+- **Hồ sơ công cụ nhà cung cấp**: `tools.byProvider[provider].profile` và `agents.list[].tools.byProvider[provider].profile`
+- **Chính sách công cụ toàn cầu/theo agent**: `tools.allow`/`tools.deny` và `agents.list[].tools.allow`/`agents.list[].tools.deny`
+- **Chính sách công cụ nhà cung cấp**: `tools.byProvider[provider].allow/deny` và `agents.list[].tools.byProvider[provider].allow/deny`
+- **Chính sách công cụ sandbox** (chỉ áp dụng khi bị sandbox): `tools.sandbox.tools.allow`/`tools.sandbox.tools.deny` và `agents.list[].tools.sandbox.tools.*`
 
-Rules of thumb:
+Nguyên tắc chung:
 
-- `deny` always wins.
-- If `allow` is non-empty, everything else is treated as blocked.
-- Tool policy is the hard stop: `/exec` cannot override a denied `exec` tool.
-- `/exec` only changes session defaults for authorized senders; it does not grant tool access.
-  Provider tool keys accept either `provider` (e.g. `google-antigravity`) or `provider/model` (e.g. `openai/gpt-5.2`).
+- `deny` luôn thắng.
+- Nếu `allow` không rỗng, mọi thứ khác được coi là bị chặn.
+- Chính sách công cụ là điểm dừng cứng: `/exec` không thể ghi đè một công cụ `exec` bị từ chối.
+- `/exec` chỉ thay đổi mặc định phiên cho người gửi được ủy quyền; nó không cấp quyền truy cập công cụ.
+  Khóa công cụ nhà cung cấp chấp nhận `provider` (ví dụ: `google-antigravity`) hoặc `provider/model` (ví dụ: `openai/gpt-5.2`).
 
-### Tool groups (shorthands)
+### Nhóm công cụ (viết tắt)
 
-Tool policies (global, agent, sandbox) support `group:*` entries that expand to multiple tools:
+Chính sách công cụ (toàn cầu, agent, sandbox) hỗ trợ các mục `group:*` mở rộng thành nhiều công cụ:
 
 ```json5
 {
@@ -83,7 +83,7 @@ Tool policies (global, agent, sandbox) support `group:*` entries that expand to 
 }
 ```
 
-Available groups:
+Các nhóm có sẵn:
 
 - `group:runtime`: `exec`, `bash`, `process`
 - `group:fs`: `read`, `write`, `edit`, `apply_patch`
@@ -93,42 +93,42 @@ Available groups:
 - `group:automation`: `cron`, `gateway`
 - `group:messaging`: `message`
 - `group:nodes`: `nodes`
-- `group:openclaw`: all built-in OpenClaw tools (excludes provider plugins)
+- `group:openclaw`: tất cả công cụ tích hợp sẵn của OpenClaw (không bao gồm plugin nhà cung cấp)
 
-## Elevated: exec-only "run on host"
+## Chế độ Nâng cao: chỉ thực thi "chạy trên host"
 
-Elevated does **not** grant extra tools; it only affects `exec`.
+Chế độ Nâng cao **không** cấp thêm công cụ; nó chỉ ảnh hưởng đến `exec`.
 
-- If you’re sandboxed, `/elevated on` (or `exec` with `elevated: true`) runs on the host (approvals may still apply).
-- Use `/elevated full` to skip exec approvals for the session.
-- If you’re already running direct, elevated is effectively a no-op (still gated).
-- Elevated is **not** skill-scoped and does **not** override tool allow/deny.
-- `/exec` is separate from elevated. It only adjusts per-session exec defaults for authorized senders.
+- Nếu bạn đang bị sandbox, `/elevated on` (hoặc `exec` với `elevated: true`) chạy trên host (có thể vẫn cần phê duyệt).
+- Sử dụng `/elevated full` để bỏ qua phê duyệt exec cho phiên.
+- Nếu bạn đã chạy trực tiếp, chế độ nâng cao thực tế là không có tác dụng (vẫn bị kiểm soát).
+- Chế độ Nâng cao **không** bị giới hạn theo kỹ năng và **không** ghi đè cho phép/từ chối công cụ.
+- `/exec` tách biệt với chế độ nâng cao. Nó chỉ điều chỉnh mặc định thực thi theo phiên cho người gửi được ủy quyền.
 
-Gates:
+Cổng:
 
-- Enablement: `tools.elevated.enabled` (and optionally `agents.list[].tools.elevated.enabled`)
-- Sender allowlists: `tools.elevated.allowFrom.<provider>` (and optionally `agents.list[].tools.elevated.allowFrom.<provider>`)
+- Kích hoạt: `tools.elevated.enabled` (và tùy chọn `agents.list[].tools.elevated.enabled`)
+- Danh sách cho phép người gửi: `tools.elevated.allowFrom.<provider>` (và tùy chọn `agents.list[].tools.elevated.allowFrom.<provider>`)
 
-See [Elevated Mode](/tools/elevated).
+Xem [Chế độ Nâng cao](/tools/elevated).
 
-## Common "sandbox jail" fixes
+## Các cách sửa lỗi "sandbox jail" phổ biến
 
-### "Tool X blocked by sandbox tool policy"
+### "Công cụ X bị chặn bởi chính sách công cụ sandbox"
 
-Fix-it keys (pick one):
+Khóa sửa lỗi (chọn một):
 
-- Disable sandbox: `agents.defaults.sandbox.mode=off` (or per-agent `agents.list[].sandbox.mode=off`)
-- Allow the tool inside sandbox:
-  - remove it from `tools.sandbox.tools.deny` (or per-agent `agents.list[].tools.sandbox.tools.deny`)
-  - or add it to `tools.sandbox.tools.allow` (or per-agent allow)
+- Tắt sandbox: `agents.defaults.sandbox.mode=off` (hoặc theo agent `agents.list[].sandbox.mode=off`)
+- Cho phép công cụ bên trong sandbox:
+  - xóa nó khỏi `tools.sandbox.tools.deny` (hoặc theo agent `agents.list[].tools.sandbox.tools.deny`)
+  - hoặc thêm nó vào `tools.sandbox.tools.allow` (hoặc theo agent allow)
 
-### "I thought this was main, why is it sandboxed?"
+### "Tôi nghĩ đây là main, tại sao lại bị sandbox?"
 
-In `"non-main"` mode, group/channel keys are _not_ main. Use the main session key (shown by `sandbox explain`) or switch mode to `"off"`.
+Trong chế độ `"non-main"`, các khóa nhóm/kênh _không_ phải là main. Sử dụng khóa phiên main (hiển thị bởi `sandbox explain`) hoặc chuyển chế độ sang `"off"`.
 
-## See also
+## Xem thêm
 
-- [Sandboxing](/gateway/sandboxing) -- full sandbox reference (modes, scopes, backends, images)
-- [Multi-Agent Sandbox & Tools](/tools/multi-agent-sandbox-tools) -- per-agent overrides and precedence
-- [Elevated Mode](/tools/elevated)
+- [Sandboxing](/gateway/sandboxing) -- tham khảo sandbox đầy đủ (chế độ, phạm vi, backend, images)
+- [Multi-Agent Sandbox & Tools](/tools/multi-agent-sandbox-tools) -- ghi đè theo agent và thứ tự ưu tiên
+- [Chế độ Nâng cao](/tools/elevated)

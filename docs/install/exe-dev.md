@@ -1,75 +1,74 @@
 ---
-summary: "Run OpenClaw Gateway on exe.dev (VM + HTTPS proxy) for remote access"
+summary: "Chạy OpenClaw Gateway trên exe.dev (VM + proxy HTTPS) để truy cập từ xa"
 read_when:
-  - You want a cheap always-on Linux host for the Gateway
-  - You want remote Control UI access without running your own VPS
+  - Bạn cần một máy chủ Linux luôn hoạt động với chi phí thấp cho Gateway
+  - Bạn muốn truy cập Control UI từ xa mà không cần chạy VPS riêng
 title: "exe.dev"
 ---
 
 # exe.dev
 
-Goal: OpenClaw Gateway running on an exe.dev VM, reachable from your laptop via: `https://<vm-name>.exe.xyz`
+Mục tiêu: Chạy OpenClaw Gateway trên một VM của exe.dev, có thể truy cập từ laptop qua: `https://<vm-name>.exe.xyz`
 
-This page assumes exe.dev's default **exeuntu** image. If you picked a different distro, map packages accordingly.
+Trang này giả định bạn đang sử dụng image mặc định **exeuntu** của exe.dev. Nếu chọn distro khác, hãy điều chỉnh các gói tương ứng.
 
-## Beginner quick path
+## Lộ trình nhanh cho người mới bắt đầu
 
 1. [https://exe.new/openclaw](https://exe.new/openclaw)
-2. Fill in your auth key/token as needed
-3. Click on "Agent" next to your VM and wait for Shelley to finish provisioning
-4. Open `https://<vm-name>.exe.xyz/` and paste your gateway token to authenticate
-5. Approve any pending device pairing requests with `openclaw devices approve <requestId>`
+2. Điền khóa xác thực/token khi cần
+3. Nhấp vào "Agent" bên cạnh VM và chờ Shelley hoàn tất việc cung cấp
+4. Mở `https://<vm-name>.exe.xyz/` và dán token gateway để xác thực
+5. Phê duyệt các yêu cầu ghép nối thiết bị đang chờ với `openclaw devices approve <requestId>`
 
-## What you need
+## Những gì bạn cần
 
-- exe.dev account
-- `ssh exe.dev` access to [exe.dev](https://exe.dev) virtual machines (optional)
+- Tài khoản exe.dev
+- Quyền truy cập `ssh exe.dev` vào máy ảo [exe.dev](https://exe.dev) (tùy chọn)
 
-## Automated Install with Shelley
+## Cài đặt tự động với Shelley
 
-Shelley, [exe.dev](https://exe.dev)'s agent, can install OpenClaw instantly with our
-prompt. The prompt used is as below:
+Shelley, agent của [exe.dev](https://exe.dev), có thể cài đặt OpenClaw ngay lập tức với prompt của chúng tôi. Prompt sử dụng như sau:
 
 ```
 Set up OpenClaw (https://docs.openclaw.ai/install) on this VM. Use the non-interactive and accept-risk flags for openclaw onboarding. Add the supplied auth or token as needed. Configure nginx to forward from the default port 18789 to the root location on the default enabled site config, making sure to enable Websocket support. Pairing is done by "openclaw devices list" and "openclaw devices approve <request id>". Make sure the dashboard shows that OpenClaw's health is OK. exe.dev handles forwarding from port 8000 to port 80/443 and HTTPS for us, so the final "reachable" should be <vm-name>.exe.xyz, without port specification.
 ```
 
-## Manual installation
+## Cài đặt thủ công
 
-## 1) Create the VM
+## 1) Tạo VM
 
-From your device:
+Từ thiết bị của bạn:
 
 ```bash
 ssh exe.dev new
 ```
 
-Then connect:
+Sau đó kết nối:
 
 ```bash
 ssh <vm-name>.exe.xyz
 ```
 
-Tip: keep this VM **stateful**. OpenClaw stores state under `~/.openclaw/` and `~/.openclaw/workspace/`.
+Mẹo: giữ VM này ở trạng thái **stateful**. OpenClaw lưu trữ trạng thái dưới `~/.openclaw/` và `~/.openclaw/workspace/`.
 
-## 2) Install prerequisites (on the VM)
+## 2) Cài đặt các gói cần thiết (trên VM)
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y git curl jq ca-certificates openssl
 ```
 
-## 3) Install OpenClaw
+## 3) Cài đặt OpenClaw
 
-Run the OpenClaw install script:
+Chạy script cài đặt OpenClaw:
 
 ```bash
 curl -fsSL https://openclaw.ai/install.sh | bash
 ```
 
-## 4) Setup nginx to proxy OpenClaw to port 8000
+## 4) Cấu hình nginx để proxy OpenClaw đến cổng 8000
 
-Edit `/etc/nginx/sites-enabled/default` with
+Chỉnh sửa `/etc/nginx/sites-enabled/default` với
 
 ```
 server {
@@ -84,37 +83,32 @@ server {
         proxy_pass http://127.0.0.1:18789;
         proxy_http_version 1.1;
 
-        # WebSocket support
+        # Hỗ trợ WebSocket
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
 
-        # Standard proxy headers
+        # Header proxy tiêu chuẩn
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
 
-        # Timeout settings for long-lived connections
+        # Cài đặt timeout cho kết nối dài
         proxy_read_timeout 86400s;
         proxy_send_timeout 86400s;
     }
 }
 ```
 
-## 5) Access OpenClaw and grant privileges
+## 5) Truy cập OpenClaw và cấp quyền
 
-Access `https://<vm-name>.exe.xyz/` (see the Control UI output from onboarding). If it prompts for auth, paste the
-token from `gateway.auth.token` on the VM (retrieve with `openclaw config get gateway.auth.token`, or generate one
-with `openclaw doctor --generate-gateway-token`). Approve devices with `openclaw devices list` and
-`openclaw devices approve <requestId>`. When in doubt, use Shelley from your browser!
+Truy cập `https://<vm-name>.exe.xyz/` (xem output Control UI từ onboarding). Nếu yêu cầu xác thực, dán token từ `gateway.auth.token` trên VM (lấy bằng `openclaw config get gateway.auth.token`, hoặc tạo một token mới với `openclaw doctor --generate-gateway-token`). Phê duyệt thiết bị với `openclaw devices list` và `openclaw devices approve <requestId>`. Khi gặp khó khăn, hãy sử dụng Shelley từ trình duyệt của bạn!
 
-## Remote Access
+## Truy cập từ xa
 
-Remote access is handled by [exe.dev](https://exe.dev)'s authentication. By
-default, HTTP traffic from port 8000 is forwarded to `https://<vm-name>.exe.xyz`
-with email auth.
+Truy cập từ xa được xử lý bởi xác thực của [exe.dev](https://exe.dev). Mặc định, lưu lượng HTTP từ cổng 8000 được chuyển tiếp đến `https://<vm-name>.exe.xyz` với xác thực email.
 
-## Updating
+## Cập nhật
 
 ```bash
 npm i -g openclaw@latest
@@ -123,4 +117,4 @@ openclaw gateway restart
 openclaw health
 ```
 
-Guide: [Updating](/install/updating)
+Hướng dẫn: [Cập nhật](/install/updating)

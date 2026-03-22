@@ -1,56 +1,44 @@
----
-summary: "Agent-controlled Canvas panel embedded via WKWebView + custom URL scheme"
-read_when:
-  - Implementing the macOS Canvas panel
-  - Adding agent controls for visual workspace
-  - Debugging WKWebView canvas loads
-title: "Canvas"
----
+# Canvas (Ứng dụng macOS)
 
-# Canvas (macOS app)
+Ứng dụng macOS tích hợp một **Canvas panel** được điều khiển bởi agent thông qua `WKWebView`. Đây là một không gian làm việc trực quan nhẹ cho HTML/CSS/JS, A2UI và các bề mặt UI tương tác nhỏ.
 
-The macOS app embeds an agent‑controlled **Canvas panel** using `WKWebView`. It
-is a lightweight visual workspace for HTML/CSS/JS, A2UI, and small interactive
-UI surfaces.
+## Vị trí của Canvas
 
-## Where Canvas lives
-
-Canvas state is stored under Application Support:
+Trạng thái của Canvas được lưu trữ trong Application Support:
 
 - `~/Library/Application Support/OpenClaw/canvas/<session>/...`
 
-The Canvas panel serves those files via a **custom URL scheme**:
+Canvas panel phục vụ các tệp này thông qua một **custom URL scheme**:
 
 - `openclaw-canvas://<session>/<path>`
 
-Examples:
+Ví dụ:
 
 - `openclaw-canvas://main/` → `<canvasRoot>/main/index.html`
 - `openclaw-canvas://main/assets/app.css` → `<canvasRoot>/main/assets/app.css`
 - `openclaw-canvas://main/widgets/todo/` → `<canvasRoot>/main/widgets/todo/index.html`
 
-If no `index.html` exists at the root, the app shows a **built‑in scaffold page**.
+Nếu không có `index.html` tại thư mục gốc, ứng dụng sẽ hiển thị một **trang scaffold tích hợp sẵn**.
 
-## Panel behavior
+## Hành vi của Panel
 
-- Borderless, resizable panel anchored near the menu bar (or mouse cursor).
-- Remembers size/position per session.
-- Auto‑reloads when local canvas files change.
-- Only one Canvas panel is visible at a time (session is switched as needed).
+- Panel không viền, có thể thay đổi kích thước, neo gần thanh menu (hoặc con trỏ chuột).
+- Ghi nhớ kích thước/vị trí cho mỗi phiên làm việc.
+- Tự động tải lại khi các tệp canvas cục bộ thay đổi.
+- Chỉ một Canvas panel được hiển thị tại một thời điểm (phiên làm việc được chuyển đổi khi cần).
 
-Canvas can be disabled from Settings → **Allow Canvas**. When disabled, canvas
-node commands return `CANVAS_DISABLED`.
+Canvas có thể bị vô hiệu hóa từ Cài đặt → **Allow Canvas**. Khi bị vô hiệu hóa, các lệnh node của canvas trả về `CANVAS_DISABLED`.
 
-## Agent API surface
+## Giao diện API của Agent
 
-Canvas is exposed via the **Gateway WebSocket**, so the agent can:
+Canvas được truy cập qua **Gateway WebSocket**, cho phép agent:
 
-- show/hide the panel
-- navigate to a path or URL
-- evaluate JavaScript
-- capture a snapshot image
+- hiển thị/ẩn panel
+- điều hướng đến một đường dẫn hoặc URL
+- thực thi JavaScript
+- chụp ảnh chụp màn hình
 
-CLI examples:
+Ví dụ CLI:
 
 ```bash
 openclaw nodes canvas present --node <id>
@@ -59,35 +47,33 @@ openclaw nodes canvas eval --node <id> --js "document.title"
 openclaw nodes canvas snapshot --node <id>
 ```
 
-Notes:
+Lưu ý:
 
-- `canvas.navigate` accepts **local canvas paths**, `http(s)` URLs, and `file://` URLs.
-- If you pass `"/"`, the Canvas shows the local scaffold or `index.html`.
+- `canvas.navigate` chấp nhận **đường dẫn canvas cục bộ**, URL `http(s)`, và URL `file://`.
+- Nếu bạn truyền `"/"`, Canvas sẽ hiển thị scaffold cục bộ hoặc `index.html`.
 
-## A2UI in Canvas
+## A2UI trong Canvas
 
-A2UI is hosted by the Gateway canvas host and rendered inside the Canvas panel.
-When the Gateway advertises a Canvas host, the macOS app auto‑navigates to the
-A2UI host page on first open.
+A2UI được host bởi Gateway canvas host và được render bên trong Canvas panel. Khi Gateway quảng cáo một Canvas host, ứng dụng macOS tự động điều hướng đến trang host A2UI khi mở lần đầu.
 
-Default A2UI host URL:
+URL host A2UI mặc định:
 
 ```
 http://<gateway-host>:18789/__openclaw__/a2ui/
 ```
 
-### A2UI commands (v0.8)
+### Lệnh A2UI (v0.8)
 
-Canvas currently accepts **A2UI v0.8** server→client messages:
+Hiện tại, Canvas chấp nhận các thông điệp server→client của **A2UI v0.8**:
 
 - `beginRendering`
 - `surfaceUpdate`
 - `dataModelUpdate`
 - `deleteSurface`
 
-`createSurface` (v0.9) is not supported.
+`createSurface` (v0.9) không được hỗ trợ.
 
-CLI example:
+Ví dụ CLI:
 
 ```bash
 cat > /tmp/a2ui-v0.8.jsonl <<'EOFA2'
@@ -98,28 +84,28 @@ EOFA2
 openclaw nodes canvas a2ui push --jsonl /tmp/a2ui-v0.8.jsonl --node <id>
 ```
 
-Quick smoke:
+Kiểm tra nhanh:
 
 ```bash
 openclaw nodes canvas a2ui push --node <id> --text "Hello from A2UI"
 ```
 
-## Triggering agent runs from Canvas
+## Kích hoạt chạy agent từ Canvas
 
-Canvas can trigger new agent runs via deep links:
+Canvas có thể kích hoạt các lần chạy agent mới thông qua deep links:
 
 - `openclaw://agent?...`
 
-Example (in JS):
+Ví dụ (trong JS):
 
 ```js
 window.location.href = "openclaw://agent?message=Review%20this%20design";
 ```
 
-The app prompts for confirmation unless a valid key is provided.
+Ứng dụng sẽ yêu cầu xác nhận trừ khi có khóa hợp lệ được cung cấp.
 
-## Security notes
+## Ghi chú bảo mật
 
-- Canvas scheme blocks directory traversal; files must live under the session root.
-- Local Canvas content uses a custom scheme (no loopback server required).
-- External `http(s)` URLs are allowed only when explicitly navigated.
+- Scheme của Canvas chặn việc truy cập thư mục trái phép; các tệp phải nằm dưới thư mục gốc của phiên làm việc.
+- Nội dung Canvas cục bộ sử dụng một scheme tùy chỉnh (không cần server loopback).
+- URL `http(s)` bên ngoài chỉ được phép khi điều hướng rõ ràng.

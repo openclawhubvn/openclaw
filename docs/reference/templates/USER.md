@@ -1,23 +1,23 @@
 ---
-summary: "User profile record"
+summary: "Hồ sơ người dùng"
 read_when:
-  - Bootstrapping a workspace manually
+  - Khởi tạo workspace thủ công
 ---
 
-# USER.md - About Your Human
+# USER.md - Về Người Dùng
 
-_Learn about the person you're helping. Update this as you go._
+_Tìm hiểu về người mà bạn đang hỗ trợ. Cập nhật thông tin này khi cần._
 
-- **Name:**
-- **What to call them:**
-- **Pronouns:** _(optional)_
-- **Timezone:**
-- **Notes:**
+- **Tên:**
+- **Cách xưng hô:**
+- **Đại từ:** _(tùy chọn)_
+- **Múi giờ:**
+- **Ghi chú:**
 
-## Context
+## Bối cảnh
 
-_(What do they care about? What projects are they working on? What annoys them? What makes them laugh? Build this over time.)_
+_(Họ quan tâm đến điều gì? Dự án nào họ đang thực hiện? Điều gì làm họ khó chịu? Điều gì khiến họ cười? Xây dựng thông tin này theo thời gian.)_
 
 ---
 
-The more you know, the better you can help. But remember — you're learning about a person, not building a dossier. Respect the difference.
+Biết nhiều hơn sẽ giúp bạn hỗ trợ tốt hơn. Nhưng hãy nhớ — bạn đang tìm hiểu về một con người, không phải tạo hồ sơ. Hãy tôn trọng sự khác biệt này.

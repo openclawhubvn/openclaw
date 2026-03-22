@@ -1,35 +1,35 @@
 ---
 title: Sandbox CLI
-summary: "Manage sandbox runtimes and inspect effective sandbox policy"
-read_when: "You are managing sandbox runtimes or debugging sandbox/tool-policy behavior."
+summary: "Quản lý môi trường sandbox và kiểm tra chính sách sandbox hiệu quả"
+read_when: "Khi bạn quản lý môi trường sandbox hoặc gỡ lỗi hành vi sandbox/chính sách công cụ."
 status: active
 ---
 
 # Sandbox CLI
 
-Manage sandbox runtimes for isolated agent execution.
+Quản lý môi trường sandbox để thực thi agent một cách cô lập.
 
-## Overview
+## Tổng quan
 
-OpenClaw can run agents in isolated sandbox runtimes for security. The `sandbox` commands help you inspect and recreate those runtimes after updates or configuration changes.
+OpenClaw có thể chạy các agent trong môi trường sandbox cô lập để đảm bảo an toàn. Các lệnh `sandbox` giúp bạn kiểm tra và tái tạo lại các môi trường này sau khi có cập nhật hoặc thay đổi cấu hình.
 
-Today that usually means:
+Hiện tại, điều này thường bao gồm:
 
-- Docker sandbox containers
-- SSH sandbox runtimes when `agents.defaults.sandbox.backend = "ssh"`
-- OpenShell sandbox runtimes when `agents.defaults.sandbox.backend = "openshell"`
+- Container sandbox Docker
+- Môi trường sandbox SSH khi `agents.defaults.sandbox.backend = "ssh"`
+- Môi trường sandbox OpenShell khi `agents.defaults.sandbox.backend = "openshell"`
 
-For `ssh` and OpenShell `remote`, recreate matters more than with Docker:
+Với `ssh` và OpenShell `remote`, việc tái tạo quan trọng hơn so với Docker:
 
-- the remote workspace is canonical after the initial seed
-- `openclaw sandbox recreate` deletes that canonical remote workspace for the selected scope
-- next use seeds it again from the current local workspace
+- Workspace từ xa là chuẩn sau khi được khởi tạo lần đầu
+- `openclaw sandbox recreate` xóa workspace từ xa chuẩn cho phạm vi đã chọn
+- Lần sử dụng tiếp theo sẽ khởi tạo lại từ workspace cục bộ hiện tại
 
-## Commands
+## Các lệnh
 
 ### `openclaw sandbox explain`
 
-Inspect the **effective** sandbox mode/scope/workspace access, sandbox tool policy, and elevated gates (with fix-it config key paths).
+Kiểm tra chế độ/phạm vi/truy cập workspace sandbox hiệu quả, chính sách công cụ sandbox và các cổng nâng cao (với đường dẫn cấu hình fix-it).
 
 ```bash
 openclaw sandbox explain
@@ -40,74 +40,74 @@ openclaw sandbox explain --json
 
 ### `openclaw sandbox list`
 
-List all sandbox runtimes with their status and configuration.
+Liệt kê tất cả các môi trường sandbox cùng với trạng thái và cấu hình của chúng.
 
 ```bash
 openclaw sandbox list
-openclaw sandbox list --browser  # List only browser containers
-openclaw sandbox list --json     # JSON output
+openclaw sandbox list --browser  # Chỉ liệt kê container trình duyệt
+openclaw sandbox list --json     # Xuất ra JSON
 ```
 
-**Output includes:**
+**Thông tin bao gồm:**
 
-- Runtime name and status
-- Backend (`docker`, `openshell`, etc.)
-- Config label and whether it matches current config
-- Age (time since creation)
-- Idle time (time since last use)
-- Associated session/agent
+- Tên và trạng thái runtime
+- Backend (`docker`, `openshell`, v.v.)
+- Nhãn cấu hình và xem có khớp với cấu hình hiện tại không
+- Tuổi (thời gian từ khi tạo)
+- Thời gian không hoạt động (thời gian từ lần sử dụng cuối)
+- Phiên/agent liên quan
 
 ### `openclaw sandbox recreate`
 
-Remove sandbox runtimes to force recreation with updated config.
+Xóa môi trường sandbox để buộc tái tạo với cấu hình cập nhật.
 
 ```bash
-openclaw sandbox recreate --all                # Recreate all containers
-openclaw sandbox recreate --session main       # Specific session
-openclaw sandbox recreate --agent mybot        # Specific agent
-openclaw sandbox recreate --browser            # Only browser containers
-openclaw sandbox recreate --all --force        # Skip confirmation
+openclaw sandbox recreate --all                # Tái tạo tất cả container
+openclaw sandbox recreate --session main       # Phiên cụ thể
+openclaw sandbox recreate --agent mybot        # Agent cụ thể
+openclaw sandbox recreate --browser            # Chỉ container trình duyệt
+openclaw sandbox recreate --all --force        # Bỏ qua xác nhận
 ```
 
-**Options:**
+**Tùy chọn:**
 
-- `--all`: Recreate all sandbox containers
-- `--session <key>`: Recreate container for specific session
-- `--agent <id>`: Recreate containers for specific agent
-- `--browser`: Only recreate browser containers
-- `--force`: Skip confirmation prompt
+- `--all`: Tái tạo tất cả container sandbox
+- `--session <key>`: Tái tạo container cho phiên cụ thể
+- `--agent <id>`: Tái tạo container cho agent cụ thể
+- `--browser`: Chỉ tái tạo container trình duyệt
+- `--force`: Bỏ qua yêu cầu xác nhận
 
-**Important:** Runtimes are automatically recreated when the agent is next used.
+**Quan trọng:** Các môi trường runtime sẽ tự động được tái tạo khi agent được sử dụng lần tiếp theo.
 
-## Use Cases
+## Trường hợp sử dụng
 
-### After updating a Docker image
+### Sau khi cập nhật hình ảnh Docker
 
 ```bash
-# Pull new image
+# Tải hình ảnh mới
 docker pull openclaw-sandbox:latest
 docker tag openclaw-sandbox:latest openclaw-sandbox:bookworm-slim
 
-# Update config to use new image
-# Edit config: agents.defaults.sandbox.docker.image (or agents.list[].sandbox.docker.image)
+# Cập nhật cấu hình để sử dụng hình ảnh mới
+# Chỉnh sửa cấu hình: agents.defaults.sandbox.docker.image (hoặc agents.list[].sandbox.docker.image)
 
-# Recreate containers
+# Tái tạo container
 openclaw sandbox recreate --all
 ```
 
-### After changing sandbox configuration
+### Sau khi thay đổi cấu hình sandbox
 
 ```bash
-# Edit config: agents.defaults.sandbox.* (or agents.list[].sandbox.*)
+# Chỉnh sửa cấu hình: agents.defaults.sandbox.* (hoặc agents.list[].sandbox.*)
 
-# Recreate to apply new config
+# Tái tạo để áp dụng cấu hình mới
 openclaw sandbox recreate --all
 ```
 
-### After changing SSH target or SSH auth material
+### Sau khi thay đổi mục tiêu SSH hoặc thông tin xác thực SSH
 
 ```bash
-# Edit config:
+# Chỉnh sửa cấu hình:
 # - agents.defaults.sandbox.backend
 # - agents.defaults.sandbox.ssh.target
 # - agents.defaults.sandbox.ssh.workspaceRoot
@@ -117,13 +117,12 @@ openclaw sandbox recreate --all
 openclaw sandbox recreate --all
 ```
 
-For the core `ssh` backend, recreate deletes the per-scope remote workspace root
-on the SSH target. The next run seeds it again from the local workspace.
+Với backend `ssh` cốt lõi, tái tạo sẽ xóa thư mục workspace từ xa theo phạm vi trên mục tiêu SSH. Lần chạy tiếp theo sẽ khởi tạo lại từ workspace cục bộ.
 
-### After changing OpenShell source, policy, or mode
+### Sau khi thay đổi nguồn, chính sách hoặc chế độ OpenShell
 
 ```bash
-# Edit config:
+# Chỉnh sửa cấu hình:
 # - agents.defaults.sandbox.backend
 # - plugins.entries.openshell.config.from
 # - plugins.entries.openshell.config.mode
@@ -132,40 +131,38 @@ on the SSH target. The next run seeds it again from the local workspace.
 openclaw sandbox recreate --all
 ```
 
-For OpenShell `remote` mode, recreate deletes the canonical remote workspace
-for that scope. The next run seeds it again from the local workspace.
+Với chế độ `remote` của OpenShell, tái tạo sẽ xóa workspace từ xa chuẩn cho phạm vi đó. Lần chạy tiếp theo sẽ khởi tạo lại từ workspace cục bộ.
 
-### After changing setupCommand
+### Sau khi thay đổi setupCommand
 
 ```bash
 openclaw sandbox recreate --all
-# or just one agent:
+# hoặc chỉ một agent:
 openclaw sandbox recreate --agent family
 ```
 
-### For a specific agent only
+### Chỉ cho một agent cụ thể
 
 ```bash
-# Update only one agent's containers
+# Cập nhật chỉ container của một agent
 openclaw sandbox recreate --agent alfred
 ```
 
-## Why is this needed?
+## Tại sao cần thiết?
 
-**Problem:** When you update sandbox configuration:
+**Vấn đề:** Khi bạn cập nhật cấu hình sandbox:
 
-- Existing runtimes continue running with old settings
-- Runtimes are only pruned after 24h of inactivity
-- Regularly-used agents keep old runtimes alive indefinitely
+- Các môi trường runtime hiện tại tiếp tục chạy với cài đặt cũ
+- Các môi trường runtime chỉ được xóa sau 24 giờ không hoạt động
+- Các agent được sử dụng thường xuyên giữ cho các môi trường runtime cũ tồn tại vô thời hạn
 
-**Solution:** Use `openclaw sandbox recreate` to force removal of old runtimes. They'll be recreated automatically with current settings when next needed.
+**Giải pháp:** Sử dụng `openclaw sandbox recreate` để buộc xóa các môi trường runtime cũ. Chúng sẽ được tái tạo tự động với cài đặt hiện tại khi cần.
 
-Tip: prefer `openclaw sandbox recreate` over manual backend-specific cleanup.
-It uses the Gateway’s runtime registry and avoids mismatches when scope/session keys change.
+Mẹo: ưu tiên `openclaw sandbox recreate` hơn là dọn dẹp thủ công theo backend cụ thể. Nó sử dụng registry runtime của Gateway và tránh sự không khớp khi các khóa phạm vi/phiên thay đổi.
 
-## Configuration
+## Cấu hình
 
-Sandbox settings live in `~/.openclaw/openclaw.json` under `agents.defaults.sandbox` (per-agent overrides go in `agents.list[].sandbox`):
+Cài đặt sandbox nằm trong `~/.openclaw/openclaw.json` dưới `agents.defaults.sandbox` (ghi đè theo agent nằm trong `agents.list[].sandbox`):
 
 ```jsonc
 {
@@ -178,11 +175,11 @@ Sandbox settings live in `~/.openclaw/openclaw.json` under `agents.defaults.sand
         "docker": {
           "image": "openclaw-sandbox:bookworm-slim",
           "containerPrefix": "openclaw-sbx-",
-          // ... more Docker options
+          // ... thêm tùy chọn Docker
         },
         "prune": {
-          "idleHours": 24, // Auto-prune after 24h idle
-          "maxAgeDays": 7, // Auto-prune after 7 days
+          "idleHours": 24, // Tự động xóa sau 24h không hoạt động
+          "maxAgeDays": 7, // Tự động xóa sau 7 ngày
         },
       },
     },
@@ -190,8 +187,8 @@ Sandbox settings live in `~/.openclaw/openclaw.json` under `agents.defaults.sand
 }
 ```
 
-## See Also
+## Xem thêm
 
-- [Sandbox Documentation](/gateway/sandboxing)
-- [Agent Configuration](/concepts/agent-workspace)
-- [Doctor Command](/gateway/doctor) - Check sandbox setup
+- [Tài liệu Sandbox](/gateway/sandboxing)
+- [Cấu hình Agent](/concepts/agent-workspace)
+- [Lệnh Doctor](/gateway/doctor) - Kiểm tra thiết lập sandbox

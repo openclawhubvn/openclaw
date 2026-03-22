@@ -1,14 +1,14 @@
 ---
-summary: "CLI reference for `openclaw uninstall` (remove gateway service + local data)"
+summary: "Tham khảo CLI cho `openclaw uninstall` (gỡ bỏ dịch vụ gateway + dữ liệu cục bộ)"
 read_when:
-  - You want to remove the gateway service and/or local state
-  - You want a dry-run first
+  - Bạn muốn gỡ bỏ dịch vụ gateway và/hoặc trạng thái cục bộ
+  - Bạn muốn chạy thử trước khi thực hiện
 title: "uninstall"
 ---
 
 # `openclaw uninstall`
 
-Uninstall the gateway service + local data (CLI remains).
+Gỡ bỏ dịch vụ gateway và dữ liệu cục bộ (CLI vẫn giữ lại).
 
 ```bash
 openclaw backup create
@@ -17,4 +17,4 @@ openclaw uninstall --all --yes
 openclaw uninstall --dry-run
 ```
 
-Run `openclaw backup create` first if you want a restorable snapshot before removing state or workspaces.
+Chạy `openclaw backup create` trước nếu muốn tạo bản snapshot có thể khôi phục trước khi xóa trạng thái hoặc workspace.

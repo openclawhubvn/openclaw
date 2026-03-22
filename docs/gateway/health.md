@@ -1,44 +1,44 @@
 ---
-summary: "Health check steps for channel connectivity"
+summary: "Các bước kiểm tra sức khỏe kết nối kênh"
 read_when:
-  - Diagnosing WhatsApp channel health
-title: "Health Checks"
+  - Chẩn đoán sức khỏe kênh WhatsApp
+title: "Kiểm tra sức khỏe"
 ---
 
-# Health Checks (CLI)
+# Kiểm tra sức khỏe (CLI)
 
-Short guide to verify channel connectivity without guessing.
+Hướng dẫn ngắn gọn để xác minh kết nối kênh mà không cần đoán mò.
 
-## Quick checks
+## Kiểm tra nhanh
 
-- `openclaw status` — local summary: gateway reachability/mode, update hint, linked channel auth age, sessions + recent activity.
-- `openclaw status --all` — full local diagnosis (read-only, color, safe to paste for debugging).
-- `openclaw status --deep` — also probes the running Gateway (per-channel probes when supported).
-- `openclaw health --json` — asks the running Gateway for a full health snapshot (WS-only; no direct Baileys socket).
-- Send `/status` as a standalone message in WhatsApp/WebChat to get a status reply without invoking the agent.
-- Logs: tail `/tmp/openclaw/openclaw-*.log` and filter for `web-heartbeat`, `web-reconnect`, `web-auto-reply`, `web-inbound`.
+- `openclaw status` — tóm tắt cục bộ: khả năng kết nối/mode của gateway, gợi ý cập nhật, tuổi xác thực kênh liên kết, phiên và hoạt động gần đây.
+- `openclaw status --all` — chẩn đoán cục bộ đầy đủ (chỉ đọc, có màu, an toàn để dán khi gỡ lỗi).
+- `openclaw status --deep` — cũng kiểm tra Gateway đang chạy (kiểm tra từng kênh khi được hỗ trợ).
+- `openclaw health --json` — yêu cầu Gateway đang chạy cung cấp ảnh chụp sức khỏe đầy đủ (chỉ WS; không có socket Baileys trực tiếp).
+- Gửi `/status` như một tin nhắn độc lập trong WhatsApp/WebChat để nhận phản hồi trạng thái mà không cần kích hoạt agent.
+- Nhật ký: theo dõi `/tmp/openclaw/openclaw-*.log` và lọc các mục `web-heartbeat`, `web-reconnect`, `web-auto-reply`, `web-inbound`.
 
-## Deep diagnostics
+## Chẩn đoán sâu
 
-- Creds on disk: `ls -l ~/.openclaw/credentials/whatsapp/<accountId>/creds.json` (mtime should be recent).
-- Session store: `ls -l ~/.openclaw/agents/<agentId>/sessions/sessions.json` (path can be overridden in config). Count and recent recipients are surfaced via `status`.
-- Relink flow: `openclaw channels logout && openclaw channels login --verbose` when status codes 409–515 or `loggedOut` appear in logs. (Note: the QR login flow auto-restarts once for status 515 after pairing.)
+- Thông tin xác thực trên đĩa: `ls -l ~/.openclaw/credentials/whatsapp/<accountId>/creds.json` (thời gian sửa đổi gần đây).
+- Lưu trữ phiên: `ls -l ~/.openclaw/agents/<agentId>/sessions/sessions.json` (đường dẫn có thể được ghi đè trong cấu hình). Số lượng và người nhận gần đây được hiển thị qua `status`.
+- Quy trình liên kết lại: `openclaw channels logout && openclaw channels login --verbose` khi mã trạng thái 409–515 hoặc `loggedOut` xuất hiện trong nhật ký. (Lưu ý: quy trình đăng nhập QR tự động khởi động lại một lần cho trạng thái 515 sau khi ghép đôi.)
 
-## Health monitor config
+## Cấu hình giám sát sức khỏe
 
-- `gateway.channelHealthCheckMinutes`: how often the gateway checks channel health. Default: `5`. Set `0` to disable health-monitor restarts globally.
-- `gateway.channelStaleEventThresholdMinutes`: how long a connected channel can stay idle before the health monitor treats it as stale and restarts it. Default: `30`. Keep this greater than or equal to `gateway.channelHealthCheckMinutes`.
-- `gateway.channelMaxRestartsPerHour`: rolling one-hour cap for health-monitor restarts per channel/account. Default: `10`.
-- `channels.<provider>.healthMonitor.enabled`: disable health-monitor restarts for a specific channel while leaving global monitoring enabled.
-- `channels.<provider>.accounts.<accountId>.healthMonitor.enabled`: multi-account override that wins over the channel-level setting.
-- These per-channel overrides apply to the built-in channel monitors that expose them today: Discord, Google Chat, iMessage, Microsoft Teams, Signal, Slack, Telegram, and WhatsApp.
+- `gateway.channelHealthCheckMinutes`: tần suất gateway kiểm tra sức khỏe kênh. Mặc định: `5`. Đặt `0` để vô hiệu hóa khởi động lại giám sát sức khỏe toàn cầu.
+- `gateway.channelStaleEventThresholdMinutes`: thời gian một kênh kết nối có thể không hoạt động trước khi giám sát sức khỏe coi nó là không hoạt động và khởi động lại. Mặc định: `30`. Giữ giá trị này lớn hơn hoặc bằng `gateway.channelHealthCheckMinutes`.
+- `gateway.channelMaxRestartsPerHour`: giới hạn khởi động lại giám sát sức khỏe trong một giờ cho mỗi kênh/tài khoản. Mặc định: `10`.
+- `channels.<provider>.healthMonitor.enabled`: vô hiệu hóa khởi động lại giám sát sức khỏe cho một kênh cụ thể trong khi vẫn giữ giám sát toàn cầu.
+- `channels.<provider>.accounts.<accountId>.healthMonitor.enabled`: ghi đè đa tài khoản có ưu tiên hơn cài đặt cấp kênh.
+- Các ghi đè theo kênh này áp dụng cho các giám sát kênh tích hợp hiện có: Discord, Google Chat, iMessage, Microsoft Teams, Signal, Slack, Telegram, và WhatsApp.
 
-## When something fails
+## Khi có sự cố
 
-- `logged out` or status 409–515 → relink with `openclaw channels logout` then `openclaw channels login`.
-- Gateway unreachable → start it: `openclaw gateway --port 18789` (use `--force` if the port is busy).
-- No inbound messages → confirm linked phone is online and the sender is allowed (`channels.whatsapp.allowFrom`); for group chats, ensure allowlist + mention rules match (`channels.whatsapp.groups`, `agents.list[].groupChat.mentionPatterns`).
+- `logged out` hoặc trạng thái 409–515 → liên kết lại với `openclaw channels logout` sau đó `openclaw channels login`.
+- Gateway không thể truy cập → khởi động nó: `openclaw gateway --port 18789` (sử dụng `--force` nếu cổng bận).
+- Không có tin nhắn đến → xác nhận điện thoại liên kết đang trực tuyến và người gửi được phép (`channels.whatsapp.allowFrom`); đối với trò chuyện nhóm, đảm bảo danh sách cho phép và quy tắc đề cập khớp (`channels.whatsapp.groups`, `agents.list[].groupChat.mentionPatterns`).
 
-## Dedicated "health" command
+## Lệnh "health" chuyên dụng
 
-`openclaw health --json` asks the running Gateway for its health snapshot (no direct channel sockets from the CLI). It reports linked creds/auth age when available, per-channel probe summaries, session-store summary, and a probe duration. It exits non-zero if the Gateway is unreachable or the probe fails/timeouts. Use `--timeout <ms>` to override the 10s default.
+`openclaw health --json` yêu cầu Gateway đang chạy cung cấp ảnh chụp sức khỏe (không có socket kênh trực tiếp từ CLI). Nó báo cáo thông tin xác thực liên kết/tuổi xác thực khi có, tóm tắt kiểm tra từng kênh, tóm tắt lưu trữ phiên và thời gian kiểm tra. Nó thoát với mã khác 0 nếu Gateway không thể truy cập hoặc kiểm tra thất bại/hết thời gian. Sử dụng `--timeout <ms>` để ghi đè mặc định 10 giây.

@@ -1,20 +1,19 @@
 ---
-summary: "Model providers (LLMs) supported by OpenClaw"
+summary: "Các nhà cung cấp mô hình (LLMs) được OpenClaw hỗ trợ"
 read_when:
-  - You want to choose a model provider
-  - You want quick setup examples for LLM auth + model selection
-title: "Model Provider Quickstart"
+  - Bạn muốn chọn một nhà cung cấp mô hình
+  - Bạn cần ví dụ thiết lập nhanh cho xác thực LLM + chọn mô hình
+title: "Hướng dẫn nhanh về Nhà cung cấp Mô hình"
 ---
 
-# Model Providers
+# Nhà cung cấp Mô hình
 
-OpenClaw can use many LLM providers. Pick one, authenticate, then set the default
-model as `provider/model`.
+OpenClaw hỗ trợ nhiều nhà cung cấp LLM. Chọn một nhà cung cấp, xác thực, sau đó đặt mô hình mặc định dưới dạng `provider/model`.
 
-## Quick start (two steps)
+## Hướng dẫn nhanh (hai bước)
 
-1. Authenticate with the provider (usually via `openclaw onboard`).
-2. Set the default model:
+1. Xác thực với nhà cung cấp (thường qua `openclaw onboard`).
+2. Đặt mô hình mặc định:
 
 ```json5
 {
@@ -22,7 +21,7 @@ model as `provider/model`.
 }
 ```
 
-## Supported providers (starter set)
+## Các nhà cung cấp được hỗ trợ (bộ khởi đầu)
 
 - [OpenAI (API + Codex)](/providers/openai)
 - [Anthropic (API + Claude Code CLI)](/providers/anthropic)
@@ -34,12 +33,11 @@ model as `provider/model`.
 - [Synthetic](/providers/synthetic)
 - [OpenCode (Zen + Go)](/providers/opencode)
 - [Z.AI](/providers/zai)
-- [GLM models](/providers/glm)
+- [Mô hình GLM](/providers/glm)
 - [MiniMax](/providers/minimax)
 - [Venice (Venice AI)](/providers/venice)
 - [Amazon Bedrock](/providers/bedrock)
 - [Qianfan](/providers/qianfan)
 - [xAI](/providers/xai)
 
-For the full provider catalog (xAI, Groq, Mistral, etc.) and advanced configuration,
-see [Model providers](/concepts/model-providers).
+Để xem danh mục đầy đủ các nhà cung cấp (xAI, Groq, Mistral, v.v.) và cấu hình nâng cao, hãy xem [Nhà cung cấp mô hình](/concepts/model-providers).

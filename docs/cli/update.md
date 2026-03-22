@@ -1,18 +1,18 @@
 ---
-summary: "CLI reference for `openclaw update` (safe-ish source update + gateway auto-restart)"
+summary: "Tham khảo CLI cho `openclaw update` (cập nhật nguồn an toàn + tự động khởi động lại gateway)"
 read_when:
-  - You want to update a source checkout safely
-  - You need to understand `--update` shorthand behavior
+  - Bạn muốn cập nhật một nguồn checkout một cách an toàn
+  - Bạn cần hiểu hành vi viết tắt của `--update`
 title: "update"
 ---
 
 # `openclaw update`
 
-Safely update OpenClaw and switch between stable/beta/dev channels.
+Cập nhật OpenClaw một cách an toàn và chuyển đổi giữa các kênh stable/beta/dev.
 
-If you installed via **npm/pnpm** (global install, no git metadata), updates happen via the package manager flow in [Updating](/install/updating).
+Nếu bạn cài đặt qua **npm/pnpm** (cài đặt toàn cầu, không có metadata git), cập nhật sẽ diễn ra qua quy trình của trình quản lý gói trong [Cập nhật](/install/updating).
 
-## Usage
+## Cách sử dụng
 
 ```bash
 openclaw update
@@ -28,20 +28,20 @@ openclaw update --json
 openclaw --update
 ```
 
-## Options
+## Tùy chọn
 
-- `--no-restart`: skip restarting the Gateway service after a successful update.
-- `--channel <stable|beta|dev>`: set the update channel (git + npm; persisted in config).
-- `--tag <dist-tag|version|spec>`: override the package target for this update only. For package installs, `main` maps to `github:openclaw/openclaw#main`.
-- `--dry-run`: preview planned update actions (channel/tag/target/restart flow) without writing config, installing, syncing plugins, or restarting.
-- `--json`: print machine-readable `UpdateRunResult` JSON.
-- `--timeout <seconds>`: per-step timeout (default is 1200s).
+- `--no-restart`: bỏ qua việc khởi động lại dịch vụ Gateway sau khi cập nhật thành công.
+- `--channel <stable|beta|dev>`: đặt kênh cập nhật (git + npm; lưu trong cấu hình).
+- `--tag <dist-tag|version|spec>`: ghi đè mục tiêu gói cho lần cập nhật này. Đối với cài đặt gói, `main` ánh xạ tới `github:openclaw/openclaw#main`.
+- `--dry-run`: xem trước các hành động cập nhật dự kiến (kênh/tag/mục tiêu/quy trình khởi động lại) mà không ghi cấu hình, cài đặt, đồng bộ plugin, hoặc khởi động lại.
+- `--json`: in JSON `UpdateRunResult` có thể đọc bằng máy.
+- `--timeout <seconds>`: thời gian chờ cho mỗi bước (mặc định là 1200 giây).
 
-Note: downgrades require confirmation because older versions can break configuration.
+Lưu ý: việc hạ cấp yêu cầu xác nhận vì các phiên bản cũ hơn có thể phá vỡ cấu hình.
 
 ## `update status`
 
-Show the active update channel + git tag/branch/SHA (for source checkouts), plus update availability.
+Hiển thị kênh cập nhật đang hoạt động + git tag/branch/SHA (cho các nguồn checkout), cùng với khả năng cập nhật.
 
 ```bash
 openclaw update status
@@ -49,55 +49,51 @@ openclaw update status --json
 openclaw update status --timeout 10
 ```
 
-Options:
+Tùy chọn:
 
-- `--json`: print machine-readable status JSON.
-- `--timeout <seconds>`: timeout for checks (default is 3s).
+- `--json`: in JSON trạng thái có thể đọc bằng máy.
+- `--timeout <seconds>`: thời gian chờ cho kiểm tra (mặc định là 3 giây).
 
 ## `update wizard`
 
-Interactive flow to pick an update channel and confirm whether to restart the Gateway
-after updating (default is to restart). If you select `dev` without a git checkout, it
-offers to create one.
+Quy trình tương tác để chọn kênh cập nhật và xác nhận có khởi động lại Gateway sau khi cập nhật hay không (mặc định là khởi động lại). Nếu bạn chọn `dev` mà không có git checkout, nó sẽ đề nghị tạo một cái.
 
-## What it does
+## Những gì nó làm
 
-When you switch channels explicitly (`--channel ...`), OpenClaw also keeps the
-install method aligned:
+Khi bạn chuyển kênh rõ ràng (`--channel ...`), OpenClaw cũng giữ phương thức cài đặt phù hợp:
 
-- `dev` → ensures a git checkout (default: `~/openclaw`, override with `OPENCLAW_GIT_DIR`),
-  updates it, and installs the global CLI from that checkout.
-- `stable`/`beta` → installs from npm using the matching dist-tag.
+- `dev` → đảm bảo có một git checkout (mặc định: `~/openclaw`, ghi đè với `OPENCLAW_GIT_DIR`), cập nhật nó và cài đặt CLI toàn cầu từ checkout đó.
+- `stable`/`beta` → cài đặt từ npm sử dụng dist-tag tương ứng.
 
-The Gateway core auto-updater (when enabled via config) reuses this same update path.
+Trình tự động cập nhật lõi Gateway (khi được kích hoạt qua cấu hình) tái sử dụng cùng đường dẫn cập nhật này.
 
-## Git checkout flow
+## Quy trình git checkout
 
-Channels:
+Các kênh:
 
-- `stable`: checkout the latest non-beta tag, then build + doctor.
-- `beta`: checkout the latest `-beta` tag, then build + doctor.
-- `dev`: checkout `main`, then fetch + rebase.
+- `stable`: checkout tag không phải beta mới nhất, sau đó build + kiểm tra.
+- `beta`: checkout tag `-beta` mới nhất, sau đó build + kiểm tra.
+- `dev`: checkout `main`, sau đó fetch + rebase.
 
-High-level:
+Tổng quan:
 
-1. Requires a clean worktree (no uncommitted changes).
-2. Switches to the selected channel (tag or branch).
-3. Fetches upstream (dev only).
-4. Dev only: preflight lint + TypeScript build in a temp worktree; if the tip fails, walks back up to 10 commits to find the newest clean build.
-5. Rebases onto the selected commit (dev only).
-6. Installs deps (pnpm preferred; npm fallback).
-7. Builds + builds the Control UI.
-8. Runs `openclaw doctor` as the final “safe update” check.
-9. Syncs plugins to the active channel (dev uses bundled extensions; stable/beta uses npm) and updates npm-installed plugins.
+1. Yêu cầu một worktree sạch (không có thay đổi chưa commit).
+2. Chuyển sang kênh đã chọn (tag hoặc branch).
+3. Fetch upstream (chỉ dev).
+4. Chỉ dev: kiểm tra lint + build TypeScript trong worktree tạm; nếu tip thất bại, quay lại tối đa 10 commit để tìm build sạch mới nhất.
+5. Rebase lên commit đã chọn (chỉ dev).
+6. Cài đặt phụ thuộc (ưu tiên pnpm; npm là phương án dự phòng).
+7. Build + build Control UI.
+8. Chạy `openclaw doctor` như kiểm tra “cập nhật an toàn” cuối cùng.
+9. Đồng bộ plugin với kênh hoạt động (dev sử dụng extension đi kèm; stable/beta sử dụng npm) và cập nhật plugin đã cài đặt qua npm.
 
-## `--update` shorthand
+## Viết tắt `--update`
 
-`openclaw --update` rewrites to `openclaw update` (useful for shells and launcher scripts).
+`openclaw --update` được viết lại thành `openclaw update` (hữu ích cho shell và script khởi chạy).
 
-## See also
+## Xem thêm
 
-- `openclaw doctor` (offers to run update first on git checkouts)
-- [Development channels](/install/development-channels)
-- [Updating](/install/updating)
-- [CLI reference](/cli)
+- `openclaw doctor` (đề nghị chạy cập nhật trước trên git checkouts)
+- [Kênh phát triển](/install/development-channels)
+- [Cập nhật](/install/updating)
+- [Tham khảo CLI](/cli)

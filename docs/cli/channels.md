@@ -1,21 +1,21 @@
 ---
-summary: "CLI reference for `openclaw channels` (accounts, status, login/logout, logs)"
+summary: "Tham khảo CLI cho `openclaw channels` (tài khoản, trạng thái, đăng nhập/đăng xuất, nhật ký)"
 read_when:
-  - You want to add/remove channel accounts (WhatsApp/Telegram/Discord/Google Chat/Slack/Mattermost (plugin)/Signal/iMessage)
-  - You want to check channel status or tail channel logs
+  - Bạn muốn thêm/xóa tài khoản kênh (WhatsApp/Telegram/Discord/Google Chat/Slack/Mattermost (plugin)/Signal/iMessage)
+  - Bạn muốn kiểm tra trạng thái kênh hoặc theo dõi nhật ký kênh
 title: "channels"
 ---
 
 # `openclaw channels`
 
-Manage chat channel accounts and their runtime status on the Gateway.
+Quản lý tài khoản kênh chat và trạng thái hoạt động của chúng trên Gateway.
 
-Related docs:
+Tài liệu liên quan:
 
-- Channel guides: [Channels](/channels/index)
-- Gateway configuration: [Configuration](/gateway/configuration)
+- Hướng dẫn kênh: [Channels](/channels/index)
+- Cấu hình Gateway: [Configuration](/gateway/configuration)
 
-## Common commands
+## Lệnh thông dụng
 
 ```bash
 openclaw channels list
@@ -26,7 +26,7 @@ openclaw channels resolve --channel slack "#general" "@jane"
 openclaw channels logs --channel all
 ```
 
-## Add / remove accounts
+## Thêm / xóa tài khoản
 
 ```bash
 openclaw channels add --channel telegram --token <bot-token>
@@ -34,60 +34,60 @@ openclaw channels add --channel nostr --private-key "$NOSTR_PRIVATE_KEY"
 openclaw channels remove --channel telegram --delete
 ```
 
-Tip: `openclaw channels add --help` shows per-channel flags (token, private key, app token, signal-cli paths, etc).
+Mẹo: `openclaw channels add --help` hiển thị các cờ cho từng kênh (token, private key, app token, đường dẫn signal-cli, v.v.).
 
-When you run `openclaw channels add` without flags, the interactive wizard can prompt:
+Khi chạy `openclaw channels add` mà không có cờ, trình hướng dẫn tương tác có thể yêu cầu:
 
-- account ids per selected channel
-- optional display names for those accounts
-- `Bind configured channel accounts to agents now?`
+- ID tài khoản cho từng kênh đã chọn
+- Tên hiển thị tùy chọn cho các tài khoản đó
+- `Liên kết tài khoản kênh đã cấu hình với agents ngay bây giờ?`
 
-If you confirm bind now, the wizard asks which agent should own each configured channel account and writes account-scoped routing bindings.
+Nếu xác nhận liên kết ngay, trình hướng dẫn sẽ hỏi agent nào nên sở hữu từng tài khoản kênh đã cấu hình và ghi các liên kết định tuyến theo tài khoản.
 
-You can also manage the same routing rules later with `openclaw agents bindings`, `openclaw agents bind`, and `openclaw agents unbind` (see [agents](/cli/agents)).
+Bạn cũng có thể quản lý các quy tắc định tuyến tương tự sau này với `openclaw agents bindings`, `openclaw agents bind`, và `openclaw agents unbind` (xem [agents](/cli/agents)).
 
-When you add a non-default account to a channel that is still using single-account top-level settings (no `channels.<channel>.accounts` entries yet), OpenClaw moves account-scoped single-account top-level values into `channels.<channel>.accounts.default`, then writes the new account. This preserves the original account behavior while moving to the multi-account shape.
+Khi thêm tài khoản không mặc định vào kênh vẫn đang sử dụng cài đặt cấp cao nhất cho một tài khoản (chưa có mục `channels.<channel>.accounts`), OpenClaw sẽ chuyển các giá trị cấp cao nhất cho một tài khoản vào `channels.<channel>.accounts.default`, sau đó ghi tài khoản mới. Điều này giữ nguyên hành vi tài khoản gốc trong khi chuyển sang cấu trúc nhiều tài khoản.
 
-Routing behavior stays consistent:
+Hành vi định tuyến vẫn nhất quán:
 
-- Existing channel-only bindings (no `accountId`) continue to match the default account.
-- `channels add` does not auto-create or rewrite bindings in non-interactive mode.
-- Interactive setup can optionally add account-scoped bindings.
+- Các liên kết chỉ có kênh hiện tại (không có `accountId`) tiếp tục khớp với tài khoản mặc định.
+- `channels add` không tự động tạo hoặc viết lại liên kết trong chế độ không tương tác.
+- Cài đặt tương tác có thể thêm các liên kết theo tài khoản tùy chọn.
 
-If your config was already in a mixed state (named accounts present, missing `default`, and top-level single-account values still set), run `openclaw doctor --fix` to move account-scoped values into `accounts.default`.
+Nếu cấu hình của bạn đã ở trạng thái hỗn hợp (có tài khoản được đặt tên, thiếu `default`, và các giá trị cấp cao nhất cho một tài khoản vẫn được đặt), chạy `openclaw doctor --fix` để chuyển các giá trị theo tài khoản vào `accounts.default`.
 
-## Login / logout (interactive)
+## Đăng nhập / đăng xuất (tương tác)
 
 ```bash
 openclaw channels login --channel whatsapp
 openclaw channels logout --channel whatsapp
 ```
 
-## Troubleshooting
+## Khắc phục sự cố
 
-- Run `openclaw status --deep` for a broad probe.
-- Use `openclaw doctor` for guided fixes.
-- `openclaw channels list` prints `Claude: HTTP 403 ... user:profile` → usage snapshot needs the `user:profile` scope. Use `--no-usage`, or provide a claude.ai session key (`CLAUDE_WEB_SESSION_KEY` / `CLAUDE_WEB_COOKIE`), or re-auth via Claude Code CLI.
-- `openclaw channels status` falls back to config-only summaries when the gateway is unreachable. If a supported channel credential is configured via SecretRef but unavailable in the current command path, it reports that account as configured with degraded notes instead of showing it as not configured.
+- Chạy `openclaw status --deep` để kiểm tra tổng quát.
+- Sử dụng `openclaw doctor` để được hướng dẫn sửa lỗi.
+- `openclaw channels list` in ra `Claude: HTTP 403 ... user:profile` → ảnh chụp nhanh sử dụng cần phạm vi `user:profile`. Sử dụng `--no-usage`, hoặc cung cấp khóa phiên claude.ai (`CLAUDE_WEB_SESSION_KEY` / `CLAUDE_WEB_COOKIE`), hoặc xác thực lại qua Claude Code CLI.
+- `openclaw channels status` sẽ dựa vào tóm tắt cấu hình khi gateway không thể truy cập. Nếu thông tin xác thực kênh được hỗ trợ được cấu hình qua SecretRef nhưng không có sẵn trong đường dẫn lệnh hiện tại, nó sẽ báo cáo tài khoản đó là đã cấu hình với ghi chú suy giảm thay vì hiển thị là chưa cấu hình.
 
-## Capabilities probe
+## Khả năng thăm dò
 
-Fetch provider capability hints (intents/scopes where available) plus static feature support:
+Lấy gợi ý khả năng của nhà cung cấp (ý định/phạm vi nếu có) cùng với hỗ trợ tính năng tĩnh:
 
 ```bash
 openclaw channels capabilities
 openclaw channels capabilities --channel discord --target channel:123
 ```
 
-Notes:
+Ghi chú:
 
-- `--channel` is optional; omit it to list every channel (including extensions).
-- `--target` accepts `channel:<id>` or a raw numeric channel id and only applies to Discord.
-- Probes are provider-specific: Discord intents + optional channel permissions; Slack bot + user scopes; Telegram bot flags + webhook; Signal daemon version; Microsoft Teams app token + Graph roles/scopes (annotated where known). Channels without probes report `Probe: unavailable`.
+- `--channel` là tùy chọn; bỏ qua để liệt kê mọi kênh (bao gồm cả phần mở rộng).
+- `--target` chấp nhận `channel:<id>` hoặc ID kênh số thô và chỉ áp dụng cho Discord.
+- Thăm dò là cụ thể cho từng nhà cung cấp: ý định Discord + quyền kênh tùy chọn; phạm vi bot + người dùng Slack; cờ bot Telegram + webhook; phiên bản daemon Signal; token ứng dụng Microsoft Teams + vai trò/phạm vi Graph (được chú thích nếu biết). Các kênh không có thăm dò báo cáo `Probe: unavailable`.
 
-## Resolve names to IDs
+## Giải quyết tên thành ID
 
-Resolve channel/user names to IDs using the provider directory:
+Giải quyết tên kênh/người dùng thành ID bằng cách sử dụng thư mục nhà cung cấp:
 
 ```bash
 openclaw channels resolve --channel slack "#general" "@jane"
@@ -95,8 +95,8 @@ openclaw channels resolve --channel discord "My Server/#support" "@someone"
 openclaw channels resolve --channel matrix "Project Room"
 ```
 
-Notes:
+Ghi chú:
 
-- Use `--kind user|group|auto` to force the target type.
-- Resolution prefers active matches when multiple entries share the same name.
-- `channels resolve` is read-only. If a selected account is configured via SecretRef but that credential is unavailable in the current command path, the command returns degraded unresolved results with notes instead of aborting the entire run.
+- Sử dụng `--kind user|group|auto` để ép kiểu mục tiêu.
+- Giải quyết ưu tiên các kết quả khớp đang hoạt động khi nhiều mục có cùng tên.
+- `channels resolve` chỉ đọc. Nếu tài khoản được chọn được cấu hình qua SecretRef nhưng thông tin xác thực đó không có sẵn trong đường dẫn lệnh hiện tại, lệnh sẽ trả về kết quả chưa giải quyết suy giảm với ghi chú thay vì hủy bỏ toàn bộ quá trình chạy.

@@ -1,37 +1,37 @@
 ---
-summary: "Telegram bot support status, capabilities, and configuration"
+summary: "Trạng thái hỗ trợ bot Telegram, khả năng và cấu hình"
 read_when:
-  - Working on Telegram features or webhooks
+  - Làm việc với các tính năng hoặc webhook của Telegram
 title: "Telegram"
 ---
 
 # Telegram (Bot API)
 
-Status: production-ready for bot DMs + groups via grammY. Long polling is the default mode; webhook mode is optional.
+Trạng thái: sẵn sàng cho sản xuất với tin nhắn trực tiếp (DM) và nhóm qua grammY. Chế độ long polling là mặc định; chế độ webhook là tùy chọn.
 
 <CardGroup cols={3}>
-  <Card title="Pairing" icon="link" href="/channels/pairing">
-    Default DM policy for Telegram is pairing.
+  <Card title="Ghép nối" icon="link" href="/channels/pairing">
+    Chính sách DM mặc định cho Telegram là ghép nối.
   </Card>
-  <Card title="Channel troubleshooting" icon="wrench" href="/channels/troubleshooting">
-    Cross-channel diagnostics and repair playbooks.
+  <Card title="Khắc phục sự cố kênh" icon="wrench" href="/channels/troubleshooting">
+    Chẩn đoán và hướng dẫn sửa chữa đa kênh.
   </Card>
-  <Card title="Gateway configuration" icon="settings" href="/gateway/configuration">
-    Full channel config patterns and examples.
+  <Card title="Cấu hình Gateway" icon="settings" href="/gateway/configuration">
+    Mẫu cấu hình kênh đầy đủ và ví dụ.
   </Card>
 </CardGroup>
 
-## Quick setup
+## Thiết lập nhanh
 
 <Steps>
-  <Step title="Create the bot token in BotFather">
-    Open Telegram and chat with **@BotFather** (confirm the handle is exactly `@BotFather`).
+  <Step title="Tạo token bot trong BotFather">
+    Mở Telegram và trò chuyện với **@BotFather** (xác nhận tên chính xác là `@BotFather`).
 
-    Run `/newbot`, follow prompts, and save the token.
+    Chạy lệnh `/newbot`, làm theo hướng dẫn và lưu token.
 
   </Step>
 
-  <Step title="Configure token and DM policy">
+  <Step title="Cấu hình token và chính sách DM">
 
 ```json5
 {
@@ -46,12 +46,12 @@ Status: production-ready for bot DMs + groups via grammY. Long polling is the de
 }
 ```
 
-    Env fallback: `TELEGRAM_BOT_TOKEN=...` (default account only).
-    Telegram does **not** use `openclaw channels login telegram`; configure token in config/env, then start gateway.
+    Dự phòng môi trường: `TELEGRAM_BOT_TOKEN=...` (chỉ tài khoản mặc định).
+    Telegram **không** sử dụng `openclaw channels login telegram`; cấu hình token trong config/env, sau đó khởi động gateway.
 
   </Step>
 
-  <Step title="Start gateway and approve first DM">
+  <Step title="Khởi động gateway và phê duyệt DM đầu tiên">
 
 ```bash
 openclaw gateway
@@ -59,109 +59,109 @@ openclaw pairing list telegram
 openclaw pairing approve telegram <CODE>
 ```
 
-    Pairing codes expire after 1 hour.
+    Mã ghép nối hết hạn sau 1 giờ.
 
   </Step>
 
-  <Step title="Add the bot to a group">
-    Add the bot to your group, then set `channels.telegram.groups` and `groupPolicy` to match your access model.
+  <Step title="Thêm bot vào nhóm">
+    Thêm bot vào nhóm của bạn, sau đó thiết lập `channels.telegram.groups` và `groupPolicy` để phù hợp với mô hình truy cập của bạn.
   </Step>
 </Steps>
 
 <Note>
-Token resolution order is account-aware. In practice, config values win over env fallback, and `TELEGRAM_BOT_TOKEN` only applies to the default account.
+Thứ tự giải quyết token có nhận thức về tài khoản. Trong thực tế, giá trị cấu hình sẽ ưu tiên hơn dự phòng môi trường, và `TELEGRAM_BOT_TOKEN` chỉ áp dụng cho tài khoản mặc định.
 </Note>
 
-## Telegram side settings
+## Cài đặt phía Telegram
 
 <AccordionGroup>
-  <Accordion title="Privacy mode and group visibility">
-    Telegram bots default to **Privacy Mode**, which limits what group messages they receive.
+  <Accordion title="Chế độ riêng tư và khả năng hiển thị nhóm">
+    Bot Telegram mặc định ở **Chế độ Riêng tư**, giới hạn các tin nhắn nhóm mà chúng nhận được.
 
-    If the bot must see all group messages, either:
+    Nếu bot cần thấy tất cả tin nhắn nhóm, bạn có thể:
 
-    - disable privacy mode via `/setprivacy`, or
-    - make the bot a group admin.
+    - tắt chế độ riêng tư qua `/setprivacy`, hoặc
+    - làm cho bot trở thành quản trị viên nhóm.
 
-    When toggling privacy mode, remove + re-add the bot in each group so Telegram applies the change.
-
-  </Accordion>
-
-  <Accordion title="Group permissions">
-    Admin status is controlled in Telegram group settings.
-
-    Admin bots receive all group messages, which is useful for always-on group behavior.
+    Khi thay đổi chế độ riêng tư, hãy xóa và thêm lại bot vào từng nhóm để Telegram áp dụng thay đổi.
 
   </Accordion>
 
-  <Accordion title="Helpful BotFather toggles">
+  <Accordion title="Quyền nhóm">
+    Trạng thái quản trị viên được kiểm soát trong cài đặt nhóm Telegram.
 
-    - `/setjoingroups` to allow/deny group adds
-    - `/setprivacy` for group visibility behavior
+    Bot quản trị viên nhận được tất cả tin nhắn nhóm, hữu ích cho hành vi nhóm luôn bật.
+
+  </Accordion>
+
+  <Accordion title="Các tùy chọn hữu ích của BotFather">
+
+    - `/setjoingroups` để cho phép/từ chối thêm vào nhóm
+    - `/setprivacy` cho hành vi hiển thị nhóm
 
   </Accordion>
 </AccordionGroup>
 
-## Access control and activation
+## Kiểm soát truy cập và kích hoạt
 
 <Tabs>
-  <Tab title="DM policy">
-    `channels.telegram.dmPolicy` controls direct message access:
+  <Tab title="Chính sách DM">
+    `channels.telegram.dmPolicy` kiểm soát truy cập tin nhắn trực tiếp:
 
-    - `pairing` (default)
-    - `allowlist` (requires at least one sender ID in `allowFrom`)
-    - `open` (requires `allowFrom` to include `"*"`)
+    - `pairing` (mặc định)
+    - `allowlist` (yêu cầu ít nhất một ID người gửi trong `allowFrom`)
+    - `open` (yêu cầu `allowFrom` bao gồm `"*"`)
     - `disabled`
 
-    `channels.telegram.allowFrom` accepts numeric Telegram user IDs. `telegram:` / `tg:` prefixes are accepted and normalized.
-    `dmPolicy: "allowlist"` with empty `allowFrom` blocks all DMs and is rejected by config validation.
-    Onboarding accepts `@username` input and resolves it to numeric IDs.
-    If you upgraded and your config contains `@username` allowlist entries, run `openclaw doctor --fix` to resolve them (best-effort; requires a Telegram bot token).
-    If you previously relied on pairing-store allowlist files, `openclaw doctor --fix` can recover entries into `channels.telegram.allowFrom` in allowlist flows (for example when `dmPolicy: "allowlist"` has no explicit IDs yet).
+    `channels.telegram.allowFrom` chấp nhận ID người dùng Telegram dạng số. Tiền tố `telegram:` / `tg:` được chấp nhận và chuẩn hóa.
+    `dmPolicy: "allowlist"` với `allowFrom` trống sẽ chặn tất cả DM và bị từ chối bởi xác thực cấu hình.
+    Quá trình onboarding chấp nhận đầu vào `@username` và chuyển đổi nó thành ID số.
+    Nếu bạn đã nâng cấp và cấu hình của bạn chứa các mục allowlist `@username`, hãy chạy `openclaw doctor --fix` để chuyển đổi chúng (nỗ lực tốt nhất; yêu cầu token bot Telegram).
+    Nếu trước đây bạn dựa vào các tệp allowlist trong pairing-store, `openclaw doctor --fix` có thể khôi phục các mục vào `channels.telegram.allowFrom` trong các luồng allowlist (ví dụ khi `dmPolicy: "allowlist"` chưa có ID rõ ràng).
 
-    For one-owner bots, prefer `dmPolicy: "allowlist"` with explicit numeric `allowFrom` IDs to keep access policy durable in config (instead of depending on previous pairing approvals).
+    Đối với bot chỉ có một chủ sở hữu, nên sử dụng `dmPolicy: "allowlist"` với các ID `allowFrom` dạng số rõ ràng để giữ chính sách truy cập bền vững trong cấu hình (thay vì phụ thuộc vào các phê duyệt ghép nối trước đó).
 
-    ### Finding your Telegram user ID
+    ### Tìm ID người dùng Telegram của bạn
 
-    Safer (no third-party bot):
+    An toàn hơn (không cần bot bên thứ ba):
 
-    1. DM your bot.
-    2. Run `openclaw logs --follow`.
-    3. Read `from.id`.
+    1. DM bot của bạn.
+    2. Chạy `openclaw logs --follow`.
+    3. Đọc `from.id`.
 
-    Official Bot API method:
+    Phương pháp API Bot chính thức:
 
 ```bash
 curl "https://api.telegram.org/bot<bot_token>/getUpdates"
 ```
 
-    Third-party method (less private): `@userinfobot` or `@getidsbot`.
+    Phương pháp bên thứ ba (ít riêng tư hơn): `@userinfobot` hoặc `@getidsbot`.
 
   </Tab>
 
-  <Tab title="Group policy and allowlists">
-    Two controls apply together:
+  <Tab title="Chính sách nhóm và danh sách cho phép">
+    Hai điều khiển áp dụng cùng nhau:
 
-    1. **Which groups are allowed** (`channels.telegram.groups`)
-       - no `groups` config:
-         - with `groupPolicy: "open"`: any group can pass group-ID checks
-         - with `groupPolicy: "allowlist"` (default): groups are blocked until you add `groups` entries (or `"*"`)
-       - `groups` configured: acts as allowlist (explicit IDs or `"*"`)
+    1. **Những nhóm nào được phép** (`channels.telegram.groups`)
+       - không có cấu hình `groups`:
+         - với `groupPolicy: "open"`: bất kỳ nhóm nào cũng có thể vượt qua kiểm tra ID nhóm
+         - với `groupPolicy: "allowlist"` (mặc định): các nhóm bị chặn cho đến khi bạn thêm các mục `groups` (hoặc `"*"`)
+       - `groups` được cấu hình: hoạt động như danh sách cho phép (ID rõ ràng hoặc `"*"`)
 
-    2. **Which senders are allowed in groups** (`channels.telegram.groupPolicy`)
+    2. **Những người gửi nào được phép trong nhóm** (`channels.telegram.groupPolicy`)
        - `open`
-       - `allowlist` (default)
+       - `allowlist` (mặc định)
        - `disabled`
 
-    `groupAllowFrom` is used for group sender filtering. If not set, Telegram falls back to `allowFrom`.
-    `groupAllowFrom` entries should be numeric Telegram user IDs (`telegram:` / `tg:` prefixes are normalized).
-    Do not put Telegram group or supergroup chat IDs in `groupAllowFrom`. Negative chat IDs belong under `channels.telegram.groups`.
-    Non-numeric entries are ignored for sender authorization.
-    Security boundary (`2026.2.25+`): group sender auth does **not** inherit DM pairing-store approvals.
-    Pairing stays DM-only. For groups, set `groupAllowFrom` or per-group/per-topic `allowFrom`.
-    Runtime note: if `channels.telegram` is completely missing, runtime defaults to fail-closed `groupPolicy="allowlist"` unless `channels.defaults.groupPolicy` is explicitly set.
+    `groupAllowFrom` được sử dụng để lọc người gửi trong nhóm. Nếu không được thiết lập, Telegram sẽ quay lại `allowFrom`.
+    Các mục `groupAllowFrom` nên là ID người dùng Telegram dạng số (tiền tố `telegram:` / `tg:` được chuẩn hóa).
+    Không đặt ID chat nhóm hoặc siêu nhóm Telegram trong `groupAllowFrom`. Các ID chat âm thuộc về `channels.telegram.groups`.
+    Các mục không phải số bị bỏ qua khi xác thực người gửi.
+    Ranh giới bảo mật (`2026.2.25+`): xác thực người gửi nhóm **không** thừa kế các phê duyệt trong pairing-store DM.
+    Ghép nối chỉ áp dụng cho DM. Đối với nhóm, thiết lập `groupAllowFrom` hoặc `allowFrom` cho từng nhóm/chủ đề.
+    Lưu ý khi chạy: nếu `channels.telegram` hoàn toàn thiếu, mặc định khi chạy sẽ là `groupPolicy="allowlist"` trừ khi `channels.defaults.groupPolicy` được thiết lập rõ ràng.
 
-    Example: allow any member in one specific group:
+    Ví dụ: cho phép bất kỳ thành viên nào trong một nhóm cụ thể:
 
 ```json5
 {
@@ -178,7 +178,7 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
 }
 ```
 
-    Example: allow only specific users inside one specific group:
+    Ví dụ: chỉ cho phép người dùng cụ thể trong một nhóm cụ thể:
 
 ```json5
 {
@@ -196,33 +196,33 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
 ```
 
     <Warning>
-      Common mistake: `groupAllowFrom` is not a Telegram group allowlist.
+      Lỗi phổ biến: `groupAllowFrom` không phải là danh sách cho phép nhóm Telegram.
 
-      - Put negative Telegram group or supergroup chat IDs like `-1001234567890` under `channels.telegram.groups`.
-      - Put Telegram user IDs like `8734062810` under `groupAllowFrom` when you want to limit which people inside an allowed group can trigger the bot.
-      - Use `groupAllowFrom: ["*"]` only when you want any member of an allowed group to be able to talk to the bot.
+      - Đặt ID chat nhóm hoặc siêu nhóm Telegram âm như `-1001234567890` dưới `channels.telegram.groups`.
+      - Đặt ID người dùng Telegram như `8734062810` dưới `groupAllowFrom` khi bạn muốn giới hạn những người trong nhóm được phép kích hoạt bot.
+      - Sử dụng `groupAllowFrom: ["*"]` chỉ khi bạn muốn bất kỳ thành viên nào của nhóm được phép có thể nói chuyện với bot.
     </Warning>
 
   </Tab>
 
-  <Tab title="Mention behavior">
-    Group replies require mention by default.
+  <Tab title="Hành vi nhắc đến">
+    Trả lời nhóm yêu cầu nhắc đến theo mặc định.
 
-    Mention can come from:
+    Nhắc đến có thể đến từ:
 
-    - native `@botusername` mention, or
-    - mention patterns in:
+    - nhắc đến `@botusername` gốc, hoặc
+    - mẫu nhắc đến trong:
       - `agents.list[].groupChat.mentionPatterns`
       - `messages.groupChat.mentionPatterns`
 
-    Session-level command toggles:
+    Chuyển đổi lệnh cấp phiên:
 
     - `/activation always`
     - `/activation mention`
 
-    These update session state only. Use config for persistence.
+    Những lệnh này chỉ cập nhật trạng thái phiên. Sử dụng cấu hình để duy trì.
 
-    Persistent config example:
+    Ví dụ cấu hình duy trì:
 
 ```json5
 {
@@ -236,77 +236,77 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
 }
 ```
 
-    Getting the group chat ID:
+    Lấy ID chat nhóm:
 
-    - forward a group message to `@userinfobot` / `@getidsbot`
-    - or read `chat.id` from `openclaw logs --follow`
-    - or inspect Bot API `getUpdates`
+    - chuyển tiếp một tin nhắn nhóm đến `@userinfobot` / `@getidsbot`
+    - hoặc đọc `chat.id` từ `openclaw logs --follow`
+    - hoặc kiểm tra Bot API `getUpdates`
 
   </Tab>
 </Tabs>
 
-## Runtime behavior
+## Hành vi khi chạy
 
-- Telegram is owned by the gateway process.
-- Routing is deterministic: Telegram inbound replies back to Telegram (the model does not pick channels).
-- Inbound messages normalize into the shared channel envelope with reply metadata and media placeholders.
-- Group sessions are isolated by group ID. Forum topics append `:topic:<threadId>` to keep topics isolated.
-- DM messages can carry `message_thread_id`; OpenClaw routes them with thread-aware session keys and preserves thread ID for replies.
-- Long polling uses grammY runner with per-chat/per-thread sequencing. Overall runner sink concurrency uses `agents.defaults.maxConcurrent`.
-- Telegram Bot API has no read-receipt support (`sendReadReceipts` does not apply).
+- Telegram được sở hữu bởi quá trình gateway.
+- Định tuyến là xác định: Telegram nhận tin nhắn trả lời lại Telegram (mô hình không chọn kênh).
+- Tin nhắn đến được chuẩn hóa thành phong bì kênh chia sẻ với siêu dữ liệu trả lời và chỗ giữ chỗ phương tiện.
+- Phiên nhóm được cách ly theo ID nhóm. Các chủ đề diễn đàn thêm `:topic:<threadId>` để giữ các chủ đề cách ly.
+- Tin nhắn DM có thể mang `message_thread_id`; OpenClaw định tuyến chúng với khóa phiên nhận thức chủ đề và bảo toàn ID chủ đề cho các câu trả lời.
+- Long polling sử dụng grammY runner với trình tự theo chat/chủ đề. Tổng thể runner sink concurrency sử dụng `agents.defaults.maxConcurrent`.
+- Telegram Bot API không hỗ trợ xác nhận đã đọc (`sendReadReceipts` không áp dụng).
 
-## Feature reference
+## Tham khảo tính năng
 
 <AccordionGroup>
-  <Accordion title="Live stream preview (message edits)">
-    OpenClaw can stream partial replies in real time:
+  <Accordion title="Xem trước luồng trực tiếp (chỉnh sửa tin nhắn)">
+    OpenClaw có thể phát trực tiếp các câu trả lời một phần theo thời gian thực:
 
-    - direct chats: preview message + `editMessageText`
-    - groups/topics: preview message + `editMessageText`
+    - trò chuyện trực tiếp: xem trước tin nhắn + `editMessageText`
+    - nhóm/chủ đề: xem trước tin nhắn + `editMessageText`
 
-    Requirement:
+    Yêu cầu:
 
-    - `channels.telegram.streaming` is `off | partial | block | progress` (default: `partial`)
-    - `progress` maps to `partial` on Telegram (compat with cross-channel naming)
-    - legacy `channels.telegram.streamMode` and boolean `streaming` values are auto-mapped
+    - `channels.telegram.streaming` là `off | partial | block | progress` (mặc định: `partial`)
+    - `progress` ánh xạ tới `partial` trên Telegram (tương thích với tên gọi đa kênh)
+    - `channels.telegram.streamMode` cũ và các giá trị boolean `streaming` được ánh xạ tự động
 
-    For text-only replies:
+    Đối với các câu trả lời chỉ có văn bản:
 
-    - DM: OpenClaw keeps the same preview message and performs a final edit in place (no second message)
-    - group/topic: OpenClaw keeps the same preview message and performs a final edit in place (no second message)
+    - DM: OpenClaw giữ cùng một tin nhắn xem trước và thực hiện chỉnh sửa cuối cùng tại chỗ (không có tin nhắn thứ hai)
+    - nhóm/chủ đề: OpenClaw giữ cùng một tin nhắn xem trước và thực hiện chỉnh sửa cuối cùng tại chỗ (không có tin nhắn thứ hai)
 
-    For complex replies (for example media payloads), OpenClaw falls back to normal final delivery and then cleans up the preview message.
+    Đối với các câu trả lời phức tạp (ví dụ như tải trọng phương tiện), OpenClaw quay lại việc giao hàng cuối cùng bình thường và sau đó dọn dẹp tin nhắn xem trước.
 
-    Preview streaming is separate from block streaming. When block streaming is explicitly enabled for Telegram, OpenClaw skips the preview stream to avoid double-streaming.
+    Phát trực tiếp xem trước tách biệt với phát trực tiếp khối. Khi phát trực tiếp khối được bật rõ ràng cho Telegram, OpenClaw bỏ qua phát trực tiếp xem trước để tránh phát trực tiếp kép.
 
-    If native draft transport is unavailable/rejected, OpenClaw automatically falls back to `sendMessage` + `editMessageText`.
+    Nếu vận chuyển bản nháp gốc không khả dụng/bị từ chối, OpenClaw tự động quay lại `sendMessage` + `editMessageText`.
 
-    Telegram-only reasoning stream:
+    Luồng lý luận chỉ dành cho Telegram:
 
-    - `/reasoning stream` sends reasoning to the live preview while generating
-    - final answer is sent without reasoning text
-
-  </Accordion>
-
-  <Accordion title="Formatting and HTML fallback">
-    Outbound text uses Telegram `parse_mode: "HTML"`.
-
-    - Markdown-ish text is rendered to Telegram-safe HTML.
-    - Raw model HTML is escaped to reduce Telegram parse failures.
-    - If Telegram rejects parsed HTML, OpenClaw retries as plain text.
-
-    Link previews are enabled by default and can be disabled with `channels.telegram.linkPreview: false`.
+    - `/reasoning stream` gửi lý luận đến bản xem trước trực tiếp trong khi tạo
+    - câu trả lời cuối cùng được gửi mà không có văn bản lý luận
 
   </Accordion>
 
-  <Accordion title="Native commands and custom commands">
-    Telegram command menu registration is handled at startup with `setMyCommands`.
+  <Accordion title="Định dạng và dự phòng HTML">
+    Văn bản gửi đi sử dụng `parse_mode: "HTML"` của Telegram.
 
-    Native command defaults:
+    - Văn bản giống Markdown được hiển thị thành HTML an toàn với Telegram.
+    - HTML thô của mô hình được thoát để giảm lỗi phân tích cú pháp của Telegram.
+    - Nếu Telegram từ chối HTML đã phân tích, OpenClaw thử lại dưới dạng văn bản thuần túy.
 
-    - `commands.native: "auto"` enables native commands for Telegram
+    Xem trước liên kết được bật theo mặc định và có thể bị tắt với `channels.telegram.linkPreview: false`.
 
-    Add custom command menu entries:
+  </Accordion>
+
+  <Accordion title="Lệnh gốc và lệnh tùy chỉnh">
+    Đăng ký menu lệnh Telegram được xử lý khi khởi động với `setMyCommands`.
+
+    Mặc định lệnh gốc:
+
+    - `commands.native: "auto"` bật lệnh gốc cho Telegram
+
+    Thêm mục menu lệnh tùy chỉnh:
 
 ```json5
 {
@@ -314,52 +314,52 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
     telegram: {
       customCommands: [
         { command: "backup", description: "Git backup" },
-        { command: "generate", description: "Create an image" },
+        { command: "generate", description: "Tạo một hình ảnh" },
       ],
     },
   },
 }
 ```
 
-    Rules:
+    Quy tắc:
 
-    - names are normalized (strip leading `/`, lowercase)
-    - valid pattern: `a-z`, `0-9`, `_`, length `1..32`
-    - custom commands cannot override native commands
-    - conflicts/duplicates are skipped and logged
+    - tên được chuẩn hóa (bỏ dấu `/` đầu, viết thường)
+    - mẫu hợp lệ: `a-z`, `0-9`, `_`, độ dài `1..32`
+    - lệnh tùy chỉnh không thể ghi đè lệnh gốc
+    - xung đột/trùng lặp bị bỏ qua và ghi lại
 
-    Notes:
+    Ghi chú:
 
-    - custom commands are menu entries only; they do not auto-implement behavior
-    - plugin/skill commands can still work when typed even if not shown in Telegram menu
+    - lệnh tùy chỉnh chỉ là mục menu; chúng không tự động thực hiện hành vi
+    - lệnh plugin/kỹ năng vẫn có thể hoạt động khi được nhập ngay cả khi không hiển thị trong menu Telegram
 
-    If native commands are disabled, built-ins are removed. Custom/plugin commands may still register if configured.
+    Nếu lệnh gốc bị tắt, các lệnh tích hợp sẵn sẽ bị xóa. Lệnh tùy chỉnh/plugin vẫn có thể đăng ký nếu được cấu hình.
 
-    Common setup failures:
+    Các lỗi thiết lập phổ biến:
 
-    - `setMyCommands failed` with `BOT_COMMANDS_TOO_MUCH` means the Telegram menu still overflowed after trimming; reduce plugin/skill/custom commands or disable `channels.telegram.commands.native`.
-    - `setMyCommands failed` with network/fetch errors usually means outbound DNS/HTTPS to `api.telegram.org` is blocked.
+    - `setMyCommands failed` với `BOT_COMMANDS_TOO_MUCH` có nghĩa là menu Telegram vẫn tràn sau khi cắt bớt; giảm lệnh plugin/kỹ năng/tùy chỉnh hoặc tắt menu gốc
+    - `setMyCommands failed` với lỗi mạng/lấy thường có nghĩa là DNS/HTTPS ra ngoài tới `api.telegram.org` bị chặn.
 
-    ### Device pairing commands (`device-pair` plugin)
+    ### Lệnh ghép nối thiết bị (plugin `device-pair`)
 
-    When the `device-pair` plugin is installed:
+    Khi plugin `device-pair` được cài đặt:
 
-    1. `/pair` generates setup code
-    2. paste code in iOS app
-    3. `/pair pending` lists pending requests (including role/scopes)
-    4. approve the request:
-       - `/pair approve <requestId>` for explicit approval
-       - `/pair approve` when there is only one pending request
-       - `/pair approve latest` for most recent
+    1. `/pair` tạo mã thiết lập
+    2. dán mã vào ứng dụng iOS
+    3. `/pair pending` liệt kê các yêu cầu đang chờ xử lý (bao gồm vai trò/phạm vi)
+    4. phê duyệt yêu cầu:
+       - `/pair approve <requestId>` để phê duyệt rõ ràng
+       - `/pair approve` khi chỉ có một yêu cầu đang chờ xử lý
+       - `/pair approve latest` cho yêu cầu gần nhất
 
-    If a device retries with changed auth details (for example role/scopes/public key), the previous pending request is superseded and the new request uses a different `requestId`. Re-run `/pair pending` before approving.
+    Nếu một thiết bị thử lại với chi tiết xác thực đã thay đổi (ví dụ vai trò/phạm vi/khóa công khai), yêu cầu đang chờ xử lý trước đó sẽ bị thay thế và yêu cầu mới sử dụng một `requestId` khác. Chạy lại `/pair pending` trước khi phê duyệt.
 
-    More details: [Pairing](/channels/pairing#pair-via-telegram-recommended-for-ios).
+    Thêm chi tiết: [Ghép nối](/channels/pairing#pair-via-telegram-recommended-for-ios).
 
   </Accordion>
 
-  <Accordion title="Inline buttons">
-    Configure inline keyboard scope:
+  <Accordion title="Nút nội tuyến">
+    Cấu hình phạm vi bàn phím nội tuyến:
 
 ```json5
 {
@@ -373,7 +373,7 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
 }
 ```
 
-    Per-account override:
+    Ghi đè theo tài khoản:
 
 ```json5
 {
@@ -391,97 +391,97 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
 }
 ```
 
-    Scopes:
+    Phạm vi:
 
     - `off`
     - `dm`
     - `group`
     - `all`
-    - `allowlist` (default)
+    - `allowlist` (mặc định)
 
-    Legacy `capabilities: ["inlineButtons"]` maps to `inlineButtons: "all"`.
+    `capabilities: ["inlineButtons"]` cũ ánh xạ tới `inlineButtons: "all"`.
 
-    Message action example:
+    Ví dụ hành động tin nhắn:
 
 ```json5
 {
   action: "send",
   channel: "telegram",
   to: "123456789",
-  message: "Choose an option:",
+  message: "Chọn một tùy chọn:",
   buttons: [
     [
-      { text: "Yes", callback_data: "yes" },
-      { text: "No", callback_data: "no" },
+      { text: "Có", callback_data: "yes" },
+      { text: "Không", callback_data: "no" },
     ],
-    [{ text: "Cancel", callback_data: "cancel" }],
+    [{ text: "Hủy", callback_data: "cancel" }],
   ],
 }
 ```
 
-    Callback clicks are passed to the agent as text:
+    Các lần nhấp callback được chuyển đến agent dưới dạng văn bản:
     `callback_data: <value>`
 
   </Accordion>
 
-  <Accordion title="Telegram message actions for agents and automation">
-    Telegram tool actions include:
+  <Accordion title="Hành động tin nhắn Telegram cho agent và tự động hóa">
+    Các hành động công cụ Telegram bao gồm:
 
-    - `sendMessage` (`to`, `content`, optional `mediaUrl`, `replyToMessageId`, `messageThreadId`)
+    - `sendMessage` (`to`, `content`, tùy chọn `mediaUrl`, `replyToMessageId`, `messageThreadId`)
     - `react` (`chatId`, `messageId`, `emoji`)
     - `deleteMessage` (`chatId`, `messageId`)
     - `editMessage` (`chatId`, `messageId`, `content`)
-    - `createForumTopic` (`chatId`, `name`, optional `iconColor`, `iconCustomEmojiId`)
+    - `createForumTopic` (`chatId`, `name`, tùy chọn `iconColor`, `iconCustomEmojiId`)
 
-    Channel message actions expose ergonomic aliases (`send`, `react`, `delete`, `edit`, `sticker`, `sticker-search`, `topic-create`).
+    Các hành động tin nhắn kênh cung cấp các bí danh tiện dụng (`send`, `react`, `delete`, `edit`, `sticker`, `sticker-search`, `topic-create`).
 
-    Gating controls:
+    Kiểm soát cổng:
 
     - `channels.telegram.actions.sendMessage`
     - `channels.telegram.actions.deleteMessage`
     - `channels.telegram.actions.reactions`
-    - `channels.telegram.actions.sticker` (default: disabled)
+    - `channels.telegram.actions.sticker` (mặc định: tắt)
 
-    Note: `edit` and `topic-create` are currently enabled by default and do not have separate `channels.telegram.actions.*` toggles.
-    Runtime sends use the active config/secrets snapshot (startup/reload), so action paths do not perform ad-hoc SecretRef re-resolution per send.
+    Lưu ý: `edit` và `topic-create` hiện được bật theo mặc định và không có các chuyển đổi `channels.telegram.actions.*` riêng biệt.
+    Các lần gửi khi chạy sử dụng ảnh chụp nhanh cấu hình/bí mật đang hoạt động (khởi động/tải lại), vì vậy các đường dẫn hành động không thực hiện giải quyết lại SecretRef theo từng lần gửi.
 
-    Reaction removal semantics: [/tools/reactions](/tools/reactions)
+    Ngữ nghĩa loại bỏ phản ứng: [/tools/reactions](/tools/reactions)
 
   </Accordion>
 
-  <Accordion title="Reply threading tags">
-    Telegram supports explicit reply threading tags in generated output:
+  <Accordion title="Thẻ luồng trả lời">
+    Telegram hỗ trợ các thẻ luồng trả lời rõ ràng trong đầu ra được tạo:
 
-    - `[[reply_to_current]]` replies to the triggering message
-    - `[[reply_to:<id>]]` replies to a specific Telegram message ID
+    - `[[reply_to_current]]` trả lời tin nhắn kích hoạt
+    - `[[reply_to:<id>]]` trả lời một ID tin nhắn Telegram cụ thể
 
-    `channels.telegram.replyToMode` controls handling:
+    `channels.telegram.replyToMode` kiểm soát xử lý:
 
-    - `off` (default)
+    - `off` (mặc định)
     - `first`
     - `all`
 
-    Note: `off` disables implicit reply threading. Explicit `[[reply_to_*]]` tags are still honored.
+    Lưu ý: `off` vô hiệu hóa luồng trả lời ngầm định. Các thẻ `[[reply_to_*]]` rõ ràng vẫn được tôn trọng.
 
   </Accordion>
 
-  <Accordion title="Forum topics and thread behavior">
-    Forum supergroups:
+  <Accordion title="Chủ đề diễn đàn và hành vi chủ đề">
+    Siêu nhóm diễn đàn:
 
-    - topic session keys append `:topic:<threadId>`
-    - replies and typing target the topic thread
-    - topic config path:
+    - khóa phiên chủ đề thêm `:topic:<threadId>`
+    - trả lời và gõ nhắm vào chủ đề
+    - đường dẫn cấu hình chủ đề:
       `channels.telegram.groups.<chatId>.topics.<threadId>`
 
-    General topic (`threadId=1`) special-case:
+    Trường hợp đặc biệt chủ đề chung (`threadId=1`):
 
-    - message sends omit `message_thread_id` (Telegram rejects `sendMessage(...thread_id=1)`)
-    - typing actions still include `message_thread_id`
+    - gửi tin nhắn bỏ qua `message_thread_id` (Telegram từ chối `sendMessage(...thread_id=1)`)
+    - hành động gõ vẫn bao gồm `message_thread_id`
 
-    Topic inheritance: topic entries inherit group settings unless overridden (`requireMention`, `allowFrom`, `skills`, `systemPrompt`, `enabled`, `groupPolicy`).
-    `agentId` is topic-only and does not inherit from group defaults.
+    Thừa kế chủ đề: các mục chủ đề thừa kế cài đặt nhóm trừ khi bị ghi đè (`requireMention`, `allowFrom`, `skills`, `systemPrompt`, `enabled`, `groupPolicy`).
+    `agentId` chỉ dành cho chủ đề và không thừa kế từ mặc định nhóm.
 
-    **Per-topic agent routing**: Each topic can route to a different agent by setting `agentId` in the topic config. This gives each topic its own isolated workspace, memory, and session. Example:
+    **Định tuyến agent theo chủ đề**: Mỗi chủ đề có thể định tuyến đến một agent khác nhau bằng cách thiết lập `agentId` trong cấu hình chủ đề. Điều này cho phép mỗi chủ đề có không gian làm việc, bộ nhớ và phiên riêng biệt. Ví dụ:
 
     ```json5
     {
@@ -490,9 +490,9 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
           groups: {
             "-1001234567890": {
               topics: {
-                "1": { agentId: "main" },      // General topic → main agent
-                "3": { agentId: "zu" },        // Dev topic → zu agent
-                "5": { agentId: "coder" }      // Code review → coder agent
+                "1": { agentId: "main" },      // Chủ đề chung → agent chính
+                "3": { agentId: "zu" },        // Chủ đề phát triển → agent zu
+                "5": { agentId: "coder" }      // Đánh giá mã → agent coder
               }
             }
           }
@@ -501,13 +501,13 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
     }
     ```
 
-    Each topic then has its own session key: `agent:zu:telegram:group:-1001234567890:topic:3`
+    Mỗi chủ đề sau đó có khóa phiên riêng: `agent:zu:telegram:group:-1001234567890:topic:3`
 
-    **Persistent ACP topic binding**: Forum topics can pin ACP harness sessions through top-level typed ACP bindings:
+    **Liên kết chủ đề ACP bền vững**: Các chủ đề diễn đàn có thể ghim các phiên harness ACP thông qua các liên kết ACP kiểu cấp cao nhất:
 
-    - `bindings[]` with `type: "acp"` and `match.channel: "telegram"`
+    - `bindings[]` với `type: "acp"` và `match.channel: "telegram"`
 
-    Example:
+    Ví dụ:
 
     ```json5
     {
@@ -554,35 +554,35 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
     }
     ```
 
-    This is currently scoped to forum topics in groups and supergroups.
+    Điều này hiện được giới hạn cho các chủ đề diễn đàn trong các nhóm và siêu nhóm.
 
-    **Thread-bound ACP spawn from chat**:
+    **Khởi tạo ACP theo chủ đề từ chat**:
 
-    - `/acp spawn <agent> --thread here|auto` can bind the current Telegram topic to a new ACP session.
-    - Follow-up topic messages route to the bound ACP session directly (no `/acp steer` required).
-    - OpenClaw pins the spawn confirmation message in-topic after a successful bind.
-    - Requires `channels.telegram.threadBindings.spawnAcpSessions=true`.
+    - `/acp spawn <agent> --thread here|auto` có thể liên kết chủ đề Telegram hiện tại với một phiên ACP mới.
+    - Các tin nhắn chủ đề tiếp theo định tuyến trực tiếp đến phiên ACP đã liên kết (không cần `/acp steer`).
+    - OpenClaw ghim tin nhắn xác nhận khởi tạo trong chủ đề sau khi liên kết thành công.
+    - Yêu cầu `channels.telegram.threadBindings.spawnAcpSessions=true`.
 
-    Template context includes:
+    Ngữ cảnh mẫu bao gồm:
 
     - `MessageThreadId`
     - `IsForum`
 
-    DM thread behavior:
+    Hành vi luồng DM:
 
-    - private chats with `message_thread_id` keep DM routing but use thread-aware session keys/reply targets.
+    - các cuộc trò chuyện riêng với `message_thread_id` giữ định tuyến DM nhưng sử dụng khóa phiên nhận thức chủ đề/mục tiêu trả lời.
 
   </Accordion>
 
-  <Accordion title="Audio, video, and stickers">
-    ### Audio messages
+  <Accordion title="Âm thanh, video và nhãn dán">
+    ### Tin nhắn âm thanh
 
-    Telegram distinguishes voice notes vs audio files.
+    Telegram phân biệt giữa ghi chú giọng nói và tệp âm thanh.
 
-    - default: audio file behavior
-    - tag `[[audio_as_voice]]` in agent reply to force voice-note send
+    - mặc định: hành vi tệp âm thanh
+    - thẻ `[[audio_as_voice]]` trong câu trả lời agent để buộc gửi ghi chú giọng nói
 
-    Message action example:
+    Ví dụ hành động tin nhắn:
 
 ```json5
 {
@@ -594,11 +594,11 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
 }
 ```
 
-    ### Video messages
+    ### Tin nhắn video
 
-    Telegram distinguishes video files vs video notes.
+    Telegram phân biệt giữa tệp video và ghi chú video.
 
-    Message action example:
+    Ví dụ hành động tin nhắn:
 
 ```json5
 {
@@ -610,17 +610,17 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
 }
 ```
 
-    Video notes do not support captions; provided message text is sent separately.
+    Ghi chú video không hỗ trợ chú thích; văn bản tin nhắn được cung cấp được gửi riêng.
 
-    ### Stickers
+    ### Nhãn dán
 
-    Inbound sticker handling:
+    Xử lý nhãn dán đến:
 
-    - static WEBP: downloaded and processed (placeholder `<media:sticker>`)
-    - animated TGS: skipped
-    - video WEBM: skipped
+    - WEBP tĩnh: tải xuống và xử lý (chỗ giữ chỗ `<media:sticker>`)
+    - TGS động: bỏ qua
+    - WEBM video: bỏ qua
 
-    Sticker context fields:
+    Trường ngữ cảnh nhãn dán:
 
     - `Sticker.emoji`
     - `Sticker.setName`
@@ -628,13 +628,13 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
     - `Sticker.fileUniqueId`
     - `Sticker.cachedDescription`
 
-    Sticker cache file:
+    Tệp bộ nhớ cache nhãn dán:
 
     - `~/.openclaw/telegram/sticker-cache.json`
 
-    Stickers are described once (when possible) and cached to reduce repeated vision calls.
+    Nhãn dán được mô tả một lần (khi có thể) và được lưu vào bộ nhớ cache để giảm các cuộc gọi tầm nhìn lặp lại.
 
-    Enable sticker actions:
+    Bật hành động nhãn dán:
 
 ```json5
 {
@@ -648,7 +648,7 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
 }
 ```
 
-    Send sticker action:
+    Hành động gửi nhãn dán:
 
 ```json5
 {
@@ -659,7 +659,7 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
 }
 ```
 
-    Search cached stickers:
+    Tìm kiếm nhãn dán đã lưu vào bộ nhớ cache:
 
 ```json5
 {
@@ -672,56 +672,56 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
 
   </Accordion>
 
-  <Accordion title="Reaction notifications">
-    Telegram reactions arrive as `message_reaction` updates (separate from message payloads).
+  <Accordion title="Thông báo phản ứng">
+    Phản ứng Telegram đến dưới dạng cập nhật `message_reaction` (tách biệt với tải trọng tin nhắn).
 
-    When enabled, OpenClaw enqueues system events like:
+    Khi được bật, OpenClaw xếp hàng các sự kiện hệ thống như:
 
     - `Telegram reaction added: 👍 by Alice (@alice) on msg 42`
 
-    Config:
+    Cấu hình:
 
-    - `channels.telegram.reactionNotifications`: `off | own | all` (default: `own`)
-    - `channels.telegram.reactionLevel`: `off | ack | minimal | extensive` (default: `minimal`)
+    - `channels.telegram.reactionNotifications`: `off | own | all` (mặc định: `own`)
+    - `channels.telegram.reactionLevel`: `off | ack | minimal | extensive` (mặc định: `minimal`)
 
-    Notes:
+    Ghi chú:
 
-    - `own` means user reactions to bot-sent messages only (best-effort via sent-message cache).
-    - Reaction events still respect Telegram access controls (`dmPolicy`, `allowFrom`, `groupPolicy`, `groupAllowFrom`); unauthorized senders are dropped.
-    - Telegram does not provide thread IDs in reaction updates.
-      - non-forum groups route to group chat session
-      - forum groups route to the group general-topic session (`:topic:1`), not the exact originating topic
+    - `own` có nghĩa là phản ứng của người dùng đối với các tin nhắn do bot gửi chỉ (nỗ lực tốt nhất qua bộ nhớ cache tin nhắn đã gửi).
+    - Các sự kiện phản ứng vẫn tôn trọng các kiểm soát truy cập Telegram (`dmPolicy`, `allowFrom`, `groupPolicy`, `groupAllowFrom`); người gửi không được phép bị loại bỏ.
+    - Telegram không cung cấp ID chủ đề trong các cập nhật phản ứng.
+      - các nhóm không phải diễn đàn định tuyến đến phiên trò chuyện nhóm
+      - các nhóm diễn đàn định tuyến đến phiên chủ đề chung của nhóm (`:topic:1`), không phải chủ đề gốc chính xác
 
-    `allowed_updates` for polling/webhook include `message_reaction` automatically.
+    `allowed_updates` cho polling/webhook tự động bao gồm `message_reaction`.
 
   </Accordion>
 
-  <Accordion title="Ack reactions">
-    `ackReaction` sends an acknowledgement emoji while OpenClaw is processing an inbound message.
+  <Accordion title="Phản ứng xác nhận">
+    `ackReaction` gửi một emoji xác nhận trong khi OpenClaw đang xử lý một tin nhắn đến.
 
-    Resolution order:
+    Thứ tự giải quyết:
 
     - `channels.telegram.accounts.<accountId>.ackReaction`
     - `channels.telegram.ackReaction`
     - `messages.ackReaction`
-    - agent identity emoji fallback (`agents.list[].identity.emoji`, else "👀")
+    - emoji nhận dạng agent dự phòng (`agents.list[].identity.emoji`, nếu không có thì "👀")
 
-    Notes:
+    Ghi chú:
 
-    - Telegram expects unicode emoji (for example "👀").
-    - Use `""` to disable the reaction for a channel or account.
+    - Telegram mong đợi emoji unicode (ví dụ "👀").
+    - Sử dụng `""` để tắt phản ứng cho một kênh hoặc tài khoản.
 
   </Accordion>
 
-  <Accordion title="Config writes from Telegram events and commands">
-    Channel config writes are enabled by default (`configWrites !== false`).
+  <Accordion title="Ghi cấu hình từ sự kiện và lệnh Telegram">
+    Ghi cấu hình kênh được bật theo mặc định (`configWrites !== false`).
 
-    Telegram-triggered writes include:
+    Các ghi được kích hoạt bởi Telegram bao gồm:
 
-    - group migration events (`migrate_to_chat_id`) to update `channels.telegram.groups`
-    - `/config set` and `/config unset` (requires command enablement)
+    - sự kiện di chuyển nhóm (`migrate_to_chat_id`) để cập nhật `channels.telegram.groups`
+    - `/config set` và `/config unset` (yêu cầu bật lệnh)
 
-    Disable:
+    Tắt:
 
 ```json5
 {
@@ -736,42 +736,42 @@ curl "https://api.telegram.org/bot<bot_token>/getUpdates"
   </Accordion>
 
   <Accordion title="Long polling vs webhook">
-    Default: long polling.
+    Mặc định: long polling.
 
-    Webhook mode:
+    Chế độ webhook:
 
-    - set `channels.telegram.webhookUrl`
-    - set `channels.telegram.webhookSecret` (required when webhook URL is set)
-    - optional `channels.telegram.webhookPath` (default `/telegram-webhook`)
-    - optional `channels.telegram.webhookHost` (default `127.0.0.1`)
-    - optional `channels.telegram.webhookPort` (default `8787`)
+    - thiết lập `channels.telegram.webhookUrl`
+    - thiết lập `channels.telegram.webhookSecret` (bắt buộc khi URL webhook được thiết lập)
+    - tùy chọn `channels.telegram.webhookPath` (mặc định `/telegram-webhook`)
+    - tùy chọn `channels.telegram.webhookHost` (mặc định `127.0.0.1`)
+    - tùy chọn `channels.telegram.webhookPort` (mặc định `8787`)
 
-    Default local listener for webhook mode binds to `127.0.0.1:8787`.
+    Trình nghe cục bộ mặc định cho chế độ webhook liên kết với `127.0.0.1:8787`.
 
-    If your public endpoint differs, place a reverse proxy in front and point `webhookUrl` at the public URL.
-    Set `webhookHost` (for example `0.0.0.0`) when you intentionally need external ingress.
+    Nếu điểm cuối công khai của bạn khác, hãy đặt một proxy ngược phía trước và trỏ `webhookUrl` đến URL công khai.
+    Thiết lập `webhookHost` (ví dụ `0.0.0.0`) khi bạn cố ý cần ingress bên ngoài.
 
   </Accordion>
 
-  <Accordion title="Limits, retry, and CLI targets">
-    - `channels.telegram.textChunkLimit` default is 4000.
-    - `channels.telegram.chunkMode="newline"` prefers paragraph boundaries (blank lines) before length splitting.
-    - `channels.telegram.mediaMaxMb` (default 100) caps inbound and outbound Telegram media size.
-    - `channels.telegram.timeoutSeconds` overrides Telegram API client timeout (if unset, grammY default applies).
-    - group context history uses `channels.telegram.historyLimit` or `messages.groupChat.historyLimit` (default 50); `0` disables.
-    - DM history controls:
+  <Accordion title="Giới hạn, thử lại và mục tiêu CLI">
+    - `channels.telegram.textChunkLimit` mặc định là 4000.
+    - `channels.telegram.chunkMode="newline"` ưu tiên ranh giới đoạn văn (dòng trống) trước khi chia độ dài.
+    - `channels.telegram.mediaMaxMb` (mặc định 100) giới hạn kích thước phương tiện Telegram đến và đi.
+    - `channels.telegram.timeoutSeconds` ghi đè thời gian chờ của khách hàng API Telegram (nếu không được đặt, áp dụng mặc định của grammY).
+    - lịch sử ngữ cảnh nhóm sử dụng `channels.telegram.historyLimit` hoặc `messages.groupChat.historyLimit` (mặc định 50); `0` vô hiệu hóa.
+    - Kiểm soát lịch sử DM:
       - `channels.telegram.dmHistoryLimit`
       - `channels.telegram.dms["<user_id>"].historyLimit`
-    - `channels.telegram.retry` config applies to Telegram send helpers (CLI/tools/actions) for recoverable outbound API errors.
+    - cấu hình `channels.telegram.retry` áp dụng cho các trợ giúp gửi Telegram (CLI/công cụ/hành động) cho các lỗi API gửi đi có thể khôi phục.
 
-    CLI send target can be numeric chat ID or username:
+    Mục tiêu gửi CLI có thể là ID chat dạng số hoặc tên người dùng:
 
 ```bash
 openclaw message send --channel telegram --target 123456789 --message "hi"
 openclaw message send --channel telegram --target @name --message "hi"
 ```
 
-    Telegram polls use `openclaw message poll` and support forum topics:
+    Các cuộc thăm dò Telegram sử dụng `openclaw message poll` và hỗ trợ các chủ đề diễn đàn:
 
 ```bash
 openclaw message poll --channel telegram --target 123456789 \
@@ -781,91 +781,91 @@ openclaw message poll --channel telegram --target -1001234567890:topic:42 \
   --poll-duration-seconds 300 --poll-public
 ```
 
-    Telegram-only poll flags:
+    Các cờ thăm dò chỉ dành cho Telegram:
 
     - `--poll-duration-seconds` (5-600)
     - `--poll-anonymous`
     - `--poll-public`
-    - `--thread-id` for forum topics (or use a `:topic:` target)
+    - `--thread-id` cho các chủ đề diễn đàn (hoặc sử dụng mục tiêu `:topic:`)
 
-    Telegram send also supports:
+    Gửi Telegram cũng hỗ trợ:
 
-    - `--buttons` for inline keyboards when `channels.telegram.capabilities.inlineButtons` allows it
-    - `--force-document` to send outbound images and GIFs as documents instead of compressed photo or animated-media uploads
+    - `--buttons` cho bàn phím nội tuyến khi `channels.telegram.capabilities.inlineButtons` cho phép
+    - `--force-document` để gửi hình ảnh và GIF gửi đi dưới dạng tài liệu thay vì tải lên ảnh hoặc phương tiện động nén
 
-    Action gating:
+    Kiểm soát hành động:
 
-    - `channels.telegram.actions.sendMessage=false` disables outbound Telegram messages, including polls
-    - `channels.telegram.actions.poll=false` disables Telegram poll creation while leaving regular sends enabled
+    - `channels.telegram.actions.sendMessage=false` vô hiệu hóa các tin nhắn Telegram gửi đi, bao gồm cả các cuộc thăm dò
+    - `channels.telegram.actions.poll=false` vô hiệu hóa việc tạo cuộc thăm dò Telegram trong khi vẫn để lại các lần gửi thông thường được bật
 
   </Accordion>
 
-  <Accordion title="Exec approvals in Telegram">
-    Telegram supports exec approvals in approver DMs and can optionally post approval prompts in the originating chat or topic.
+  <Accordion title="Phê duyệt thực thi trong Telegram">
+    Telegram hỗ trợ phê duyệt thực thi trong DM của người phê duyệt và có thể tùy chọn đăng lời nhắc phê duyệt trong chat hoặc chủ đề gốc.
 
-    Config path:
+    Đường dẫn cấu hình:
 
     - `channels.telegram.execApprovals.enabled`
     - `channels.telegram.execApprovals.approvers`
-    - `channels.telegram.execApprovals.target` (`dm` | `channel` | `both`, default: `dm`)
+    - `channels.telegram.execApprovals.target` (`dm` | `channel` | `both`, mặc định: `dm`)
     - `agentFilter`, `sessionFilter`
 
-    Approvers must be numeric Telegram user IDs. When `enabled` is false or `approvers` is empty, Telegram does not act as an exec approval client. Approval requests fall back to other configured approval routes or the exec approval fallback policy.
+    Người phê duyệt phải là ID người dùng Telegram dạng số. Khi `enabled` là false hoặc `approvers` trống, Telegram không hoạt động như một khách hàng phê duyệt thực thi. Các yêu cầu phê duyệt quay lại các tuyến phê duyệt cấu hình khác hoặc chính sách dự phòng phê duyệt thực thi.
 
-    Delivery rules:
+    Quy tắc giao hàng:
 
-    - `target: "dm"` sends approval prompts only to configured approver DMs
-    - `target: "channel"` sends the prompt back to the originating Telegram chat/topic
-    - `target: "both"` sends to approver DMs and the originating chat/topic
+    - `target: "dm"` chỉ gửi lời nhắc phê duyệt đến DM của người phê duyệt được cấu hình
+    - `target: "channel"` gửi lời nhắc trở lại chat/chủ đề Telegram gốc
+    - `target: "both"` gửi đến DM của người phê duyệt và chat/chủ đề gốc
 
-    Only configured approvers can approve or deny. Non-approvers cannot use `/approve` and cannot use Telegram approval buttons.
+    Chỉ những người phê duyệt được cấu hình mới có thể phê duyệt hoặc từ chối. Những người không phải người phê duyệt không thể sử dụng `/approve` và không thể sử dụng các nút phê duyệt Telegram.
 
-    Channel delivery shows the command text in the chat, so only enable `channel` or `both` in trusted groups/topics. When the prompt lands in a forum topic, OpenClaw preserves the topic for both the approval prompt and the post-approval follow-up.
+    Giao hàng kênh hiển thị văn bản lệnh trong chat, vì vậy chỉ bật `channel` hoặc `both` trong các nhóm/chủ đề đáng tin cậy. Khi lời nhắc hạ cánh trong một chủ đề diễn đàn, OpenClaw bảo toàn chủ đề cho cả lời nhắc phê duyệt và theo dõi sau phê duyệt.
 
-    Inline approval buttons also depend on `channels.telegram.capabilities.inlineButtons` allowing the target surface (`dm`, `group`, or `all`).
+    Các nút phê duyệt nội tuyến cũng phụ thuộc vào `channels.telegram.capabilities.inlineButtons` cho phép bề mặt mục tiêu (`dm`, `group`, hoặc `all`).
 
-    Related docs: [Exec approvals](/tools/exec-approvals)
+    Tài liệu liên quan: [Phê duyệt thực thi](/tools/exec-approvals)
 
   </Accordion>
 </AccordionGroup>
 
-## Troubleshooting
+## Khắc phục sự cố
 
 <AccordionGroup>
-  <Accordion title="Bot does not respond to non mention group messages">
+  <Accordion title="Bot không phản hồi tin nhắn nhóm không nhắc đến">
 
-    - If `requireMention=false`, Telegram privacy mode must allow full visibility.
-      - BotFather: `/setprivacy` -> Disable
-      - then remove + re-add bot to group
-    - `openclaw channels status` warns when config expects unmentioned group messages.
-    - `openclaw channels status --probe` can check explicit numeric group IDs; wildcard `"*"` cannot be membership-probed.
-    - quick session test: `/activation always`.
-
-  </Accordion>
-
-  <Accordion title="Bot not seeing group messages at all">
-
-    - when `channels.telegram.groups` exists, group must be listed (or include `"*"`)
-    - verify bot membership in group
-    - review logs: `openclaw logs --follow` for skip reasons
+    - Nếu `requireMention=false`, chế độ riêng tư của Telegram phải cho phép khả năng hiển thị đầy đủ.
+      - BotFather: `/setprivacy` -> Tắt
+      - sau đó xóa và thêm lại bot vào nhóm
+    - `openclaw channels status` cảnh báo khi cấu hình mong đợi tin nhắn nhóm không nhắc đến.
+    - `openclaw channels status --probe` có thể kiểm tra ID nhóm dạng số rõ ràng; ký tự đại diện `"*"` không thể được kiểm tra thành viên.
+    - kiểm tra phiên nhanh: `/activation always`.
 
   </Accordion>
 
-  <Accordion title="Commands work partially or not at all">
+  <Accordion title="Bot không thấy tin nhắn nhóm nào cả">
 
-    - authorize your sender identity (pairing and/or numeric `allowFrom`)
-    - command authorization still applies even when group policy is `open`
-    - `setMyCommands failed` with `BOT_COMMANDS_TOO_MUCH` means the native menu has too many entries; reduce plugin/skill/custom commands or disable native menus
-    - `setMyCommands failed` with network/fetch errors usually indicates DNS/HTTPS reachability issues to `api.telegram.org`
+    - khi `channels.telegram.groups` tồn tại, nhóm phải được liệt kê (hoặc bao gồm `"*"`)
+    - xác minh thành viên bot trong nhóm
+    - xem lại nhật ký: `openclaw logs --follow` để biết lý do bỏ qua
 
   </Accordion>
 
-  <Accordion title="Polling or network instability">
+  <Accordion title="Lệnh hoạt động một phần hoặc không hoạt động">
 
-    - Node 22+ + custom fetch/proxy can trigger immediate abort behavior if AbortSignal types mismatch.
-    - Some hosts resolve `api.telegram.org` to IPv6 first; broken IPv6 egress can cause intermittent Telegram API failures.
-    - If logs include `TypeError: fetch failed` or `Network request for 'getUpdates' failed!`, OpenClaw now retries these as recoverable network errors.
-    - On VPS hosts with unstable direct egress/TLS, route Telegram API calls through `channels.telegram.proxy`:
+    - ủy quyền danh tính người gửi của bạn (ghép nối và/hoặc `allowFrom` dạng số)
+    - ủy quyền lệnh vẫn áp dụng ngay cả khi chính sách nhóm là `open`
+    - `setMyCommands failed` với `BOT_COMMANDS_TOO_MUCH` có nghĩa là menu gốc có quá nhiều mục; giảm lệnh plugin/kỹ năng/tùy chỉnh hoặc tắt menu gốc
+    - `setMyCommands failed` với lỗi mạng/lấy thường chỉ ra các vấn đề về khả năng truy cập DNS/HTTPS tới `api.telegram.org`
+
+  </Accordion>
+
+  <Accordion title="Sự không ổn định của polling hoặc mạng">
+
+    - Node 22+ + fetch/proxy tùy chỉnh có thể kích hoạt hành vi hủy bỏ ngay lập tức nếu các loại AbortSignal không khớp.
+    - Một số máy chủ giải quyết `api.telegram.org` thành IPv6 trước; egress IPv6 bị hỏng có thể gây ra lỗi API Telegram không liên tục.
+    - Nếu nhật ký bao gồm `TypeError: fetch failed` hoặc `Network request for 'getUpdates' failed!`, OpenClaw hiện thử lại những lỗi này như các lỗi mạng có thể khôi phục.
+    - Trên các máy chủ VPS với egress/TLS trực tiếp không ổn định, định tuyến các cuộc gọi API Telegram qua `channels.telegram.proxy`:
 
 ```yaml
 channels:
@@ -873,8 +873,8 @@ channels:
     proxy: socks5://<user>:<password>@proxy-host:1080
 ```
 
-    - Node 22+ defaults to `autoSelectFamily=true` (except WSL2) and `dnsResultOrder=ipv4first`.
-    - If your host is WSL2 or explicitly works better with IPv4-only behavior, force family selection:
+    - Node 22+ mặc định là `autoSelectFamily=true` (trừ WSL2) và `dnsResultOrder=ipv4first`.
+    - Nếu máy chủ của bạn là WSL2 hoặc hoạt động tốt hơn rõ ràng với hành vi chỉ IPv4, buộc chọn họ:
 
 ```yaml
 channels:
@@ -883,11 +883,11 @@ channels:
       autoSelectFamily: false
 ```
 
-    - Environment overrides (temporary):
+    - Ghi đè môi trường (tạm thời):
       - `OPENCLAW_TELEGRAM_DISABLE_AUTO_SELECT_FAMILY=1`
       - `OPENCLAW_TELEGRAM_ENABLE_AUTO_SELECT_FAMILY=1`
       - `OPENCLAW_TELEGRAM_DNS_RESULT_ORDER=ipv4first`
-    - Validate DNS answers:
+    - Xác thực câu trả lời DNS:
 
 ```bash
 dig +short api.telegram.org A
@@ -897,91 +897,91 @@ dig +short api.telegram.org AAAA
   </Accordion>
 </AccordionGroup>
 
-More help: [Channel troubleshooting](/channels/troubleshooting).
+Thêm trợ giúp: [Khắc phục sự cố kênh](/channels/troubleshooting).
 
-## Telegram config reference pointers
+## Tham khảo cấu hình Telegram
 
-Primary reference:
+Tham khảo chính:
 
-- `channels.telegram.enabled`: enable/disable channel startup.
-- `channels.telegram.botToken`: bot token (BotFather).
-- `channels.telegram.tokenFile`: read token from a regular file path. Symlinks are rejected.
-- `channels.telegram.dmPolicy`: `pairing | allowlist | open | disabled` (default: pairing).
-- `channels.telegram.allowFrom`: DM allowlist (numeric Telegram user IDs). `allowlist` requires at least one sender ID. `open` requires `"*"`. `openclaw doctor --fix` can resolve legacy `@username` entries to IDs and can recover allowlist entries from pairing-store files in allowlist migration flows.
-- `channels.telegram.actions.poll`: enable or disable Telegram poll creation (default: enabled; still requires `sendMessage`).
-- `channels.telegram.defaultTo`: default Telegram target used by CLI `--deliver` when no explicit `--reply-to` is provided.
-- `channels.telegram.groupPolicy`: `open | allowlist | disabled` (default: allowlist).
-- `channels.telegram.groupAllowFrom`: group sender allowlist (numeric Telegram user IDs). `openclaw doctor --fix` can resolve legacy `@username` entries to IDs. Non-numeric entries are ignored at auth time. Group auth does not use DM pairing-store fallback (`2026.2.25+`).
-- Multi-account precedence:
-  - When two or more account IDs are configured, set `channels.telegram.defaultAccount` (or include `channels.telegram.accounts.default`) to make default routing explicit.
-  - If neither is set, OpenClaw falls back to the first normalized account ID and `openclaw doctor` warns.
-  - `channels.telegram.accounts.default.allowFrom` and `channels.telegram.accounts.default.groupAllowFrom` apply only to the `default` account.
-  - Named accounts inherit `channels.telegram.allowFrom` and `channels.telegram.groupAllowFrom` when account-level values are unset.
-  - Named accounts do not inherit `channels.telegram.accounts.default.allowFrom` / `groupAllowFrom`.
-- `channels.telegram.groups`: per-group defaults + allowlist (use `"*"` for global defaults).
-  - `channels.telegram.groups.<id>.groupPolicy`: per-group override for groupPolicy (`open | allowlist | disabled`).
-  - `channels.telegram.groups.<id>.requireMention`: mention gating default.
-  - `channels.telegram.groups.<id>.skills`: skill filter (omit = all skills, empty = none).
-  - `channels.telegram.groups.<id>.allowFrom`: per-group sender allowlist override.
-  - `channels.telegram.groups.<id>.systemPrompt`: extra system prompt for the group.
-  - `channels.telegram.groups.<id>.enabled`: disable the group when `false`.
-  - `channels.telegram.groups.<id>.topics.<threadId>.*`: per-topic overrides (group fields + topic-only `agentId`).
-  - `channels.telegram.groups.<id>.topics.<threadId>.agentId`: route this topic to a specific agent (overrides group-level and binding routing).
-- `channels.telegram.groups.<id>.topics.<threadId>.groupPolicy`: per-topic override for groupPolicy (`open | allowlist | disabled`).
-- `channels.telegram.groups.<id>.topics.<threadId>.requireMention`: per-topic mention gating override.
-- top-level `bindings[]` with `type: "acp"` and canonical topic id `chatId:topic:topicId` in `match.peer.id`: persistent ACP topic binding fields (see [ACP Agents](/tools/acp-agents#channel-specific-settings)).
-- `channels.telegram.direct.<id>.topics.<threadId>.agentId`: route DM topics to a specific agent (same behavior as forum topics).
-- `channels.telegram.execApprovals.enabled`: enable Telegram as a chat-based exec approval client for this account.
-- `channels.telegram.execApprovals.approvers`: Telegram user IDs allowed to approve or deny exec requests. Required when exec approvals are enabled.
-- `channels.telegram.execApprovals.target`: `dm | channel | both` (default: `dm`). `channel` and `both` preserve the originating Telegram topic when present.
-- `channels.telegram.execApprovals.agentFilter`: optional agent ID filter for forwarded approval prompts.
-- `channels.telegram.execApprovals.sessionFilter`: optional session key filter (substring or regex) for forwarded approval prompts.
-- `channels.telegram.accounts.<account>.execApprovals`: per-account override for Telegram exec approval routing and approver authorization.
-- `channels.telegram.capabilities.inlineButtons`: `off | dm | group | all | allowlist` (default: allowlist).
-- `channels.telegram.accounts.<account>.capabilities.inlineButtons`: per-account override.
-- `channels.telegram.commands.nativeSkills`: enable/disable Telegram native skills commands.
-- `channels.telegram.replyToMode`: `off | first | all` (default: `off`).
-- `channels.telegram.textChunkLimit`: outbound chunk size (chars).
-- `channels.telegram.chunkMode`: `length` (default) or `newline` to split on blank lines (paragraph boundaries) before length chunking.
-- `channels.telegram.linkPreview`: toggle link previews for outbound messages (default: true).
-- `channels.telegram.streaming`: `off | partial | block | progress` (live stream preview; default: `partial`; `progress` maps to `partial`; `block` is legacy preview mode compatibility). Telegram preview streaming uses a single preview message that is edited in place.
-- `channels.telegram.mediaMaxMb`: inbound/outbound Telegram media cap (MB, default: 100).
-- `channels.telegram.retry`: retry policy for Telegram send helpers (CLI/tools/actions) on recoverable outbound API errors (attempts, minDelayMs, maxDelayMs, jitter).
-- `channels.telegram.network.autoSelectFamily`: override Node autoSelectFamily (true=enable, false=disable). Defaults to enabled on Node 22+, with WSL2 defaulting to disabled.
-- `channels.telegram.network.dnsResultOrder`: override DNS result order (`ipv4first` or `verbatim`). Defaults to `ipv4first` on Node 22+.
-- `channels.telegram.proxy`: proxy URL for Bot API calls (SOCKS/HTTP).
-- `channels.telegram.webhookUrl`: enable webhook mode (requires `channels.telegram.webhookSecret`).
-- `channels.telegram.webhookSecret`: webhook secret (required when webhookUrl is set).
-- `channels.telegram.webhookPath`: local webhook path (default `/telegram-webhook`).
-- `channels.telegram.webhookHost`: local webhook bind host (default `127.0.0.1`).
-- `channels.telegram.webhookPort`: local webhook bind port (default `8787`).
-- `channels.telegram.actions.reactions`: gate Telegram tool reactions.
-- `channels.telegram.actions.sendMessage`: gate Telegram tool message sends.
-- `channels.telegram.actions.deleteMessage`: gate Telegram tool message deletes.
-- `channels.telegram.actions.sticker`: gate Telegram sticker actions — send and search (default: false).
-- `channels.telegram.reactionNotifications`: `off | own | all` — control which reactions trigger system events (default: `own` when not set).
-- `channels.telegram.reactionLevel`: `off | ack | minimal | extensive` — control agent's reaction capability (default: `minimal` when not set).
+- `channels.telegram.enabled`: bật/tắt khởi động kênh.
+- `channels.telegram.botToken`: token bot (BotFather).
+- `channels.telegram.tokenFile`: đọc token từ đường dẫn tệp thông thường. Symlink bị từ chối.
+- `channels.telegram.dmPolicy`: `pairing | allowlist | open | disabled` (mặc định: pairing).
+- `channels.telegram.allowFrom`: danh sách cho phép DM (ID người dùng Telegram dạng số). `allowlist` yêu cầu ít nhất một ID người gửi. `open` yêu cầu `"*"`. `openclaw doctor --fix` có thể chuyển đổi các mục `@username` cũ thành ID và có thể khôi phục các mục danh sách cho phép từ các tệp pairing-store trong các luồng di chuyển danh sách cho phép.
+- `channels.telegram.actions.poll`: bật hoặc tắt việc tạo cuộc thăm dò Telegram (mặc định: bật; vẫn yêu cầu `sendMessage`).
+- `channels.telegram.defaultTo`: mục tiêu Telegram mặc định được sử dụng bởi CLI `--deliver` khi không có `--reply-to` rõ ràng được cung cấp.
+- `channels.telegram.groupPolicy`: `open | allowlist | disabled` (mặc định: allowlist).
+- `channels.telegram.groupAllowFrom`: danh sách cho phép người gửi nhóm (ID người dùng Telegram dạng số). `openclaw doctor --fix` có thể chuyển đổi các mục `@username` cũ thành ID. Các mục không phải số bị bỏ qua khi xác thực. Xác thực nhóm không sử dụng dự phòng pairing-store DM (`2026.2.25+`).
+- Ưu tiên đa tài khoản:
+  - Khi hai hoặc nhiều ID tài khoản được cấu hình, thiết lập `channels.telegram.defaultAccount` (hoặc bao gồm `channels.telegram.accounts.default`) để làm cho định tuyến mặc định rõ ràng.
+  - Nếu không có cái nào được thiết lập, OpenClaw quay lại ID tài khoản đầu tiên đã chuẩn hóa và `openclaw doctor` cảnh báo.
+  - `channels.telegram.accounts.default.allowFrom` và `channels.telegram.accounts.default.groupAllowFrom` chỉ áp dụng cho tài khoản `default`.
+  - Các tài khoản được đặt tên thừa kế `channels.telegram.allowFrom` và `channels.telegram.groupAllowFrom` khi các giá trị cấp tài khoản không được thiết lập.
+  - Các tài khoản được đặt tên không thừa kế `channels.telegram.accounts.default.allowFrom` / `groupAllowFrom`.
+- `channels.telegram.groups`: mặc định theo nhóm + danh sách cho phép (sử dụng `"*"` cho mặc định toàn cầu).
+  - `channels.telegram.groups.<id>.groupPolicy`: ghi đè theo nhóm cho groupPolicy (`open | allowlist | disabled`).
+  - `channels.telegram.groups.<id>.requireMention`: mặc định kiểm soát nhắc đến.
+  - `channels.telegram.groups.<id>.skills`: bộ lọc kỹ năng (bỏ qua = tất cả kỹ năng, trống = không có).
+  - `channels.telegram.groups.<id>.allowFrom`: ghi đè danh sách cho phép người gửi theo nhóm.
+  - `channels.telegram.groups.<id>.systemPrompt`: lời nhắc hệ thống bổ sung cho nhóm.
+  - `channels.telegram.groups.<id>.enabled`: vô hiệu hóa nhóm khi `false`.
+  - `channels.telegram.groups.<id>.topics.<threadId>.*`: ghi đè theo chủ đề (trường nhóm + chỉ chủ đề `agentId`).
+  - `channels.telegram.groups.<id>.topics.<threadId>.agentId`: định tuyến chủ đề này đến một agent cụ thể (ghi đè định tuyến cấp nhóm và liên kết).
+- `channels.telegram.groups.<id>.topics.<threadId>.groupPolicy`: ghi đè theo chủ đề cho groupPolicy (`open | allowlist | disabled`).
+- `channels.telegram.groups.<id>.topics.<threadId>.requireMention`: ghi đè kiểm soát nhắc đến theo chủ đề.
+- `bindings[]` cấp cao nhất với `type: "acp"` và ID chủ đề chuẩn `chatId:topic:topicId` trong `match.peer.id`: trường liên kết chủ đề ACP bền vững (xem [Agent ACP](/tools/acp-agents#channel-specific-settings)).
+- `channels.telegram.direct.<id>.topics.<threadId>.agentId`: định tuyến các chủ đề DM đến một agent cụ thể (cùng hành vi như các chủ đề diễn đàn).
+- `channels.telegram.execApprovals.enabled`: bật Telegram làm khách hàng phê duyệt thực thi dựa trên chat cho tài khoản này.
+- `channels.telegram.execApprovals.approvers`: ID người dùng Telegram được phép phê duyệt hoặc từ chối yêu cầu thực thi. Bắt buộc khi phê duyệt thực thi được bật.
+- `channels.telegram.execApprovals.target`: `dm | channel | both` (mặc định: `dm`). `channel` và `both` bảo toàn chủ đề Telegram gốc khi có.
+- `channels.telegram.execApprovals.agentFilter`: bộ lọc ID agent tùy chọn cho các lời nhắc phê duyệt được chuyển tiếp.
+- `channels.telegram.execApprovals.sessionFilter`: bộ lọc khóa phiên tùy chọn (chuỗi con hoặc regex) cho các lời nhắc phê duyệt được chuyển tiếp.
+- `channels.telegram.accounts.<account>.execApprovals`: ghi đè theo tài khoản cho định tuyến phê duyệt thực thi Telegram và ủy quyền người phê duyệt.
+- `channels.telegram.capabilities.inlineButtons`: `off | dm | group | all | allowlist` (mặc định: allowlist).
+- `channels.telegram.accounts.<account>.capabilities.inlineButtons`: ghi đè theo tài khoản.
+- `channels.telegram.commands.nativeSkills`: bật/tắt lệnh kỹ năng gốc Telegram.
+- `channels.telegram.replyToMode`: `off | first | all` (mặc định: `off`).
+- `channels.telegram.textChunkLimit`: kích thước khối gửi đi (ký tự).
+- `channels.telegram.chunkMode`: `length` (mặc định) hoặc `newline` để chia trên các dòng trống (ranh giới đoạn văn) trước khi chia độ dài.
+- `channels.telegram.linkPreview`: bật/tắt xem trước liên kết cho các tin nhắn gửi đi (mặc định: true).
+- `channels.telegram.streaming`: `off | partial | block | progress` (xem trước luồng trực tiếp; mặc định: `partial`; `progress` ánh xạ tới `partial`; `block` là chế độ tương thích xem trước cũ). Phát trực tiếp xem trước Telegram sử dụng một tin nhắn xem trước duy nhất được chỉnh sửa tại chỗ.
+- `channels.telegram.mediaMaxMb`: giới hạn phương tiện Telegram đến/đi (MB, mặc định: 100).
+- `channels.telegram.retry`: chính sách thử lại cho các trợ giúp gửi Telegram (CLI/công cụ/hành động) trên các lỗi API gửi đi có thể khôi phục (lần thử, minDelayMs, maxDelayMs, jitter).
+- `channels.telegram.network.autoSelectFamily`: ghi đè Node autoSelectFamily (true=bật, false=tắt). Mặc định là bật trên Node 22+, với WSL2 mặc định là tắt.
+- `channels.telegram.network.dnsResultOrder`: ghi đè thứ tự kết quả DNS (`ipv4first` hoặc `verbatim`). Mặc định là `ipv4first` trên Node 22+.
+- `channels.telegram.proxy`: URL proxy cho các cuộc gọi Bot API (SOCKS/HTTP).
+- `channels.telegram.webhookUrl`: bật chế độ webhook (yêu cầu `channels.telegram.webhookSecret`).
+- `channels.telegram.webhookSecret`: bí mật webhook (bắt buộc khi webhookUrl được thiết lập).
+- `channels.telegram.webhookPath`: đường dẫn webhook cục bộ (mặc định `/telegram-webhook`).
+- `channels.telegram.webhookHost`: máy chủ liên kết webhook cục bộ (mặc định `127.0.0.1`).
+- `channels.telegram.webhookPort`: cổng liên kết webhook cục bộ (mặc định `8787`).
+- `channels.telegram.actions.reactions`: cổng phản ứng công cụ Telegram.
+- `channels.telegram.actions.sendMessage`: cổng gửi tin nhắn công cụ Telegram.
+- `channels.telegram.actions.deleteMessage`: cổng xóa tin nhắn công cụ Telegram.
+- `channels.telegram.actions.sticker`: cổng hành động nhãn dán Telegram — gửi và tìm kiếm (mặc định: false).
+- `channels.telegram.reactionNotifications`: `off | own | all` — kiểm soát phản ứng nào kích hoạt sự kiện hệ thống (mặc định: `own` khi không được thiết lập).
+- `channels.telegram.reactionLevel`: `off | ack | minimal | extensive` — kiểm soát khả năng phản ứng của agent (mặc định: `minimal` khi không được thiết lập).
 
-- [Configuration reference - Telegram](/gateway/configuration-reference#telegram)
+- [Tham khảo cấu hình - Telegram](/gateway/configuration-reference#telegram)
 
-Telegram-specific high-signal fields:
+Các trường tín hiệu cao cụ thể của Telegram:
 
-- startup/auth: `enabled`, `botToken`, `tokenFile`, `accounts.*` (`tokenFile` must point to a regular file; symlinks are rejected)
-- access control: `dmPolicy`, `allowFrom`, `groupPolicy`, `groupAllowFrom`, `groups`, `groups.*.topics.*`, top-level `bindings[]` (`type: "acp"`)
-- exec approvals: `execApprovals`, `accounts.*.execApprovals`
-- command/menu: `commands.native`, `commands.nativeSkills`, `customCommands`
-- threading/replies: `replyToMode`
-- streaming: `streaming` (preview), `blockStreaming`
-- formatting/delivery: `textChunkLimit`, `chunkMode`, `linkPreview`, `responsePrefix`
-- media/network: `mediaMaxMb`, `timeoutSeconds`, `retry`, `network.autoSelectFamily`, `proxy`
+- khởi động/xác thực: `enabled`, `botToken`, `tokenFile`, `accounts.*` (`tokenFile` phải trỏ đến một tệp thông thường; symlink bị từ chối)
+- kiểm soát truy cập: `dmPolicy`, `allowFrom`, `groupPolicy`, `groupAllowFrom`, `groups`, `groups.*.topics.*`, `bindings[]` cấp cao nhất (`type: "acp"`)
+- phê duyệt thực thi: `execApprovals`, `accounts.*.execApprovals`
+- lệnh/menu: `commands.native`, `commands.nativeSkills`, `customCommands`
+- luồng/trả lời: `replyToMode`
+- phát trực tiếp: `streaming` (xem trước), `blockStreaming`
+- định dạng/gửi: `textChunkLimit`, `chunkMode`, `linkPreview`, `responsePrefix`
+- phương tiện/mạng: `mediaMaxMb`, `timeoutSeconds`, `retry`, `network.autoSelectFamily`, `proxy`
 - webhook: `webhookUrl`, `webhookSecret`, `webhookPath`, `webhookHost`
-- actions/capabilities: `capabilities.inlineButtons`, `actions.sendMessage|editMessage|deleteMessage|reactions|sticker`
-- reactions: `reactionNotifications`, `reactionLevel`
-- writes/history: `configWrites`, `historyLimit`, `dmHistoryLimit`, `dms.*.historyLimit`
+- hành động/khả năng: `capabilities.inlineButtons`, `actions.sendMessage|editMessage|deleteMessage|reactions|sticker`
+- phản ứng: `reactionNotifications`, `reactionLevel`
+- ghi/lịch sử: `configWrites`, `historyLimit`, `dmHistoryLimit`, `dms.*.historyLimit`
 
-## Related
+## Liên quan
 
-- [Pairing](/channels/pairing)
-- [Channel routing](/channels/channel-routing)
-- [Multi-agent routing](/concepts/multi-agent)
-- [Troubleshooting](/channels/troubleshooting)
+- [Ghép nối](/channels/pairing)
+- [Định tuyến kênh](/channels/channel-routing)
+- [Định tuyến đa agent](/concepts/multi-agent)
+- [Khắc phục sự cố](/channels/troubleshooting)

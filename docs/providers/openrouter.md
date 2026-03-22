@@ -1,23 +1,22 @@
 ---
-summary: "Use OpenRouter's unified API to access many models in OpenClaw"
+summary: "Sử dụng API hợp nhất của OpenRouter để truy cập nhiều mô hình trong OpenClaw"
 read_when:
-  - You want a single API key for many LLMs
-  - You want to run models via OpenRouter in OpenClaw
+  - Bạn muốn một API key duy nhất cho nhiều LLMs
+  - Bạn muốn chạy mô hình qua OpenRouter trong OpenClaw
 title: "OpenRouter"
 ---
 
 # OpenRouter
 
-OpenRouter provides a **unified API** that routes requests to many models behind a single
-endpoint and API key. It is OpenAI-compatible, so most OpenAI SDKs work by switching the base URL.
+OpenRouter cung cấp một **API hợp nhất** giúp định tuyến yêu cầu đến nhiều mô hình thông qua một endpoint và API key duy nhất. Nó tương thích với OpenAI, vì vậy hầu hết các SDK của OpenAI có thể hoạt động bằng cách thay đổi URL cơ bản.
 
-## CLI setup
+## Thiết lập CLI
 
 ```bash
 openclaw onboard --auth-choice apiKey --token-provider openrouter --token "$OPENROUTER_API_KEY"
 ```
 
-## Config snippet
+## Đoạn cấu hình
 
 ```json5
 {
@@ -30,8 +29,8 @@ openclaw onboard --auth-choice apiKey --token-provider openrouter --token "$OPEN
 }
 ```
 
-## Notes
+## Ghi chú
 
-- Model refs are `openrouter/<provider>/<model>`.
-- For more model/provider options, see [/concepts/model-providers](/concepts/model-providers).
-- OpenRouter uses a Bearer token with your API key under the hood.
+- Tham chiếu mô hình là `openrouter/<provider>/<model>`.
+- Để biết thêm các tùy chọn mô hình/nhà cung cấp, xem tại [/concepts/model-providers](/concepts/model-providers).
+- OpenRouter sử dụng Bearer token với API key của bạn trong nền.

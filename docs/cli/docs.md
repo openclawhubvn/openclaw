@@ -1,13 +1,13 @@
 ---
-summary: "CLI reference for `openclaw docs` (search the live docs index)"
+summary: "Tham khảo CLI cho `openclaw docs` (tìm kiếm chỉ mục tài liệu trực tiếp)"
 read_when:
-  - You want to search the live OpenClaw docs from the terminal
+  - Bạn muốn tìm kiếm tài liệu trực tiếp của OpenClaw từ terminal
 title: "docs"
 ---
 
 # `openclaw docs`
 
-Search the live docs index.
+Tìm kiếm chỉ mục tài liệu trực tiếp.
 
 ```bash
 openclaw docs browser existing-session

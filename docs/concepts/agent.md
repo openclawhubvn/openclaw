@@ -1,122 +1,98 @@
 ---
-summary: "Agent runtime, workspace contract, and session bootstrap"
+summary: "Thời gian chạy của agent, hợp đồng workspace, và khởi động phiên"
 read_when:
-  - Changing agent runtime, workspace bootstrap, or session behavior
-title: "Agent Runtime"
+  - Thay đổi thời gian chạy của agent, khởi động workspace, hoặc hành vi phiên
+title: "Thời Gian Chạy của Agent"
 ---
 
-# Agent Runtime
+# Thời Gian Chạy của Agent
 
-OpenClaw runs a single embedded agent runtime.
+OpenClaw chạy một thời gian chạy agent nhúng duy nhất.
 
-## Workspace (required)
+## Workspace (bắt buộc)
 
-OpenClaw uses a single agent workspace directory (`agents.defaults.workspace`) as the agent’s **only** working directory (`cwd`) for tools and context.
+OpenClaw sử dụng một thư mục workspace agent duy nhất (`agents.defaults.workspace`) làm thư mục làm việc **duy nhất** (`cwd`) cho công cụ và ngữ cảnh.
 
-Recommended: use `openclaw setup` to create `~/.openclaw/openclaw.json` if missing and initialize the workspace files.
+Khuyến nghị: sử dụng `openclaw setup` để tạo `~/.openclaw/openclaw.json` nếu thiếu và khởi tạo các tệp workspace.
 
-Full workspace layout + backup guide: [Agent workspace](/concepts/agent-workspace)
+Bố cục workspace đầy đủ + hướng dẫn sao lưu: [Agent workspace](/concepts/agent-workspace)
 
-If `agents.defaults.sandbox` is enabled, non-main sessions can override this with
-per-session workspaces under `agents.defaults.sandbox.workspaceRoot` (see
-[Gateway configuration](/gateway/configuration)).
+Nếu `agents.defaults.sandbox` được bật, các phiên không phải chính có thể ghi đè điều này với các workspace theo phiên dưới `agents.defaults.sandbox.workspaceRoot` (xem [Cấu hình Gateway](/gateway/configuration)).
 
-## Bootstrap files (injected)
+## Tệp khởi động (được chèn)
 
-Inside `agents.defaults.workspace`, OpenClaw expects these user-editable files:
+Bên trong `agents.defaults.workspace`, OpenClaw mong đợi các tệp có thể chỉnh sửa bởi người dùng sau:
 
-- `AGENTS.md` — operating instructions + “memory”
-- `SOUL.md` — persona, boundaries, tone
-- `TOOLS.md` — user-maintained tool notes (e.g. `imsg`, `sag`, conventions)
-- `BOOTSTRAP.md` — one-time first-run ritual (deleted after completion)
-- `IDENTITY.md` — agent name/vibe/emoji
-- `USER.md` — user profile + preferred address
+- `AGENTS.md` — hướng dẫn vận hành + “bộ nhớ”
+- `SOUL.md` — cá tính, giới hạn, giọng điệu
+- `TOOLS.md` — ghi chú công cụ do người dùng duy trì (ví dụ: `imsg`, `sag`, quy ước)
+- `BOOTSTRAP.md` — nghi thức chạy lần đầu (bị xóa sau khi hoàn thành)
+- `IDENTITY.md` — tên/vibe/emoji của agent
+- `USER.md` — hồ sơ người dùng + địa chỉ ưa thích
 
-On the first turn of a new session, OpenClaw injects the contents of these files directly into the agent context.
+Trong lần đầu tiên của một phiên mới, OpenClaw chèn nội dung của các tệp này trực tiếp vào ngữ cảnh của agent.
 
-Blank files are skipped. Large files are trimmed and truncated with a marker so prompts stay lean (read the file for full content).
+Các tệp trống sẽ bị bỏ qua. Các tệp lớn sẽ được cắt và rút gọn với một dấu hiệu để giữ cho các gợi ý gọn nhẹ (đọc tệp để có nội dung đầy đủ).
 
-If a file is missing, OpenClaw injects a single “missing file” marker line (and `openclaw setup` will create a safe default template).
+Nếu thiếu tệp, OpenClaw chèn một dòng dấu hiệu “thiếu tệp” duy nhất (và `openclaw setup` sẽ tạo một mẫu mặc định an toàn).
 
-`BOOTSTRAP.md` is only created for a **brand new workspace** (no other bootstrap files present). If you delete it after completing the ritual, it should not be recreated on later restarts.
+`BOOTSTRAP.md` chỉ được tạo cho một **workspace hoàn toàn mới** (không có tệp khởi động nào khác). Nếu bạn xóa nó sau khi hoàn thành nghi thức, nó sẽ không được tạo lại trong các lần khởi động sau.
 
-To disable bootstrap file creation entirely (for pre-seeded workspaces), set:
+Để vô hiệu hóa hoàn toàn việc tạo tệp khởi động (cho các workspace đã được chuẩn bị trước), thiết lập:
 
 ```json5
 { agent: { skipBootstrap: true } }
 ```
 
-## Built-in tools
+## Công cụ tích hợp sẵn
 
-Core tools (read/exec/edit/write and related system tools) are always available,
-subject to tool policy. `apply_patch` is optional and gated by
-`tools.exec.applyPatch`. `TOOLS.md` does **not** control which tools exist; it’s
-guidance for how _you_ want them used.
+Các công cụ cốt lõi (đọc/thực thi/chỉnh sửa/ghi và các công cụ hệ thống liên quan) luôn có sẵn, tùy thuộc vào chính sách công cụ. `apply_patch` là tùy chọn và được kiểm soát bởi `tools.exec.applyPatch`. `TOOLS.md` **không** kiểm soát công cụ nào tồn tại; nó là hướng dẫn cho cách _bạn_ muốn sử dụng chúng.
 
-## Skills
+## Kỹ năng
 
-OpenClaw loads skills from three locations (workspace wins on name conflict):
+OpenClaw tải kỹ năng từ ba vị trí (workspace sẽ ưu tiên nếu có xung đột tên):
 
-- Bundled (shipped with the install)
-- Managed/local: `~/.openclaw/skills`
+- Được đóng gói (đi kèm với cài đặt)
+- Quản lý/cục bộ: `~/.openclaw/skills`
 - Workspace: `<workspace>/skills`
 
-Skills can be gated by config/env (see `skills` in [Gateway configuration](/gateway/configuration)).
+Kỹ năng có thể bị kiểm soát bởi cấu hình/môi trường (xem `skills` trong [Cấu hình Gateway](/gateway/configuration)).
 
-## Runtime boundaries
+## Giới hạn thời gian chạy
 
-The embedded agent runtime is built on the Pi agent core (models, tools, and
-prompt pipeline). Session management, discovery, tool wiring, and channel
-delivery are OpenClaw-owned layers on top of that core.
+Thời gian chạy agent nhúng được xây dựng trên lõi agent Pi (mô hình, công cụ và quy trình gợi ý). Quản lý phiên, khám phá, kết nối công cụ, và phân phối kênh là các lớp do OpenClaw sở hữu trên lõi đó.
 
-## Sessions
+## Phiên
 
-Session transcripts are stored as JSONL at:
+Bản ghi phiên được lưu trữ dưới dạng JSONL tại:
 
 - `~/.openclaw/agents/<agentId>/sessions/<SessionId>.jsonl`
 
-The session ID is stable and chosen by OpenClaw.
-Legacy session folders from other tools are not read.
+ID phiên là ổn định và được chọn bởi OpenClaw. Các thư mục phiên cũ từ các công cụ khác không được đọc.
 
-## Steering while streaming
+## Điều khiển khi đang truyền
 
-When queue mode is `steer`, inbound messages are injected into the current run.
-The queue is checked **after each tool call**; if a queued message is present,
-remaining tool calls from the current assistant message are skipped (error tool
-results with "Skipped due to queued user message."), then the queued user
-message is injected before the next assistant response.
+Khi chế độ hàng đợi là `steer`, các tin nhắn đến được chèn vào lần chạy hiện tại. Hàng đợi được kiểm tra **sau mỗi lần gọi công cụ**; nếu có tin nhắn trong hàng đợi, các lần gọi công cụ còn lại từ tin nhắn trợ lý hiện tại sẽ bị bỏ qua (kết quả công cụ lỗi với "Bỏ qua do tin nhắn người dùng trong hàng đợi."), sau đó tin nhắn người dùng trong hàng đợi được chèn trước khi có phản hồi từ trợ lý tiếp theo.
 
-When queue mode is `followup` or `collect`, inbound messages are held until the
-current turn ends, then a new agent turn starts with the queued payloads. See
-[Queue](/concepts/queue) for mode + debounce/cap behavior.
+Khi chế độ hàng đợi là `followup` hoặc `collect`, các tin nhắn đến được giữ lại cho đến khi lượt hiện tại kết thúc, sau đó một lượt agent mới bắt đầu với các tải trọng trong hàng đợi. Xem [Hàng đợi](/concepts/queue) để biết chế độ + hành vi debounce/cap.
 
-Block streaming sends completed assistant blocks as soon as they finish; it is
-**off by default** (`agents.defaults.blockStreamingDefault: "off"`).
-Tune the boundary via `agents.defaults.blockStreamingBreak` (`text_end` vs `message_end`; defaults to text_end).
-Control soft block chunking with `agents.defaults.blockStreamingChunk` (defaults to
-800–1200 chars; prefers paragraph breaks, then newlines; sentences last).
-Coalesce streamed chunks with `agents.defaults.blockStreamingCoalesce` to reduce
-single-line spam (idle-based merging before send). Non-Telegram channels require
-explicit `*.blockStreaming: true` to enable block replies.
-Verbose tool summaries are emitted at tool start (no debounce); Control UI
-streams tool output via agent events when available.
-More details: [Streaming + chunking](/concepts/streaming).
+Truyền khối gửi các khối trợ lý hoàn thành ngay khi chúng kết thúc; nó **tắt theo mặc định** (`agents.defaults.blockStreamingDefault: "off"`). Điều chỉnh giới hạn qua `agents.defaults.blockStreamingBreak` (`text_end` so với `message_end`; mặc định là text_end). Kiểm soát phân đoạn khối mềm với `agents.defaults.blockStreamingChunk` (mặc định từ 800–1200 ký tự; ưu tiên ngắt đoạn, sau đó là ngắt dòng; câu cuối cùng). Kết hợp các khối truyền với `agents.defaults.blockStreamingCoalesce` để giảm spam dòng đơn (hợp nhất dựa trên thời gian nhàn rỗi trước khi gửi). Các kênh không phải Telegram yêu cầu `*.blockStreaming: true` để kích hoạt phản hồi khối. Tóm tắt công cụ chi tiết được phát ra khi bắt đầu công cụ (không debounce); Giao diện người dùng điều khiển luồng đầu ra công cụ qua sự kiện agent khi có sẵn. Chi tiết thêm: [Truyền + phân đoạn](/concepts/streaming).
 
-## Model refs
+## Tham chiếu mô hình
 
-Model refs in config (for example `agents.defaults.model` and `agents.defaults.models`) are parsed by splitting on the **first** `/`.
+Tham chiếu mô hình trong cấu hình (ví dụ `agents.defaults.model` và `agents.defaults.models`) được phân tích bằng cách tách trên `/` **đầu tiên**.
 
-- Use `provider/model` when configuring models.
-- If the model ID itself contains `/` (OpenRouter-style), include the provider prefix (example: `openrouter/moonshotai/kimi-k2`).
-- If you omit the provider, OpenClaw treats the input as an alias or a model for the **default provider** (only works when there is no `/` in the model ID).
+- Sử dụng `provider/model` khi cấu hình mô hình.
+- Nếu ID mô hình tự nó chứa `/` (kiểu OpenRouter), bao gồm tiền tố nhà cung cấp (ví dụ: `openrouter/moonshotai/kimi-k2`).
+- Nếu bạn bỏ qua nhà cung cấp, OpenClaw coi đầu vào là một bí danh hoặc một mô hình cho **nhà cung cấp mặc định** (chỉ hoạt động khi không có `/` trong ID mô hình).
 
-## Configuration (minimal)
+## Cấu hình (tối thiểu)
 
-At minimum, set:
+Tối thiểu, thiết lập:
 
 - `agents.defaults.workspace`
-- `channels.whatsapp.allowFrom` (strongly recommended)
+- `channels.whatsapp.allowFrom` (rất khuyến nghị)
 
 ---
 
-_Next: [Group Chats](/channels/group-messages)_ 🦞
+_Tiếp theo: [Nhóm Chat](/channels/group-messages)_ 🦞

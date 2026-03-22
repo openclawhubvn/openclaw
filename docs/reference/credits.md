@@ -1,30 +1,30 @@
 ---
-summary: "Project origin, contributors, and license."
+summary: "Nguồn gốc dự án, người đóng góp và giấy phép."
 read_when:
-  - You want the project backstory or contributor credits
-title: "Credits"
+  - Bạn muốn biết câu chuyện đằng sau dự án hoặc ghi nhận người đóng góp
+title: "Ghi nhận"
 ---
 
-# Credits and Acknowledgments
+# Ghi nhận và Cảm ơn
 
-## The name
+## Tên gọi
 
-OpenClaw = CLAW + TARDIS, because every space lobster needs a time and space machine.
+OpenClaw = CLAW + TARDIS, vì mỗi chú tôm hùm không gian đều cần một cỗ máy thời gian và không gian.
 
-## Credits
+## Ghi nhận
 
-- **Peter Steinberger** ([@steipete](https://x.com/steipete)) - Creator, lobster whisperer
-- **Mario Zechner** ([@badlogicc](https://x.com/badlogicgames)) - Pi creator, security pen tester
-- **Clawd** - The space lobster who demanded a better name
+- **Peter Steinberger** ([@steipete](https://x.com/steipete)) - Người sáng tạo, người thì thầm với tôm hùm
+- **Mario Zechner** ([@badlogicc](https://x.com/badlogicgames)) - Người tạo ra Pi, kiểm thử bảo mật
+- **Clawd** - Chú tôm hùm không gian yêu cầu một cái tên hay hơn
 
-## Core contributors
+## Những người đóng góp chính
 
-- **Maxim Vovshin** (@Hyaxia, [36747317+Hyaxia@users.noreply.github.com](mailto:36747317+Hyaxia@users.noreply.github.com)) - Blogwatcher skill
-- **Nacho Iacovino** (@nachoiacovino, [nacho.iacovino@gmail.com](mailto:nacho.iacovino@gmail.com)) - Location parsing (Telegram and WhatsApp)
+- **Maxim Vovshin** (@Hyaxia, [36747317+Hyaxia@users.noreply.github.com](mailto:36747317+Hyaxia@users.noreply.github.com)) - Kỹ năng theo dõi blog
+- **Nacho Iacovino** (@nachoiacovino, [nacho.iacovino@gmail.com](mailto:nacho.iacovino@gmail.com)) - Phân tích vị trí (Telegram và WhatsApp)
 - **Vincent Koc** ([@vincentkoc](https://github.com/vincentkoc), [@vincent_koc](https://x.com/vincent_koc)) - Agents, Telemetry, Hooks, Security
 
-## License
+## Giấy phép
 
-MIT - Free as a lobster in the ocean.
+MIT - Tự do như một chú tôm hùm giữa đại dương.
 
-> "We are all just playing with our own prompts." (An AI, probably high on tokens)
+> "Chúng ta đều chỉ đang chơi với những gợi ý của riêng mình." (Một AI, có lẽ đang phê với tokens)

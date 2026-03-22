@@ -1,31 +1,29 @@
 ---
 title: "Google (Gemini)"
-summary: "Google Gemini setup (API key + OAuth, image generation, media understanding, web search)"
+summary: "Thiết lập Google Gemini (API key + OAuth, tạo hình ảnh, hiểu phương tiện, tìm kiếm web)"
 read_when:
-  - You want to use Google Gemini models with OpenClaw
-  - You need the API key or OAuth auth flow
+  - Bạn muốn sử dụng mô hình Google Gemini với OpenClaw
+  - Bạn cần API key hoặc quy trình xác thực OAuth
 ---
 
 # Google (Gemini)
 
-The Google plugin provides access to Gemini models through Google AI Studio, plus
-image generation, media understanding (image/audio/video), and web search via
-Gemini Grounding.
+Plugin Google cung cấp quyền truy cập vào các mô hình Gemini thông qua Google AI Studio, cùng với khả năng tạo hình ảnh, hiểu phương tiện (hình ảnh/âm thanh/video) và tìm kiếm web qua Gemini Grounding.
 
-- Provider: `google`
-- Auth: `GEMINI_API_KEY` or `GOOGLE_API_KEY`
+- Nhà cung cấp: `google`
+- Xác thực: `GEMINI_API_KEY` hoặc `GOOGLE_API_KEY`
 - API: Google Gemini API
-- Alternative provider: `google-gemini-cli` (OAuth)
+- Nhà cung cấp thay thế: `google-gemini-cli` (OAuth)
 
-## Quick start
+## Bắt đầu nhanh
 
-1. Set the API key:
+1. Thiết lập API key:
 
 ```bash
 openclaw onboard --auth-choice google-api-key
 ```
 
-2. Set a default model:
+2. Thiết lập mô hình mặc định:
 
 ```json5
 {
@@ -37,7 +35,7 @@ openclaw onboard --auth-choice google-api-key
 }
 ```
 
-## Non-interactive example
+## Ví dụ không tương tác
 
 ```bash
 openclaw onboard --non-interactive \
@@ -48,31 +46,27 @@ openclaw onboard --non-interactive \
 
 ## OAuth (Gemini CLI)
 
-An alternative provider `google-gemini-cli` uses PKCE OAuth instead of an API
-key. This is an unofficial integration; some users report account
-restrictions. Use at your own risk.
+Nhà cung cấp thay thế `google-gemini-cli` sử dụng PKCE OAuth thay vì API key. Đây là tích hợp không chính thức; một số người dùng báo cáo có hạn chế tài khoản. Sử dụng theo rủi ro của bạn.
 
-Environment variables:
+Biến môi trường:
 
 - `OPENCLAW_GEMINI_OAUTH_CLIENT_ID`
 - `OPENCLAW_GEMINI_OAUTH_CLIENT_SECRET`
 
-(Or the `GEMINI_CLI_*` variants.)
+(Hoặc các biến thể `GEMINI_CLI_*`.)
 
-## Capabilities
+## Khả năng
 
-| Capability             | Supported         |
+| Khả năng               | Hỗ trợ            |
 | ---------------------- | ----------------- |
-| Chat completions       | Yes               |
-| Image generation       | Yes               |
-| Image understanding    | Yes               |
-| Audio transcription    | Yes               |
-| Video understanding    | Yes               |
-| Web search (Grounding) | Yes               |
-| Thinking/reasoning     | Yes (Gemini 3.1+) |
+| Hoàn thành hội thoại   | Có                |
+| Tạo hình ảnh           | Có                |
+| Hiểu hình ảnh          | Có                |
+| Chuyển âm thanh thành văn bản | Có         |
+| Hiểu video             | Có                |
+| Tìm kiếm web (Grounding) | Có              |
+| Suy nghĩ/lý luận       | Có (Gemini 3.1+)  |
 
-## Environment note
+## Lưu ý về môi trường
 
-If the Gateway runs as a daemon (launchd/systemd), make sure `GEMINI_API_KEY`
-is available to that process (for example, in `~/.openclaw/.env` or via
-`env.shellEnv`).
+Nếu Gateway chạy dưới dạng daemon (launchd/systemd), đảm bảo `GEMINI_API_KEY` có sẵn cho tiến trình đó (ví dụ, trong `~/.openclaw/.env` hoặc thông qua `env.shellEnv`).

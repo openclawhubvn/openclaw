@@ -1,36 +1,33 @@
 ---
-summary: "Integrated browser control service + action commands"
+summary: "Dịch vụ điều khiển trình duyệt tích hợp + lệnh hành động"
 read_when:
-  - Adding agent-controlled browser automation
-  - Debugging why openclaw is interfering with your own Chrome
-  - Implementing browser settings + lifecycle in the macOS app
-title: "Browser (OpenClaw-managed)"
+  - Thêm tự động hóa trình duyệt do agent điều khiển
+  - Gỡ lỗi tại sao OpenClaw can thiệp vào Chrome của bạn
+  - Triển khai cài đặt trình duyệt + vòng đời trong ứng dụng macOS
+title: "Trình duyệt (do OpenClaw quản lý)"
 ---
 
-# Browser (openclaw-managed)
+# Trình duyệt (do OpenClaw quản lý)
 
-OpenClaw can run a **dedicated Chrome/Brave/Edge/Chromium profile** that the agent controls.
-It is isolated from your personal browser and is managed through a small local
-control service inside the Gateway (loopback only).
+OpenClaw có thể chạy một **hồ sơ Chrome/Brave/Edge/Chromium riêng biệt** mà agent điều khiển. Hồ sơ này được tách biệt khỏi trình duyệt cá nhân của bạn và được quản lý thông qua một dịch vụ điều khiển nhỏ cục bộ bên trong Gateway (chỉ loopback).
 
-Beginner view:
+Góc nhìn cho người mới bắt đầu:
 
-- Think of it as a **separate, agent-only browser**.
-- The `openclaw` profile does **not** touch your personal browser profile.
-- The agent can **open tabs, read pages, click, and type** in a safe lane.
-- The built-in `user` profile attaches to your real signed-in Chrome session via Chrome MCP.
+- Hãy nghĩ về nó như một **trình duyệt riêng biệt chỉ dành cho agent**.
+- Hồ sơ `openclaw` **không** can thiệp vào hồ sơ trình duyệt cá nhân của bạn.
+- Agent có thể **mở tab, đọc trang, nhấp chuột và gõ** trong một môi trường an toàn.
+- Hồ sơ `user` tích hợp kết nối với phiên Chrome đã đăng nhập thực của bạn qua Chrome MCP.
 
-## What you get
+## Những gì bạn nhận được
 
-- A separate browser profile named **openclaw** (orange accent by default).
-- Deterministic tab control (list/open/focus/close).
-- Agent actions (click/type/drag/select), snapshots, screenshots, PDFs.
-- Optional multi-profile support (`openclaw`, `work`, `remote`, ...).
+- Một hồ sơ trình duyệt riêng biệt tên là **openclaw** (mặc định có màu cam).
+- Kiểm soát tab có tính quyết định (danh sách/mở/tập trung/đóng).
+- Hành động của agent (nhấp/gõ/kéo/chọn), chụp nhanh, chụp màn hình, PDF.
+- Hỗ trợ đa hồ sơ tùy chọn (`openclaw`, `work`, `remote`, ...).
 
-This browser is **not** your daily driver. It is a safe, isolated surface for
-agent automation and verification.
+Trình duyệt này **không** phải là trình duyệt hàng ngày của bạn. Nó là một môi trường an toàn, tách biệt cho tự động hóa và xác minh của agent.
 
-## Quick start
+## Bắt đầu nhanh
 
 ```bash
 openclaw browser --browser-profile openclaw status
@@ -39,41 +36,38 @@ openclaw browser --browser-profile openclaw open https://example.com
 openclaw browser --browser-profile openclaw snapshot
 ```
 
-If you get “Browser disabled”, enable it in config (see below) and restart the
-Gateway.
+Nếu bạn nhận được thông báo “Trình duyệt bị vô hiệu hóa”, hãy kích hoạt nó trong cấu hình (xem bên dưới) và khởi động lại Gateway.
 
-## Profiles: `openclaw` vs `user`
+## Hồ sơ: `openclaw` vs `user`
 
-- `openclaw`: managed, isolated browser (no extension required).
-- `user`: built-in Chrome MCP attach profile for your **real signed-in Chrome**
-  session.
+- `openclaw`: trình duyệt được quản lý, tách biệt (không cần extension).
+- `user`: hồ sơ đính kèm Chrome MCP tích hợp cho phiên **Chrome đã đăng nhập thực** của bạn.
 
-For agent browser tool calls:
+Đối với các cuộc gọi công cụ trình duyệt của agent:
 
-- Default: use the isolated `openclaw` browser.
-- Prefer `profile="user"` when existing logged-in sessions matter and the user
-  is at the computer to click/approve any attach prompt.
-- `profile` is the explicit override when you want a specific browser mode.
+- Mặc định: sử dụng trình duyệt `openclaw` tách biệt.
+- Ưu tiên `profile="user"` khi các phiên đã đăng nhập hiện có quan trọng và người dùng đang ở máy tính để nhấp/chấp nhận bất kỳ lời nhắc đính kèm nào.
+- `profile` là ghi đè rõ ràng khi bạn muốn một chế độ trình duyệt cụ thể.
 
-Set `browser.defaultProfile: "openclaw"` if you want managed mode by default.
+Đặt `browser.defaultProfile: "openclaw"` nếu bạn muốn chế độ quản lý theo mặc định.
 
-## Configuration
+## Cấu hình
 
-Browser settings live in `~/.openclaw/openclaw.json`.
+Cài đặt trình duyệt nằm trong `~/.openclaw/openclaw.json`.
 
 ```json5
 {
   browser: {
-    enabled: true, // default: true
+    enabled: true, // mặc định: true
     ssrfPolicy: {
-      dangerouslyAllowPrivateNetwork: true, // default trusted-network mode
-      // allowPrivateNetwork: true, // legacy alias
+      dangerouslyAllowPrivateNetwork: true, // chế độ mạng tin cậy mặc định
+      // allowPrivateNetwork: true, // bí danh cũ
       // hostnameAllowlist: ["*.example.com", "example.com"],
       // allowedHostnames: ["localhost"],
     },
-    // cdpUrl: "http://127.0.0.1:18792", // legacy single-profile override
-    remoteCdpTimeoutMs: 1500, // remote CDP HTTP timeout (ms)
-    remoteCdpHandshakeTimeoutMs: 3000, // remote CDP WebSocket handshake timeout (ms)
+    // cdpUrl: "http://127.0.0.1:18792", // ghi đè đơn hồ sơ cũ
+    remoteCdpTimeoutMs: 1500, // thời gian chờ HTTP CDP từ xa (ms)
+    remoteCdpHandshakeTimeoutMs: 3000, // thời gian chờ bắt tay WebSocket CDP từ xa (ms)
     defaultProfile: "openclaw",
     color: "#FF4500",
     headless: false,
@@ -100,36 +94,30 @@ Browser settings live in `~/.openclaw/openclaw.json`.
 }
 ```
 
-Notes:
+Lưu ý:
 
-- The browser control service binds to loopback on a port derived from `gateway.port`
-  (default: `18791`, which is gateway + 2).
-- If you override the Gateway port (`gateway.port` or `OPENCLAW_GATEWAY_PORT`),
-  the derived browser ports shift to stay in the same “family”.
-- `cdpUrl` defaults to the managed local CDP port when unset.
-- `remoteCdpTimeoutMs` applies to remote (non-loopback) CDP reachability checks.
-- `remoteCdpHandshakeTimeoutMs` applies to remote CDP WebSocket reachability checks.
-- Browser navigation/open-tab is SSRF-guarded before navigation and best-effort re-checked on final `http(s)` URL after navigation.
-- In strict SSRF mode, remote CDP endpoint discovery/probes (`cdpUrl`, including `/json/version` lookups) are checked too.
-- `browser.ssrfPolicy.dangerouslyAllowPrivateNetwork` defaults to `true` (trusted-network model). Set it to `false` for strict public-only browsing.
-- `browser.ssrfPolicy.allowPrivateNetwork` remains supported as a legacy alias for compatibility.
-- `attachOnly: true` means “never launch a local browser; only attach if it is already running.”
-- `color` + per-profile `color` tint the browser UI so you can see which profile is active.
-- Default profile is `openclaw` (OpenClaw-managed standalone browser). Use `defaultProfile: "user"` to opt into the signed-in user browser.
-- Auto-detect order: system default browser if Chromium-based; otherwise Chrome → Brave → Edge → Chromium → Chrome Canary.
-- Local `openclaw` profiles auto-assign `cdpPort`/`cdpUrl` — set those only for remote CDP.
-- `driver: "existing-session"` uses Chrome DevTools MCP instead of raw CDP. Do
-  not set `cdpUrl` for that driver.
-- Set `browser.profiles.<name>.userDataDir` when an existing-session profile
-  should attach to a non-default Chromium user profile such as Brave or Edge.
+- Dịch vụ điều khiển trình duyệt kết nối với loopback trên một cổng được lấy từ `gateway.port` (mặc định: `18791`, là gateway + 2).
+- Nếu bạn ghi đè cổng Gateway (`gateway.port` hoặc `OPENCLAW_GATEWAY_PORT`), các cổng trình duyệt được lấy sẽ thay đổi để giữ trong cùng một “gia đình”.
+- `cdpUrl` mặc định là cổng CDP cục bộ được quản lý khi không được đặt.
+- `remoteCdpTimeoutMs` áp dụng cho các kiểm tra khả năng tiếp cận CDP từ xa (không loopback).
+- `remoteCdpHandshakeTimeoutMs` áp dụng cho các kiểm tra khả năng tiếp cận WebSocket CDP từ xa.
+- Điều hướng/mở tab trình duyệt được bảo vệ SSRF trước khi điều hướng và được kiểm tra lại nỗ lực tốt nhất trên URL `http(s)` cuối cùng sau khi điều hướng.
+- Trong chế độ SSRF nghiêm ngặt, khám phá/kiểm tra điểm cuối CDP từ xa (`cdpUrl`, bao gồm tra cứu `/json/version`) cũng được kiểm tra.
+- `browser.ssrfPolicy.dangerouslyAllowPrivateNetwork` mặc định là `true` (mô hình mạng tin cậy). Đặt nó thành `false` để duyệt chỉ công khai nghiêm ngặt.
+- `browser.ssrfPolicy.allowPrivateNetwork` vẫn được hỗ trợ như một bí danh cũ để tương thích.
+- `attachOnly: true` có nghĩa là “không bao giờ khởi chạy trình duyệt cục bộ; chỉ đính kèm nếu nó đã chạy.”
+- `color` + màu sắc theo hồ sơ làm nổi bật giao diện người dùng trình duyệt để bạn có thể thấy hồ sơ nào đang hoạt động.
+- Hồ sơ mặc định là `openclaw` (trình duyệt độc lập do OpenClaw quản lý). Sử dụng `defaultProfile: "user"` để chọn trình duyệt người dùng đã đăng nhập.
+- Thứ tự tự động phát hiện: trình duyệt mặc định của hệ thống nếu dựa trên Chromium; nếu không thì Chrome → Brave → Edge → Chromium → Chrome Canary.
+- Hồ sơ `openclaw` cục bộ tự động gán `cdpPort`/`cdpUrl` — chỉ đặt những cái đó cho CDP từ xa.
+- `driver: "existing-session"` sử dụng Chrome DevTools MCP thay vì CDP thô. Không đặt `cdpUrl` cho driver đó.
+- Đặt `browser.profiles.<name>.userDataDir` khi một hồ sơ phiên hiện có nên đính kèm vào một hồ sơ người dùng Chromium không mặc định như Brave hoặc Edge.
 
-## Use Brave (or another Chromium-based browser)
+## Sử dụng Brave (hoặc trình duyệt khác dựa trên Chromium)
 
-If your **system default** browser is Chromium-based (Chrome/Brave/Edge/etc),
-OpenClaw uses it automatically. Set `browser.executablePath` to override
-auto-detection:
+Nếu trình duyệt **mặc định của hệ thống** của bạn là dựa trên Chromium (Chrome/Brave/Edge/v.v.), OpenClaw sẽ tự động sử dụng nó. Đặt `browser.executablePath` để ghi đè tự động phát hiện:
 
-CLI example:
+Ví dụ CLI:
 
 ```bash
 openclaw config set browser.executablePath "/usr/bin/google-chrome"
@@ -158,43 +146,36 @@ openclaw config set browser.executablePath "/usr/bin/google-chrome"
 }
 ```
 
-## Local vs remote control
+## Điều khiển cục bộ vs từ xa
 
-- **Local control (default):** the Gateway starts the loopback control service and can launch a local browser.
-- **Remote control (node host):** run a node host on the machine that has the browser; the Gateway proxies browser actions to it.
-- **Remote CDP:** set `browser.profiles.<name>.cdpUrl` (or `browser.cdpUrl`) to
-  attach to a remote Chromium-based browser. In this case, OpenClaw will not launch a local browser.
+- **Điều khiển cục bộ (mặc định):** Gateway khởi động dịch vụ điều khiển loopback và có thể khởi chạy trình duyệt cục bộ.
+- **Điều khiển từ xa (node host):** chạy một node host trên máy có trình duyệt; Gateway chuyển tiếp các hành động trình duyệt đến nó.
+- **CDP từ xa:** đặt `browser.profiles.<name>.cdpUrl` (hoặc `browser.cdpUrl`) để đính kèm vào một trình duyệt dựa trên Chromium từ xa. Trong trường hợp này, OpenClaw sẽ không khởi chạy trình duyệt cục bộ.
 
-Remote CDP URLs can include auth:
+URL CDP từ xa có thể bao gồm xác thực:
 
-- Query tokens (e.g., `https://provider.example?token=<token>`)
-- HTTP Basic auth (e.g., `https://user:pass@provider.example`)
+- Token truy vấn (ví dụ: `https://provider.example?token=<token>`)
+- Xác thực HTTP Basic (ví dụ: `https://user:pass@provider.example`)
 
-OpenClaw preserves the auth when calling `/json/*` endpoints and when connecting
-to the CDP WebSocket. Prefer environment variables or secrets managers for
-tokens instead of committing them to config files.
+OpenClaw giữ nguyên xác thực khi gọi các điểm cuối `/json/*` và khi kết nối với WebSocket CDP. Ưu tiên sử dụng biến môi trường hoặc trình quản lý bí mật cho token thay vì lưu chúng vào file cấu hình.
 
-## Node browser proxy (zero-config default)
+## Proxy trình duyệt Node (mặc định không cấu hình)
 
-If you run a **node host** on the machine that has your browser, OpenClaw can
-auto-route browser tool calls to that node without any extra browser config.
-This is the default path for remote gateways.
+Nếu bạn chạy một **node host** trên máy có trình duyệt của bạn, OpenClaw có thể tự động định tuyến các cuộc gọi công cụ trình duyệt đến node đó mà không cần cấu hình trình duyệt thêm. Đây là đường dẫn mặc định cho các gateway từ xa.
 
-Notes:
+Lưu ý:
 
-- The node host exposes its local browser control server via a **proxy command**.
-- Profiles come from the node’s own `browser.profiles` config (same as local).
-- Disable if you don’t want it:
-  - On the node: `nodeHost.browserProxy.enabled=false`
-  - On the gateway: `gateway.nodes.browser.mode="off"`
+- Node host mở dịch vụ điều khiển trình duyệt cục bộ của nó thông qua một **lệnh proxy**.
+- Hồ sơ đến từ cấu hình `browser.profiles` của node (giống như cục bộ).
+- Vô hiệu hóa nếu bạn không muốn:
+  - Trên node: `nodeHost.browserProxy.enabled=false`
+  - Trên gateway: `gateway.nodes.browser.mode="off"`
 
-## Browserless (hosted remote CDP)
+## Browserless (CDP từ xa được lưu trữ)
 
-[Browserless](https://browserless.io) is a hosted Chromium service that exposes
-CDP endpoints over HTTPS. You can point an OpenClaw browser profile at a
-Browserless region endpoint and authenticate with your API key.
+[Browserless](https://browserless.io) là một dịch vụ Chromium được lưu trữ cung cấp các điểm cuối CDP qua HTTPS. Bạn có thể chỉ định một hồ sơ trình duyệt OpenClaw tại một điểm cuối vùng Browserless và xác thực bằng khóa API của bạn.
 
-Example:
+Ví dụ:
 
 ```json5
 {
@@ -213,28 +194,21 @@ Example:
 }
 ```
 
-Notes:
+Lưu ý:
 
-- Replace `<BROWSERLESS_API_KEY>` with your real Browserless token.
-- Choose the region endpoint that matches your Browserless account (see their docs).
+- Thay thế `<BROWSERLESS_API_KEY>` bằng token Browserless thực của bạn.
+- Chọn điểm cuối vùng phù hợp với tài khoản Browserless của bạn (xem tài liệu của họ).
 
-## Direct WebSocket CDP providers
+## Nhà cung cấp CDP WebSocket trực tiếp
 
-Some hosted browser services expose a **direct WebSocket** endpoint rather than
-the standard HTTP-based CDP discovery (`/json/version`). OpenClaw supports both:
+Một số dịch vụ trình duyệt được lưu trữ cung cấp một điểm cuối **WebSocket trực tiếp** thay vì khám phá CDP dựa trên HTTP tiêu chuẩn (`/json/version`). OpenClaw hỗ trợ cả hai:
 
-- **HTTP(S) endpoints** (e.g. Browserless) — OpenClaw calls `/json/version` to
-  discover the WebSocket debugger URL, then connects.
-- **WebSocket endpoints** (`ws://` / `wss://`) — OpenClaw connects directly,
-  skipping `/json/version`. Use this for services like
-  [Browserbase](https://www.browserbase.com) or any provider that hands you a
-  WebSocket URL.
+- **Điểm cuối HTTP(S)** (ví dụ: Browserless) — OpenClaw gọi `/json/version` để khám phá URL trình gỡ lỗi WebSocket, sau đó kết nối.
+- **Điểm cuối WebSocket** (`ws://` / `wss://`) — OpenClaw kết nối trực tiếp, bỏ qua `/json/version`. Sử dụng điều này cho các dịch vụ như [Browserbase](https://www.browserbase.com) hoặc bất kỳ nhà cung cấp nào cung cấp cho bạn một URL WebSocket.
 
 ### Browserbase
 
-[Browserbase](https://www.browserbase.com) is a cloud platform for running
-headless browsers with built-in CAPTCHA solving, stealth mode, and residential
-proxies.
+[Browserbase](https://www.browserbase.com) là một nền tảng đám mây để chạy các trình duyệt headless với khả năng giải CAPTCHA tích hợp, chế độ ẩn danh và proxy dân cư.
 
 ```json5
 {
@@ -253,74 +227,66 @@ proxies.
 }
 ```
 
-Notes:
+Lưu ý:
 
-- [Sign up](https://www.browserbase.com/sign-up) and copy your **API Key**
-  from the [Overview dashboard](https://www.browserbase.com/overview).
-- Replace `<BROWSERBASE_API_KEY>` with your real Browserbase API key.
-- Browserbase auto-creates a browser session on WebSocket connect, so no
-  manual session creation step is needed.
-- The free tier allows one concurrent session and one browser hour per month.
-  See [pricing](https://www.browserbase.com/pricing) for paid plan limits.
-- See the [Browserbase docs](https://docs.browserbase.com) for full API
-  reference, SDK guides, and integration examples.
+- [Đăng ký](https://www.browserbase.com/sign-up) và sao chép **API Key** của bạn từ [bảng điều khiển Tổng quan](https://www.browserbase.com/overview).
+- Thay thế `<BROWSERBASE_API_KEY>` bằng khóa API Browserbase thực của bạn.
+- Browserbase tự động tạo một phiên trình duyệt khi kết nối WebSocket, vì vậy không cần bước tạo phiên thủ công.
+- Gói miễn phí cho phép một phiên đồng thời và một giờ trình duyệt mỗi tháng. Xem [giá cả](https://www.browserbase.com/pricing) để biết giới hạn gói trả phí.
+- Xem [tài liệu Browserbase](https://docs.browserbase.com) để biết tham chiếu API đầy đủ, hướng dẫn SDK và ví dụ tích hợp.
 
-## Security
+## Bảo mật
 
-Key ideas:
+Các ý tưởng chính:
 
-- Browser control is loopback-only; access flows through the Gateway’s auth or node pairing.
-- If browser control is enabled and no auth is configured, OpenClaw auto-generates `gateway.auth.token` on startup and persists it to config.
-- Keep the Gateway and any node hosts on a private network (Tailscale); avoid public exposure.
-- Treat remote CDP URLs/tokens as secrets; prefer env vars or a secrets manager.
+- Điều khiển trình duyệt chỉ qua loopback; truy cập thông qua xác thực của Gateway hoặc ghép nối node.
+- Nếu điều khiển trình duyệt được kích hoạt và không có xác thực nào được cấu hình, OpenClaw tự động tạo `gateway.auth.token` khi khởi động và lưu nó vào cấu hình.
+- Giữ Gateway và bất kỳ node host nào trên mạng riêng (Tailscale); tránh phơi bày công khai.
+- Xem URL/tokens CDP từ xa như bí mật; ưu tiên biến môi trường hoặc trình quản lý bí mật.
 
-Remote CDP tips:
+Mẹo CDP từ xa:
 
-- Prefer encrypted endpoints (HTTPS or WSS) and short-lived tokens where possible.
-- Avoid embedding long-lived tokens directly in config files.
+- Ưu tiên các điểm cuối được mã hóa (HTTPS hoặc WSS) và token ngắn hạn nếu có thể.
+- Tránh nhúng token dài hạn trực tiếp vào file cấu hình.
 
-## Profiles (multi-browser)
+## Hồ sơ (đa trình duyệt)
 
-OpenClaw supports multiple named profiles (routing configs). Profiles can be:
+OpenClaw hỗ trợ nhiều hồ sơ được đặt tên (cấu hình định tuyến). Hồ sơ có thể là:
 
-- **openclaw-managed**: a dedicated Chromium-based browser instance with its own user data directory + CDP port
-- **remote**: an explicit CDP URL (Chromium-based browser running elsewhere)
-- **existing session**: your existing Chrome profile via Chrome DevTools MCP auto-connect
+- **do openclaw quản lý**: một phiên bản trình duyệt dựa trên Chromium chuyên dụng với thư mục dữ liệu người dùng riêng + cổng CDP
+- **từ xa**: một URL CDP rõ ràng (trình duyệt dựa trên Chromium chạy ở nơi khác)
+- **phiên hiện có**: hồ sơ Chrome hiện có của bạn qua Chrome DevTools MCP tự động kết nối
 
-Defaults:
+Mặc định:
 
-- The `openclaw` profile is auto-created if missing.
-- The `user` profile is built-in for Chrome MCP existing-session attach.
-- Existing-session profiles are opt-in beyond `user`; create them with `--driver existing-session`.
-- Local CDP ports allocate from **18800–18899** by default.
-- Deleting a profile moves its local data directory to Trash.
+- Hồ sơ `openclaw` được tự động tạo nếu thiếu.
+- Hồ sơ `user` được tích hợp sẵn cho đính kèm phiên hiện có của Chrome MCP.
+- Hồ sơ phiên hiện có là tùy chọn ngoài `user`; tạo chúng với `--driver existing-session`.
+- Các cổng CDP cục bộ phân bổ từ **18800–18899** theo mặc định.
+- Xóa một hồ sơ sẽ di chuyển thư mục dữ liệu cục bộ của nó vào Thùng rác.
 
-All control endpoints accept `?profile=<name>`; the CLI uses `--browser-profile`.
+Tất cả các điểm cuối điều khiển chấp nhận `?profile=<name>`; CLI sử dụng `--browser-profile`.
 
-## Existing-session via Chrome DevTools MCP
+## Phiên hiện có qua Chrome DevTools MCP
 
-OpenClaw can also attach to a running Chromium-based browser profile through the
-official Chrome DevTools MCP server. This reuses the tabs and login state
-already open in that browser profile.
+OpenClaw cũng có thể đính kèm vào một hồ sơ trình duyệt dựa trên Chromium đang chạy thông qua máy chủ Chrome DevTools MCP chính thức. Điều này tái sử dụng các tab và trạng thái đăng nhập đã mở trong hồ sơ trình duyệt đó.
 
-Official background and setup references:
+Tham khảo nền tảng và thiết lập chính thức:
 
-- [Chrome for Developers: Use Chrome DevTools MCP with your browser session](https://developer.chrome.com/blog/chrome-devtools-mcp-debug-your-browser-session)
-- [Chrome DevTools MCP README](https://github.com/ChromeDevTools/chrome-devtools-mcp)
+- [Chrome for Developers: Sử dụng Chrome DevTools MCP với phiên trình duyệt của bạn](https://developer.chrome.com/blog/chrome-devtools-mcp-debug-your-browser-session)
+- [README Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp)
 
-Built-in profile:
+Hồ sơ tích hợp:
 
 - `user`
 
-Optional: create your own custom existing-session profile if you want a
-different name, color, or browser data directory.
+Tùy chọn: tạo hồ sơ phiên hiện có tùy chỉnh của riêng bạn nếu bạn muốn tên, màu sắc hoặc thư mục dữ liệu trình duyệt khác.
 
-Default behavior:
+Hành vi mặc định:
 
-- The built-in `user` profile uses Chrome MCP auto-connect, which targets the
-  default local Google Chrome profile.
+- Hồ sơ `user` tích hợp sử dụng Chrome MCP tự động kết nối, nhắm mục tiêu hồ sơ Google Chrome cục bộ mặc định.
 
-Use `userDataDir` for Brave, Edge, Chromium, or a non-default Chrome profile:
+Sử dụng `userDataDir` cho Brave, Edge, Chromium hoặc hồ sơ Chrome không mặc định:
 
 ```json5
 {
@@ -337,19 +303,19 @@ Use `userDataDir` for Brave, Edge, Chromium, or a non-default Chrome profile:
 }
 ```
 
-Then in the matching browser:
+Sau đó trong trình duyệt tương ứng:
 
-1. Open that browser's inspect page for remote debugging.
-2. Enable remote debugging.
-3. Keep the browser running and approve the connection prompt when OpenClaw attaches.
+1. Mở trang kiểm tra của trình duyệt đó để gỡ lỗi từ xa.
+2. Kích hoạt gỡ lỗi từ xa.
+3. Giữ trình duyệt chạy và chấp nhận lời nhắc kết nối khi OpenClaw đính kèm.
 
-Common inspect pages:
+Các trang kiểm tra phổ biến:
 
 - Chrome: `chrome://inspect/#remote-debugging`
 - Brave: `brave://inspect/#remote-debugging`
 - Edge: `edge://inspect/#remote-debugging`
 
-Live attach smoke test:
+Kiểm tra khói đính kèm trực tiếp:
 
 ```bash
 openclaw browser --browser-profile user start
@@ -358,58 +324,47 @@ openclaw browser --browser-profile user tabs
 openclaw browser --browser-profile user snapshot --format ai
 ```
 
-What success looks like:
+Thành công trông như thế nào:
 
-- `status` shows `driver: existing-session`
-- `status` shows `transport: chrome-mcp`
-- `status` shows `running: true`
-- `tabs` lists your already-open browser tabs
-- `snapshot` returns refs from the selected live tab
+- `status` hiển thị `driver: existing-session`
+- `status` hiển thị `transport: chrome-mcp`
+- `status` hiển thị `running: true`
+- `tabs` liệt kê các tab trình duyệt đã mở của bạn
+- `snapshot` trả về các tham chiếu từ tab trực tiếp đã chọn
 
-What to check if attach does not work:
+Những gì cần kiểm tra nếu đính kèm không hoạt động:
 
-- the target Chromium-based browser is version `144+`
-- remote debugging is enabled in that browser's inspect page
-- the browser showed and you accepted the attach consent prompt
-- `openclaw doctor` migrates old extension-based browser config and checks that
-  Chrome is installed locally for default auto-connect profiles, but it cannot
-  enable browser-side remote debugging for you
+- trình duyệt dựa trên Chromium mục tiêu là phiên bản `144+`
+- gỡ lỗi từ xa được kích hoạt trong trang kiểm tra của trình duyệt đó
+- trình duyệt đã hiển thị và bạn đã chấp nhận lời nhắc đính kèm
+- `openclaw doctor` di chuyển cấu hình trình duyệt dựa trên extension cũ và kiểm tra rằng Chrome được cài đặt cục bộ cho các hồ sơ tự động kết nối mặc định, nhưng nó không thể kích hoạt gỡ lỗi từ xa phía trình duyệt cho bạn
 
-Agent use:
+Sử dụng agent:
 
-- Use `profile="user"` when you need the user’s logged-in browser state.
-- If you use a custom existing-session profile, pass that explicit profile name.
-- Only choose this mode when the user is at the computer to approve the attach
-  prompt.
-- the Gateway or node host can spawn `npx chrome-devtools-mcp@latest --autoConnect`
+- Sử dụng `profile="user"` khi bạn cần trạng thái trình duyệt đã đăng nhập của người dùng.
+- Nếu bạn sử dụng hồ sơ phiên hiện có tùy chỉnh, hãy truyền tên hồ sơ rõ ràng đó.
+- Chỉ chọn chế độ này khi người dùng đang ở máy tính để chấp nhận lời nhắc đính kèm.
+- Gateway hoặc node host có thể khởi chạy `npx chrome-devtools-mcp@latest --autoConnect`
 
-Notes:
+Lưu ý:
 
-- This path is higher-risk than the isolated `openclaw` profile because it can
-  act inside your signed-in browser session.
-- OpenClaw does not launch the browser for this driver; it attaches to an
-  existing session only.
-- OpenClaw uses the official Chrome DevTools MCP `--autoConnect` flow here. If
-  `userDataDir` is set, OpenClaw passes it through to target that explicit
-  Chromium user data directory.
-- Existing-session screenshots support page captures and `--ref` element
-  captures from snapshots, but not CSS `--element` selectors.
-- Existing-session `wait --url` supports exact, substring, and glob patterns
-  like other browser drivers. `wait --load networkidle` is not supported yet.
-- Some features still require the managed browser path, such as PDF export and
-  download interception.
-- Existing-session is host-local. If Chrome lives on a different machine or a
-  different network namespace, use remote CDP or a node host instead.
+- Đường dẫn này có rủi ro cao hơn so với hồ sơ `openclaw` tách biệt vì nó có thể hoạt động bên trong phiên trình duyệt đã đăng nhập của bạn.
+- OpenClaw không khởi chạy trình duyệt cho driver này; nó chỉ đính kèm vào một phiên hiện có.
+- OpenClaw sử dụng luồng `--autoConnect` của Chrome DevTools MCP chính thức ở đây. Nếu `userDataDir` được đặt, OpenClaw truyền nó để nhắm mục tiêu thư mục dữ liệu người dùng Chromium rõ ràng đó.
+- Ảnh chụp màn hình phiên hiện có hỗ trợ chụp trang và chụp phần tử từ ảnh chụp nhanh, nhưng không hỗ trợ bộ chọn CSS `--element`.
+- Phiên hiện có `wait --url` hỗ trợ các mẫu chính xác, chuỗi con và glob như các driver trình duyệt khác. `wait --load networkidle` chưa được hỗ trợ.
+- Một số tính năng vẫn yêu cầu đường dẫn trình duyệt được quản lý, chẳng hạn như xuất PDF và chặn tải xuống.
+- Phiên hiện có là cục bộ máy chủ. Nếu Chrome nằm trên một máy khác hoặc một không gian tên mạng khác, hãy sử dụng CDP từ xa hoặc một node host thay thế.
 
-## Isolation guarantees
+## Đảm bảo cách ly
 
-- **Dedicated user data dir**: never touches your personal browser profile.
-- **Dedicated ports**: avoids `9222` to prevent collisions with dev workflows.
-- **Deterministic tab control**: target tabs by `targetId`, not “last tab”.
+- **Thư mục dữ liệu người dùng chuyên dụng**: không bao giờ can thiệp vào hồ sơ trình duyệt cá nhân của bạn.
+- **Cổng chuyên dụng**: tránh `9222` để ngăn ngừa xung đột với các luồng công việc phát triển.
+- **Kiểm soát tab có tính quyết định**: nhắm mục tiêu các tab bằng `targetId`, không phải “tab cuối cùng”.
 
-## Browser selection
+## Lựa chọn trình duyệt
 
-When launching locally, OpenClaw picks the first available:
+Khi khởi chạy cục bộ, OpenClaw chọn trình duyệt có sẵn đầu tiên:
 
 1. Chrome
 2. Brave
@@ -417,81 +372,71 @@ When launching locally, OpenClaw picks the first available:
 4. Chromium
 5. Chrome Canary
 
-You can override with `browser.executablePath`.
+Bạn có thể ghi đè với `browser.executablePath`.
 
-Platforms:
+Nền tảng:
 
-- macOS: checks `/Applications` and `~/Applications`.
-- Linux: looks for `google-chrome`, `brave`, `microsoft-edge`, `chromium`, etc.
-- Windows: checks common install locations.
+- macOS: kiểm tra `/Applications` và `~/Applications`.
+- Linux: tìm `google-chrome`, `brave`, `microsoft-edge`, `chromium`, v.v.
+- Windows: kiểm tra các vị trí cài đặt phổ biến.
 
-## Control API (optional)
+## API điều khiển (tùy chọn)
 
-For local integrations only, the Gateway exposes a small loopback HTTP API:
+Chỉ dành cho tích hợp cục bộ, Gateway cung cấp một API HTTP loopback nhỏ:
 
-- Status/start/stop: `GET /`, `POST /start`, `POST /stop`
-- Tabs: `GET /tabs`, `POST /tabs/open`, `POST /tabs/focus`, `DELETE /tabs/:targetId`
-- Snapshot/screenshot: `GET /snapshot`, `POST /screenshot`
-- Actions: `POST /navigate`, `POST /act`
+- Trạng thái/bắt đầu/dừng: `GET /`, `POST /start`, `POST /stop`
+- Tab: `GET /tabs`, `POST /tabs/open`, `POST /tabs/focus`, `DELETE /tabs/:targetId`
+- Chụp nhanh/chụp màn hình: `GET /snapshot`, `POST /screenshot`
+- Hành động: `POST /navigate`, `POST /act`
 - Hooks: `POST /hooks/file-chooser`, `POST /hooks/dialog`
-- Downloads: `POST /download`, `POST /wait/download`
-- Debugging: `GET /console`, `POST /pdf`
-- Debugging: `GET /errors`, `GET /requests`, `POST /trace/start`, `POST /trace/stop`, `POST /highlight`
-- Network: `POST /response/body`
-- State: `GET /cookies`, `POST /cookies/set`, `POST /cookies/clear`
-- State: `GET /storage/:kind`, `POST /storage/:kind/set`, `POST /storage/:kind/clear`
-- Settings: `POST /set/offline`, `POST /set/headers`, `POST /set/credentials`, `POST /set/geolocation`, `POST /set/media`, `POST /set/timezone`, `POST /set/locale`, `POST /set/device`
+- Tải xuống: `POST /download`, `POST /wait/download`
+- Gỡ lỗi: `GET /console`, `POST /pdf`
+- Gỡ lỗi: `GET /errors`, `GET /requests`, `POST /trace/start`, `POST /trace/stop`, `POST /highlight`
+- Mạng: `POST /response/body`
+- Trạng thái: `GET /cookies`, `POST /cookies/set`, `POST /cookies/clear`
+- Trạng thái: `GET /storage/:kind`, `POST /storage/:kind/set`, `POST /storage/:kind/clear`
+- Cài đặt: `POST /set/offline`, `POST /set/headers`, `POST /set/credentials`, `POST /set/geolocation`, `POST /set/media`, `POST /set/timezone`, `POST /set/locale`, `POST /set/device`
 
-All endpoints accept `?profile=<name>`.
+Tất cả các điểm cuối chấp nhận `?profile=<name>`.
 
-If gateway auth is configured, browser HTTP routes require auth too:
+Nếu xác thực gateway được cấu hình, các tuyến HTTP trình duyệt cũng yêu cầu xác thực:
 
 - `Authorization: Bearer <gateway token>`
-- `x-openclaw-password: <gateway password>` or HTTP Basic auth with that password
+- `x-openclaw-password: <gateway password>` hoặc xác thực HTTP Basic với mật khẩu đó
 
-### Playwright requirement
+### Yêu cầu Playwright
 
-Some features (navigate/act/AI snapshot/role snapshot, element screenshots, PDF) require
-Playwright. If Playwright isn’t installed, those endpoints return a clear 501
-error. ARIA snapshots and basic screenshots still work for openclaw-managed Chrome.
+Một số tính năng (điều hướng/hành động/ảnh chụp nhanh AI/ảnh chụp nhanh vai trò, ảnh chụp màn hình phần tử, PDF) yêu cầu Playwright. Nếu Playwright không được cài đặt, các điểm cuối đó sẽ trả về lỗi 501 rõ ràng. Ảnh chụp nhanh ARIA và ảnh chụp màn hình cơ bản vẫn hoạt động cho Chrome do openclaw quản lý.
 
-If you see `Playwright is not available in this gateway build`, install the full
-Playwright package (not `playwright-core`) and restart the gateway, or reinstall
-OpenClaw with browser support.
+Nếu bạn thấy `Playwright is not available in this gateway build`, hãy cài đặt gói Playwright đầy đủ (không phải `playwright-core`) và khởi động lại gateway, hoặc cài đặt lại OpenClaw với hỗ trợ trình duyệt.
 
-#### Docker Playwright install
+#### Cài đặt Docker Playwright
 
-If your Gateway runs in Docker, avoid `npx playwright` (npm override conflicts).
-Use the bundled CLI instead:
+Nếu Gateway của bạn chạy trong Docker, tránh `npx playwright` (xung đột ghi đè npm). Sử dụng CLI đi kèm thay thế:
 
 ```bash
 docker compose run --rm openclaw-cli \
   node /app/node_modules/playwright-core/cli.js install chromium
 ```
 
-To persist browser downloads, set `PLAYWRIGHT_BROWSERS_PATH` (for example,
-`/home/node/.cache/ms-playwright`) and make sure `/home/node` is persisted via
-`OPENCLAW_HOME_VOLUME` or a bind mount. See [Docker](/install/docker).
+Để duy trì các tải xuống trình duyệt, đặt `PLAYWRIGHT_BROWSERS_PATH` (ví dụ, `/home/node/.cache/ms-playwright`) và đảm bảo `/home/node` được duy trì thông qua `OPENCLAW_HOME_VOLUME` hoặc một mount bind. Xem [Docker](/install/docker).
 
-## How it works (internal)
+## Cách hoạt động (nội bộ)
 
-High-level flow:
+Luồng cấp cao:
 
-- A small **control server** accepts HTTP requests.
-- It connects to Chromium-based browsers (Chrome/Brave/Edge/Chromium) via **CDP**.
-- For advanced actions (click/type/snapshot/PDF), it uses **Playwright** on top
-  of CDP.
-- When Playwright is missing, only non-Playwright operations are available.
+- Một **máy chủ điều khiển nhỏ** chấp nhận các yêu cầu HTTP.
+- Nó kết nối với các trình duyệt dựa trên Chromium (Chrome/Brave/Edge/Chromium) qua **CDP**.
+- Đối với các hành động nâng cao (nhấp/gõ/ảnh chụp nhanh/PDF), nó sử dụng **Playwright** trên CDP.
+- Khi Playwright bị thiếu, chỉ các hoạt động không phải Playwright mới có sẵn.
 
-This design keeps the agent on a stable, deterministic interface while letting
-you swap local/remote browsers and profiles.
+Thiết kế này giữ cho agent trên một giao diện ổn định, có tính quyết định trong khi cho phép bạn hoán đổi các trình duyệt và hồ sơ cục bộ/từ xa.
 
-## CLI quick reference
+## Tham khảo nhanh CLI
 
-All commands accept `--browser-profile <name>` to target a specific profile.
-All commands also accept `--json` for machine-readable output (stable payloads).
+Tất cả các lệnh chấp nhận `--browser-profile <name>` để nhắm mục tiêu một hồ sơ cụ thể. Tất cả các lệnh cũng chấp nhận `--json` để xuất đầu ra có thể đọc được bằng máy (payload ổn định).
 
-Basics:
+Cơ bản:
 
 - `openclaw browser status`
 - `openclaw browser start`
@@ -505,7 +450,7 @@ Basics:
 - `openclaw browser focus abcd1234`
 - `openclaw browser close abcd1234`
 
-Inspection:
+Kiểm tra:
 
 - `openclaw browser screenshot`
 - `openclaw browser screenshot --full-page`
@@ -524,7 +469,7 @@ Inspection:
 - `openclaw browser pdf`
 - `openclaw browser responsebody "**/api" --max-chars 5000`
 
-Actions:
+Hành động:
 
 - `openclaw browser navigate https://example.com`
 - `openclaw browser resize 1280 720`
@@ -548,7 +493,7 @@ Actions:
 - `openclaw browser trace start`
 - `openclaw browser trace stop`
 
-State:
+Trạng thái:
 
 - `openclaw browser cookies`
 - `openclaw browser cookies set session abc123 --url "https://example.com"`
@@ -567,62 +512,61 @@ State:
 - `openclaw browser set locale en-US`
 - `openclaw browser set device "iPhone 14"`
 
-Notes:
+Lưu ý:
 
-- `upload` and `dialog` are **arming** calls; run them before the click/press
-  that triggers the chooser/dialog.
-- Download and trace output paths are constrained to OpenClaw temp roots:
-  - traces: `/tmp/openclaw` (fallback: `${os.tmpdir()}/openclaw`)
-  - downloads: `/tmp/openclaw/downloads` (fallback: `${os.tmpdir()}/openclaw/downloads`)
-- Upload paths are constrained to an OpenClaw temp uploads root:
-  - uploads: `/tmp/openclaw/uploads` (fallback: `${os.tmpdir()}/openclaw/uploads`)
-- `upload` can also set file inputs directly via `--input-ref` or `--element`.
+- `upload` và `dialog` là các cuộc gọi **arming**; chạy chúng trước khi nhấp/nhấn kích hoạt bộ chọn/hộp thoại.
+- Đường dẫn đầu ra tải xuống và theo dõi bị giới hạn trong các gốc tạm thời của OpenClaw:
+  - theo dõi: `/tmp/openclaw` (dự phòng: `${os.tmpdir()}/openclaw`)
+  - tải xuống: `/tmp/openclaw/downloads` (dự phòng: `${os.tmpdir()}/openclaw/downloads`)
+- Đường dẫn tải lên bị giới hạn trong một gốc tải lên tạm thời của OpenClaw:
+  - tải lên: `/tmp/openclaw/uploads` (dự phòng: `${os.tmpdir()}/openclaw/uploads`)
+- `upload` cũng có thể đặt trực tiếp các đầu vào file qua `--input-ref` hoặc `--element`.
 - `snapshot`:
-  - `--format ai` (default when Playwright is installed): returns an AI snapshot with numeric refs (`aria-ref="<n>"`).
-  - `--format aria`: returns the accessibility tree (no refs; inspection only).
-  - `--efficient` (or `--mode efficient`): compact role snapshot preset (interactive + compact + depth + lower maxChars).
-  - Config default (tool/CLI only): set `browser.snapshotDefaults.mode: "efficient"` to use efficient snapshots when the caller does not pass a mode (see [Gateway configuration](/gateway/configuration-reference#browser)).
-  - Role snapshot options (`--interactive`, `--compact`, `--depth`, `--selector`) force a role-based snapshot with refs like `ref=e12`.
-  - `--frame "<iframe selector>"` scopes role snapshots to an iframe (pairs with role refs like `e12`).
-  - `--interactive` outputs a flat, easy-to-pick list of interactive elements (best for driving actions).
-  - `--labels` adds a viewport-only screenshot with overlayed ref labels (prints `MEDIA:<path>`).
-- `click`/`type`/etc require a `ref` from `snapshot` (either numeric `12` or role ref `e12`).
-  CSS selectors are intentionally not supported for actions.
+  - `--format ai` (mặc định khi Playwright được cài đặt): trả về một ảnh chụp nhanh AI với các tham chiếu số (`aria-ref="<n>"`).
+  - `--format aria`: trả về cây truy cập (không có tham chiếu; chỉ kiểm tra).
+  - `--efficient` (hoặc `--mode efficient`): cài đặt trước ảnh chụp nhanh vai trò gọn nhẹ (tương tác + gọn nhẹ + độ sâu + maxChars thấp hơn).
+  - Mặc định cấu hình (chỉ công cụ/CLI): đặt `browser.snapshotDefaults.mode: "efficient"` để sử dụng ảnh chụp nhanh hiệu quả khi người gọi không truyền chế độ (xem [Cấu hình Gateway](/gateway/configuration-reference#browser)).
+  - Các tùy chọn ảnh chụp nhanh vai trò (`--interactive`, `--compact`, `--depth`, `--selector`) buộc một ảnh chụp nhanh dựa trên vai trò với các tham chiếu như `ref=e12`.
+  - `--frame "<iframe selector>"` giới hạn ảnh chụp nhanh vai trò vào một iframe (kết hợp với các tham chiếu vai trò như `e12`).
+  - `--interactive` xuất một danh sách phẳng, dễ chọn các phần tử tương tác (tốt nhất để thực hiện hành động).
+  - `--labels` thêm một ảnh chụp màn hình chỉ có viewport với các nhãn tham chiếu được phủ lên (in `MEDIA:<path>`).
+- `click`/`type`/v.v. yêu cầu một `ref` từ `snapshot` (hoặc số `12` hoặc tham chiếu vai trò `e12`).
+  Các bộ chọn CSS không được hỗ trợ cho các hành động.
 
-## Snapshots and refs
+## Ảnh chụp nhanh và tham chiếu
 
-OpenClaw supports two “snapshot” styles:
+OpenClaw hỗ trợ hai kiểu “ảnh chụp nhanh”:
 
-- **AI snapshot (numeric refs)**: `openclaw browser snapshot` (default; `--format ai`)
-  - Output: a text snapshot that includes numeric refs.
-  - Actions: `openclaw browser click 12`, `openclaw browser type 23 "hello"`.
-  - Internally, the ref is resolved via Playwright’s `aria-ref`.
+- **Ảnh chụp nhanh AI (tham chiếu số)**: `openclaw browser snapshot` (mặc định; `--format ai`)
+  - Đầu ra: một ảnh chụp nhanh văn bản bao gồm các tham chiếu số.
+  - Hành động: `openclaw browser click 12`, `openclaw browser type 23 "hello"`.
+  - Nội bộ, tham chiếu được giải quyết qua `aria-ref` của Playwright.
 
-- **Role snapshot (role refs like `e12`)**: `openclaw browser snapshot --interactive` (or `--compact`, `--depth`, `--selector`, `--frame`)
-  - Output: a role-based list/tree with `[ref=e12]` (and optional `[nth=1]`).
-  - Actions: `openclaw browser click e12`, `openclaw browser highlight e12`.
-  - Internally, the ref is resolved via `getByRole(...)` (plus `nth()` for duplicates).
-  - Add `--labels` to include a viewport screenshot with overlayed `e12` labels.
+- **Ảnh chụp nhanh vai trò (tham chiếu vai trò như `e12`)**: `openclaw browser snapshot --interactive` (hoặc `--compact`, `--depth`, `--selector`, `--frame`)
+  - Đầu ra: một danh sách/cây dựa trên vai trò với `[ref=e12]` (và tùy chọn `[nth=1]`).
+  - Hành động: `openclaw browser click e12`, `openclaw browser highlight e12`.
+  - Nội bộ, tham chiếu được giải quyết qua `getByRole(...)` (cộng với `nth()` cho các bản sao).
+  - Thêm `--labels` để bao gồm một ảnh chụp màn hình viewport với các nhãn `e12` được phủ lên.
 
-Ref behavior:
+Hành vi tham chiếu:
 
-- Refs are **not stable across navigations**; if something fails, re-run `snapshot` and use a fresh ref.
-- If the role snapshot was taken with `--frame`, role refs are scoped to that iframe until the next role snapshot.
+- Tham chiếu **không ổn định qua các điều hướng**; nếu có gì đó thất bại, chạy lại `snapshot` và sử dụng một tham chiếu mới.
+- Nếu ảnh chụp nhanh vai trò được thực hiện với `--frame`, các tham chiếu vai trò được giới hạn trong iframe đó cho đến ảnh chụp nhanh vai trò tiếp theo.
 
-## Wait power-ups
+## Tăng cường chờ
 
-You can wait on more than just time/text:
+Bạn có thể chờ đợi nhiều hơn chỉ thời gian/văn bản:
 
-- Wait for URL (globs supported by Playwright):
+- Chờ URL (hỗ trợ glob bởi Playwright):
   - `openclaw browser wait --url "**/dash"`
-- Wait for load state:
+- Chờ trạng thái tải:
   - `openclaw browser wait --load networkidle`
-- Wait for a JS predicate:
+- Chờ một điều kiện JS:
   - `openclaw browser wait --fn "window.ready===true"`
-- Wait for a selector to become visible:
+- Chờ một bộ chọn trở nên hiển thị:
   - `openclaw browser wait "#main"`
 
-These can be combined:
+Những điều này có thể được kết hợp:
 
 ```bash
 openclaw browser wait "#main" \
@@ -632,26 +576,26 @@ openclaw browser wait "#main" \
   --timeout-ms 15000
 ```
 
-## Debug workflows
+## Quy trình gỡ lỗi
 
-When an action fails (e.g. “not visible”, “strict mode violation”, “covered”):
+Khi một hành động thất bại (ví dụ: “không hiển thị”, “vi phạm chế độ nghiêm ngặt”, “bị che phủ”):
 
 1. `openclaw browser snapshot --interactive`
-2. Use `click <ref>` / `type <ref>` (prefer role refs in interactive mode)
-3. If it still fails: `openclaw browser highlight <ref>` to see what Playwright is targeting
-4. If the page behaves oddly:
+2. Sử dụng `click <ref>` / `type <ref>` (ưu tiên tham chiếu vai trò trong chế độ tương tác)
+3. Nếu vẫn thất bại: `openclaw browser highlight <ref>` để xem Playwright đang nhắm mục tiêu gì
+4. Nếu trang hoạt động kỳ lạ:
    - `openclaw browser errors --clear`
    - `openclaw browser requests --filter api --clear`
-5. For deep debugging: record a trace:
+5. Để gỡ lỗi sâu: ghi lại một dấu vết:
    - `openclaw browser trace start`
-   - reproduce the issue
-   - `openclaw browser trace stop` (prints `TRACE:<path>`)
+   - tái tạo vấn đề
+   - `openclaw browser trace stop` (in `TRACE:<path>`)
 
-## JSON output
+## Đầu ra JSON
 
-`--json` is for scripting and structured tooling.
+`--json` dành cho scripting và công cụ có cấu trúc.
 
-Examples:
+Ví dụ:
 
 ```bash
 openclaw browser status --json
@@ -660,35 +604,33 @@ openclaw browser requests --filter api --json
 openclaw browser cookies --json
 ```
 
-Role snapshots in JSON include `refs` plus a small `stats` block (lines/chars/refs/interactive) so tools can reason about payload size and density.
+Ảnh chụp nhanh vai trò trong JSON bao gồm `refs` cộng với một khối `stats` nhỏ (dòng/ký tự/refs/tương tác) để các công cụ có thể suy luận về kích thước và mật độ payload.
 
-## State and environment knobs
+## Các nút trạng thái và môi trường
 
-These are useful for “make the site behave like X” workflows:
+Những điều này hữu ích cho các quy trình “làm cho trang web hoạt động như X”:
 
 - Cookies: `cookies`, `cookies set`, `cookies clear`
-- Storage: `storage local|session get|set|clear`
-- Offline: `set offline on|off`
-- Headers: `set headers --headers-json '{"X-Debug":"1"}'` (legacy `set headers --json '{"X-Debug":"1"}'` remains supported)
-- HTTP basic auth: `set credentials user pass` (or `--clear`)
-- Geolocation: `set geo <lat> <lon> --origin "https://example.com"` (or `--clear`)
-- Media: `set media dark|light|no-preference|none`
-- Timezone / locale: `set timezone ...`, `set locale ...`
-- Device / viewport:
-  - `set device "iPhone 14"` (Playwright device presets)
+- Lưu trữ: `storage local|session get|set|clear`
+- Ngoại tuyến: `set offline on|off`
+- Headers: `set headers --headers-json '{"X-Debug":"1"}'` (hỗ trợ `set headers --json '{"X-Debug":"1"}'` cũ vẫn được hỗ trợ)
+- Xác thực HTTP cơ bản: `set credentials user pass` (hoặc `--clear`)
+- Định vị địa lý: `set geo <lat> <lon> --origin "https://example.com"` (hoặc `--clear`)
+- Phương tiện: `set media dark|light|no-preference|none`
+- Múi giờ / ngôn ngữ: `set timezone ...`, `set locale ...`
+- Thiết bị / viewport:
+  - `set device "iPhone 14"` (cài đặt trước thiết bị Playwright)
   - `set viewport 1280 720`
 
-## Security & privacy
+## Bảo mật & quyền riêng tư
 
-- The openclaw browser profile may contain logged-in sessions; treat it as sensitive.
-- `browser act kind=evaluate` / `openclaw browser evaluate` and `wait --fn`
-  execute arbitrary JavaScript in the page context. Prompt injection can steer
-  this. Disable it with `browser.evaluateEnabled=false` if you do not need it.
-- For logins and anti-bot notes (X/Twitter, etc.), see [Browser login + X/Twitter posting](/tools/browser-login).
-- Keep the Gateway/node host private (loopback or tailnet-only).
-- Remote CDP endpoints are powerful; tunnel and protect them.
+- Hồ sơ trình duyệt openclaw có thể chứa các phiên đã đăng nhập; coi nó là nhạy cảm.
+- `browser act kind=evaluate` / `openclaw browser evaluate` và `wait --fn` thực thi JavaScript tùy ý trong ngữ cảnh trang. Tiêm lệnh có thể điều khiển điều này. Vô hiệu hóa nó với `browser.evaluateEnabled=false` nếu bạn không cần.
+- Đối với đăng nhập và ghi chú chống bot (X/Twitter, v.v.), xem [Đăng nhập trình duyệt + đăng bài X/Twitter](/tools/browser-login).
+- Giữ Gateway/node host riêng tư (chỉ loopback hoặc tailnet).
+- Các điểm cuối CDP từ xa rất mạnh; đường hầm và bảo vệ chúng.
 
-Strict-mode example (block private/internal destinations by default):
+Ví dụ chế độ nghiêm ngặt (chặn các điểm đến riêng tư/nội bộ theo mặc định):
 
 ```json5
 {
@@ -696,36 +638,34 @@ Strict-mode example (block private/internal destinations by default):
     ssrfPolicy: {
       dangerouslyAllowPrivateNetwork: false,
       hostnameAllowlist: ["*.example.com", "example.com"],
-      allowedHostnames: ["localhost"], // optional exact allow
+      allowedHostnames: ["localhost"], // tùy chọn cho phép chính xác
     },
   },
 }
 ```
 
-## Troubleshooting
+## Gỡ lỗi
 
-For Linux-specific issues (especially snap Chromium), see
-[Browser troubleshooting](/tools/browser-linux-troubleshooting).
+Đối với các vấn đề cụ thể của Linux (đặc biệt là snap Chromium), xem [Gỡ lỗi trình duyệt](/tools/browser-linux-troubleshooting).
 
-For WSL2 Gateway + Windows Chrome split-host setups, see
-[WSL2 + Windows + remote Chrome CDP troubleshooting](/tools/browser-wsl2-windows-remote-cdp-troubleshooting).
+Đối với các thiết lập Gateway WSL2 + Windows Chrome chia máy chủ, xem [Gỡ lỗi WSL2 + Windows + remote Chrome CDP](/tools/browser-wsl2-windows-remote-cdp-troubleshooting).
 
-## Agent tools + how control works
+## Công cụ agent + cách điều khiển hoạt động
 
-The agent gets **one tool** for browser automation:
+Agent có **một công cụ** cho tự động hóa trình duyệt:
 
-- `browser` — status/start/stop/tabs/open/focus/close/snapshot/screenshot/navigate/act
+- `browser` — trạng thái/bắt đầu/dừng/tabs/mở/tập trung/đóng/ảnh chụp nhanh/chụp màn hình/điều hướng/hành động
 
-How it maps:
+Cách nó ánh xạ:
 
-- `browser snapshot` returns a stable UI tree (AI or ARIA).
-- `browser act` uses the snapshot `ref` IDs to click/type/drag/select.
-- `browser screenshot` captures pixels (full page or element).
-- `browser` accepts:
-  - `profile` to choose a named browser profile (openclaw, chrome, or remote CDP).
-  - `target` (`sandbox` | `host` | `node`) to select where the browser lives.
-  - In sandboxed sessions, `target: "host"` requires `agents.defaults.sandbox.browser.allowHostControl=true`.
-  - If `target` is omitted: sandboxed sessions default to `sandbox`, non-sandbox sessions default to `host`.
-  - If a browser-capable node is connected, the tool may auto-route to it unless you pin `target="host"` or `target="node"`.
+- `browser snapshot` trả về một cây UI ổn định (AI hoặc ARIA).
+- `browser act` sử dụng các ID `ref` từ ảnh chụp nhanh để nhấp/gõ/kéo/chọn.
+- `browser screenshot` chụp ảnh (toàn trang hoặc phần tử).
+- `browser` chấp nhận:
+  - `profile` để chọn một hồ sơ trình duyệt được đặt tên (openclaw, chrome, hoặc CDP từ xa).
+  - `target` (`sandbox` | `host` | `node`) để chọn nơi trình duyệt sống.
+  - Trong các phiên sandboxed, `target: "host"` yêu cầu `agents.defaults.sandbox.browser.allowHostControl=true`.
+  - Nếu `target` bị bỏ qua: các phiên sandboxed mặc định là `sandbox`, các phiên không sandbox mặc định là `host`.
+  - Nếu một node có khả năng trình duyệt được kết nối, công cụ có thể tự động định tuyến đến nó trừ khi bạn ghim `target="host"` hoặc `target="node"`.
 
-This keeps the agent deterministic and avoids brittle selectors.
+Điều này giữ cho agent có tính quyết định và tránh các bộ chọn dễ vỡ.

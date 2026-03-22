@@ -1,150 +1,134 @@
----
-summary: "Windows support: native and WSL2 install paths, daemon, and current caveats"
-read_when:
-  - Installing OpenClaw on Windows
-  - Choosing between native Windows and WSL2
-  - Looking for Windows companion app status
-title: "Windows"
----
-
 # Windows
 
-OpenClaw supports both **native Windows** and **WSL2**. WSL2 is the more
-stable path and recommended for the full experience — the CLI, Gateway, and
-tooling run inside Linux with full compatibility. Native Windows works for
-core CLI and Gateway use, with some caveats noted below.
+OpenClaw hỗ trợ cả hai phương thức cài đặt trên **Windows gốc** và **WSL2**. WSL2 là lựa chọn ổn định hơn và được khuyến nghị để có trải nghiệm đầy đủ — CLI, Gateway và các công cụ chạy trong môi trường Linux với khả năng tương thích hoàn toàn. Windows gốc hoạt động tốt cho việc sử dụng CLI và Gateway cơ bản, nhưng có một số lưu ý dưới đây.
 
-Native Windows companion apps are planned.
+Các ứng dụng đồng hành trên Windows gốc đang được lên kế hoạch.
 
-## WSL2 (recommended)
+## WSL2 (khuyến nghị)
 
-- [Getting Started](/start/getting-started) (use inside WSL)
-- [Install & updates](/install/updating)
-- Official WSL2 guide (Microsoft): [https://learn.microsoft.com/windows/wsl/install](https://learn.microsoft.com/windows/wsl/install)
+- [Bắt đầu](/start/getting-started) (sử dụng trong WSL)
+- [Cài đặt & cập nhật](/install/updating)
+- Hướng dẫn chính thức về WSL2 (Microsoft): [https://learn.microsoft.com/windows/wsl/install](https://learn.microsoft.com/windows/wsl/install)
 
-## Native Windows status
+## Tình trạng Windows gốc
 
-Native Windows CLI flows are improving, but WSL2 is still the recommended path.
+Các luồng CLI trên Windows gốc đang được cải thiện, nhưng WSL2 vẫn là lựa chọn được khuyến nghị.
 
-What works well on native Windows today:
+Những gì hoạt động tốt trên Windows gốc hiện nay:
 
-- website installer via `install.ps1`
-- local CLI use such as `openclaw --version`, `openclaw doctor`, and `openclaw plugins list --json`
-- embedded local-agent/provider smoke such as:
+- Trình cài đặt trang web qua `install.ps1`
+- Sử dụng CLI cục bộ như `openclaw --version`, `openclaw doctor`, và `openclaw plugins list --json`
+- Kiểm tra nhanh local-agent/provider nhúng như:
 
 ```powershell
 openclaw agent --local --agent main --thinking low -m "Reply with exactly WINDOWS-HATCH-OK."
 ```
 
-Current caveats:
+Những lưu ý hiện tại:
 
-- `openclaw onboard --non-interactive` still expects a reachable local gateway unless you pass `--skip-health`
-- `openclaw onboard --non-interactive --install-daemon` and `openclaw gateway install` try Windows Scheduled Tasks first
-- if Scheduled Task creation is denied, OpenClaw falls back to a per-user Startup-folder login item and starts the gateway immediately
-- if `schtasks` itself wedges or stops responding, OpenClaw now aborts that path quickly and falls back instead of hanging forever
-- Scheduled Tasks are still preferred when available because they provide better supervisor status
+- `openclaw onboard --non-interactive` vẫn yêu cầu một gateway cục bộ có thể truy cập trừ khi bạn sử dụng `--skip-health`
+- `openclaw onboard --non-interactive --install-daemon` và `openclaw gateway install` thử sử dụng Windows Scheduled Tasks trước
+- nếu việc tạo Scheduled Task bị từ chối, OpenClaw sẽ chuyển sang mục đăng nhập trong thư mục Startup của người dùng và khởi động gateway ngay lập tức
+- nếu `schtasks` bị treo hoặc ngừng phản hồi, OpenClaw sẽ nhanh chóng hủy bỏ đường dẫn đó và chuyển sang phương án khác thay vì treo mãi mãi
+- Scheduled Tasks vẫn được ưu tiên khi có sẵn vì chúng cung cấp trạng thái giám sát tốt hơn
 
-If you want the native CLI only, without gateway service install, use one of these:
+Nếu chỉ muốn sử dụng CLI gốc mà không cần cài đặt dịch vụ gateway, hãy sử dụng một trong các lệnh sau:
 
 ```powershell
 openclaw onboard --non-interactive --skip-health
 openclaw gateway run
 ```
 
-If you do want managed startup on native Windows:
+Nếu muốn khởi động được quản lý trên Windows gốc:
 
 ```powershell
 openclaw gateway install
 openclaw gateway status --json
 ```
 
-If Scheduled Task creation is blocked, the fallback service mode still auto-starts after login through the current user's Startup folder.
+Nếu việc tạo Scheduled Task bị chặn, chế độ dịch vụ dự phòng vẫn tự động khởi động sau khi đăng nhập thông qua thư mục Startup của người dùng hiện tại.
 
 ## Gateway
 
-- [Gateway runbook](/gateway)
-- [Configuration](/gateway/configuration)
+- [Hướng dẫn sử dụng Gateway](/gateway)
+- [Cấu hình](/gateway/configuration)
 
-## Gateway service install (CLI)
+## Cài đặt dịch vụ Gateway (CLI)
 
-Inside WSL2:
+Trong WSL2:
 
 ```
 openclaw onboard --install-daemon
 ```
 
-Or:
+Hoặc:
 
 ```
 openclaw gateway install
 ```
 
-Or:
+Hoặc:
 
 ```
 openclaw configure
 ```
 
-Select **Gateway service** when prompted.
+Chọn **Dịch vụ Gateway** khi được yêu cầu.
 
-Repair/migrate:
+Sửa chữa/chuyển đổi:
 
 ```
 openclaw doctor
 ```
 
-## Gateway auto-start before Windows login
+## Tự động khởi động Gateway trước khi đăng nhập Windows
 
-For headless setups, ensure the full boot chain runs even when no one logs into
-Windows.
+Đối với các thiết lập không có màn hình, đảm bảo chuỗi khởi động đầy đủ chạy ngay cả khi không ai đăng nhập vào Windows.
 
-### 1) Keep user services running without login
+### 1) Giữ cho các dịch vụ người dùng chạy mà không cần đăng nhập
 
-Inside WSL:
+Trong WSL:
 
 ```bash
 sudo loginctl enable-linger "$(whoami)"
 ```
 
-### 2) Install the OpenClaw gateway user service
+### 2) Cài đặt dịch vụ người dùng OpenClaw gateway
 
-Inside WSL:
+Trong WSL:
 
 ```bash
 openclaw gateway install
 ```
 
-### 3) Start WSL automatically at Windows boot
+### 3) Tự động khởi động WSL khi Windows khởi động
 
-In PowerShell as Administrator:
+Trong PowerShell với quyền Admin:
 
 ```powershell
 schtasks /create /tn "WSL Boot" /tr "wsl.exe -d Ubuntu --exec /bin/true" /sc onstart /ru SYSTEM
 ```
 
-Replace `Ubuntu` with your distro name from:
+Thay `Ubuntu` bằng tên bản phân phối của bạn từ:
 
 ```powershell
 wsl --list --verbose
 ```
 
-### Verify startup chain
+### Xác minh chuỗi khởi động
 
-After a reboot (before Windows sign-in), check from WSL:
+Sau khi khởi động lại (trước khi đăng nhập Windows), kiểm tra từ WSL:
 
 ```bash
 systemctl --user is-enabled openclaw-gateway
 systemctl --user status openclaw-gateway --no-pager
 ```
 
-## Advanced: expose WSL services over LAN (portproxy)
+## Nâng cao: mở dịch vụ WSL qua LAN (portproxy)
 
-WSL has its own virtual network. If another machine needs to reach a service
-running **inside WSL** (SSH, a local TTS server, or the Gateway), you must
-forward a Windows port to the current WSL IP. The WSL IP changes after restarts,
-so you may need to refresh the forwarding rule.
+WSL có mạng ảo riêng. Nếu một máy khác cần truy cập dịch vụ chạy **trong WSL** (SSH, máy chủ TTS cục bộ, hoặc Gateway), bạn phải chuyển tiếp một cổng Windows đến IP hiện tại của WSL. IP của WSL thay đổi sau khi khởi động lại, vì vậy bạn có thể cần làm mới quy tắc chuyển tiếp.
 
-Example (PowerShell **as Administrator**):
+Ví dụ (PowerShell **với quyền Admin**):
 
 ```powershell
 $Distro = "Ubuntu-24.04"
@@ -158,14 +142,14 @@ netsh interface portproxy add v4tov4 listenaddress=0.0.0.0 listenport=$ListenPor
   connectaddress=$WslIp connectport=$TargetPort
 ```
 
-Allow the port through Windows Firewall (one-time):
+Cho phép cổng qua Windows Firewall (một lần):
 
 ```powershell
 New-NetFirewallRule -DisplayName "WSL SSH $ListenPort" -Direction Inbound `
   -Protocol TCP -LocalPort $ListenPort -Action Allow
 ```
 
-Refresh the portproxy after WSL restarts:
+Làm mới portproxy sau khi WSL khởi động lại:
 
 ```powershell
 netsh interface portproxy delete v4tov4 listenport=$ListenPort listenaddress=0.0.0.0 | Out-Null
@@ -173,33 +157,32 @@ netsh interface portproxy add v4tov4 listenport=$ListenPort listenaddress=0.0.0.
   connectaddress=$WslIp connectport=$TargetPort | Out-Null
 ```
 
-Notes:
+Lưu ý:
 
-- SSH from another machine targets the **Windows host IP** (example: `ssh user@windows-host -p 2222`).
-- Remote nodes must point at a **reachable** Gateway URL (not `127.0.0.1`); use
-  `openclaw status --all` to confirm.
-- Use `listenaddress=0.0.0.0` for LAN access; `127.0.0.1` keeps it local only.
-- If you want this automatic, register a Scheduled Task to run the refresh
-  step at login.
+- SSH từ máy khác nhắm đến **IP của máy chủ Windows** (ví dụ: `ssh user@windows-host -p 2222`).
+- Các node từ xa phải trỏ đến URL Gateway **có thể truy cập** (không phải `127.0.0.1`); sử dụng
+  `openclaw status --all` để xác nhận.
+- Sử dụng `listenaddress=0.0.0.0` để truy cập LAN; `127.0.0.1` chỉ giữ nó cục bộ.
+- Nếu muốn tự động, đăng ký một Scheduled Task để chạy bước làm mới khi đăng nhập.
 
-## Step-by-step WSL2 install
+## Hướng dẫn cài đặt WSL2 từng bước
 
-### 1) Install WSL2 + Ubuntu
+### 1) Cài đặt WSL2 + Ubuntu
 
-Open PowerShell (Admin):
+Mở PowerShell (Admin):
 
 ```powershell
 wsl --install
-# Or pick a distro explicitly:
+# Hoặc chọn một bản phân phối cụ thể:
 wsl --list --online
 wsl --install -d Ubuntu-24.04
 ```
 
-Reboot if Windows asks.
+Khởi động lại nếu Windows yêu cầu.
 
-### 2) Enable systemd (required for gateway install)
+### 2) Kích hoạt systemd (cần thiết cho cài đặt gateway)
 
-In your WSL terminal:
+Trong terminal WSL của bạn:
 
 ```bash
 sudo tee /etc/wsl.conf >/dev/null <<'EOF'
@@ -208,34 +191,33 @@ systemd=true
 EOF
 ```
 
-Then from PowerShell:
+Sau đó từ PowerShell:
 
 ```powershell
 wsl --shutdown
 ```
 
-Re-open Ubuntu, then verify:
+Mở lại Ubuntu, sau đó xác minh:
 
 ```bash
 systemctl --user status
 ```
 
-### 3) Install OpenClaw (inside WSL)
+### 3) Cài đặt OpenClaw (trong WSL)
 
-Follow the Linux Getting Started flow inside WSL:
+Thực hiện theo hướng dẫn Bắt đầu trên Linux trong WSL:
 
 ```bash
 git clone https://github.com/openclaw/openclaw.git
 cd openclaw
 pnpm install
-pnpm ui:build # auto-installs UI deps on first run
+pnpm ui:build # tự động cài đặt các phụ thuộc UI lần đầu chạy
 pnpm build
 openclaw onboard
 ```
 
-Full guide: [Getting Started](/start/getting-started)
+Hướng dẫn đầy đủ: [Bắt đầu](/start/getting-started)
 
-## Windows companion app
+## Ứng dụng đồng hành trên Windows
 
-We do not have a Windows companion app yet. Contributions are welcome if you want
-contributions to make it happen.
+Hiện tại chưa có ứng dụng đồng hành trên Windows. Chúng tôi hoan nghênh các đóng góp nếu bạn muốn tham gia phát triển ứng dụng này.

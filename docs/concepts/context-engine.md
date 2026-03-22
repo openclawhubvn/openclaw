@@ -1,118 +1,100 @@
 ---
-summary: "Context engine: pluggable context assembly, compaction, and subagent lifecycle"
+summary: "Context engine: lắp ráp ngữ cảnh có thể cắm thêm, nén và vòng đời subagent"
 read_when:
-  - You want to understand how OpenClaw assembles model context
-  - You are switching between the legacy engine and a plugin engine
-  - You are building a context engine plugin
+  - Bạn muốn hiểu cách OpenClaw lắp ráp ngữ cảnh mô hình
+  - Bạn đang chuyển đổi giữa engine cũ và engine plugin
+  - Bạn đang xây dựng một plugin engine ngữ cảnh
 title: "Context Engine"
 ---
 
 # Context Engine
 
-A **context engine** controls how OpenClaw builds model context for each run.
-It decides which messages to include, how to summarize older history, and how
-to manage context across subagent boundaries.
+**Context engine** điều khiển cách OpenClaw xây dựng ngữ cảnh mô hình cho mỗi lần chạy. Nó quyết định những thông điệp nào cần bao gồm, cách tóm tắt lịch sử cũ hơn và cách quản lý ngữ cảnh qua các ranh giới subagent.
 
-OpenClaw ships with a built-in `legacy` engine. Plugins can register
-alternative engines that replace the active context-engine lifecycle.
+OpenClaw đi kèm với một engine `legacy` tích hợp sẵn. Các plugin có thể đăng ký các engine thay thế để thay đổi vòng đời context-engine đang hoạt động.
 
-## Quick start
+## Bắt đầu nhanh
 
-Check which engine is active:
+Kiểm tra xem engine nào đang hoạt động:
 
 ```bash
 openclaw doctor
-# or inspect config directly:
+# hoặc kiểm tra cấu hình trực tiếp:
 cat ~/.openclaw/openclaw.json | jq '.plugins.slots.contextEngine'
 ```
 
-### Installing a context engine plugin
+### Cài đặt plugin engine ngữ cảnh
 
-Context engine plugins are installed like any other OpenClaw plugin. Install
-first, then select the engine in the slot:
+Plugin engine ngữ cảnh được cài đặt như bất kỳ plugin OpenClaw nào khác. Cài đặt trước, sau đó chọn engine trong slot:
 
 ```bash
-# Install from npm
+# Cài đặt từ npm
 openclaw plugins install @martian-engineering/lossless-claw
 
-# Or install from a local path (for development)
+# Hoặc cài đặt từ đường dẫn địa phương (dành cho phát triển)
 openclaw plugins install -l ./my-context-engine
 ```
 
-Then enable the plugin and select it as the active engine in your config:
+Sau đó kích hoạt plugin và chọn nó làm engine hoạt động trong cấu hình:
 
 ```json5
 // openclaw.json
 {
   plugins: {
     slots: {
-      contextEngine: "lossless-claw", // must match the plugin's registered engine id
+      contextEngine: "lossless-claw", // phải khớp với id engine đã đăng ký của plugin
     },
     entries: {
       "lossless-claw": {
         enabled: true,
-        // Plugin-specific config goes here (see the plugin's docs)
+        // Cấu hình cụ thể của plugin nằm ở đây (xem tài liệu của plugin)
       },
     },
   },
 }
 ```
 
-Restart the gateway after installing and configuring.
+Khởi động lại gateway sau khi cài đặt và cấu hình.
 
-To switch back to the built-in engine, set `contextEngine` to `"legacy"` (or
-remove the key entirely — `"legacy"` is the default).
+Để chuyển về engine tích hợp sẵn, đặt `contextEngine` thành `"legacy"` (hoặc xóa hoàn toàn khóa — `"legacy"` là mặc định).
 
-## How it works
+## Cách hoạt động
 
-Every time OpenClaw runs a model prompt, the context engine participates at
-four lifecycle points:
+Mỗi khi OpenClaw chạy một model prompt, context engine tham gia vào bốn điểm vòng đời:
 
-1. **Ingest** — called when a new message is added to the session. The engine
-   can store or index the message in its own data store.
-2. **Assemble** — called before each model run. The engine returns an ordered
-   set of messages (and an optional `systemPromptAddition`) that fit within
-   the token budget.
-3. **Compact** — called when the context window is full, or when the user runs
-   `/compact`. The engine summarizes older history to free space.
-4. **After turn** — called after a run completes. The engine can persist state,
-   trigger background compaction, or update indexes.
+1. **Ingest** — được gọi khi một thông điệp mới được thêm vào session. Engine có thể lưu trữ hoặc lập chỉ mục thông điệp trong kho dữ liệu của nó.
+2. **Assemble** — được gọi trước mỗi lần chạy mô hình. Engine trả về một tập hợp thông điệp có thứ tự (và một `systemPromptAddition` tùy chọn) phù hợp với ngân sách token.
+3. **Compact** — được gọi khi cửa sổ ngữ cảnh đầy, hoặc khi người dùng chạy `/compact`. Engine tóm tắt lịch sử cũ hơn để giải phóng không gian.
+4. **After turn** — được gọi sau khi một lần chạy hoàn tất. Engine có thể lưu trữ trạng thái, kích hoạt nén nền, hoặc cập nhật chỉ mục.
 
-### Subagent lifecycle (optional)
+### Vòng đời subagent (tùy chọn)
 
-OpenClaw currently calls one subagent lifecycle hook:
+Hiện tại, OpenClaw gọi một hook vòng đời subagent:
 
-- **onSubagentEnded** — clean up when a subagent session completes or is swept.
+- **onSubagentEnded** — dọn dẹp khi một session subagent hoàn tất hoặc bị quét.
 
-The `prepareSubagentSpawn` hook is part of the interface for future use, but
-the runtime does not invoke it yet.
+Hook `prepareSubagentSpawn` là một phần của giao diện cho sử dụng trong tương lai, nhưng runtime chưa gọi nó.
 
-### System prompt addition
+### Thêm vào system prompt
 
-The `assemble` method can return a `systemPromptAddition` string. OpenClaw
-prepends this to the system prompt for the run. This lets engines inject
-dynamic recall guidance, retrieval instructions, or context-aware hints
-without requiring static workspace files.
+Phương thức `assemble` có thể trả về một chuỗi `systemPromptAddition`. OpenClaw thêm chuỗi này vào đầu system prompt cho lần chạy. Điều này cho phép các engine chèn hướng dẫn hồi tưởng động, chỉ dẫn truy xuất, hoặc gợi ý nhận thức ngữ cảnh mà không cần các file workspace tĩnh.
 
-## The legacy engine
+## Engine cũ
 
-The built-in `legacy` engine preserves OpenClaw's original behavior:
+Engine `legacy` tích hợp sẵn bảo toàn hành vi gốc của OpenClaw:
 
-- **Ingest**: no-op (the session manager handles message persistence directly).
-- **Assemble**: pass-through (the existing sanitize → validate → limit pipeline
-  in the runtime handles context assembly).
-- **Compact**: delegates to the built-in summarization compaction, which creates
-  a single summary of older messages and keeps recent messages intact.
-- **After turn**: no-op.
+- **Ingest**: không thực hiện gì (trình quản lý session xử lý lưu trữ thông điệp trực tiếp).
+- **Assemble**: truyền qua (pipeline hiện tại sanitize → validate → limit trong runtime xử lý lắp ráp ngữ cảnh).
+- **Compact**: ủy quyền cho nén tóm tắt tích hợp sẵn, tạo một bản tóm tắt duy nhất của các thông điệp cũ hơn và giữ nguyên các thông điệp gần đây.
+- **After turn**: không thực hiện gì.
 
-The legacy engine does not register tools or provide a `systemPromptAddition`.
+Engine cũ không đăng ký công cụ hoặc cung cấp `systemPromptAddition`.
 
-When no `plugins.slots.contextEngine` is set (or it's set to `"legacy"`), this
-engine is used automatically.
+Khi không có `plugins.slots.contextEngine` được đặt (hoặc được đặt thành `"legacy"`), engine này được sử dụng tự động.
 
 ## Plugin engines
 
-A plugin can register a context engine using the plugin API:
+Một plugin có thể đăng ký một context engine bằng cách sử dụng API plugin:
 
 ```ts
 export default function register(api) {
@@ -124,12 +106,12 @@ export default function register(api) {
     },
 
     async ingest({ sessionId, message, isHeartbeat }) {
-      // Store the message in your data store
+      // Lưu trữ thông điệp trong kho dữ liệu của bạn
       return { ingested: true };
     },
 
     async assemble({ sessionId, messages, tokenBudget }) {
-      // Return messages that fit the budget
+      // Trả về các thông điệp phù hợp với ngân sách
       return {
         messages: buildContext(messages, tokenBudget),
         estimatedTokens: countTokens(messages),
@@ -138,14 +120,14 @@ export default function register(api) {
     },
 
     async compact({ sessionId, force }) {
-      // Summarize older context
+      // Tóm tắt ngữ cảnh cũ hơn
       return { ok: true, compacted: true };
     },
   }));
 }
 ```
 
-Then enable it in config:
+Sau đó kích hoạt nó trong cấu hình:
 
 ```json5
 {
@@ -162,107 +144,77 @@ Then enable it in config:
 }
 ```
 
-### The ContextEngine interface
+### Giao diện ContextEngine
 
-Required members:
+Các thành viên bắt buộc:
 
-| Member             | Kind     | Purpose                                                  |
-| ------------------ | -------- | -------------------------------------------------------- |
-| `info`             | Property | Engine id, name, version, and whether it owns compaction |
-| `ingest(params)`   | Method   | Store a single message                                   |
-| `assemble(params)` | Method   | Build context for a model run (returns `AssembleResult`) |
-| `compact(params)`  | Method   | Summarize/reduce context                                 |
+| Thành viên          | Loại     | Mục đích                                                   |
+| ------------------- | -------- | ---------------------------------------------------------- |
+| `info`              | Thuộc tính | ID engine, tên, phiên bản, và liệu nó có sở hữu nén hay không |
+| `ingest(params)`    | Phương thức | Lưu trữ một thông điệp đơn lẻ                              |
+| `assemble(params)`  | Phương thức | Xây dựng ngữ cảnh cho một lần chạy mô hình (trả về `AssembleResult`) |
+| `compact(params)`   | Phương thức | Tóm tắt/giảm ngữ cảnh                                     |
 
-`assemble` returns an `AssembleResult` with:
+`assemble` trả về một `AssembleResult` với:
 
-- `messages` — the ordered messages to send to the model.
-- `estimatedTokens` (required, `number`) — the engine's estimate of total
-  tokens in the assembled context. OpenClaw uses this for compaction threshold
-  decisions and diagnostic reporting.
-- `systemPromptAddition` (optional, `string`) — prepended to the system prompt.
+- `messages` — các thông điệp có thứ tự để gửi đến mô hình.
+- `estimatedTokens` (bắt buộc, `number`) — ước tính của engine về tổng số token trong ngữ cảnh đã lắp ráp. OpenClaw sử dụng điều này cho các quyết định ngưỡng nén và báo cáo chẩn đoán.
+- `systemPromptAddition` (tùy chọn, `string`) — được thêm vào đầu system prompt.
 
-Optional members:
+Các thành viên tùy chọn:
 
-| Member                         | Kind   | Purpose                                                                                                         |
-| ------------------------------ | ------ | --------------------------------------------------------------------------------------------------------------- |
-| `bootstrap(params)`            | Method | Initialize engine state for a session. Called once when the engine first sees a session (e.g., import history). |
-| `ingestBatch(params)`          | Method | Ingest a completed turn as a batch. Called after a run completes, with all messages from that turn at once.     |
-| `afterTurn(params)`            | Method | Post-run lifecycle work (persist state, trigger background compaction).                                         |
-| `prepareSubagentSpawn(params)` | Method | Set up shared state for a child session.                                                                        |
-| `onSubagentEnded(params)`      | Method | Clean up after a subagent ends.                                                                                 |
-| `dispose()`                    | Method | Release resources. Called during gateway shutdown or plugin reload — not per-session.                           |
+| Thành viên                      | Loại   | Mục đích                                                                                                         |
+| ------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------- |
+| `bootstrap(params)`             | Phương thức | Khởi tạo trạng thái engine cho một session. Được gọi một lần khi engine lần đầu thấy một session (ví dụ: nhập lịch sử). |
+| `ingestBatch(params)`           | Phương thức | Nhập một lượt hoàn tất dưới dạng một batch. Được gọi sau khi một lần chạy hoàn tất, với tất cả các thông điệp từ lượt đó cùng một lúc.     |
+| `afterTurn(params)`             | Phương thức | Công việc vòng đời sau khi chạy (lưu trữ trạng thái, kích hoạt nén nền).                                         |
+| `prepareSubagentSpawn(params)`  | Phương thức | Thiết lập trạng thái chia sẻ cho một session con.                                                                        |
+| `onSubagentEnded(params)`       | Phương thức | Dọn dẹp sau khi một subagent kết thúc.                                                                                 |
+| `dispose()`                     | Phương thức | Giải phóng tài nguyên. Được gọi trong quá trình tắt gateway hoặc tải lại plugin — không phải cho mỗi session.                           |
 
 ### ownsCompaction
 
-`ownsCompaction` controls whether Pi's built-in in-attempt auto-compaction stays
-enabled for the run:
+`ownsCompaction` điều khiển liệu tính năng nén tự động tích hợp sẵn của Pi có được kích hoạt cho lần chạy hay không:
 
-- `true` — the engine owns compaction behavior. OpenClaw disables Pi's built-in
-  auto-compaction for that run, and the engine's `compact()` implementation is
-  responsible for `/compact`, overflow recovery compaction, and any proactive
-  compaction it wants to do in `afterTurn()`.
-- `false` or unset — Pi's built-in auto-compaction may still run during prompt
-  execution, but the active engine's `compact()` method is still called for
-  `/compact` and overflow recovery.
+- `true` — engine sở hữu hành vi nén. OpenClaw vô hiệu hóa nén tự động tích hợp sẵn của Pi cho lần chạy đó, và việc thực hiện `compact()` của engine chịu trách nhiệm cho `/compact`, nén phục hồi tràn, và bất kỳ nén chủ động nào mà nó muốn thực hiện trong `afterTurn()`.
+- `false` hoặc không đặt — nén tự động tích hợp sẵn của Pi vẫn có thể chạy trong quá trình thực hiện prompt, nhưng phương thức `compact()` của engine đang hoạt động vẫn được gọi cho `/compact` và nén phục hồi tràn.
 
-`ownsCompaction: false` does **not** mean OpenClaw automatically falls back to
-the legacy engine's compaction path.
+`ownsCompaction: false` không có nghĩa là OpenClaw tự động quay lại đường dẫn nén của engine cũ.
 
-That means there are two valid plugin patterns:
+Điều đó có nghĩa là có hai mẫu plugin hợp lệ:
 
-- **Owning mode** — implement your own compaction algorithm and set
-  `ownsCompaction: true`.
-- **Delegating mode** — set `ownsCompaction: false` and have `compact()` call
-  `delegateCompactionToRuntime(...)` from `openclaw/plugin-sdk/core` to use
-  OpenClaw's built-in compaction behavior.
+- **Chế độ sở hữu** — thực hiện thuật toán nén của riêng bạn và đặt `ownsCompaction: true`.
+- **Chế độ ủy quyền** — đặt `ownsCompaction: false` và để `compact()` gọi `delegateCompactionToRuntime(...)` từ `openclaw/plugin-sdk/core` để sử dụng hành vi nén tích hợp sẵn của OpenClaw.
 
-A no-op `compact()` is unsafe for an active non-owning engine because it
-disables the normal `/compact` and overflow-recovery compaction path for that
-engine slot.
+Một `compact()` không thực hiện gì là không an toàn cho một engine không sở hữu đang hoạt động vì nó vô hiệu hóa đường dẫn nén `/compact` và phục hồi tràn thông thường cho slot engine đó.
 
-## Configuration reference
+## Tham khảo cấu hình
 
 ```json5
 {
   plugins: {
     slots: {
-      // Select the active context engine. Default: "legacy".
-      // Set to a plugin id to use a plugin engine.
+      // Chọn engine ngữ cảnh đang hoạt động. Mặc định: "legacy".
+      // Đặt thành một id plugin để sử dụng engine plugin.
       contextEngine: "legacy",
     },
   },
 }
 ```
 
-The slot is exclusive at run time — only one registered context engine is
-resolved for a given run or compaction operation. Other enabled
-`kind: "context-engine"` plugins can still load and run their registration
-code; `plugins.slots.contextEngine` only selects which registered engine id
-OpenClaw resolves when it needs a context engine.
+Slot là độc quyền tại thời gian chạy — chỉ một engine ngữ cảnh đã đăng ký được giải quyết cho một lần chạy hoặc hoạt động nén nhất định. Các plugin `kind: "context-engine"` khác đã được kích hoạt vẫn có thể tải và chạy mã đăng ký của chúng; `plugins.slots.contextEngine` chỉ chọn id engine đã đăng ký nào mà OpenClaw giải quyết khi cần một engine ngữ cảnh.
 
-## Relationship to compaction and memory
+## Mối quan hệ với nén và bộ nhớ
 
-- **Compaction** is one responsibility of the context engine. The legacy engine
-  delegates to OpenClaw's built-in summarization. Plugin engines can implement
-  any compaction strategy (DAG summaries, vector retrieval, etc.).
-- **Memory plugins** (`plugins.slots.memory`) are separate from context engines.
-  Memory plugins provide search/retrieval; context engines control what the
-  model sees. They can work together — a context engine might use memory
-  plugin data during assembly.
-- **Session pruning** (trimming old tool results in-memory) still runs
-  regardless of which context engine is active.
+- **Nén** là một trách nhiệm của context engine. Engine cũ ủy quyền cho tóm tắt tích hợp sẵn của OpenClaw. Các engine plugin có thể thực hiện bất kỳ chiến lược nén nào (tóm tắt DAG, truy xuất vector, v.v.).
+- **Plugin bộ nhớ** (`plugins.slots.memory`) tách biệt với context engines. Plugin bộ nhớ cung cấp tìm kiếm/truy xuất; context engines kiểm soát những gì mô hình thấy. Chúng có thể hoạt động cùng nhau — một context engine có thể sử dụng dữ liệu plugin bộ nhớ trong quá trình lắp ráp.
+- **Cắt tỉa session** (cắt bớt kết quả công cụ cũ trong bộ nhớ) vẫn chạy bất kể context engine nào đang hoạt động.
 
-## Tips
+## Mẹo
 
-- Use `openclaw doctor` to verify your engine is loading correctly.
-- If switching engines, existing sessions continue with their current history.
-  The new engine takes over for future runs.
-- Engine errors are logged and surfaced in diagnostics. If a plugin engine
-  fails to register or the selected engine id cannot be resolved, OpenClaw
-  does not fall back automatically; runs fail until you fix the plugin or
-  switch `plugins.slots.contextEngine` back to `"legacy"`.
-- For development, use `openclaw plugins install -l ./my-engine` to link a
-  local plugin directory without copying.
+- Sử dụng `openclaw doctor` để xác minh engine của bạn đang tải đúng cách.
+- Nếu chuyển đổi engine, các session hiện tại tiếp tục với lịch sử hiện tại của chúng. Engine mới tiếp quản cho các lần chạy trong tương lai.
+- Lỗi engine được ghi lại và hiển thị trong chẩn đoán. Nếu một plugin engine không đăng ký được hoặc id engine đã chọn không thể được giải quyết, OpenClaw không tự động quay lại; các lần chạy sẽ thất bại cho đến khi bạn sửa plugin hoặc chuyển `plugins.slots.contextEngine` về `"legacy"`.
+- Đối với phát triển, sử dụng `openclaw plugins install -l ./my-engine` để liên kết một thư mục plugin địa phương mà không cần sao chép.
 
-See also: [Compaction](/concepts/compaction), [Context](/concepts/context),
-[Plugins](/tools/plugin), [Plugin manifest](/plugins/manifest).
+Xem thêm: [Compaction](/concepts/compaction), [Context](/concepts/context), [Plugins](/tools/plugin), [Plugin manifest](/plugins/manifest).

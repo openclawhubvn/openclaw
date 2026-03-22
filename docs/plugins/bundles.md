@@ -1,41 +1,33 @@
 ---
-summary: "Install and use Codex, Claude, and Cursor bundles as OpenClaw plugins"
+summary: "Cài đặt và sử dụng các gói Codex, Claude, và Cursor như plugin của OpenClaw"
 read_when:
-  - You want to install a Codex, Claude, or Cursor-compatible bundle
-  - You need to understand how OpenClaw maps bundle content into native features
-  - You are debugging bundle detection or missing capabilities
-title: "Plugin Bundles"
+  - Bạn muốn cài đặt một gói tương thích với Codex, Claude, hoặc Cursor
+  - Bạn cần hiểu cách OpenClaw ánh xạ nội dung gói thành các tính năng gốc
+  - Bạn đang gỡ lỗi phát hiện gói hoặc thiếu khả năng
+title: "Gói Plugin"
 ---
 
-# Plugin Bundles
+# Gói Plugin
 
-OpenClaw can install plugins from three external ecosystems: **Codex**, **Claude**,
-and **Cursor**. These are called **bundles** — content and metadata packs that
-OpenClaw maps into native features like skills, hooks, and MCP tools.
+OpenClaw có thể cài đặt plugin từ ba hệ sinh thái bên ngoài: **Codex**, **Claude**, và **Cursor**. Đây được gọi là **gói** — các gói nội dung và siêu dữ liệu mà OpenClaw ánh xạ thành các tính năng gốc như kỹ năng, hooks, và công cụ MCP.
 
 <Info>
-  Bundles are **not** the same as native OpenClaw plugins. Native plugins run
-  in-process and can register any capability. Bundles are content packs with
-  selective feature mapping and a narrower trust boundary.
+  Gói **không** giống như plugin gốc của OpenClaw. Plugin gốc chạy trong quá trình và có thể đăng ký bất kỳ khả năng nào. Gói là các gói nội dung với ánh xạ tính năng chọn lọc và ranh giới tin cậy hẹp hơn.
 </Info>
 
-## Why bundles exist
+## Tại sao gói tồn tại
 
-Many useful plugins are published in Codex, Claude, or Cursor format. Instead
-of requiring authors to rewrite them as native OpenClaw plugins, OpenClaw
-detects these formats and maps their supported content into the native feature
-set. This means you can install a Claude command pack or a Codex skill bundle
-and use it immediately.
+Nhiều plugin hữu ích được phát hành dưới định dạng Codex, Claude, hoặc Cursor. Thay vì yêu cầu tác giả viết lại chúng thành plugin gốc của OpenClaw, OpenClaw phát hiện các định dạng này và ánh xạ nội dung được hỗ trợ của chúng vào bộ tính năng gốc. Điều này có nghĩa là bạn có thể cài đặt một gói lệnh Claude hoặc một gói kỹ năng Codex và sử dụng ngay lập tức.
 
-## Install a bundle
+## Cài đặt một gói
 
 <Steps>
-  <Step title="Install from a directory, archive, or marketplace">
+  <Step title="Cài đặt từ thư mục, tệp lưu trữ, hoặc marketplace">
     ```bash
-    # Local directory
+    # Thư mục cục bộ
     openclaw plugins install ./my-bundle
 
-    # Archive
+    # Tệp lưu trữ
     openclaw plugins install ./my-bundle.tgz
 
     # Claude marketplace
@@ -45,137 +37,129 @@ and use it immediately.
 
   </Step>
 
-  <Step title="Verify detection">
+  <Step title="Xác minh phát hiện">
     ```bash
     openclaw plugins list
     openclaw plugins inspect <id>
     ```
 
-    Bundles show as `Format: bundle` with a subtype of `codex`, `claude`, or `cursor`.
+    Gói hiển thị dưới dạng `Format: bundle` với một loại phụ là `codex`, `claude`, hoặc `cursor`.
 
   </Step>
 
-  <Step title="Restart and use">
+  <Step title="Khởi động lại và sử dụng">
     ```bash
     openclaw gateway restart
     ```
 
-    Mapped features (skills, hooks, MCP tools) are available in the next session.
+    Các tính năng được ánh xạ (kỹ năng, hooks, công cụ MCP) sẽ có sẵn trong phiên tiếp theo.
 
   </Step>
 </Steps>
 
-## What OpenClaw maps from bundles
+## OpenClaw ánh xạ gì từ gói
 
-Not every bundle feature runs in OpenClaw today. Here is what works and what
-is detected but not yet wired.
+Không phải mọi tính năng của gói đều chạy trong OpenClaw hiện nay. Dưới đây là những gì hoạt động và những gì được phát hiện nhưng chưa được kết nối.
 
-### Supported now
+### Đã hỗ trợ
 
-| Feature       | How it maps                                                                                          | Applies to     |
+| Tính năng     | Cách ánh xạ                                                                                          | Áp dụng cho    |
 | ------------- | ---------------------------------------------------------------------------------------------------- | -------------- |
-| Skill content | Bundle skill roots load as normal OpenClaw skills                                                    | All formats    |
-| Commands      | `commands/` and `.cursor/commands/` treated as skill roots                                           | Claude, Cursor |
-| Hook packs    | OpenClaw-style `HOOK.md` + `handler.ts` layouts                                                      | Codex          |
-| MCP tools     | Bundle MCP config merged into embedded Pi settings; supported stdio servers launched as subprocesses | All formats    |
-| Settings      | Claude `settings.json` imported as embedded Pi defaults                                              | Claude         |
+| Nội dung kỹ năng | Gốc kỹ năng của gói tải như kỹ năng OpenClaw thông thường                                          | Tất cả định dạng|
+| Lệnh          | `commands/` và `.cursor/commands/` được coi là gốc kỹ năng                                           | Claude, Cursor |
+| Gói hook      | Bố cục `HOOK.md` + `handler.ts` kiểu OpenClaw                                                        | Codex          |
+| Công cụ MCP   | Cấu hình MCP của gói được hợp nhất vào cài đặt Pi nhúng; các máy chủ stdio được hỗ trợ được khởi chạy dưới dạng quy trình con | Tất cả định dạng|
+| Cài đặt       | `settings.json` của Claude được nhập làm mặc định Pi nhúng                                           | Claude         |
 
-### Detected but not executed
+### Được phát hiện nhưng không thực thi
 
-These are recognized and shown in diagnostics, but OpenClaw does not run them:
+Những điều này được nhận diện và hiển thị trong chẩn đoán, nhưng OpenClaw không chạy chúng:
 
-- Claude `agents`, `hooks.json` automation, `lspServers`, `outputStyles`
-- Cursor `.cursor/agents`, `.cursor/hooks.json`, `.cursor/rules`
-- Codex inline/app metadata beyond capability reporting
+- `agents`, `hooks.json` tự động hóa, `lspServers`, `outputStyles` của Claude
+- `.cursor/agents`, `.cursor/hooks.json`, `.cursor/rules` của Cursor
+- Siêu dữ liệu nội tuyến/ứng dụng của Codex ngoài báo cáo khả năng
 
-## Bundle formats
+## Định dạng gói
 
 <AccordionGroup>
-  <Accordion title="Codex bundles">
-    Markers: `.codex-plugin/plugin.json`
+  <Accordion title="Gói Codex">
+    Dấu hiệu: `.codex-plugin/plugin.json`
 
-    Optional content: `skills/`, `hooks/`, `.mcp.json`, `.app.json`
+    Nội dung tùy chọn: `skills/`, `hooks/`, `.mcp.json`, `.app.json`
 
-    Codex bundles fit OpenClaw best when they use skill roots and OpenClaw-style
-    hook-pack directories (`HOOK.md` + `handler.ts`).
-
-  </Accordion>
-
-  <Accordion title="Claude bundles">
-    Two detection modes:
-
-    - **Manifest-based:** `.claude-plugin/plugin.json`
-    - **Manifestless:** default Claude layout (`skills/`, `commands/`, `agents/`, `hooks/`, `.mcp.json`, `settings.json`)
-
-    Claude-specific behavior:
-
-    - `commands/` is treated as skill content
-    - `settings.json` is imported into embedded Pi settings (shell override keys are sanitized)
-    - `.mcp.json` exposes supported stdio tools to embedded Pi
-    - `hooks/hooks.json` is detected but not executed
-    - Custom component paths in the manifest are additive (they extend defaults, not replace them)
+    Gói Codex phù hợp nhất với OpenClaw khi chúng sử dụng gốc kỹ năng và thư mục gói hook kiểu OpenClaw (`HOOK.md` + `handler.ts`).
 
   </Accordion>
 
-  <Accordion title="Cursor bundles">
-    Markers: `.cursor-plugin/plugin.json`
+  <Accordion title="Gói Claude">
+    Hai chế độ phát hiện:
 
-    Optional content: `skills/`, `.cursor/commands/`, `.cursor/agents/`, `.cursor/rules/`, `.cursor/hooks.json`, `.mcp.json`
+    - **Dựa trên manifest:** `.claude-plugin/plugin.json`
+    - **Không có manifest:** bố cục Claude mặc định (`skills/`, `commands/`, `agents/`, `hooks/`, `.mcp.json`, `settings.json`)
 
-    - `.cursor/commands/` is treated as skill content
-    - `.cursor/rules/`, `.cursor/agents/`, and `.cursor/hooks.json` are detect-only
+    Hành vi đặc thù của Claude:
+
+    - `commands/` được coi là nội dung kỹ năng
+    - `settings.json` được nhập vào cài đặt Pi nhúng (các khóa ghi đè shell được làm sạch)
+    - `.mcp.json` hiển thị các công cụ stdio được hỗ trợ cho Pi nhúng
+    - `hooks/hooks.json` được phát hiện nhưng không thực thi
+    - Các đường dẫn thành phần tùy chỉnh trong manifest là bổ sung (chúng mở rộng mặc định, không thay thế chúng)
+
+  </Accordion>
+
+  <Accordion title="Gói Cursor">
+    Dấu hiệu: `.cursor-plugin/plugin.json`
+
+    Nội dung tùy chọn: `skills/`, `.cursor/commands/`, `.cursor/agents/`, `.cursor/rules/`, `.cursor/hooks.json`, `.mcp.json`
+
+    - `.cursor/commands/` được coi là nội dung kỹ năng
+    - `.cursor/rules/`, `.cursor/agents/`, và `.cursor/hooks.json` chỉ được phát hiện
 
   </Accordion>
 </AccordionGroup>
 
-## Detection precedence
+## Thứ tự phát hiện
 
-OpenClaw checks for native plugin format first:
+OpenClaw kiểm tra định dạng plugin gốc trước:
 
-1. `openclaw.plugin.json` or valid `package.json` with `openclaw.extensions` — treated as **native plugin**
-2. Bundle markers (`.codex-plugin/`, `.claude-plugin/`, or default Claude/Cursor layout) — treated as **bundle**
+1. `openclaw.plugin.json` hoặc `package.json` hợp lệ với `openclaw.extensions` — được coi là **plugin gốc**
+2. Dấu hiệu gói (`.codex-plugin/`, `.claude-plugin/`, hoặc bố cục Claude/Cursor mặc định) — được coi là **gói**
 
-If a directory contains both, OpenClaw uses the native path. This prevents
-dual-format packages from being partially installed as bundles.
+Nếu một thư mục chứa cả hai, OpenClaw sử dụng đường dẫn gốc. Điều này ngăn các gói định dạng kép bị cài đặt một phần dưới dạng gói.
 
-## Security
+## Bảo mật
 
-Bundles have a narrower trust boundary than native plugins:
+Gói có ranh giới tin cậy hẹp hơn so với plugin gốc:
 
-- OpenClaw does **not** load arbitrary bundle runtime modules in-process
-- Skills and hook-pack paths must stay inside the plugin root (boundary-checked)
-- Settings files are read with the same boundary checks
-- Supported stdio MCP servers may be launched as subprocesses
+- OpenClaw **không** tải các mô-đun runtime gói tùy ý trong quá trình
+- Đường dẫn kỹ năng và gói hook phải nằm trong thư mục gốc plugin (được kiểm tra ranh giới)
+- Các tệp cài đặt được đọc với cùng kiểm tra ranh giới
+- Các máy chủ MCP stdio được hỗ trợ có thể được khởi chạy dưới dạng quy trình con
 
-This makes bundles safer by default, but you should still treat third-party
-bundles as trusted content for the features they do expose.
+Điều này làm cho gói an toàn hơn theo mặc định, nhưng bạn vẫn nên coi các gói bên thứ ba là nội dung đáng tin cậy cho các tính năng mà chúng cung cấp.
 
-## Troubleshooting
+## Khắc phục sự cố
 
 <AccordionGroup>
-  <Accordion title="Bundle is detected but capabilities do not run">
-    Run `openclaw plugins inspect <id>`. If a capability is listed but marked as
-    not wired, that is a product limit — not a broken install.
+  <Accordion title="Gói được phát hiện nhưng khả năng không chạy">
+    Chạy `openclaw plugins inspect <id>`. Nếu một khả năng được liệt kê nhưng được đánh dấu là không kết nối, đó là giới hạn sản phẩm — không phải cài đặt bị lỗi.
   </Accordion>
 
-  <Accordion title="Claude command files do not appear">
-    Make sure the bundle is enabled and the markdown files are inside a detected
-    `commands/` or `skills/` root.
+  <Accordion title="Tệp lệnh Claude không xuất hiện">
+    Đảm bảo gói được kích hoạt và các tệp markdown nằm trong gốc `commands/` hoặc `skills/` được phát hiện.
   </Accordion>
 
-  <Accordion title="Claude settings do not apply">
-    Only embedded Pi settings from `settings.json` are supported. OpenClaw does
-    not treat bundle settings as raw config patches.
+  <Accordion title="Cài đặt Claude không áp dụng">
+    Chỉ cài đặt Pi nhúng từ `settings.json` được hỗ trợ. OpenClaw không coi cài đặt gói là các bản vá cấu hình thô.
   </Accordion>
 
-  <Accordion title="Claude hooks do not execute">
-    `hooks/hooks.json` is detect-only. If you need runnable hooks, use the
-    OpenClaw hook-pack layout or ship a native plugin.
+  <Accordion title="Hooks Claude không thực thi">
+    `hooks/hooks.json` chỉ được phát hiện. Nếu bạn cần hooks có thể chạy, hãy sử dụng bố cục gói hook của OpenClaw hoặc phát hành một plugin gốc.
   </Accordion>
 </AccordionGroup>
 
-## Related
+## Liên quan
 
-- [Install and Configure Plugins](/tools/plugin)
-- [Building Plugins](/plugins/building-plugins) — create a native plugin
-- [Plugin Manifest](/plugins/manifest) — native manifest schema
+- [Cài đặt và Cấu hình Plugin](/tools/plugin)
+- [Xây dựng Plugin](/plugins/building-plugins) — tạo một plugin gốc
+- [Manifest Plugin](/plugins/manifest) — lược đồ manifest gốc

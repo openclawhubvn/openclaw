@@ -1,41 +1,25 @@
----
-summary: "Plugin manifest + JSON schema requirements (strict config validation)"
-read_when:
-  - You are building an OpenClaw plugin
-  - You need to ship a plugin config schema or debug plugin validation errors
-title: "Plugin Manifest"
----
+# Plugin Manifest (openclaw.plugin.json)
 
-# Plugin manifest (openclaw.plugin.json)
+Trang này chỉ dành cho **manifest plugin gốc của OpenClaw**.
 
-This page is for the **native OpenClaw plugin manifest** only.
+Để biết về cấu trúc bundle tương thích, xem [Plugin bundles](/plugins/bundles).
 
-For compatible bundle layouts, see [Plugin bundles](/plugins/bundles).
-
-Compatible bundle formats use different manifest files:
+Các định dạng bundle tương thích sử dụng các file manifest khác nhau:
 
 - Codex bundle: `.codex-plugin/plugin.json`
-- Claude bundle: `.claude-plugin/plugin.json` or the default Claude component
-  layout without a manifest
+- Claude bundle: `.claude-plugin/plugin.json` hoặc cấu trúc Claude mặc định không cần manifest
 - Cursor bundle: `.cursor-plugin/plugin.json`
 
-OpenClaw auto-detects those bundle layouts too, but they are not validated
-against the `openclaw.plugin.json` schema described here.
+OpenClaw tự động nhận diện các cấu trúc bundle này, nhưng chúng không được xác thực theo schema `openclaw.plugin.json` được mô tả ở đây.
 
-For compatible bundles, OpenClaw currently reads bundle metadata plus declared
-skill roots, Claude command roots, Claude bundle `settings.json` defaults, and
-supported hook packs when the layout matches OpenClaw runtime expectations.
+Với các bundle tương thích, OpenClaw hiện đọc metadata của bundle cùng với các skill root đã khai báo, Claude command root, mặc định của `settings.json` trong Claude bundle, và các hook pack được hỗ trợ khi cấu trúc phù hợp với kỳ vọng runtime của OpenClaw.
 
-Every native OpenClaw plugin **must** ship a `openclaw.plugin.json` file in the
-**plugin root**. OpenClaw uses this manifest to validate configuration
-**without executing plugin code**. Missing or invalid manifests are treated as
-plugin errors and block config validation.
+Mỗi plugin gốc của OpenClaw **phải** có file `openclaw.plugin.json` trong **thư mục gốc của plugin**. OpenClaw sử dụng manifest này để xác thực cấu hình **mà không cần thực thi mã plugin**. Thiếu hoặc manifest không hợp lệ được coi là lỗi plugin và chặn xác thực cấu hình.
 
-See the full plugin system guide: [Plugins](/tools/plugin).
-For the native capability model and current external-compatibility guidance:
-[Capability model](/plugins/architecture#public-capability-model).
+Xem hướng dẫn đầy đủ về hệ thống plugin: [Plugins](/tools/plugin).
+Để biết về mô hình khả năng gốc và hướng dẫn tương thích bên ngoài hiện tại: [Capability model](/plugins/architecture#public-capability-model).
 
-## Required fields
+## Các trường bắt buộc
 
 ```json
 {
@@ -48,42 +32,36 @@ For the native capability model and current external-compatibility guidance:
 }
 ```
 
-Required keys:
+Các khóa bắt buộc:
 
-- `id` (string): canonical plugin id.
-- `configSchema` (object): JSON Schema for plugin config (inline).
+- `id` (string): id plugin chuẩn.
+- `configSchema` (object): JSON Schema cho cấu hình plugin (nội tuyến).
 
-Optional keys:
+Các khóa tùy chọn:
 
-- `kind` (string): plugin kind (examples: `"memory"`, `"context-engine"`).
-- `channels` (array): channel ids registered by this plugin (channel capability; example: `["matrix"]`).
-- `providers` (array): provider ids registered by this plugin (text inference capability).
-- `providerAuthEnvVars` (object): auth env vars keyed by provider id. Use this
-  when OpenClaw should resolve provider credentials from env without loading
-  plugin runtime first.
-- `providerAuthChoices` (array): cheap onboarding/auth-choice metadata keyed by
-  provider + auth method. Use this when OpenClaw should show a provider in
-  auth-choice pickers, preferred-provider resolution, and CLI help without
-  loading plugin runtime first.
-- `skills` (array): skill directories to load (relative to the plugin root).
-- `name` (string): display name for the plugin.
-- `description` (string): short plugin summary.
-- `uiHints` (object): config field labels/placeholders/sensitive flags for UI rendering.
-- `version` (string): plugin version (informational).
+- `kind` (string): loại plugin (ví dụ: `"memory"`, `"context-engine"`).
+- `channels` (array): id kênh được plugin này đăng ký (khả năng kênh; ví dụ: `["matrix"]`).
+- `providers` (array): id nhà cung cấp được plugin này đăng ký (khả năng suy luận văn bản).
+- `providerAuthEnvVars` (object): biến môi trường xác thực theo id nhà cung cấp. Sử dụng khi OpenClaw cần lấy thông tin xác thực từ môi trường mà không cần tải runtime plugin trước.
+- `providerAuthChoices` (array): metadata onboarding/xác thực rẻ tiền theo nhà cung cấp + phương thức xác thực. Sử dụng khi OpenClaw cần hiển thị nhà cung cấp trong các lựa chọn xác thực, giải quyết nhà cung cấp ưu tiên, và trợ giúp CLI mà không cần tải runtime plugin trước.
+- `skills` (array): thư mục skill để tải (tương đối so với thư mục gốc của plugin).
+- `name` (string): tên hiển thị cho plugin.
+- `description` (string): tóm tắt ngắn gọn về plugin.
+- `uiHints` (object): nhãn trường cấu hình/gợi ý/đánh dấu nhạy cảm cho hiển thị UI.
+- `version` (string): phiên bản plugin (thông tin).
 
-### `providerAuthChoices` shape
+### Hình dạng `providerAuthChoices`
 
-Each entry can declare:
+Mỗi mục có thể khai báo:
 
-- `provider`: provider id
-- `method`: auth method id
-- `choiceId`: stable onboarding/auth-choice id
-- `choiceLabel` / `choiceHint`: picker label + short hint
-- `groupId` / `groupLabel` / `groupHint`: grouped onboarding bucket metadata
-- `optionKey` / `cliFlag` / `cliOption` / `cliDescription`: optional one-flag
-  CLI wiring for simple auth flows such as API keys
+- `provider`: id nhà cung cấp
+- `method`: id phương thức xác thực
+- `choiceId`: id ổn định cho onboarding/xác thực
+- `choiceLabel` / `choiceHint`: nhãn chọn + gợi ý ngắn
+- `groupId` / `groupLabel` / `groupHint`: metadata nhóm onboarding
+- `optionKey` / `cliFlag` / `cliOption` / `cliDescription`: tùy chọn một cờ CLI cho các luồng xác thực đơn giản như khóa API
 
-Example:
+Ví dụ:
 
 ```json
 {
@@ -104,42 +82,28 @@ Example:
 }
 ```
 
-## JSON Schema requirements
+## Yêu cầu JSON Schema
 
-- **Every plugin must ship a JSON Schema**, even if it accepts no config.
-- An empty schema is acceptable (for example, `{ "type": "object", "additionalProperties": false }`).
-- Schemas are validated at config read/write time, not at runtime.
+- **Mỗi plugin phải có một JSON Schema**, ngay cả khi không chấp nhận cấu hình nào.
+- Một schema trống là chấp nhận được (ví dụ: `{ "type": "object", "additionalProperties": false }`).
+- Các schema được xác thực tại thời điểm đọc/ghi cấu hình, không phải tại runtime.
 
-## Validation behavior
+## Hành vi xác thực
 
-- Unknown `channels.*` keys are **errors**, unless the channel id is declared by
-  a plugin manifest.
-- `plugins.entries.<id>`, `plugins.allow`, `plugins.deny`, and `plugins.slots.*`
-  must reference **discoverable** plugin ids. Unknown ids are **errors**.
-- If a plugin is installed but has a broken or missing manifest or schema,
-  validation fails and Doctor reports the plugin error.
-- If plugin config exists but the plugin is **disabled**, the config is kept and
-  a **warning** is surfaced in Doctor + logs.
+- Các khóa `channels.*` không xác định là **lỗi**, trừ khi id kênh được khai báo bởi một manifest plugin.
+- `plugins.entries.<id>`, `plugins.allow`, `plugins.deny`, và `plugins.slots.*` phải tham chiếu đến id plugin **có thể phát hiện**. Id không xác định là **lỗi**.
+- Nếu một plugin được cài đặt nhưng có manifest hoặc schema bị hỏng hoặc thiếu, xác thực sẽ thất bại và Doctor sẽ báo lỗi plugin.
+- Nếu cấu hình plugin tồn tại nhưng plugin **bị vô hiệu hóa**, cấu hình vẫn được giữ lại và một **cảnh báo** sẽ xuất hiện trong Doctor + logs.
 
-See [Configuration reference](/configuration) for the full `plugins.*` schema.
+Xem [Tham chiếu cấu hình](/configuration) để biết đầy đủ về schema `plugins.*`.
 
-## Notes
+## Ghi chú
 
-- The manifest is **required for native OpenClaw plugins**, including local filesystem loads.
-- Runtime still loads the plugin module separately; the manifest is only for
-  discovery + validation.
-- `providerAuthEnvVars` is the cheap metadata path for auth probes, env-marker
-  validation, and similar provider-auth surfaces that should not boot plugin
-  runtime just to inspect env names.
-- `providerAuthChoices` is the cheap metadata path for auth-choice pickers,
-  `--auth-choice` resolution, preferred-provider mapping, and simple onboarding
-  CLI flag registration before provider runtime loads. For runtime wizard
-  metadata that requires provider code, see
-  [Provider runtime hooks](/plugins/architecture#provider-runtime-hooks).
-- Exclusive plugin kinds are selected through `plugins.slots.*`.
-  - `kind: "memory"` is selected by `plugins.slots.memory`.
-  - `kind: "context-engine"` is selected by `plugins.slots.contextEngine`
-    (default: built-in `legacy`).
-- If your plugin depends on native modules, document the build steps and any
-  package-manager allowlist requirements (for example, pnpm `allow-build-scripts`
-  - `pnpm rebuild <package>`).
+- Manifest là **bắt buộc cho các plugin gốc của OpenClaw**, bao gồm cả tải từ hệ thống file cục bộ.
+- Runtime vẫn tải module plugin riêng biệt; manifest chỉ để phát hiện + xác thực.
+- `providerAuthEnvVars` là đường dẫn metadata rẻ tiền cho các kiểm tra xác thực, xác thực dấu môi trường, và các bề mặt xác thực nhà cung cấp tương tự mà không cần khởi động runtime plugin chỉ để kiểm tra tên môi trường.
+- `providerAuthChoices` là đường dẫn metadata rẻ tiền cho các lựa chọn xác thực, giải quyết `--auth-choice`, ánh xạ nhà cung cấp ưu tiên, và đăng ký cờ CLI onboarding đơn giản trước khi runtime nhà cung cấp tải. Đối với metadata wizard runtime yêu cầu mã nhà cung cấp, xem [Provider runtime hooks](/plugins/architecture#provider-runtime-hooks).
+- Các loại plugin độc quyền được chọn thông qua `plugins.slots.*`.
+  - `kind: "memory"` được chọn bởi `plugins.slots.memory`.
+  - `kind: "context-engine"` được chọn bởi `plugins.slots.contextEngine` (mặc định: `legacy` tích hợp sẵn).
+- Nếu plugin của bạn phụ thuộc vào các module gốc, hãy tài liệu hóa các bước xây dựng và bất kỳ yêu cầu danh sách cho phép trình quản lý gói nào (ví dụ: pnpm `allow-build-scripts` - `pnpm rebuild <package>`).

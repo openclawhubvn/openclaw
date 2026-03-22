@@ -1,33 +1,30 @@
 ---
-summary: "Get OpenClaw installed and run your first chat in minutes."
+summary: "Cài đặt OpenClaw và bắt đầu cuộc trò chuyện đầu tiên chỉ trong vài phút."
 read_when:
-  - First time setup from zero
-  - You want the fastest path to a working chat
-title: "Getting Started"
+  - Thiết lập lần đầu từ đầu
+  - Bạn muốn con đường nhanh nhất để có một cuộc trò chuyện hoạt động
+title: "Bắt đầu"
 ---
 
-# Getting Started
+# Bắt đầu
 
-Install OpenClaw, run onboarding, and chat with your AI assistant — all in
-about 5 minutes. By the end you will have a running Gateway, configured auth,
-and a working chat session.
+Cài đặt OpenClaw, chạy onboarding và trò chuyện với trợ lý AI của bạn — tất cả chỉ trong khoảng 5 phút. Sau khi hoàn tất, bạn sẽ có một Gateway đang chạy, cấu hình xác thực và một phiên trò chuyện hoạt động.
 
-## What you need
+## Những gì bạn cần
 
-- **Node.js** — Node 24 recommended (Node 22.16+ also supported)
-- **An API key** from a model provider (Anthropic, OpenAI, Google, etc.) — onboarding will prompt you
+- **Node.js** — Khuyến nghị sử dụng Node 24 (Node 22.16+ cũng được hỗ trợ)
+- **Một API key** từ nhà cung cấp mô hình (Anthropic, OpenAI, Google, v.v.) — onboarding sẽ yêu cầu bạn cung cấp
 
 <Tip>
-Check your Node version with `node --version`.
-**Windows users:** both native Windows and WSL2 are supported. WSL2 is more
-stable and recommended for the full experience. See [Windows](/platforms/windows).
-Need to install Node? See [Node setup](/install/node).
+Kiểm tra phiên bản Node của bạn với `node --version`.
+**Người dùng Windows:** cả Windows gốc và WSL2 đều được hỗ trợ. WSL2 ổn định hơn và được khuyến nghị để có trải nghiệm đầy đủ. Xem [Windows](/platforms/windows).
+Cần cài đặt Node? Xem [Cài đặt Node](/install/node).
 </Tip>
 
-## Quick setup
+## Thiết lập nhanh
 
 <Steps>
-  <Step title="Install OpenClaw">
+  <Step title="Cài đặt OpenClaw">
     <Tabs>
       <Tab title="macOS / Linux">
         ```bash
@@ -35,7 +32,7 @@ Need to install Node? See [Node setup](/install/node).
         ```
         <img
   src="/assets/install-script.svg"
-  alt="Install Script Process"
+  alt="Quá trình cài đặt script"
   className="rounded-lg"
 />
       </Tab>
@@ -47,70 +44,67 @@ Need to install Node? See [Node setup](/install/node).
     </Tabs>
 
     <Note>
-    Other install methods (Docker, Nix, npm): [Install](/install).
+    Các phương pháp cài đặt khác (Docker, Nix, npm): [Cài đặt](/install).
     </Note>
 
   </Step>
-  <Step title="Run onboarding">
+  <Step title="Chạy onboarding">
     ```bash
     openclaw onboard --install-daemon
     ```
 
-    The wizard walks you through choosing a model provider, setting an API key,
-    and configuring the Gateway. It takes about 2 minutes.
+    Trình hướng dẫn sẽ giúp bạn chọn nhà cung cấp mô hình, thiết lập API key và cấu hình Gateway. Quá trình này mất khoảng 2 phút.
 
-    See [Onboarding (CLI)](/start/wizard) for the full reference.
+    Xem [Onboarding (CLI)](/start/wizard) để tham khảo đầy đủ.
 
   </Step>
-  <Step title="Verify the Gateway is running">
+  <Step title="Xác minh Gateway đang chạy">
     ```bash
     openclaw gateway status
     ```
 
-    You should see the Gateway listening on port 18789.
+    Bạn sẽ thấy Gateway đang lắng nghe trên cổng 18789.
 
   </Step>
-  <Step title="Open the dashboard">
+  <Step title="Mở dashboard">
     ```bash
     openclaw dashboard
     ```
 
-    This opens the Control UI in your browser. If it loads, everything is working.
+    Điều này sẽ mở giao diện điều khiển trong trình duyệt của bạn. Nếu nó tải được, mọi thứ đang hoạt động.
 
   </Step>
-  <Step title="Send your first message">
-    Type a message in the Control UI chat and you should get an AI reply.
+  <Step title="Gửi tin nhắn đầu tiên của bạn">
+    Nhập một tin nhắn trong giao diện điều khiển và bạn sẽ nhận được phản hồi từ AI.
 
-    Want to chat from your phone instead? The fastest channel to set up is
-    [Telegram](/channels/telegram) (just a bot token). See [Channels](/channels)
-    for all options.
+    Muốn trò chuyện từ điện thoại của bạn? Kênh nhanh nhất để thiết lập là [Telegram](/channels/telegram) (chỉ cần một bot token). Xem [Kênh](/channels) để biết tất cả các tùy chọn.
 
   </Step>
 </Steps>
 
-## What to do next
+## Làm gì tiếp theo
 
 <Columns>
-  <Card title="Connect a channel" href="/channels" icon="message-square">
-    WhatsApp, Telegram, Discord, iMessage, and more.
+  <Card title="Kết nối một kênh" href="/channels" icon="message-square">
+    WhatsApp, Telegram, Discord, iMessage và nhiều hơn nữa.
   </Card>
-  <Card title="Pairing and safety" href="/channels/pairing" icon="shield">
-    Control who can message your agent.
+  <Card title="Ghép đôi và an toàn" href="/channels/pairing" icon="shield">
+    Kiểm soát ai có thể nhắn tin cho agent của bạn.
   </Card>
-  <Card title="Configure the Gateway" href="/gateway/configuration" icon="settings">
-    Models, tools, sandbox, and advanced settings.
+  <Card title="Cấu hình Gateway" href="/gateway/configuration" icon="settings">
+    Mô hình, công cụ, sandbox và cài đặt nâng cao.
   </Card>
-  <Card title="Browse tools" href="/tools" icon="wrench">
-    Browser, exec, web search, skills, and plugins.
+  <Card title="Duyệt công cụ" href="/tools" icon="wrench">
+    Trình duyệt, exec, tìm kiếm web, kỹ năng và plugin.
   </Card>
 </Columns>
 
-<Accordion title="Advanced: environment variables">
-  If you run OpenClaw as a service account or want custom paths:
+<Accordion title="Nâng cao: biến môi trường">
+  Nếu bạn chạy OpenClaw dưới dạng tài khoản dịch vụ hoặc muốn đường dẫn tùy chỉnh:
 
-- `OPENCLAW_HOME` — home directory for internal path resolution
-- `OPENCLAW_STATE_DIR` — override the state directory
-- `OPENCLAW_CONFIG_PATH` — override the config file path
+- `OPENCLAW_HOME` — thư mục chính để giải quyết đường dẫn nội bộ
+- `OPENCLAW_STATE_DIR` — ghi đè thư mục trạng thái
+- `OPENCLAW_CONFIG_PATH` — ghi đè đường dẫn tệp cấu hình
 
-Full reference: [Environment variables](/help/environment).
+Tham khảo đầy đủ: [Biến môi trường](/help/environment).
 </Accordion>

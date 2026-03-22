@@ -1,56 +1,56 @@
 ---
-summary: "Inbound channel location parsing (Telegram + WhatsApp) and context fields"
+summary: "Phân tích vị trí kênh inbound (Telegram + WhatsApp) và các trường ngữ cảnh"
 read_when:
-  - Adding or modifying channel location parsing
-  - Using location context fields in agent prompts or tools
-title: "Channel Location Parsing"
+  - Thêm hoặc chỉnh sửa phân tích vị trí kênh
+  - Sử dụng các trường ngữ cảnh vị trí trong lời nhắc hoặc công cụ của agent
+title: "Phân Tích Vị Trí Kênh"
 ---
 
-# Channel location parsing
+# Phân tích vị trí kênh
 
-OpenClaw normalizes shared locations from chat channels into:
+OpenClaw chuẩn hóa các vị trí được chia sẻ từ các kênh chat thành:
 
-- human-readable text appended to the inbound body, and
-- structured fields in the auto-reply context payload.
+- văn bản dễ đọc được thêm vào nội dung inbound, và
+- các trường có cấu trúc trong payload ngữ cảnh tự động trả lời.
 
-Currently supported:
+Hiện tại hỗ trợ:
 
-- **Telegram** (location pins + venues + live locations)
+- **Telegram** (ghim vị trí + địa điểm + vị trí trực tiếp)
 - **WhatsApp** (locationMessage + liveLocationMessage)
-- **Matrix** (`m.location` with `geo_uri`)
+- **Matrix** (`m.location` với `geo_uri`)
 
-## Text formatting
+## Định dạng văn bản
 
-Locations are rendered as friendly lines without brackets:
+Các vị trí được hiển thị dưới dạng dòng thân thiện không có dấu ngoặc:
 
-- Pin:
+- Ghim:
   - `📍 48.858844, 2.294351 ±12m`
-- Named place:
-  - `📍 Eiffel Tower — Champ de Mars, Paris (48.858844, 2.294351 ±12m)`
-- Live share:
-  - `🛰 Live location: 48.858844, 2.294351 ±12m`
+- Địa điểm có tên:
+  - `📍 Tháp Eiffel — Champ de Mars, Paris (48.858844, 2.294351 ±12m)`
+- Chia sẻ trực tiếp:
+  - `🛰 Vị trí trực tiếp: 48.858844, 2.294351 ±12m`
 
-If the channel includes a caption/comment, it is appended on the next line:
+Nếu kênh có bao gồm chú thích/bình luận, nó sẽ được thêm vào dòng tiếp theo:
 
 ```
 📍 48.858844, 2.294351 ±12m
-Meet here
+Gặp nhau ở đây
 ```
 
-## Context fields
+## Trường ngữ cảnh
 
-When a location is present, these fields are added to `ctx`:
+Khi có vị trí, các trường sau được thêm vào `ctx`:
 
-- `LocationLat` (number)
-- `LocationLon` (number)
-- `LocationAccuracy` (number, meters; optional)
-- `LocationName` (string; optional)
-- `LocationAddress` (string; optional)
+- `LocationLat` (số)
+- `LocationLon` (số)
+- `LocationAccuracy` (số, mét; tùy chọn)
+- `LocationName` (chuỗi; tùy chọn)
+- `LocationAddress` (chuỗi; tùy chọn)
 - `LocationSource` (`pin | place | live`)
 - `LocationIsLive` (boolean)
 
-## Channel notes
+## Ghi chú kênh
 
-- **Telegram**: venues map to `LocationName/LocationAddress`; live locations use `live_period`.
-- **WhatsApp**: `locationMessage.comment` and `liveLocationMessage.caption` are appended as the caption line.
-- **Matrix**: `geo_uri` is parsed as a pin location; altitude is ignored and `LocationIsLive` is always false.
+- **Telegram**: địa điểm được ánh xạ tới `LocationName/LocationAddress`; vị trí trực tiếp sử dụng `live_period`.
+- **WhatsApp**: `locationMessage.comment` và `liveLocationMessage.caption` được thêm vào dưới dạng dòng chú thích.
+- **Matrix**: `geo_uri` được phân tích như một vị trí ghim; độ cao bị bỏ qua và `LocationIsLive` luôn là false.

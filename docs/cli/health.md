@@ -1,13 +1,13 @@
 ---
-summary: "CLI reference for `openclaw health` (gateway health endpoint via RPC)"
+summary: "Tham khảo CLI cho `openclaw health` (điểm cuối sức khỏe gateway qua RPC)"
 read_when:
-  - You want to quickly check the running Gateway’s health
+  - Bạn muốn nhanh chóng kiểm tra tình trạng hoạt động của Gateway
 title: "health"
 ---
 
 # `openclaw health`
 
-Fetch health from the running Gateway.
+Lấy thông tin sức khỏe từ Gateway đang chạy.
 
 ```bash
 openclaw health
@@ -15,7 +15,7 @@ openclaw health --json
 openclaw health --verbose
 ```
 
-Notes:
+Ghi chú:
 
-- `--verbose` runs live probes and prints per-account timings when multiple accounts are configured.
-- Output includes per-agent session stores when multiple agents are configured.
+- `--verbose` thực hiện kiểm tra trực tiếp và hiển thị thời gian cho từng tài khoản khi có nhiều tài khoản được cấu hình.
+- Kết quả bao gồm thông tin lưu trữ phiên cho từng agent khi có nhiều agent được cấu hình.

@@ -1,27 +1,24 @@
 ---
-summary: "Gateway WebSocket protocol: handshake, frames, versioning"
+summary: "Giao thức Gateway WebSocket: bắt tay, khung dữ liệu, phiên bản"
 read_when:
-  - Implementing or updating gateway WS clients
-  - Debugging protocol mismatches or connect failures
-  - Regenerating protocol schema/models
-title: "Gateway Protocol"
+  - Triển khai hoặc cập nhật client WS cho gateway
+  - Gỡ lỗi không khớp giao thức hoặc kết nối thất bại
+  - Tái tạo schema/mô hình giao thức
+title: "Giao thức Gateway"
 ---
 
-# Gateway protocol (WebSocket)
+# Giao thức Gateway (WebSocket)
 
-The Gateway WS protocol is the **single control plane + node transport** for
-OpenClaw. All clients (CLI, web UI, macOS app, iOS/Android nodes, headless
-nodes) connect over WebSocket and declare their **role** + **scope** at
-handshake time.
+Giao thức Gateway WS là **mặt phẳng điều khiển duy nhất + vận chuyển node** cho OpenClaw. Tất cả các client (CLI, giao diện web, ứng dụng macOS, node iOS/Android, node không đầu) kết nối qua WebSocket và khai báo **vai trò** + **phạm vi** khi bắt tay.
 
-## Transport
+## Vận chuyển
 
-- WebSocket, text frames with JSON payloads.
-- First frame **must** be a `connect` request.
+- WebSocket, khung dữ liệu dạng text với payload JSON.
+- Khung đầu tiên **phải** là yêu cầu `connect`.
 
-## Handshake (connect)
+## Bắt tay (connect)
 
-Gateway → Client (pre-connect challenge):
+Gateway → Client (thử thách trước khi kết nối):
 
 ```json
 {
@@ -77,7 +74,7 @@ Gateway → Client:
 }
 ```
 
-When a device token is issued, `hello-ok` also includes:
+Khi một token thiết bị được cấp, `hello-ok` cũng bao gồm:
 
 ```json
 {
@@ -89,7 +86,7 @@ When a device token is issued, `hello-ok` also includes:
 }
 ```
 
-### Node example
+### Ví dụ Node
 
 ```json
 {
@@ -124,24 +121,24 @@ When a device token is issued, `hello-ok` also includes:
 }
 ```
 
-## Framing
+## Khung dữ liệu
 
-- **Request**: `{type:"req", id, method, params}`
-- **Response**: `{type:"res", id, ok, payload|error}`
-- **Event**: `{type:"event", event, payload, seq?, stateVersion?}`
+- **Yêu cầu**: `{type:"req", id, method, params}`
+- **Phản hồi**: `{type:"res", id, ok, payload|error}`
+- **Sự kiện**: `{type:"event", event, payload, seq?, stateVersion?}`
 
-Side-effecting methods require **idempotency keys** (see schema).
+Các phương thức có tác dụng phụ yêu cầu **khóa idempotency** (xem schema).
 
-## Roles + scopes
+## Vai trò + phạm vi
 
-### Roles
+### Vai trò
 
-- `operator` = control plane client (CLI/UI/automation).
-- `node` = capability host (camera/screen/canvas/system.run).
+- `operator` = client mặt phẳng điều khiển (CLI/UI/tự động hóa).
+- `node` = máy chủ khả năng (camera/màn hình/canvas/system.run).
 
-### Scopes (operator)
+### Phạm vi (operator)
 
-Common scopes:
+Phạm vi phổ biến:
 
 - `operator.read`
 - `operator.write`
@@ -149,119 +146,100 @@ Common scopes:
 - `operator.approvals`
 - `operator.pairing`
 
-Method scope is only the first gate. Some slash commands reached through
-`chat.send` apply stricter command-level checks on top. For example, persistent
-`/config set` and `/config unset` writes require `operator.admin`.
+Phạm vi phương thức chỉ là cổng đầu tiên. Một số lệnh slash thông qua `chat.send` áp dụng kiểm tra cấp lệnh nghiêm ngặt hơn. Ví dụ, ghi `config set` và `config unset` yêu cầu `operator.admin`.
 
-### Caps/commands/permissions (node)
+### Khả năng/lệnh/quyền (node)
 
-Nodes declare capability claims at connect time:
+Các node khai báo yêu cầu khả năng khi kết nối:
 
-- `caps`: high-level capability categories.
-- `commands`: command allowlist for invoke.
-- `permissions`: granular toggles (e.g. `screen.record`, `camera.capture`).
+- `caps`: danh mục khả năng cấp cao.
+- `commands`: danh sách lệnh cho phép thực thi.
+- `permissions`: công tắc chi tiết (ví dụ: `screen.record`, `camera.capture`).
 
-The Gateway treats these as **claims** and enforces server-side allowlists.
+Gateway coi đây là **yêu cầu** và thực thi danh sách cho phép phía máy chủ.
 
-## Presence
+## Hiện diện
 
-- `system-presence` returns entries keyed by device identity.
-- Presence entries include `deviceId`, `roles`, and `scopes` so UIs can show a single row per device
-  even when it connects as both **operator** and **node**.
+- `system-presence` trả về các mục được khóa bằng danh tính thiết bị.
+- Các mục hiện diện bao gồm `deviceId`, `roles`, và `scopes` để giao diện người dùng có thể hiển thị một hàng duy nhất cho mỗi thiết bị ngay cả khi nó kết nối như cả **operator** và **node**.
 
-### Node helper methods
+### Phương thức hỗ trợ Node
 
-- Nodes may call `skills.bins` to fetch the current list of skill executables
-  for auto-allow checks.
+- Các node có thể gọi `skills.bins` để lấy danh sách hiện tại của các thực thi kỹ năng cho kiểm tra tự động cho phép.
 
-### Operator helper methods
+### Phương thức hỗ trợ Operator
 
-- Operators may call `tools.catalog` (`operator.read`) to fetch the runtime tool catalog for an
-  agent. The response includes grouped tools and provenance metadata:
-  - `source`: `core` or `plugin`
-  - `pluginId`: plugin owner when `source="plugin"`
-  - `optional`: whether a plugin tool is optional
+- Các operator có thể gọi `tools.catalog` (`operator.read`) để lấy danh mục công cụ runtime cho một agent. Phản hồi bao gồm các công cụ được nhóm và metadata nguồn gốc:
+  - `source`: `core` hoặc `plugin`
+  - `pluginId`: chủ sở hữu plugin khi `source="plugin"`
+  - `optional`: liệu công cụ plugin có tùy chọn hay không
 
-## Exec approvals
+## Phê duyệt thực thi
 
-- When an exec request needs approval, the gateway broadcasts `exec.approval.requested`.
-- Operator clients resolve by calling `exec.approval.resolve` (requires `operator.approvals` scope).
-- For `host=node`, `exec.approval.request` must include `systemRunPlan` (canonical `argv`/`cwd`/`rawCommand`/session metadata). Requests missing `systemRunPlan` are rejected.
+- Khi một yêu cầu thực thi cần phê duyệt, gateway phát `exec.approval.requested`.
+- Các client operator giải quyết bằng cách gọi `exec.approval.resolve` (yêu cầu phạm vi `operator.approvals`).
+- Đối với `host=node`, `exec.approval.request` phải bao gồm `systemRunPlan` (metadata `argv`/`cwd`/`rawCommand`/session chuẩn). Các yêu cầu thiếu `systemRunPlan` sẽ bị từ chối.
 
-## Versioning
+## Phiên bản
 
-- `PROTOCOL_VERSION` lives in `src/gateway/protocol/schema.ts`.
-- Clients send `minProtocol` + `maxProtocol`; the server rejects mismatches.
-- Schemas + models are generated from TypeBox definitions:
+- `PROTOCOL_VERSION` nằm trong `src/gateway/protocol/schema.ts`.
+- Các client gửi `minProtocol` + `maxProtocol`; máy chủ từ chối nếu không khớp.
+- Các schema + mô hình được tạo từ định nghĩa TypeBox:
   - `pnpm protocol:gen`
   - `pnpm protocol:gen:swift`
   - `pnpm protocol:check`
 
-## Auth
+## Xác thực
 
-- If `OPENCLAW_GATEWAY_TOKEN` (or `--token`) is set, `connect.params.auth.token`
-  must match or the socket is closed.
-- After pairing, the Gateway issues a **device token** scoped to the connection
-  role + scopes. It is returned in `hello-ok.auth.deviceToken` and should be
-  persisted by the client for future connects.
-- Device tokens can be rotated/revoked via `device.token.rotate` and
-  `device.token.revoke` (requires `operator.pairing` scope).
-- Auth failures include `error.details.code` plus recovery hints:
+- Nếu `OPENCLAW_GATEWAY_TOKEN` (hoặc `--token`) được thiết lập, `connect.params.auth.token` phải khớp hoặc socket sẽ bị đóng.
+- Sau khi ghép đôi, Gateway cấp một **token thiết bị** có phạm vi cho vai trò + phạm vi kết nối. Nó được trả về trong `hello-ok.auth.deviceToken` và nên được lưu trữ bởi client cho các kết nối sau này.
+- Các token thiết bị có thể được xoay/vô hiệu hóa qua `device.token.rotate` và `device.token.revoke` (yêu cầu phạm vi `operator.pairing`).
+- Các lỗi xác thực bao gồm `error.details.code` cùng với gợi ý khôi phục:
   - `error.details.canRetryWithDeviceToken` (boolean)
   - `error.details.recommendedNextStep` (`retry_with_device_token`, `update_auth_configuration`, `update_auth_credentials`, `wait_then_retry`, `review_auth_configuration`)
-- Client behavior for `AUTH_TOKEN_MISMATCH`:
-  - Trusted clients may attempt one bounded retry with a cached per-device token.
-  - If that retry fails, clients should stop automatic reconnect loops and surface operator action guidance.
+- Hành vi client cho `AUTH_TOKEN_MISMATCH`:
+  - Các client tin cậy có thể thử một lần retry giới hạn với token thiết bị đã lưu.
+  - Nếu retry đó thất bại, client nên dừng vòng lặp kết nối tự động và đưa ra hướng dẫn hành động cho operator.
 
-## Device identity + pairing
+## Danh tính thiết bị + ghép đôi
 
-- Nodes should include a stable device identity (`device.id`) derived from a
-  keypair fingerprint.
-- Gateways issue tokens per device + role.
-- Pairing approvals are required for new device IDs unless local auto-approval
-  is enabled.
-- **Local** connects include loopback and the gateway host’s own tailnet address
-  (so same‑host tailnet binds can still auto‑approve).
-- All WS clients must include `device` identity during `connect` (operator + node).
-  Control UI can omit it only in these modes:
-  - `gateway.controlUi.allowInsecureAuth=true` for localhost-only insecure HTTP compatibility.
-  - `gateway.controlUi.dangerouslyDisableDeviceAuth=true` (break-glass, severe security downgrade).
-- All connections must sign the server-provided `connect.challenge` nonce.
+- Các node nên bao gồm một danh tính thiết bị ổn định (`device.id`) được tạo từ dấu vân tay của cặp khóa.
+- Gateways cấp token cho mỗi thiết bị + vai trò.
+- Phê duyệt ghép đôi là bắt buộc cho các ID thiết bị mới trừ khi phê duyệt tự động cục bộ được bật.
+- Kết nối **cục bộ** bao gồm loopback và địa chỉ tailnet của chính máy chủ gateway (vì vậy các kết nối tailnet cùng máy chủ vẫn có thể tự động phê duyệt).
+- Tất cả các client WS phải bao gồm danh tính `device` trong quá trình `connect` (operator + node). Giao diện điều khiển có thể bỏ qua chỉ trong các chế độ sau:
+  - `gateway.controlUi.allowInsecureAuth=true` cho khả năng tương thích HTTP không bảo mật chỉ localhost.
+  - `gateway.controlUi.dangerouslyDisableDeviceAuth=true` (phá vỡ, hạ cấp bảo mật nghiêm trọng).
+- Tất cả các kết nối phải ký nonce `connect.challenge` do máy chủ cung cấp.
 
-### Device auth migration diagnostics
+### Chẩn đoán di chuyển xác thực thiết bị
 
-For legacy clients that still use pre-challenge signing behavior, `connect` now returns
-`DEVICE_AUTH_*` detail codes under `error.details.code` with a stable `error.details.reason`.
+Đối với các client cũ vẫn sử dụng hành vi ký trước thử thách, `connect` hiện trả về mã chi tiết `DEVICE_AUTH_*` trong `error.details.code` với lý do ổn định `error.details.reason`.
 
-Common migration failures:
+Các lỗi di chuyển phổ biến:
 
-| Message                     | details.code                     | details.reason           | Meaning                                            |
+| Thông điệp                   | details.code                     | details.reason           | Ý nghĩa                                             |
 | --------------------------- | -------------------------------- | ------------------------ | -------------------------------------------------- |
-| `device nonce required`     | `DEVICE_AUTH_NONCE_REQUIRED`     | `device-nonce-missing`   | Client omitted `device.nonce` (or sent blank).     |
-| `device nonce mismatch`     | `DEVICE_AUTH_NONCE_MISMATCH`     | `device-nonce-mismatch`  | Client signed with a stale/wrong nonce.            |
-| `device signature invalid`  | `DEVICE_AUTH_SIGNATURE_INVALID`  | `device-signature`       | Signature payload does not match v2 payload.       |
-| `device signature expired`  | `DEVICE_AUTH_SIGNATURE_EXPIRED`  | `device-signature-stale` | Signed timestamp is outside allowed skew.          |
-| `device identity mismatch`  | `DEVICE_AUTH_DEVICE_ID_MISMATCH` | `device-id-mismatch`     | `device.id` does not match public key fingerprint. |
-| `device public key invalid` | `DEVICE_AUTH_PUBLIC_KEY_INVALID` | `device-public-key`      | Public key format/canonicalization failed.         |
+| `device nonce required`     | `DEVICE_AUTH_NONCE_REQUIRED`     | `device-nonce-missing`   | Client bỏ qua `device.nonce` (hoặc gửi trống).     |
+| `device nonce mismatch`     | `DEVICE_AUTH_NONCE_MISMATCH`     | `device-nonce-mismatch`  | Client ký với nonce cũ/sai.                        |
+| `device signature invalid`  | `DEVICE_AUTH_SIGNATURE_INVALID`  | `device-signature`       | Payload chữ ký không khớp với payload v2.          |
+| `device signature expired`  | `DEVICE_AUTH_SIGNATURE_EXPIRED`  | `device-signature-stale` | Dấu thời gian ký nằm ngoài độ lệch cho phép.       |
+| `device identity mismatch`  | `DEVICE_AUTH_DEVICE_ID_MISMATCH` | `device-id-mismatch`     | `device.id` không khớp với dấu vân tay khóa công khai. |
+| `device public key invalid` | `DEVICE_AUTH_PUBLIC_KEY_INVALID` | `device-public-key`      | Định dạng khóa công khai/chuẩn hóa thất bại.       |
 
-Migration target:
+Mục tiêu di chuyển:
 
-- Always wait for `connect.challenge`.
-- Sign the v2 payload that includes the server nonce.
-- Send the same nonce in `connect.params.device.nonce`.
-- Preferred signature payload is `v3`, which binds `platform` and `deviceFamily`
-  in addition to device/client/role/scopes/token/nonce fields.
-- Legacy `v2` signatures remain accepted for compatibility, but paired-device
-  metadata pinning still controls command policy on reconnect.
+- Luôn chờ `connect.challenge`.
+- Ký payload v2 bao gồm nonce máy chủ.
+- Gửi cùng nonce trong `connect.params.device.nonce`.
+- Payload chữ ký ưu tiên là `v3`, liên kết `platform` và `deviceFamily` ngoài các trường device/client/role/scopes/token/nonce.
+- Chữ ký `v2` cũ vẫn được chấp nhận để tương thích, nhưng metadata thiết bị ghép đôi vẫn kiểm soát chính sách lệnh khi kết nối lại.
 
-## TLS + pinning
+## TLS + ghim
 
-- TLS is supported for WS connections.
-- Clients may optionally pin the gateway cert fingerprint (see `gateway.tls`
-  config plus `gateway.remote.tlsFingerprint` or CLI `--tls-fingerprint`).
+- TLS được hỗ trợ cho các kết nối WS.
+- Các client có thể tùy chọn ghim dấu vân tay chứng chỉ gateway (xem cấu hình `gateway.tls` cộng với `gateway.remote.tlsFingerprint` hoặc CLI `--tls-fingerprint`).
 
-## Scope
+## Phạm vi
 
-This protocol exposes the **full gateway API** (status, channels, models, chat,
-agent, sessions, nodes, approvals, etc.). The exact surface is defined by the
-TypeBox schemas in `src/gateway/protocol/schema.ts`.
+Giao thức này cung cấp **API gateway đầy đủ** (trạng thái, kênh, mô hình, chat, agent, phiên, node, phê duyệt, v.v.). Bề mặt chính xác được định nghĩa bởi các schema TypeBox trong `src/gateway/protocol/schema.ts`.

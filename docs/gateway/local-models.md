@@ -1,21 +1,21 @@
 ---
-summary: "Run OpenClaw on local LLMs (LM Studio, vLLM, LiteLLM, custom OpenAI endpoints)"
+summary: "Chạy OpenClaw trên các mô hình LLM cục bộ (LM Studio, vLLM, LiteLLM, endpoint OpenAI tùy chỉnh)"
 read_when:
-  - You want to serve models from your own GPU box
-  - You are wiring LM Studio or an OpenAI-compatible proxy
-  - You need the safest local model guidance
-title: "Local Models"
+  - Bạn muốn phục vụ mô hình từ máy GPU của mình
+  - Bạn đang kết nối LM Studio hoặc proxy tương thích OpenAI
+  - Bạn cần hướng dẫn mô hình cục bộ an toàn nhất
+title: "Mô hình cục bộ"
 ---
 
-# Local models
+# Mô hình cục bộ
 
-Local is doable, but OpenClaw expects large context + strong defenses against prompt injection. Small cards truncate context and leak safety. Aim high: **≥2 maxed-out Mac Studios or equivalent GPU rig (~$30k+)**. A single **24 GB** GPU works only for lighter prompts with higher latency. Use the **largest / full-size model variant you can run**; aggressively quantized or “small” checkpoints raise prompt-injection risk (see [Security](/gateway/security)).
+Chạy cục bộ là khả thi, nhưng OpenClaw yêu cầu ngữ cảnh lớn và bảo vệ mạnh mẽ chống lại việc tiêm lệnh. Các mô hình nhỏ có thể cắt ngắn ngữ cảnh và làm giảm độ an toàn. Hãy nhắm đến: **≥2 Mac Studios tối đa hoặc dàn máy GPU tương đương (~30.000 USD+).** Một GPU **24 GB** chỉ hoạt động tốt với các lệnh nhẹ hơn và độ trễ cao hơn. Sử dụng **biến thể mô hình lớn nhất mà bạn có thể chạy**; các checkpoint bị nén mạnh hoặc "nhỏ" làm tăng nguy cơ tiêm lệnh (xem [Bảo mật](/gateway/security)).
 
-If you want the lowest-friction local setup, start with [Ollama](/providers/ollama) and `openclaw onboard`. This page is the opinionated guide for higher-end local stacks and custom OpenAI-compatible local servers.
+Nếu bạn muốn thiết lập cục bộ dễ dàng nhất, hãy bắt đầu với [Ollama](/providers/ollama) và `openclaw onboard`. Trang này là hướng dẫn cho các cấu hình cục bộ cao cấp và máy chủ cục bộ tương thích OpenAI tùy chỉnh.
 
-## Recommended: LM Studio + MiniMax M2.5 (Responses API, full-size)
+## Khuyến nghị: LM Studio + MiniMax M2.5 (API Responses, kích thước đầy đủ)
 
-Best current local stack. Load MiniMax M2.5 in LM Studio, enable the local server (default `http://127.0.0.1:1234`), and use Responses API to keep reasoning separate from final text.
+Cấu hình cục bộ tốt nhất hiện tại. Tải MiniMax M2.5 trong LM Studio, bật máy chủ cục bộ (mặc định `http://127.0.0.1:1234`), và sử dụng API Responses để giữ lý luận tách biệt khỏi văn bản cuối cùng.
 
 ```json5
 {
@@ -52,17 +52,17 @@ Best current local stack. Load MiniMax M2.5 in LM Studio, enable the local serve
 }
 ```
 
-**Setup checklist**
+**Danh sách kiểm tra thiết lập**
 
-- Install LM Studio: [https://lmstudio.ai](https://lmstudio.ai)
-- In LM Studio, download the **largest MiniMax M2.5 build available** (avoid “small”/heavily quantized variants), start the server, confirm `http://127.0.0.1:1234/v1/models` lists it.
-- Keep the model loaded; cold-load adds startup latency.
-- Adjust `contextWindow`/`maxTokens` if your LM Studio build differs.
-- For WhatsApp, stick to Responses API so only final text is sent.
+- Cài đặt LM Studio: [https://lmstudio.ai](https://lmstudio.ai)
+- Trong LM Studio, tải bản dựng **MiniMax M2.5 lớn nhất có sẵn** (tránh các biến thể "nhỏ"/nén mạnh), khởi động máy chủ, xác nhận `http://127.0.0.1:1234/v1/models` liệt kê nó.
+- Giữ mô hình được tải; tải lạnh làm tăng độ trễ khởi động.
+- Điều chỉnh `contextWindow`/`maxTokens` nếu bản dựng LM Studio của bạn khác.
+- Đối với WhatsApp, sử dụng API Responses để chỉ gửi văn bản cuối cùng.
 
-Keep hosted models configured even when running local; use `models.mode: "merge"` so fallbacks stay available.
+Giữ các mô hình được lưu trữ cấu hình ngay cả khi chạy cục bộ; sử dụng `models.mode: "merge"` để các phương án dự phòng luôn sẵn sàng.
 
-### Hybrid config: hosted primary, local fallback
+### Cấu hình lai: chính lưu trữ, dự phòng cục bộ
 
 ```json5
 {
@@ -103,18 +103,18 @@ Keep hosted models configured even when running local; use `models.mode: "merge"
 }
 ```
 
-### Local-first with hosted safety net
+### Ưu tiên cục bộ với dự phòng lưu trữ
 
-Swap the primary and fallback order; keep the same providers block and `models.mode: "merge"` so you can fall back to Sonnet or Opus when the local box is down.
+Đổi thứ tự chính và dự phòng; giữ nguyên khối nhà cung cấp và `models.mode: "merge"` để có thể dự phòng sang Sonnet hoặc Opus khi máy cục bộ không hoạt động.
 
-### Regional hosting / data routing
+### Lưu trữ theo khu vực / định tuyến dữ liệu
 
-- Hosted MiniMax/Kimi/GLM variants also exist on OpenRouter with region-pinned endpoints (e.g., US-hosted). Pick the regional variant there to keep traffic in your chosen jurisdiction while still using `models.mode: "merge"` for Anthropic/OpenAI fallbacks.
-- Local-only remains the strongest privacy path; hosted regional routing is the middle ground when you need provider features but want control over data flow.
+- Các biến thể MiniMax/Kimi/GLM được lưu trữ cũng có trên OpenRouter với các endpoint cố định theo khu vực (ví dụ: lưu trữ tại Mỹ). Chọn biến thể khu vực ở đó để giữ lưu lượng trong khu vực bạn chọn trong khi vẫn sử dụng `models.mode: "merge"` cho các phương án dự phòng Anthropic/OpenAI.
+- Chỉ cục bộ vẫn là con đường bảo mật mạnh nhất; định tuyến khu vực lưu trữ là giải pháp trung gian khi bạn cần tính năng của nhà cung cấp nhưng muốn kiểm soát luồng dữ liệu.
 
-## Other OpenAI-compatible local proxies
+## Các proxy cục bộ tương thích OpenAI khác
 
-vLLM, LiteLLM, OAI-proxy, or custom gateways work if they expose an OpenAI-style `/v1` endpoint. Replace the provider block above with your endpoint and model ID:
+vLLM, LiteLLM, OAI-proxy, hoặc các gateway tùy chỉnh hoạt động nếu chúng cung cấp một endpoint kiểu OpenAI `/v1`. Thay thế khối nhà cung cấp ở trên bằng endpoint và ID mô hình của bạn:
 
 ```json5
 {
@@ -142,11 +142,11 @@ vLLM, LiteLLM, OAI-proxy, or custom gateways work if they expose an OpenAI-style
 }
 ```
 
-Keep `models.mode: "merge"` so hosted models stay available as fallbacks.
+Giữ `models.mode: "merge"` để các mô hình lưu trữ vẫn có sẵn làm dự phòng.
 
-## Troubleshooting
+## Khắc phục sự cố
 
-- Gateway can reach the proxy? `curl http://127.0.0.1:1234/v1/models`.
-- LM Studio model unloaded? Reload; cold start is a common “hanging” cause.
-- Context errors? Lower `contextWindow` or raise your server limit.
-- Safety: local models skip provider-side filters; keep agents narrow and compaction on to limit prompt injection blast radius.
+- Gateway có thể kết nối với proxy không? `curl http://127.0.0.1:1234/v1/models`.
+- Mô hình LM Studio bị dỡ tải? Tải lại; khởi động lạnh là nguyên nhân phổ biến gây "treo".
+- Lỗi ngữ cảnh? Giảm `contextWindow` hoặc tăng giới hạn máy chủ của bạn.
+- An toàn: mô hình cục bộ bỏ qua các bộ lọc phía nhà cung cấp; giữ cho các agent hẹp và bật nén để giới hạn phạm vi tiêm lệnh.

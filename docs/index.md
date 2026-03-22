@@ -1,5 +1,5 @@
 ---
-summary: "OpenClaw là gateway đa kênh dành cho các AI Agent, có thể chạy trên mọi hệ điều hành."
+summary: "OpenClaw là gateway đa kênh dành cho các tác nhân AI, có thể chạy trên mọi hệ điều hành."
 read_when:
   - Giới thiệu OpenClaw cho người mới
 title: "OpenClaw"

@@ -1,74 +1,72 @@
 ---
-title: "Trusted Proxy Auth"
-summary: "Delegate gateway authentication to a trusted reverse proxy (Pomerium, Caddy, nginx + OAuth)"
+title: "Xác Thực Proxy Tin Cậy"
+summary: "Ủy quyền xác thực gateway cho một reverse proxy tin cậy (Pomerium, Caddy, nginx + OAuth)"
 read_when:
-  - Running OpenClaw behind an identity-aware proxy
-  - Setting up Pomerium, Caddy, or nginx with OAuth in front of OpenClaw
-  - Fixing WebSocket 1008 unauthorized errors with reverse proxy setups
-  - Deciding where to set HSTS and other HTTP hardening headers
+  - Chạy OpenClaw sau một proxy nhận diện danh tính
+  - Cài đặt Pomerium, Caddy, hoặc nginx với OAuth trước OpenClaw
+  - Sửa lỗi WebSocket 1008 không được phép với cấu hình reverse proxy
+  - Quyết định nơi đặt HSTS và các header bảo mật HTTP khác
 ---
 
-# Trusted Proxy Auth
+# Xác Thực Proxy Tin Cậy
 
-> ⚠️ **Security-sensitive feature.** This mode delegates authentication entirely to your reverse proxy. Misconfiguration can expose your Gateway to unauthorized access. Read this page carefully before enabling.
+> ⚠️ **Tính năng nhạy cảm về bảo mật.** Chế độ này ủy quyền xác thực hoàn toàn cho reverse proxy của bạn. Cấu hình sai có thể khiến Gateway bị truy cập trái phép. Đọc kỹ trang này trước khi kích hoạt.
 
-## When to Use
+## Khi Nào Sử Dụng
 
-Use `trusted-proxy` auth mode when:
+Sử dụng chế độ xác thực `trusted-proxy` khi:
 
-- You run OpenClaw behind an **identity-aware proxy** (Pomerium, Caddy + OAuth, nginx + oauth2-proxy, Traefik + forward auth)
-- Your proxy handles all authentication and passes user identity via headers
-- You're in a Kubernetes or container environment where the proxy is the only path to the Gateway
-- You're hitting WebSocket `1008 unauthorized` errors because browsers can't pass tokens in WS payloads
+- Bạn chạy OpenClaw sau một **proxy nhận diện danh tính** (Pomerium, Caddy + OAuth, nginx + oauth2-proxy, Traefik + forward auth)
+- Proxy của bạn xử lý toàn bộ xác thực và truyền danh tính người dùng qua các header
+- Bạn đang ở trong môi trường Kubernetes hoặc container nơi proxy là con đường duy nhất đến Gateway
+- Bạn gặp lỗi WebSocket `1008 không được phép` vì trình duyệt không thể truyền token trong payload WS
 
-## When NOT to Use
+## Khi Nào KHÔNG Sử Dụng
 
-- If your proxy doesn't authenticate users (just a TLS terminator or load balancer)
-- If there's any path to the Gateway that bypasses the proxy (firewall holes, internal network access)
-- If you're unsure whether your proxy correctly strips/overwrites forwarded headers
-- If you only need personal single-user access (consider Tailscale Serve + loopback for simpler setup)
+- Nếu proxy của bạn không xác thực người dùng (chỉ là một TLS terminator hoặc load balancer)
+- Nếu có bất kỳ con đường nào đến Gateway mà bỏ qua proxy (lỗ hổng firewall, truy cập mạng nội bộ)
+- Nếu bạn không chắc chắn liệu proxy của bạn có xóa/ghi đè đúng các header chuyển tiếp
+- Nếu bạn chỉ cần truy cập cá nhân cho một người dùng (xem xét Tailscale Serve + loopback để thiết lập đơn giản hơn)
 
-## How It Works
+## Cách Hoạt Động
 
-1. Your reverse proxy authenticates users (OAuth, OIDC, SAML, etc.)
-2. Proxy adds a header with the authenticated user identity (e.g., `x-forwarded-user: nick@example.com`)
-3. OpenClaw checks that the request came from a **trusted proxy IP** (configured in `gateway.trustedProxies`)
-4. OpenClaw extracts the user identity from the configured header
-5. If everything checks out, the request is authorized
+1. Reverse proxy của bạn xác thực người dùng (OAuth, OIDC, SAML, v.v.)
+2. Proxy thêm một header với danh tính người dùng đã xác thực (ví dụ: `x-forwarded-user: nick@example.com`)
+3. OpenClaw kiểm tra rằng yêu cầu đến từ một **IP proxy tin cậy** (được cấu hình trong `gateway.trustedProxies`)
+4. OpenClaw trích xuất danh tính người dùng từ header đã cấu hình
+5. Nếu mọi thứ đều ổn, yêu cầu được cho phép
 
-## Control UI Pairing Behavior
+## Kiểm Soát Hành Vi Ghép Đôi UI
 
-When `gateway.auth.mode = "trusted-proxy"` is active and the request passes
-trusted-proxy checks, Control UI WebSocket sessions can connect without device
-pairing identity.
+Khi `gateway.auth.mode = "trusted-proxy"` được kích hoạt và yêu cầu vượt qua kiểm tra proxy tin cậy, các phiên WebSocket của Control UI có thể kết nối mà không cần ghép đôi danh tính thiết bị.
 
-Implications:
+Ý nghĩa:
 
-- Pairing is no longer the primary gate for Control UI access in this mode.
-- Your reverse proxy auth policy and `allowUsers` become the effective access control.
-- Keep gateway ingress locked to trusted proxy IPs only (`gateway.trustedProxies` + firewall).
+- Ghép đôi không còn là cổng chính cho truy cập Control UI trong chế độ này.
+- Chính sách xác thực proxy của bạn và `allowUsers` trở thành kiểm soát truy cập hiệu quả.
+- Giữ ingress gateway khóa chỉ với các IP proxy tin cậy (`gateway.trustedProxies` + firewall).
 
-## Configuration
+## Cấu Hình
 
 ```json5
 {
   gateway: {
-    // Use loopback for same-host proxy setups; use lan/custom for remote proxy hosts
+    // Sử dụng loopback cho các thiết lập proxy cùng máy; sử dụng lan/custom cho các host proxy từ xa
     bind: "loopback",
 
-    // CRITICAL: Only add your proxy's IP(s) here
+    // QUAN TRỌNG: Chỉ thêm IP của proxy của bạn ở đây
     trustedProxies: ["10.0.0.1", "172.17.0.1"],
 
     auth: {
       mode: "trusted-proxy",
       trustedProxy: {
-        // Header containing authenticated user identity (required)
+        // Header chứa danh tính người dùng đã xác thực (bắt buộc)
         userHeader: "x-forwarded-user",
 
-        // Optional: headers that MUST be present (proxy verification)
+        // Tùy chọn: các header phải có mặt (xác minh proxy)
         requiredHeaders: ["x-forwarded-proto", "x-forwarded-host"],
 
-        // Optional: restrict to specific users (empty = allow all)
+        // Tùy chọn: giới hạn cho người dùng cụ thể (trống = cho phép tất cả)
         allowUsers: ["nick@example.com", "admin@company.org"],
       },
     },
@@ -76,41 +74,39 @@ Implications:
 }
 ```
 
-If `gateway.bind` is `loopback`, include a loopback proxy address in
-`gateway.trustedProxies` (`127.0.0.1`, `::1`, or an equivalent loopback CIDR).
+Nếu `gateway.bind` là `loopback`, bao gồm một địa chỉ proxy loopback trong `gateway.trustedProxies` (`127.0.0.1`, `::1`, hoặc một CIDR loopback tương đương).
 
-### Configuration Reference
+### Tham Khảo Cấu Hình
 
-| Field                                       | Required | Description                                                                 |
-| ------------------------------------------- | -------- | --------------------------------------------------------------------------- |
-| `gateway.trustedProxies`                    | Yes      | Array of proxy IP addresses to trust. Requests from other IPs are rejected. |
-| `gateway.auth.mode`                         | Yes      | Must be `"trusted-proxy"`                                                   |
-| `gateway.auth.trustedProxy.userHeader`      | Yes      | Header name containing the authenticated user identity                      |
-| `gateway.auth.trustedProxy.requiredHeaders` | No       | Additional headers that must be present for the request to be trusted       |
-| `gateway.auth.trustedProxy.allowUsers`      | No       | Allowlist of user identities. Empty means allow all authenticated users.    |
+| Trường                                      | Bắt buộc | Mô tả                                                                          |
+| ------------------------------------------- | -------- | ------------------------------------------------------------------------------ |
+| `gateway.trustedProxies`                    | Có       | Mảng các địa chỉ IP proxy được tin cậy. Yêu cầu từ các IP khác sẽ bị từ chối.  |
+| `gateway.auth.mode`                         | Có       | Phải là `"trusted-proxy"`                                                      |
+| `gateway.auth.trustedProxy.userHeader`      | Có       | Tên header chứa danh tính người dùng đã xác thực                               |
+| `gateway.auth.trustedProxy.requiredHeaders` | Không    | Các header bổ sung phải có mặt để yêu cầu được tin cậy                         |
+| `gateway.auth.trustedProxy.allowUsers`      | Không    | Danh sách trắng danh tính người dùng. Trống nghĩa là cho phép tất cả người dùng đã xác thực. |
 
-## TLS termination and HSTS
+## Kết Thúc TLS và HSTS
 
-Use one TLS termination point and apply HSTS there.
+Sử dụng một điểm kết thúc TLS và áp dụng HSTS tại đó.
 
-### Recommended pattern: proxy TLS termination
+### Mô Hình Khuyến Nghị: Kết Thúc TLS Proxy
 
-When your reverse proxy handles HTTPS for `https://control.example.com`, set
-`Strict-Transport-Security` at the proxy for that domain.
+Khi reverse proxy của bạn xử lý HTTPS cho `https://control.example.com`, đặt `Strict-Transport-Security` tại proxy cho tên miền đó.
 
-- Good fit for internet-facing deployments.
-- Keeps certificate + HTTP hardening policy in one place.
-- OpenClaw can stay on loopback HTTP behind the proxy.
+- Phù hợp cho các triển khai hướng internet.
+- Giữ chính sách chứng chỉ + bảo mật HTTP ở một nơi.
+- OpenClaw có thể giữ HTTP loopback phía sau proxy.
 
-Example header value:
+Giá trị header ví dụ:
 
 ```text
 Strict-Transport-Security: max-age=31536000; includeSubDomains
 ```
 
-### Gateway TLS termination
+### Kết Thúc TLS Gateway
 
-If OpenClaw itself serves HTTPS directly (no TLS-terminating proxy), set:
+Nếu OpenClaw tự phục vụ HTTPS trực tiếp (không có proxy kết thúc TLS), đặt:
 
 ```json5
 {
@@ -125,27 +121,27 @@ If OpenClaw itself serves HTTPS directly (no TLS-terminating proxy), set:
 }
 ```
 
-`strictTransportSecurity` accepts a string header value, or `false` to disable explicitly.
+`strictTransportSecurity` chấp nhận một giá trị header chuỗi, hoặc `false` để tắt rõ ràng.
 
-### Rollout guidance
+### Hướng Dẫn Triển Khai
 
-- Start with a short max age first (for example `max-age=300`) while validating traffic.
-- Increase to long-lived values (for example `max-age=31536000`) only after confidence is high.
-- Add `includeSubDomains` only if every subdomain is HTTPS-ready.
-- Use preload only if you intentionally meet preload requirements for your full domain set.
-- Loopback-only local development does not benefit from HSTS.
+- Bắt đầu với thời gian tồn tại ngắn trước (ví dụ `max-age=300`) trong khi xác thực lưu lượng.
+- Tăng lên các giá trị lâu dài (ví dụ `max-age=31536000`) chỉ sau khi đã tự tin.
+- Thêm `includeSubDomains` chỉ khi mọi tên miền phụ đã sẵn sàng cho HTTPS.
+- Sử dụng preload chỉ khi bạn cố ý đáp ứng yêu cầu preload cho toàn bộ tập tên miền của bạn.
+- Phát triển cục bộ chỉ loopback không có lợi từ HSTS.
 
-## Proxy Setup Examples
+## Ví Dụ Cài Đặt Proxy
 
 ### Pomerium
 
-Pomerium passes identity in `x-pomerium-claim-email` (or other claim headers) and a JWT in `x-pomerium-jwt-assertion`.
+Pomerium truyền danh tính trong `x-pomerium-claim-email` (hoặc các header claim khác) và một JWT trong `x-pomerium-jwt-assertion`.
 
 ```json5
 {
   gateway: {
     bind: "lan",
-    trustedProxies: ["10.0.0.1"], // Pomerium's IP
+    trustedProxies: ["10.0.0.1"], // IP của Pomerium
     auth: {
       mode: "trusted-proxy",
       trustedProxy: {
@@ -157,7 +153,7 @@ Pomerium passes identity in `x-pomerium-claim-email` (or other claim headers) an
 }
 ```
 
-Pomerium config snippet:
+Đoạn cấu hình Pomerium:
 
 ```yaml
 routes:
@@ -171,15 +167,15 @@ routes:
     pass_identity_headers: true
 ```
 
-### Caddy with OAuth
+### Caddy với OAuth
 
-Caddy with the `caddy-security` plugin can authenticate users and pass identity headers.
+Caddy với plugin `caddy-security` có thể xác thực người dùng và truyền các header danh tính.
 
 ```json5
 {
   gateway: {
     bind: "lan",
-    trustedProxies: ["127.0.0.1"], // Caddy's IP (if on same host)
+    trustedProxies: ["127.0.0.1"], // IP của Caddy (nếu trên cùng máy)
     auth: {
       mode: "trusted-proxy",
       trustedProxy: {
@@ -190,7 +186,7 @@ Caddy with the `caddy-security` plugin can authenticate users and pass identity 
 }
 ```
 
-Caddyfile snippet:
+Đoạn Caddyfile:
 
 ```
 openclaw.example.com {
@@ -205,13 +201,13 @@ openclaw.example.com {
 
 ### nginx + oauth2-proxy
 
-oauth2-proxy authenticates users and passes identity in `x-auth-request-email`.
+oauth2-proxy xác thực người dùng và truyền danh tính trong `x-auth-request-email`.
 
 ```json5
 {
   gateway: {
     bind: "lan",
-    trustedProxies: ["10.0.0.1"], // nginx/oauth2-proxy IP
+    trustedProxies: ["10.0.0.1"], // IP của nginx/oauth2-proxy
     auth: {
       mode: "trusted-proxy",
       trustedProxy: {
@@ -222,7 +218,7 @@ oauth2-proxy authenticates users and passes identity in `x-auth-request-email`.
 }
 ```
 
-nginx config snippet:
+Đoạn cấu hình nginx:
 
 ```nginx
 location / {
@@ -237,13 +233,13 @@ location / {
 }
 ```
 
-### Traefik with Forward Auth
+### Traefik với Forward Auth
 
 ```json5
 {
   gateway: {
     bind: "lan",
-    trustedProxies: ["172.17.0.1"], // Traefik container IP
+    trustedProxies: ["172.17.0.1"], // IP của container Traefik
     auth: {
       mode: "trusted-proxy",
       trustedProxy: {
@@ -254,77 +250,77 @@ location / {
 }
 ```
 
-## Security Checklist
+## Danh Sách Kiểm Tra Bảo Mật
 
-Before enabling trusted-proxy auth, verify:
+Trước khi kích hoạt xác thực proxy tin cậy, hãy xác minh:
 
-- [ ] **Proxy is the only path**: The Gateway port is firewalled from everything except your proxy
-- [ ] **trustedProxies is minimal**: Only your actual proxy IPs, not entire subnets
-- [ ] **Proxy strips headers**: Your proxy overwrites (not appends) `x-forwarded-*` headers from clients
-- [ ] **TLS termination**: Your proxy handles TLS; users connect via HTTPS
-- [ ] **allowUsers is set** (recommended): Restrict to known users rather than allowing anyone authenticated
+- [ ] **Proxy là con đường duy nhất**: Cổng Gateway được firewall từ mọi thứ ngoại trừ proxy của bạn
+- [ ] **trustedProxies là tối thiểu**: Chỉ các IP proxy thực tế của bạn, không phải toàn bộ subnet
+- [ ] **Proxy xóa header**: Proxy của bạn ghi đè (không thêm) các header `x-forwarded-*` từ client
+- [ ] **Kết thúc TLS**: Proxy của bạn xử lý TLS; người dùng kết nối qua HTTPS
+- [ ] **allowUsers được đặt** (khuyến nghị): Giới hạn cho người dùng đã biết thay vì cho phép bất kỳ ai đã xác thực
 
-## Security Audit
+## Kiểm Toán Bảo Mật
 
-`openclaw security audit` will flag trusted-proxy auth with a **critical** severity finding. This is intentional — it's a reminder that you're delegating security to your proxy setup.
+`openclaw security audit` sẽ đánh dấu xác thực proxy tin cậy với mức độ nghiêm trọng **critical**. Đây là một lời nhắc nhở rằng bạn đang ủy quyền bảo mật cho cấu hình proxy của mình.
 
-The audit checks for:
+Kiểm toán kiểm tra:
 
-- Missing `trustedProxies` configuration
-- Missing `userHeader` configuration
-- Empty `allowUsers` (allows any authenticated user)
+- Thiếu cấu hình `trustedProxies`
+- Thiếu cấu hình `userHeader`
+- `allowUsers` trống (cho phép bất kỳ người dùng đã xác thực nào)
 
-## Troubleshooting
+## Khắc Phục Sự Cố
 
 ### "trusted_proxy_untrusted_source"
 
-The request didn't come from an IP in `gateway.trustedProxies`. Check:
+Yêu cầu không đến từ một IP trong `gateway.trustedProxies`. Kiểm tra:
 
-- Is the proxy IP correct? (Docker container IPs can change)
-- Is there a load balancer in front of your proxy?
-- Use `docker inspect` or `kubectl get pods -o wide` to find actual IPs
+- IP proxy có đúng không? (IP container Docker có thể thay đổi)
+- Có load balancer nào trước proxy của bạn không?
+- Sử dụng `docker inspect` hoặc `kubectl get pods -o wide` để tìm IP thực tế
 
 ### "trusted_proxy_user_missing"
 
-The user header was empty or missing. Check:
+Header người dùng trống hoặc thiếu. Kiểm tra:
 
-- Is your proxy configured to pass identity headers?
-- Is the header name correct? (case-insensitive, but spelling matters)
-- Is the user actually authenticated at the proxy?
+- Proxy của bạn có được cấu hình để truyền các header danh tính không?
+- Tên header có đúng không? (không phân biệt chữ hoa/thường, nhưng chính tả quan trọng)
+- Người dùng có thực sự được xác thực tại proxy không?
 
-### "trusted*proxy_missing_header*\*"
+### "trusted_proxy_missing_header"
 
-A required header wasn't present. Check:
+Một header bắt buộc không có mặt. Kiểm tra:
 
-- Your proxy configuration for those specific headers
-- Whether headers are being stripped somewhere in the chain
+- Cấu hình proxy của bạn cho các header cụ thể đó
+- Liệu các header có bị xóa ở đâu đó trong chuỗi không
 
 ### "trusted_proxy_user_not_allowed"
 
-The user is authenticated but not in `allowUsers`. Either add them or remove the allowlist.
+Người dùng đã được xác thực nhưng không có trong `allowUsers`. Hoặc thêm họ hoặc xóa danh sách trắng.
 
-### WebSocket Still Failing
+### WebSocket Vẫn Thất Bại
 
-Make sure your proxy:
+Đảm bảo proxy của bạn:
 
-- Supports WebSocket upgrades (`Upgrade: websocket`, `Connection: upgrade`)
-- Passes the identity headers on WebSocket upgrade requests (not just HTTP)
-- Doesn't have a separate auth path for WebSocket connections
+- Hỗ trợ nâng cấp WebSocket (`Upgrade: websocket`, `Connection: upgrade`)
+- Truyền các header danh tính trên các yêu cầu nâng cấp WebSocket (không chỉ HTTP)
+- Không có một đường dẫn xác thực riêng cho các kết nối WebSocket
 
-## Migration from Token Auth
+## Di Chuyển Từ Xác Thực Token
 
-If you're moving from token auth to trusted-proxy:
+Nếu bạn đang chuyển từ xác thực token sang proxy tin cậy:
 
-1. Configure your proxy to authenticate users and pass headers
-2. Test the proxy setup independently (curl with headers)
-3. Update OpenClaw config with trusted-proxy auth
-4. Restart the Gateway
-5. Test WebSocket connections from the Control UI
-6. Run `openclaw security audit` and review findings
+1. Cấu hình proxy của bạn để xác thực người dùng và truyền các header
+2. Kiểm tra thiết lập proxy độc lập (curl với các header)
+3. Cập nhật cấu hình OpenClaw với xác thực proxy tin cậy
+4. Khởi động lại Gateway
+5. Kiểm tra các kết nối WebSocket từ Control UI
+6. Chạy `openclaw security audit` và xem xét các phát hiện
 
-## Related
+## Liên Quan
 
-- [Security](/gateway/security) — full security guide
-- [Configuration](/gateway/configuration) — config reference
-- [Remote Access](/gateway/remote) — other remote access patterns
-- [Tailscale](/gateway/tailscale) — simpler alternative for tailnet-only access
+- [Bảo Mật](/gateway/security) — hướng dẫn bảo mật đầy đủ
+- [Cấu Hình](/gateway/configuration) — tham khảo cấu hình
+- [Truy Cập Từ Xa](/gateway/remote) — các mô hình truy cập từ xa khác
+- [Tailscale](/gateway/tailscale) — giải pháp thay thế đơn giản hơn cho truy cập chỉ qua tailnet

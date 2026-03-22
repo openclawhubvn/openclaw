@@ -1,39 +1,37 @@
 ---
-summary: "Use OpenCode Zen and Go catalogs with OpenClaw"
+summary: "Sử dụng các catalog Zen và Go của OpenCode với OpenClaw"
 read_when:
-  - You want OpenCode-hosted model access
-  - You want to pick between the Zen and Go catalogs
+  - Bạn muốn truy cập mô hình được lưu trữ bởi OpenCode
+  - Bạn muốn chọn giữa catalog Zen và Go
 title: "OpenCode"
 ---
 
 # OpenCode
 
-OpenCode exposes two hosted catalogs in OpenClaw:
+OpenCode cung cấp hai catalog được lưu trữ trong OpenClaw:
 
-- `opencode/...` for the **Zen** catalog
-- `opencode-go/...` for the **Go** catalog
+- `opencode/...` cho catalog **Zen**
+- `opencode-go/...` cho catalog **Go**
 
-Both catalogs use the same OpenCode API key. OpenClaw keeps the runtime provider ids
-split so upstream per-model routing stays correct, but onboarding and docs treat them
-as one OpenCode setup.
+Cả hai catalog đều sử dụng cùng một API key của OpenCode. OpenClaw giữ các id nhà cung cấp runtime tách biệt để đảm bảo định tuyến theo mô hình ở phía trên đúng, nhưng quá trình onboarding và tài liệu thì coi chúng như một thiết lập OpenCode duy nhất.
 
-## CLI setup
+## Thiết lập CLI
 
-### Zen catalog
+### Catalog Zen
 
 ```bash
 openclaw onboard --auth-choice opencode-zen
 openclaw onboard --opencode-zen-api-key "$OPENCODE_API_KEY"
 ```
 
-### Go catalog
+### Catalog Go
 
 ```bash
 openclaw onboard --auth-choice opencode-go
 openclaw onboard --opencode-go-api-key "$OPENCODE_API_KEY"
 ```
 
-## Config snippet
+## Đoạn cấu hình
 
 ```json5
 {
@@ -42,23 +40,23 @@ openclaw onboard --opencode-go-api-key "$OPENCODE_API_KEY"
 }
 ```
 
-## Catalogs
+## Catalog
 
 ### Zen
 
-- Runtime provider: `opencode`
-- Example models: `opencode/claude-opus-4-6`, `opencode/gpt-5.2`, `opencode/gemini-3-pro`
-- Best when you want the curated OpenCode multi-model proxy
+- Nhà cung cấp runtime: `opencode`
+- Mô hình ví dụ: `opencode/claude-opus-4-6`, `opencode/gpt-5.2`, `opencode/gemini-3-pro`
+- Tốt nhất khi bạn muốn proxy đa mô hình được chọn lọc của OpenCode
 
 ### Go
 
-- Runtime provider: `opencode-go`
-- Example models: `opencode-go/kimi-k2.5`, `opencode-go/glm-5`, `opencode-go/minimax-m2.5`
-- Best when you want the OpenCode-hosted Kimi/GLM/MiniMax lineup
+- Nhà cung cấp runtime: `opencode-go`
+- Mô hình ví dụ: `opencode-go/kimi-k2.5`, `opencode-go/glm-5`, `opencode-go/minimax-m2.5`
+- Tốt nhất khi bạn muốn dòng sản phẩm Kimi/GLM/MiniMax được lưu trữ bởi OpenCode
 
-## Notes
+## Ghi chú
 
-- `OPENCODE_ZEN_API_KEY` is also supported.
-- Entering one OpenCode key during setup stores credentials for both runtime providers.
-- You sign in to OpenCode, add billing details, and copy your API key.
-- Billing and catalog availability are managed from the OpenCode dashboard.
+- `OPENCODE_ZEN_API_KEY` cũng được hỗ trợ.
+- Nhập một API key của OpenCode trong quá trình thiết lập sẽ lưu thông tin đăng nhập cho cả hai nhà cung cấp runtime.
+- Đăng nhập vào OpenCode, thêm thông tin thanh toán và sao chép API key của bạn.
+- Quản lý thanh toán và khả năng truy cập catalog từ bảng điều khiển OpenCode.

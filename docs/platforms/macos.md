@@ -1,69 +1,64 @@
 ---
-summary: "OpenClaw macOS companion app (menu bar + gateway broker)"
+summary: "Ứng dụng đồng hành OpenClaw trên macOS (thanh menu + gateway broker)"
 read_when:
-  - Implementing macOS app features
-  - Changing gateway lifecycle or node bridging on macOS
-title: "macOS App"
+  - Triển khai tính năng ứng dụng macOS
+  - Thay đổi vòng đời gateway hoặc cầu nối node trên macOS
+title: "Ứng dụng macOS"
 ---
 
-# OpenClaw macOS Companion (menu bar + gateway broker)
+# Ứng dụng đồng hành OpenClaw trên macOS (thanh menu + gateway broker)
 
-The macOS app is the **menu‑bar companion** for OpenClaw. It owns permissions,
-manages/attaches to the Gateway locally (launchd or manual), and exposes macOS
-capabilities to the agent as a node.
+Ứng dụng macOS là **ứng dụng đồng hành trên thanh menu** cho OpenClaw. Nó quản lý quyền, kết nối với Gateway cục bộ (bằng launchd hoặc thủ công), và cung cấp các khả năng của macOS cho agent như một node.
 
-## What it does
+## Chức năng
 
-- Shows native notifications and status in the menu bar.
-- Owns TCC prompts (Notifications, Accessibility, Screen Recording, Microphone,
-  Speech Recognition, Automation/AppleScript).
-- Runs or connects to the Gateway (local or remote).
-- Exposes macOS‑only tools (Canvas, Camera, Screen Recording, `system.run`).
-- Starts the local node host service in **remote** mode (launchd), and stops it in **local** mode.
-- Optionally hosts **PeekabooBridge** for UI automation.
-- Installs the global CLI (`openclaw`) via npm/pnpm on request (bun not recommended for the Gateway runtime).
+- Hiển thị thông báo gốc và trạng thái trên thanh menu.
+- Quản lý các yêu cầu TCC (Thông báo, Trợ năng, Ghi màn hình, Microphone, Nhận diện giọng nói, Tự động hóa/AppleScript).
+- Chạy hoặc kết nối với Gateway (cục bộ hoặc từ xa).
+- Cung cấp các công cụ chỉ có trên macOS (Canvas, Camera, Ghi màn hình, `system.run`).
+- Khởi động dịch vụ host node cục bộ ở chế độ **remote** (launchd), và dừng nó ở chế độ **local**.
+- Tùy chọn host **PeekabooBridge** cho tự động hóa giao diện người dùng.
+- Cài đặt CLI toàn cầu (`openclaw`) qua npm/pnpm theo yêu cầu (không khuyến nghị dùng bun cho runtime Gateway).
 
-## Local vs remote mode
+## Chế độ cục bộ và từ xa
 
-- **Local** (default): the app attaches to a running local Gateway if present;
-  otherwise it enables the launchd service via `openclaw gateway install`.
-- **Remote**: the app connects to a Gateway over SSH/Tailscale and never starts
-  a local process.
-  The app starts the local **node host service** so the remote Gateway can reach this Mac.
-  The app does not spawn the Gateway as a child process.
+- **Cục bộ** (mặc định): ứng dụng kết nối với Gateway cục bộ đang chạy nếu có; nếu không, nó kích hoạt dịch vụ launchd qua `openclaw gateway install`.
+- **Từ xa**: ứng dụng kết nối với Gateway qua SSH/Tailscale và không bao giờ khởi động một tiến trình cục bộ.
+  Ứng dụng khởi động dịch vụ **node host** cục bộ để Gateway từ xa có thể truy cập vào máy Mac này.
+  Ứng dụng không tạo Gateway như một tiến trình con.
 
-## Launchd control
+## Quản lý launchd
 
-The app manages a per‑user LaunchAgent labeled `ai.openclaw.gateway`
-(or `ai.openclaw.<profile>` when using `--profile`/`OPENCLAW_PROFILE`; legacy `com.openclaw.*` still unloads).
+Ứng dụng quản lý một LaunchAgent cho mỗi người dùng có nhãn `ai.openclaw.gateway`
+(hoặc `ai.openclaw.<profile>` khi sử dụng `--profile`/`OPENCLAW_PROFILE`; các nhãn cũ `com.openclaw.*` vẫn được gỡ bỏ).
 
 ```bash
 launchctl kickstart -k gui/$UID/ai.openclaw.gateway
 launchctl bootout gui/$UID/ai.openclaw.gateway
 ```
 
-Replace the label with `ai.openclaw.<profile>` when running a named profile.
+Thay thế nhãn bằng `ai.openclaw.<profile>` khi chạy một profile có tên.
 
-If the LaunchAgent isn’t installed, enable it from the app or run
+Nếu LaunchAgent chưa được cài đặt, kích hoạt nó từ ứng dụng hoặc chạy
 `openclaw gateway install`.
 
-## Node capabilities (mac)
+## Khả năng của node (mac)
 
-The macOS app presents itself as a node. Common commands:
+Ứng dụng macOS tự nhận là một node. Các lệnh thông dụng:
 
 - Canvas: `canvas.present`, `canvas.navigate`, `canvas.eval`, `canvas.snapshot`, `canvas.a2ui.*`
 - Camera: `camera.snap`, `camera.clip`
-- Screen: `screen.record`
-- System: `system.run`, `system.notify`
+- Màn hình: `screen.record`
+- Hệ thống: `system.run`, `system.notify`
 
-The node reports a `permissions` map so agents can decide what’s allowed.
+Node báo cáo một bản đồ `permissions` để các agent quyết định những gì được phép.
 
-Node service + app IPC:
+Dịch vụ node + IPC ứng dụng:
 
-- When the headless node host service is running (remote mode), it connects to the Gateway WS as a node.
-- `system.run` executes in the macOS app (UI/TCC context) over a local Unix socket; prompts + output stay in-app.
+- Khi dịch vụ host node không giao diện đang chạy (chế độ từ xa), nó kết nối với Gateway WS như một node.
+- `system.run` thực thi trong ứng dụng macOS (ngữ cảnh UI/TCC) qua một socket Unix cục bộ; các yêu cầu và kết quả được giữ trong ứng dụng.
 
-Diagram (SCI):
+Sơ đồ (SCI):
 
 ```
 Gateway -> Node Service (WS)
@@ -72,16 +67,16 @@ Gateway -> Node Service (WS)
              Mac App (UI + TCC + system.run)
 ```
 
-## Exec approvals (system.run)
+## Phê duyệt thực thi (system.run)
 
-`system.run` is controlled by **Exec approvals** in the macOS app (Settings → Exec approvals).
-Security + ask + allowlist are stored locally on the Mac in:
+`system.run` được kiểm soát bởi **Phê duyệt thực thi** trong ứng dụng macOS (Cài đặt → Phê duyệt thực thi).
+Bảo mật + hỏi + danh sách cho phép được lưu trữ cục bộ trên máy Mac trong:
 
 ```
 ~/.openclaw/exec-approvals.json
 ```
 
-Example:
+Ví dụ:
 
 ```json
 {
@@ -100,78 +95,76 @@ Example:
 }
 ```
 
-Notes:
+Ghi chú:
 
-- `allowlist` entries are glob patterns for resolved binary paths.
-- Raw shell command text that contains shell control or expansion syntax (`&&`, `||`, `;`, `|`, `` ` ``, `$`, `<`, `>`, `(`, `)`) is treated as an allowlist miss and requires explicit approval (or allowlisting the shell binary).
-- Choosing “Always Allow” in the prompt adds that command to the allowlist.
-- `system.run` environment overrides are filtered (drops `PATH`, `DYLD_*`, `LD_*`, `NODE_OPTIONS`, `PYTHON*`, `PERL*`, `RUBYOPT`, `SHELLOPTS`, `PS4`) and then merged with the app’s environment.
-- For shell wrappers (`bash|sh|zsh ... -c/-lc`), request-scoped environment overrides are reduced to a small explicit allowlist (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`).
-- For allow-always decisions in allowlist mode, known dispatch wrappers (`env`, `nice`, `nohup`, `stdbuf`, `timeout`) persist inner executable paths instead of wrapper paths. If unwrapping is not safe, no allowlist entry is persisted automatically.
+- Các mục `allowlist` là các mẫu glob cho đường dẫn nhị phân đã được giải quyết.
+- Văn bản lệnh shell thô chứa cú pháp điều khiển hoặc mở rộng shell (`&&`, `||`, `;`, `|`, `` ` ``, `$`, `<`, `>`, `(`, `)`) được coi là không có trong danh sách cho phép và yêu cầu phê duyệt rõ ràng (hoặc cho phép shell nhị phân).
+- Chọn “Luôn cho phép” trong yêu cầu sẽ thêm lệnh đó vào danh sách cho phép.
+- Các ghi đè môi trường `system.run` bị lọc (bỏ `PATH`, `DYLD_*`, `LD_*`, `NODE_OPTIONS`, `PYTHON*`, `PERL*`, `RUBYOPT`, `SHELLOPTS`, `PS4`) và sau đó được hợp nhất với môi trường của ứng dụng.
+- Đối với các shell wrapper (`bash|sh|zsh ... -c/-lc`), các ghi đè môi trường theo yêu cầu được giảm xuống một danh sách cho phép rõ ràng nhỏ (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`).
+- Đối với các quyết định cho phép luôn trong chế độ danh sách cho phép, các wrapper phân phối đã biết (`env`, `nice`, `nohup`, `stdbuf`, `timeout`) lưu giữ đường dẫn thực thi bên trong thay vì đường dẫn wrapper. Nếu không thể mở gói an toàn, không có mục danh sách cho phép nào được lưu tự động.
 
-## Deep links
+## Liên kết sâu
 
-The app registers the `openclaw://` URL scheme for local actions.
+Ứng dụng đăng ký URL scheme `openclaw://` cho các hành động cục bộ.
 
 ### `openclaw://agent`
 
-Triggers a Gateway `agent` request.
+Kích hoạt yêu cầu `agent` của Gateway.
 
 ```bash
 open 'openclaw://agent?message=Hello%20from%20deep%20link'
 ```
 
-Query parameters:
+Tham số truy vấn:
 
-- `message` (required)
-- `sessionKey` (optional)
-- `thinking` (optional)
-- `deliver` / `to` / `channel` (optional)
-- `timeoutSeconds` (optional)
-- `key` (optional unattended mode key)
+- `message` (bắt buộc)
+- `sessionKey` (tùy chọn)
+- `thinking` (tùy chọn)
+- `deliver` / `to` / `channel` (tùy chọn)
+- `timeoutSeconds` (tùy chọn)
+- `key` (khóa chế độ không giám sát tùy chọn)
 
-Safety:
+An toàn:
 
-- Without `key`, the app prompts for confirmation.
-- Without `key`, the app enforces a short message limit for the confirmation prompt and ignores `deliver` / `to` / `channel`.
-- With a valid `key`, the run is unattended (intended for personal automations).
+- Không có `key`, ứng dụng sẽ yêu cầu xác nhận.
+- Không có `key`, ứng dụng giới hạn độ dài thông điệp ngắn cho yêu cầu xác nhận và bỏ qua `deliver` / `to` / `channel`.
+- Với `key` hợp lệ, việc chạy không cần giám sát (dành cho tự động hóa cá nhân).
 
-## Onboarding flow (typical)
+## Quy trình giới thiệu (thông thường)
 
-1. Install and launch **OpenClaw.app**.
-2. Complete the permissions checklist (TCC prompts).
-3. Ensure **Local** mode is active and the Gateway is running.
-4. Install the CLI if you want terminal access.
+1. Cài đặt và khởi chạy **OpenClaw.app**.
+2. Hoàn thành danh sách kiểm tra quyền (yêu cầu TCC).
+3. Đảm bảo chế độ **Cục bộ** đang hoạt động và Gateway đang chạy.
+4. Cài đặt CLI nếu muốn truy cập từ terminal.
 
-## State dir placement (macOS)
+## Vị trí thư mục trạng thái (macOS)
 
-Avoid putting your OpenClaw state dir in iCloud or other cloud-synced folders.
-Sync-backed paths can add latency and occasionally cause file-lock/sync races for
-sessions and credentials.
+Tránh đặt thư mục trạng thái OpenClaw trong iCloud hoặc các thư mục đồng bộ đám mây khác.
+Các đường dẫn được đồng bộ có thể gây ra độ trễ và đôi khi gây ra các cuộc đua khóa/tệp đồng bộ cho các phiên và thông tin đăng nhập.
 
-Prefer a local non-synced state path such as:
+Ưu tiên một đường dẫn trạng thái cục bộ không đồng bộ như:
 
 ```bash
 OPENCLAW_STATE_DIR=~/.openclaw
 ```
 
-If `openclaw doctor` detects state under:
+Nếu `openclaw doctor` phát hiện trạng thái dưới:
 
 - `~/Library/Mobile Documents/com~apple~CloudDocs/...`
 - `~/Library/CloudStorage/...`
 
-it will warn and recommend moving back to a local path.
+nó sẽ cảnh báo và khuyến nghị di chuyển về một đường dẫn cục bộ.
 
-## Build & dev workflow (native)
+## Quy trình xây dựng & phát triển (native)
 
 - `cd apps/macos && swift build`
-- `swift run OpenClaw` (or Xcode)
-- Package app: `scripts/package-mac-app.sh`
+- `swift run OpenClaw` (hoặc Xcode)
+- Đóng gói ứng dụng: `scripts/package-mac-app.sh`
 
-## Debug gateway connectivity (macOS CLI)
+## Gỡ lỗi kết nối gateway (macOS CLI)
 
-Use the debug CLI to exercise the same Gateway WebSocket handshake and discovery
-logic that the macOS app uses, without launching the app.
+Sử dụng CLI gỡ lỗi để thực hiện cùng một quy trình bắt tay và khám phá WebSocket Gateway mà ứng dụng macOS sử dụng, mà không cần khởi chạy ứng dụng.
 
 ```bash
 cd apps/macos
@@ -179,48 +172,40 @@ swift run openclaw-mac connect --json
 swift run openclaw-mac discover --timeout 3000 --json
 ```
 
-Connect options:
+Tùy chọn kết nối:
 
-- `--url <ws://host:port>`: override config
-- `--mode <local|remote>`: resolve from config (default: config or local)
-- `--probe`: force a fresh health probe
-- `--timeout <ms>`: request timeout (default: `15000`)
-- `--json`: structured output for diffing
+- `--url <ws://host:port>`: ghi đè cấu hình
+- `--mode <local|remote>`: giải quyết từ cấu hình (mặc định: cấu hình hoặc cục bộ)
+- `--probe`: buộc kiểm tra sức khỏe mới
+- `--timeout <ms>`: thời gian chờ yêu cầu (mặc định: `15000`)
+- `--json`: đầu ra có cấu trúc để so sánh
 
-Discovery options:
+Tùy chọn khám phá:
 
-- `--include-local`: include gateways that would be filtered as “local”
-- `--timeout <ms>`: overall discovery window (default: `2000`)
-- `--json`: structured output for diffing
+- `--include-local`: bao gồm các gateway sẽ bị lọc là “cục bộ”
+- `--timeout <ms>`: cửa sổ khám phá tổng thể (mặc định: `2000`)
+- `--json`: đầu ra có cấu trúc để so sánh
 
-Tip: compare against `openclaw gateway discover --json` to see whether the
-macOS app’s discovery pipeline (NWBrowser + tailnet DNS‑SD fallback) differs from
-the Node CLI’s `dns-sd` based discovery.
+Mẹo: so sánh với `openclaw gateway discover --json` để xem liệu quy trình khám phá của ứng dụng macOS (NWBrowser + tailnet DNS‑SD fallback) có khác với khám phá dựa trên `dns-sd` của Node CLI hay không.
 
-## Remote connection plumbing (SSH tunnels)
+## Kết nối từ xa (SSH tunnels)
 
-When the macOS app runs in **Remote** mode, it opens an SSH tunnel so local UI
-components can talk to a remote Gateway as if it were on localhost.
+Khi ứng dụng macOS chạy ở chế độ **Từ xa**, nó mở một đường hầm SSH để các thành phần giao diện người dùng cục bộ có thể nói chuyện với Gateway từ xa như thể nó đang ở trên localhost.
 
-### Control tunnel (Gateway WebSocket port)
+### Đường hầm điều khiển (cổng WebSocket Gateway)
 
-- **Purpose:** health checks, status, Web Chat, config, and other control-plane calls.
-- **Local port:** the Gateway port (default `18789`), always stable.
-- **Remote port:** the same Gateway port on the remote host.
-- **Behavior:** no random local port; the app reuses an existing healthy tunnel
-  or restarts it if needed.
-- **SSH shape:** `ssh -N -L <local>:127.0.0.1:<remote>` with BatchMode +
-  ExitOnForwardFailure + keepalive options.
-- **IP reporting:** the SSH tunnel uses loopback, so the gateway will see the node
-  IP as `127.0.0.1`. Use **Direct (ws/wss)** transport if you want the real client
-  IP to appear (see [macOS remote access](/platforms/mac/remote)).
+- **Mục đích:** kiểm tra sức khỏe, trạng thái, Web Chat, cấu hình và các cuộc gọi mặt phẳng điều khiển khác.
+- **Cổng cục bộ:** cổng Gateway (mặc định `18789`), luôn ổn định.
+- **Cổng từ xa:** cùng cổng Gateway trên máy chủ từ xa.
+- **Hành vi:** không có cổng cục bộ ngẫu nhiên; ứng dụng tái sử dụng một đường hầm khỏe mạnh hiện có hoặc khởi động lại nếu cần.
+- **Hình dạng SSH:** `ssh -N -L <local>:127.0.0.1:<remote>` với các tùy chọn BatchMode + ExitOnForwardFailure + keepalive.
+- **Báo cáo IP:** đường hầm SSH sử dụng loopback, vì vậy gateway sẽ thấy IP node là `127.0.0.1`. Sử dụng **Direct (ws/wss)** transport nếu muốn IP client thực xuất hiện (xem [truy cập từ xa macOS](/platforms/mac/remote)).
 
-For setup steps, see [macOS remote access](/platforms/mac/remote). For protocol
-details, see [Gateway protocol](/gateway/protocol).
+Để biết các bước thiết lập, xem [truy cập từ xa macOS](/platforms/mac/remote). Để biết chi tiết về giao thức, xem [Giao thức Gateway](/gateway/protocol).
 
-## Related docs
+## Tài liệu liên quan
 
-- [Gateway runbook](/gateway)
+- [Sổ tay Gateway](/gateway)
 - [Gateway (macOS)](/platforms/mac/bundled-gateway)
-- [macOS permissions](/platforms/mac/permissions)
+- [Quyền macOS](/platforms/mac/permissions)
 - [Canvas](/platforms/mac/canvas)

@@ -1,19 +1,19 @@
 ---
-summary: "Schema-accurate configuration examples for common OpenClaw setups"
+summary: "Ví dụ cấu hình chính xác theo schema cho các thiết lập OpenClaw phổ biến"
 read_when:
-  - Learning how to configure OpenClaw
-  - Looking for configuration examples
-  - Setting up OpenClaw for the first time
-title: "Configuration Examples"
+  - Tìm hiểu cách cấu hình OpenClaw
+  - Tìm kiếm ví dụ cấu hình
+  - Thiết lập OpenClaw lần đầu tiên
+title: "Ví dụ Cấu Hình"
 ---
 
-# Configuration Examples
+# Ví dụ Cấu Hình
 
-Examples below are aligned with the current config schema. For the exhaustive reference and per-field notes, see [Configuration](/gateway/configuration).
+Các ví dụ dưới đây tuân theo schema cấu hình hiện tại. Để tham khảo chi tiết và ghi chú từng trường, xem [Cấu Hình](/gateway/configuration).
 
-## Quick start
+## Bắt đầu nhanh
 
-### Absolute minimum
+### Tối thiểu cần thiết
 
 ```json5
 {
@@ -22,15 +22,15 @@ Examples below are aligned with the current config schema. For the exhaustive re
 }
 ```
 
-Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
+Lưu vào `~/.openclaw/openclaw.json` và bạn có thể nhắn tin trực tiếp cho bot từ số đó.
 
-### Recommended starter
+### Khởi đầu khuyến nghị
 
 ```json5
 {
   identity: {
     name: "Clawd",
-    theme: "helpful assistant",
+    theme: "trợ lý hữu ích",
     emoji: "🦞",
   },
   agent: {
@@ -46,13 +46,13 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
 }
 ```
 
-## Expanded example (major options)
+## Ví dụ mở rộng (các tùy chọn chính)
 
-> JSON5 lets you use comments and trailing commas. Regular JSON works too.
+> JSON5 cho phép sử dụng chú thích và dấu phẩy cuối. JSON thông thường cũng hoạt động.
 
 ```json5
 {
-  // Environment + shell
+  // Môi trường + shell
   env: {
     OPENROUTER_API_KEY: "sk-or-...",
     vars: {
@@ -64,7 +64,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     },
   },
 
-  // Auth profile metadata (secrets live in auth-profiles.json)
+  // Metadata hồ sơ xác thực (bí mật nằm trong auth-profiles.json)
   auth: {
     profiles: {
       "anthropic:me@example.com": {
@@ -83,14 +83,14 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     },
   },
 
-  // Identity
+  // Danh tính
   identity: {
     name: "Samantha",
-    theme: "helpful sloth",
+    theme: "con lười hữu ích",
     emoji: "🦥",
   },
 
-  // Logging
+  // Ghi log
   logging: {
     level: "info",
     file: "/tmp/openclaw/openclaw.log",
@@ -99,7 +99,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     redactSensitive: "tools",
   },
 
-  // Message formatting
+  // Định dạng tin nhắn
   messages: {
     messagePrefix: "[openclaw]",
     responsePrefix: ">",
@@ -107,7 +107,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     ackReactionScope: "group-mentions",
   },
 
-  // Routing + queue
+  // Định tuyến + hàng đợi
   routing: {
     groupChat: {
       mentionPatterns: ["@openclaw", "openclaw"],
@@ -130,7 +130,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     },
   },
 
-  // Tooling
+  // Công cụ
   tools: {
     media: {
       audio: {
@@ -138,7 +138,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
         maxBytes: 20971520,
         models: [
           { provider: "openai", model: "gpt-4o-mini-transcribe" },
-          // Optional CLI fallback (Whisper binary):
+          // CLI fallback tùy chọn (Whisper binary):
           // { type: "cli", command: "whisper", args: ["--model", "base", "{{MediaPath}}"] }
         ],
         timeoutSeconds: 120,
@@ -151,7 +151,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     },
   },
 
-  // Session behavior
+  // Hành vi phiên
   session: {
     scope: "per-sender",
     reset: {
@@ -169,9 +169,9 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
       pruneAfter: "30d",
       maxEntries: 500,
       rotateBytes: "10mb",
-      resetArchiveRetention: "30d", // duration or false
-      maxDiskBytes: "500mb", // optional
-      highWaterBytes: "400mb", // optional (defaults to 80% of maxDiskBytes)
+      resetArchiveRetention: "30d", // thời gian hoặc false
+      maxDiskBytes: "500mb", // tùy chọn
+      highWaterBytes: "400mb", // tùy chọn (mặc định là 80% của maxDiskBytes)
     },
     typingIntervalSeconds: 5,
     sendPolicy: {
@@ -180,7 +180,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     },
   },
 
-  // Channels
+  // Kênh
   channels: {
     whatsapp: {
       dmPolicy: "pairing",
@@ -232,7 +232,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     },
   },
 
-  // Agent runtime
+  // Thời gian chạy của agent
   agents: {
     defaults: {
       workspace: "~/.openclaw/workspace",
@@ -273,7 +273,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
         every: "30m",
         model: "anthropic/claude-sonnet-4-6",
         target: "last",
-        directPolicy: "allow", // allow (default) | block
+        directPolicy: "allow", // allow (mặc định) | block
         to: "+15555550123",
         prompt: "HEARTBEAT",
         ackMaxChars: 300,
@@ -307,13 +307,13 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
       {
         id: "main",
         default: true,
-        thinkingDefault: "high", // per-agent thinking override
-        reasoningDefault: "on", // per-agent reasoning visibility
-        fastModeDefault: false, // per-agent fast mode
+        thinkingDefault: "high", // ghi đè suy nghĩ theo từng agent
+        reasoningDefault: "on", // hiển thị lý luận theo từng agent
+        fastModeDefault: false, // chế độ nhanh theo từng agent
       },
       {
         id: "quick",
-        fastModeDefault: true, // this agent always runs fast
+        fastModeDefault: true, // agent này luôn chạy nhanh
         thinkingDefault: "off",
       },
     ],
@@ -341,7 +341,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     },
   },
 
-  // Custom model providers
+  // Nhà cung cấp mô hình tùy chỉnh
   models: {
     mode: "merge",
     providers: {
@@ -367,7 +367,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     },
   },
 
-  // Cron jobs
+  // Công việc định kỳ
   cron: {
     enabled: true,
     store: "~/.openclaw/cron/cron.json",
@@ -422,7 +422,7 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
     },
   },
 
-  // Gateway + networking
+  // Gateway + mạng
   gateway: {
     mode: "local",
     port: 18789,
@@ -459,9 +459,9 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
 }
 ```
 
-## Common patterns
+## Mẫu phổ biến
 
-### Multi-platform setup
+### Thiết lập đa nền tảng
 
 ```json5
 {
@@ -482,23 +482,23 @@ Save to `~/.openclaw/openclaw.json` and you can DM the bot from that number.
 }
 ```
 
-### Secure DM mode (shared inbox / multi-user DMs)
+### Chế độ DM an toàn (hộp thư chung / DM nhiều người dùng)
 
-If more than one person can DM your bot (multiple entries in `allowFrom`, pairing approvals for multiple people, or `dmPolicy: "open"`), enable **secure DM mode** so DMs from different senders don’t share one context by default:
+Nếu nhiều người có thể nhắn tin trực tiếp cho bot (nhiều mục trong `allowFrom`, phê duyệt ghép đôi cho nhiều người, hoặc `dmPolicy: "open"`), hãy bật **chế độ DM an toàn** để tin nhắn từ các người gửi khác nhau không chia sẻ cùng một ngữ cảnh mặc định:
 
 ```json5
 {
-  // Secure DM mode (recommended for multi-user or sensitive DM agents)
+  // Chế độ DM an toàn (khuyến nghị cho agent nhiều người dùng hoặc nhạy cảm)
   session: { dmScope: "per-channel-peer" },
 
   channels: {
-    // Example: WhatsApp multi-user inbox
+    // Ví dụ: Hộp thư nhiều người dùng WhatsApp
     whatsapp: {
       dmPolicy: "allowlist",
       allowFrom: ["+15555550123", "+15555550124"],
     },
 
-    // Example: Discord multi-user inbox
+    // Ví dụ: Hộp thư nhiều người dùng Discord
     discord: {
       enabled: true,
       token: "YOUR_DISCORD_BOT_TOKEN",
@@ -508,10 +508,10 @@ If more than one person can DM your bot (multiple entries in `allowFrom`, pairin
 }
 ```
 
-For Discord/Slack/Google Chat/Microsoft Teams/Mattermost/IRC, sender authorization is ID-first by default.
-Only enable direct mutable name/email/nick matching with each channel's `dangerouslyAllowNameMatching: true` if you explicitly accept that risk.
+Đối với Discord/Slack/Google Chat/Microsoft Teams/Mattermost/IRC, xác thực người gửi mặc định là theo ID.
+Chỉ bật khớp tên/email/nick có thể thay đổi trực tiếp với `dangerouslyAllowNameMatching: true` của từng kênh nếu bạn chấp nhận rủi ro đó.
 
-### OAuth with API key failover
+### OAuth với dự phòng API key
 
 ```json5
 {
@@ -544,9 +544,8 @@ Only enable direct mutable name/email/nick matching with each channel's `dangero
 ### Anthropic setup-token + API key, MiniMax fallback
 
 <Warning>
-Anthropic setup-token usage outside Claude Code has been restricted for some
-users in the past. Treat this as user-choice risk and verify current Anthropic
-terms before depending on subscription auth.
+Việc sử dụng setup-token của Anthropic ngoài Claude Code đã bị hạn chế cho một số
+người dùng trong quá khứ. Xem đây là rủi ro do người dùng lựa chọn và xác minh điều khoản hiện tại của Anthropic trước khi phụ thuộc vào xác thực đăng ký.
 </Warning>
 
 ```json5
@@ -586,13 +585,13 @@ terms before depending on subscription auth.
 }
 ```
 
-### Work bot (restricted access)
+### Bot công việc (truy cập hạn chế)
 
 ```json5
 {
   identity: {
     name: "WorkBot",
-    theme: "professional assistant",
+    theme: "trợ lý chuyên nghiệp",
   },
   agent: {
     workspace: "~/work-openclaw",
@@ -611,7 +610,7 @@ terms before depending on subscription auth.
 }
 ```
 
-### Local models only
+### Chỉ mô hình cục bộ
 
 ```json5
 {
@@ -643,9 +642,9 @@ terms before depending on subscription auth.
 }
 ```
 
-## Tips
+## Mẹo
 
-- If you set `dmPolicy: "open"`, the matching `allowFrom` list must include `"*"`.
-- Provider IDs differ (phone numbers, user IDs, channel IDs). Use the provider docs to confirm the format.
-- Optional sections to add later: `web`, `browser`, `ui`, `discovery`, `canvasHost`, `talk`, `signal`, `imessage`.
-- See [Providers](/providers) and [Troubleshooting](/gateway/troubleshooting) for deeper setup notes.
+- Nếu bạn đặt `dmPolicy: "open"`, danh sách `allowFrom` tương ứng phải bao gồm `"*"`.
+- ID nhà cung cấp khác nhau (số điện thoại, ID người dùng, ID kênh). Sử dụng tài liệu nhà cung cấp để xác nhận định dạng.
+- Các phần tùy chọn để thêm sau: `web`, `browser`, `ui`, `discovery`, `canvasHost`, `talk`, `signal`, `imessage`.
+- Xem [Nhà Cung Cấp](/providers) và [Khắc Phục Sự Cố](/gateway/troubleshooting) để biết thêm chi tiết thiết lập.

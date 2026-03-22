@@ -1,27 +1,27 @@
 ---
-title: "Pi Integration Architecture"
-summary: "Architecture of OpenClaw's embedded Pi agent integration and session lifecycle"
+title: "Kiến trúc Tích hợp Pi"
+summary: "Kiến trúc tích hợp agent Pi nhúng và vòng đời phiên trong OpenClaw"
 read_when:
-  - Understanding Pi SDK integration design in OpenClaw
-  - Modifying agent session lifecycle, tooling, or provider wiring for Pi
+  - Hiểu thiết kế tích hợp Pi SDK trong OpenClaw
+  - Sửa đổi vòng đời phiên agent, công cụ, hoặc kết nối provider cho Pi
 ---
 
-# Pi Integration Architecture
+# Kiến trúc Tích hợp Pi
 
-This document describes how OpenClaw integrates with [pi-coding-agent](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) and its sibling packages (`pi-ai`, `pi-agent-core`, `pi-tui`) to power its AI agent capabilities.
+Tài liệu này mô tả cách OpenClaw tích hợp với [pi-coding-agent](https://github.com/badlogic/pi-mono/tree/main/packages/coding-agent) và các gói liên quan (`pi-ai`, `pi-agent-core`, `pi-tui`) để cung cấp khả năng agent AI.
 
-## Overview
+## Tổng quan
 
-OpenClaw uses the pi SDK to embed an AI coding agent into its messaging gateway architecture. Instead of spawning pi as a subprocess or using RPC mode, OpenClaw directly imports and instantiates pi's `AgentSession` via `createAgentSession()`. This embedded approach provides:
+OpenClaw sử dụng pi SDK để nhúng một agent mã hóa AI vào kiến trúc cổng nhắn tin của mình. Thay vì khởi tạo pi như một subprocess hoặc sử dụng chế độ RPC, OpenClaw trực tiếp nhập và khởi tạo `AgentSession` của pi thông qua `createAgentSession()`. Cách tiếp cận nhúng này cung cấp:
 
-- Full control over session lifecycle and event handling
-- Custom tool injection (messaging, sandbox, channel-specific actions)
-- System prompt customization per channel/context
-- Session persistence with branching/compaction support
-- Multi-account auth profile rotation with failover
-- Provider-agnostic model switching
+- Kiểm soát hoàn toàn vòng đời phiên và xử lý sự kiện
+- Tiêm công cụ tùy chỉnh (nhắn tin, sandbox, hành động cụ thể cho từng kênh)
+- Tùy chỉnh lời nhắc hệ thống cho từng kênh/ngữ cảnh
+- Duy trì phiên với hỗ trợ phân nhánh/nén
+- Xoay vòng hồ sơ xác thực đa tài khoản với dự phòng
+- Chuyển đổi mô hình không phụ thuộc vào nhà cung cấp
 
-## Package Dependencies
+## Phụ thuộc gói
 
 ```json
 {
@@ -32,90 +32,90 @@ OpenClaw uses the pi SDK to embed an AI coding agent into its messaging gateway 
 }
 ```
 
-| Package           | Purpose                                                                                                |
+| Gói               | Mục đích                                                                                               |
 | ----------------- | ------------------------------------------------------------------------------------------------------ |
-| `pi-ai`           | Core LLM abstractions: `Model`, `streamSimple`, message types, provider APIs                           |
-| `pi-agent-core`   | Agent loop, tool execution, `AgentMessage` types                                                       |
-| `pi-coding-agent` | High-level SDK: `createAgentSession`, `SessionManager`, `AuthStorage`, `ModelRegistry`, built-in tools |
-| `pi-tui`          | Terminal UI components (used in OpenClaw's local TUI mode)                                             |
+| `pi-ai`           | Trừu tượng hóa LLM cốt lõi: `Model`, `streamSimple`, loại tin nhắn, API nhà cung cấp                   |
+| `pi-agent-core`   | Vòng lặp agent, thực thi công cụ, loại `AgentMessage`                                                  |
+| `pi-coding-agent` | SDK cấp cao: `createAgentSession`, `SessionManager`, `AuthStorage`, `ModelRegistry`, công cụ tích hợp  |
+| `pi-tui`          | Thành phần giao diện người dùng terminal (sử dụng trong chế độ TUI cục bộ của OpenClaw)                |
 
-## File Structure
+## Cấu trúc tệp
 
 ```
 src/agents/
-├── pi-embedded-runner.ts          # Re-exports from pi-embedded-runner/
+├── pi-embedded-runner.ts          # Tái xuất từ pi-embedded-runner/
 ├── pi-embedded-runner/
-│   ├── run.ts                     # Main entry: runEmbeddedPiAgent()
+│   ├── run.ts                     # Điểm vào chính: runEmbeddedPiAgent()
 │   ├── run/
-│   │   ├── attempt.ts             # Single attempt logic with session setup
-│   │   ├── params.ts              # RunEmbeddedPiAgentParams type
-│   │   ├── payloads.ts            # Build response payloads from run results
-│   │   ├── images.ts              # Vision model image injection
+│   │   ├── attempt.ts             # Logic thử nghiệm đơn lẻ với thiết lập phiên
+│   │   ├── params.ts              # Loại RunEmbeddedPiAgentParams
+│   │   ├── payloads.ts            # Xây dựng payload phản hồi từ kết quả chạy
+│   │   ├── images.ts              # Tiêm hình ảnh mô hình thị giác
 │   │   └── types.ts               # EmbeddedRunAttemptResult
-│   ├── abort.ts                   # Abort error detection
-│   ├── cache-ttl.ts               # Cache TTL tracking for context pruning
-│   ├── compact.ts                 # Manual/auto compaction logic
-│   ├── extensions.ts              # Load pi extensions for embedded runs
-│   ├── extra-params.ts            # Provider-specific stream params
-│   ├── google.ts                  # Google/Gemini turn ordering fixes
-│   ├── history.ts                 # History limiting (DM vs group)
-│   ├── lanes.ts                   # Session/global command lanes
-│   ├── logger.ts                  # Subsystem logger
-│   ├── model.ts                   # Model resolution via ModelRegistry
-│   ├── runs.ts                    # Active run tracking, abort, queue
-│   ├── sandbox-info.ts            # Sandbox info for system prompt
-│   ├── session-manager-cache.ts   # SessionManager instance caching
-│   ├── session-manager-init.ts    # Session file initialization
-│   ├── system-prompt.ts           # System prompt builder
-│   ├── tool-split.ts              # Split tools into builtIn vs custom
+│   ├── abort.ts                   # Phát hiện lỗi hủy
+│   ├── cache-ttl.ts               # Theo dõi TTL cache để cắt tỉa ngữ cảnh
+│   ├── compact.ts                 # Logic nén thủ công/tự động
+│   ├── extensions.ts              # Tải các tiện ích mở rộng pi cho các lần chạy nhúng
+│   ├── extra-params.ts            # Tham số luồng cụ thể cho nhà cung cấp
+│   ├── google.ts                  # Sửa lỗi thứ tự lượt Google/Gemini
+│   ├── history.ts                 # Giới hạn lịch sử (DM so với nhóm)
+│   ├── lanes.ts                   # Làn lệnh phiên/toàn cầu
+│   ├── logger.ts                  # Logger hệ thống con
+│   ├── model.ts                   # Giải quyết mô hình qua ModelRegistry
+│   ├── runs.ts                    # Theo dõi chạy hoạt động, hủy, hàng đợi
+│   ├── sandbox-info.ts            # Thông tin sandbox cho lời nhắc hệ thống
+│   ├── session-manager-cache.ts   # Bộ nhớ đệm phiên bản SessionManager
+│   ├── session-manager-init.ts    # Khởi tạo tệp phiên
+│   ├── system-prompt.ts           # Trình tạo lời nhắc hệ thống
+│   ├── tool-split.ts              # Chia công cụ thành tích hợp sẵn và tùy chỉnh
 │   ├── types.ts                   # EmbeddedPiAgentMeta, EmbeddedPiRunResult
-│   └── utils.ts                   # ThinkLevel mapping, error description
-├── pi-embedded-subscribe.ts       # Session event subscription/dispatch
+│   └── utils.ts                   # Ánh xạ ThinkLevel, mô tả lỗi
+├── pi-embedded-subscribe.ts       # Đăng ký/xử lý sự kiện phiên
 ├── pi-embedded-subscribe.types.ts # SubscribeEmbeddedPiSessionParams
-├── pi-embedded-subscribe.handlers.ts # Event handler factory
+├── pi-embedded-subscribe.handlers.ts # Nhà máy xử lý sự kiện
 ├── pi-embedded-subscribe.handlers.lifecycle.ts
 ├── pi-embedded-subscribe.handlers.types.ts
-├── pi-embedded-block-chunker.ts   # Streaming block reply chunking
-├── pi-embedded-messaging.ts       # Messaging tool sent tracking
-├── pi-embedded-helpers.ts         # Error classification, turn validation
-├── pi-embedded-helpers/           # Helper modules
-├── pi-embedded-utils.ts           # Formatting utilities
+├── pi-embedded-block-chunker.ts   # Chia khối phản hồi luồng
+├── pi-embedded-messaging.ts       # Theo dõi công cụ nhắn tin đã gửi
+├── pi-embedded-helpers.ts         # Phân loại lỗi, xác thực lượt
+├── pi-embedded-helpers/           # Mô-đun trợ giúp
+├── pi-embedded-utils.ts           # Tiện ích định dạng
 ├── pi-tools.ts                    # createOpenClawCodingTools()
-├── pi-tools.abort.ts              # AbortSignal wrapping for tools
-├── pi-tools.policy.ts             # Tool allowlist/denylist policy
-├── pi-tools.read.ts               # Read tool customizations
-├── pi-tools.schema.ts             # Tool schema normalization
-├── pi-tools.types.ts              # AnyAgentTool type alias
-├── pi-tool-definition-adapter.ts  # AgentTool -> ToolDefinition adapter
-├── pi-settings.ts                 # Settings overrides
-├── pi-extensions/                 # Custom pi extensions
-│   ├── compaction-safeguard.ts    # Safeguard extension
+├── pi-tools.abort.ts              # Gói AbortSignal cho công cụ
+├── pi-tools.policy.ts             # Chính sách danh sách cho phép/từ chối công cụ
+├── pi-tools.read.ts               # Tùy chỉnh công cụ đọc
+├── pi-tools.schema.ts             # Chuẩn hóa lược đồ công cụ
+├── pi-tools.types.ts              # Alias loại AnyAgentTool
+├── pi-tool-definition-adapter.ts  # Bộ chuyển đổi AgentTool -> ToolDefinition
+├── pi-settings.ts                 # Ghi đè cài đặt
+├── pi-extensions/                 # Tiện ích mở rộng pi tùy chỉnh
+│   ├── compaction-safeguard.ts    # Tiện ích bảo vệ
 │   ├── compaction-safeguard-runtime.ts
-│   ├── context-pruning.ts         # Cache-TTL context pruning extension
+│   ├── context-pruning.ts         # Tiện ích cắt tỉa ngữ cảnh dựa trên TTL cache
 │   └── context-pruning/
-├── model-auth.ts                  # Auth profile resolution
-├── auth-profiles.ts               # Profile store, cooldown, failover
-├── model-selection.ts             # Default model resolution
-├── models-config.ts               # models.json generation
-├── model-catalog.ts               # Model catalog cache
-├── context-window-guard.ts        # Context window validation
-├── failover-error.ts              # FailoverError class
+├── model-auth.ts                  # Giải quyết hồ sơ xác thực
+├── auth-profiles.ts               # Lưu trữ hồ sơ, thời gian chờ, dự phòng
+├── model-selection.ts             # Giải quyết mô hình mặc định
+├── models-config.ts               # Tạo models.json
+├── model-catalog.ts               # Bộ nhớ đệm danh mục mô hình
+├── context-window-guard.ts        # Xác thực cửa sổ ngữ cảnh
+├── failover-error.ts              # Lớp FailoverError
 ├── defaults.ts                    # DEFAULT_PROVIDER, DEFAULT_MODEL
 ├── system-prompt.ts               # buildAgentSystemPrompt()
-├── system-prompt-params.ts        # System prompt parameter resolution
-├── system-prompt-report.ts        # Debug report generation
-├── tool-summaries.ts              # Tool description summaries
-├── tool-policy.ts                 # Tool policy resolution
-├── transcript-policy.ts           # Transcript validation policy
-├── skills.ts                      # Skill snapshot/prompt building
-├── skills/                        # Skill subsystem
-├── sandbox.ts                     # Sandbox context resolution
-├── sandbox/                       # Sandbox subsystem
-├── channel-tools.ts               # Channel-specific tool injection
-├── openclaw-tools.ts              # OpenClaw-specific tools
-├── bash-tools.ts                  # exec/process tools
-├── apply-patch.ts                 # apply_patch tool (OpenAI)
-├── tools/                         # Individual tool implementations
+├── system-prompt-params.ts        # Giải quyết tham số lời nhắc hệ thống
+├── system-prompt-report.ts        # Tạo báo cáo gỡ lỗi
+├── tool-summaries.ts              # Tóm tắt mô tả công cụ
+├── tool-policy.ts                 # Giải quyết chính sách công cụ
+├── transcript-policy.ts           # Chính sách xác thực bản ghi
+├── skills.ts                      # Ảnh chụp kỹ năng/xây dựng lời nhắc
+├── skills/                        # Hệ thống con kỹ năng
+├── sandbox.ts                     # Giải quyết ngữ cảnh sandbox
+├── sandbox/                       # Hệ thống con sandbox
+├── channel-tools.ts               # Tiêm công cụ cụ thể cho từng kênh
+├── openclaw-tools.ts              # Công cụ cụ thể cho OpenClaw
+├── bash-tools.ts                  # Công cụ exec/process
+├── apply-patch.ts                 # Công cụ apply_patch (OpenAI)
+├── tools/                         # Triển khai công cụ cá nhân
 │   ├── browser-tool.ts
 │   ├── canvas-tool.ts
 │   ├── cron-tool.ts
@@ -129,19 +129,18 @@ src/agents/
 └── ...
 ```
 
-Channel-specific message action runtimes now live in the plugin-owned extension
-directories instead of under `src/agents/tools`, for example:
+Các runtime hành động tin nhắn cụ thể cho từng kênh hiện nằm trong thư mục tiện ích mở rộng do plugin sở hữu thay vì dưới `src/agents/tools`, ví dụ:
 
 - `extensions/discord/src/actions/runtime*.ts`
 - `extensions/slack/src/action-runtime.ts`
 - `extensions/telegram/src/action-runtime.ts`
 - `extensions/whatsapp/src/action-runtime.ts`
 
-## Core Integration Flow
+## Quy trình Tích hợp Cốt lõi
 
-### 1. Running an Embedded Agent
+### 1. Chạy một Agent Nhúng
 
-The main entry point is `runEmbeddedPiAgent()` in `pi-embedded-runner/run.ts`:
+Điểm vào chính là `runEmbeddedPiAgent()` trong `pi-embedded-runner/run.ts`:
 
 ```typescript
 import { runEmbeddedPiAgent } from "./agents/pi-embedded-runner.js";
@@ -163,9 +162,9 @@ const result = await runEmbeddedPiAgent({
 });
 ```
 
-### 2. Session Creation
+### 2. Tạo Phiên
 
-Inside `runEmbeddedAttempt()` (called by `runEmbeddedPiAgent()`), the pi SDK is used:
+Bên trong `runEmbeddedAttempt()` (được gọi bởi `runEmbeddedPiAgent()`), pi SDK được sử dụng:
 
 ```typescript
 import {
@@ -200,9 +199,9 @@ const { session } = await createAgentSession({
 applySystemPromptOverrideToSession(session, systemPromptOverride);
 ```
 
-### 3. Event Subscription
+### 3. Đăng ký Sự kiện
 
-`subscribeEmbeddedPiSession()` subscribes to pi's `AgentSession` events:
+`subscribeEmbeddedPiSession()` đăng ký các sự kiện `AgentSession` của pi:
 
 ```typescript
 const subscription = subscribeEmbeddedPiSession({
@@ -219,43 +218,41 @@ const subscription = subscribeEmbeddedPiSession({
 });
 ```
 
-Events handled include:
+Các sự kiện được xử lý bao gồm:
 
-- `message_start` / `message_end` / `message_update` (streaming text/thinking)
+- `message_start` / `message_end` / `message_update` (luồng văn bản/suy nghĩ)
 - `tool_execution_start` / `tool_execution_update` / `tool_execution_end`
 - `turn_start` / `turn_end`
 - `agent_start` / `agent_end`
 - `auto_compaction_start` / `auto_compaction_end`
 
-### 4. Prompting
+### 4. Nhắc nhở
 
-After setup, the session is prompted:
+Sau khi thiết lập, phiên được nhắc nhở:
 
 ```typescript
 await session.prompt(effectivePrompt, { images: imageResult.images });
 ```
 
-The SDK handles the full agent loop: sending to LLM, executing tool calls, streaming responses.
+SDK xử lý toàn bộ vòng lặp agent: gửi đến LLM, thực thi các cuộc gọi công cụ, luồng phản hồi.
 
-Image injection is prompt-local: OpenClaw loads image refs from the current prompt and
-passes them via `images` for that turn only. It does not re-scan older history turns
-to re-inject image payloads.
+Tiêm hình ảnh là cục bộ cho lời nhắc: OpenClaw tải các tham chiếu hình ảnh từ lời nhắc hiện tại và truyền chúng qua `images` chỉ cho lượt đó. Nó không quét lại các lượt lịch sử cũ hơn để tiêm lại payload hình ảnh.
 
-## Tool Architecture
+## Kiến trúc Công cụ
 
-### Tool Pipeline
+### Quy trình Công cụ
 
-1. **Base Tools**: pi's `codingTools` (read, bash, edit, write)
-2. **Custom Replacements**: OpenClaw replaces bash with `exec`/`process`, customizes read/edit/write for sandbox
-3. **OpenClaw Tools**: messaging, browser, canvas, sessions, cron, gateway, etc.
-4. **Channel Tools**: Discord/Telegram/Slack/WhatsApp-specific action tools
-5. **Policy Filtering**: Tools filtered by profile, provider, agent, group, sandbox policies
-6. **Schema Normalization**: Schemas cleaned for Gemini/OpenAI quirks
-7. **AbortSignal Wrapping**: Tools wrapped to respect abort signals
+1. **Công cụ Cơ bản**: `codingTools` của pi (đọc, bash, chỉnh sửa, viết)
+2. **Thay thế Tùy chỉnh**: OpenClaw thay thế bash bằng `exec`/`process`, tùy chỉnh đọc/chỉnh sửa/viết cho sandbox
+3. **Công cụ OpenClaw**: nhắn tin, trình duyệt, canvas, phiên, cron, gateway, v.v.
+4. **Công cụ Kênh**: Công cụ hành động cụ thể cho Discord/Telegram/Slack/WhatsApp
+5. **Lọc Chính sách**: Công cụ được lọc theo hồ sơ, nhà cung cấp, agent, nhóm, chính sách sandbox
+6. **Chuẩn hóa Lược đồ**: Lược đồ được làm sạch cho các quirks của Gemini/OpenAI
+7. **Gói AbortSignal**: Công cụ được gói để tôn trọng tín hiệu hủy
 
-### Tool Definition Adapter
+### Bộ chuyển đổi Định nghĩa Công cụ
 
-pi-agent-core's `AgentTool` has a different `execute` signature than pi-coding-agent's `ToolDefinition`. The adapter in `pi-tool-definition-adapter.ts` bridges this:
+`AgentTool` của pi-agent-core có chữ ký `execute` khác với `ToolDefinition` của pi-coding-agent. Bộ chuyển đổi trong `pi-tool-definition-adapter.ts` kết nối điều này:
 
 ```typescript
 export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
@@ -265,54 +262,54 @@ export function toToolDefinitions(tools: AnyAgentTool[]): ToolDefinition[] {
     description: tool.description ?? "",
     parameters: tool.parameters,
     execute: async (toolCallId, params, onUpdate, _ctx, signal) => {
-      // pi-coding-agent signature differs from pi-agent-core
+      // Chữ ký pi-coding-agent khác với pi-agent-core
       return await tool.execute(toolCallId, params, signal, onUpdate);
     },
   }));
 }
 ```
 
-### Tool Split Strategy
+### Chiến lược Chia Công cụ
 
-`splitSdkTools()` passes all tools via `customTools`:
+`splitSdkTools()` truyền tất cả công cụ qua `customTools`:
 
 ```typescript
 export function splitSdkTools(options: { tools: AnyAgentTool[]; sandboxEnabled: boolean }) {
   return {
-    builtInTools: [], // Empty. We override everything
+    builtInTools: [], // Trống. Chúng tôi ghi đè mọi thứ
     customTools: toToolDefinitions(options.tools),
   };
 }
 ```
 
-This ensures OpenClaw's policy filtering, sandbox integration, and extended toolset remain consistent across providers.
+Điều này đảm bảo lọc chính sách của OpenClaw, tích hợp sandbox, và bộ công cụ mở rộng vẫn nhất quán trên các nhà cung cấp.
 
-## System Prompt Construction
+## Xây dựng Lời nhắc Hệ thống
 
-The system prompt is built in `buildAgentSystemPrompt()` (`system-prompt.ts`). It assembles a full prompt with sections including Tooling, Tool Call Style, Safety guardrails, OpenClaw CLI reference, Skills, Docs, Workspace, Sandbox, Messaging, Reply Tags, Voice, Silent Replies, Heartbeats, Runtime metadata, plus Memory and Reactions when enabled, and optional context files and extra system prompt content. Sections are trimmed for minimal prompt mode used by subagents.
+Lời nhắc hệ thống được xây dựng trong `buildAgentSystemPrompt()` (`system-prompt.ts`). Nó lắp ráp một lời nhắc đầy đủ với các phần bao gồm Công cụ, Phong cách Cuộc gọi Công cụ, Rào chắn An toàn, Tham khảo CLI OpenClaw, Kỹ năng, Tài liệu, Không gian làm việc, Sandbox, Nhắn tin, Thẻ Phản hồi, Giọng nói, Phản hồi Im lặng, Nhịp tim, Siêu dữ liệu Thời gian chạy, cộng với Bộ nhớ và Phản ứng khi được bật, và các tệp ngữ cảnh tùy chọn và nội dung lời nhắc hệ thống bổ sung. Các phần được cắt tỉa cho chế độ lời nhắc tối thiểu được sử dụng bởi các subagent.
 
-The prompt is applied after session creation via `applySystemPromptOverrideToSession()`:
+Lời nhắc được áp dụng sau khi tạo phiên thông qua `applySystemPromptOverrideToSession()`:
 
 ```typescript
 const systemPromptOverride = createSystemPromptOverride(appendPrompt);
 applySystemPromptOverrideToSession(session, systemPromptOverride);
 ```
 
-## Session Management
+## Quản lý Phiên
 
-### Session Files
+### Tệp Phiên
 
-Sessions are JSONL files with tree structure (id/parentId linking). Pi's `SessionManager` handles persistence:
+Các phiên là các tệp JSONL với cấu trúc cây (liên kết id/parentId). `SessionManager` của Pi xử lý duy trì:
 
 ```typescript
 const sessionManager = SessionManager.open(params.sessionFile);
 ```
 
-OpenClaw wraps this with `guardSessionManager()` for tool result safety.
+OpenClaw bao bọc điều này với `guardSessionManager()` để đảm bảo an toàn kết quả công cụ.
 
-### Session Caching
+### Bộ nhớ đệm Phiên
 
-`session-manager-cache.ts` caches SessionManager instances to avoid repeated file parsing:
+`session-manager-cache.ts` lưu trữ các phiên bản SessionManager để tránh phân tích tệp lặp lại:
 
 ```typescript
 await prewarmSessionFile(params.sessionFile);
@@ -320,13 +317,13 @@ sessionManager = SessionManager.open(params.sessionFile);
 trackSessionManagerAccess(params.sessionFile);
 ```
 
-### History Limiting
+### Giới hạn Lịch sử
 
-`limitHistoryTurns()` trims conversation history based on channel type (DM vs group).
+`limitHistoryTurns()` cắt tỉa lịch sử hội thoại dựa trên loại kênh (DM so với nhóm).
 
-### Compaction
+### Nén
 
-Auto-compaction triggers on context overflow. `compactEmbeddedPiSessionDirect()` handles manual compaction:
+Nén tự động kích hoạt khi ngữ cảnh tràn. `compactEmbeddedPiSessionDirect()` xử lý nén thủ công:
 
 ```typescript
 const compactResult = await compactEmbeddedPiSessionDirect({
@@ -334,25 +331,25 @@ const compactResult = await compactEmbeddedPiSessionDirect({
 });
 ```
 
-## Authentication & Model Resolution
+## Xác thực & Giải quyết Mô hình
 
-### Auth Profiles
+### Hồ sơ Xác thực
 
-OpenClaw maintains an auth profile store with multiple API keys per provider:
+OpenClaw duy trì một kho hồ sơ xác thực với nhiều khóa API cho mỗi nhà cung cấp:
 
 ```typescript
 const authStore = ensureAuthProfileStore(agentDir, { allowKeychainPrompt: false });
 const profileOrder = resolveAuthProfileOrder({ cfg, store: authStore, provider, preferredProfile });
 ```
 
-Profiles rotate on failures with cooldown tracking:
+Hồ sơ xoay vòng khi gặp lỗi với theo dõi thời gian chờ:
 
 ```typescript
 await markAuthProfileFailure({ store, profileId, reason, cfg, agentDir });
 const rotated = await advanceAuthProfile();
 ```
 
-### Model Resolution
+### Giải quyết Mô hình
 
 ```typescript
 import { resolveModel } from "./pi-embedded-runner/model.js";
@@ -364,13 +361,13 @@ const { model, error, authStorage, modelRegistry } = resolveModel(
   config,
 );
 
-// Uses pi's ModelRegistry and AuthStorage
+// Sử dụng ModelRegistry và AuthStorage của pi
 authStorage.setRuntimeApiKey(model.provider, apiKeyInfo.apiKey);
 ```
 
-### Failover
+### Dự phòng
 
-`FailoverError` triggers model fallback when configured:
+`FailoverError` kích hoạt chuyển đổi mô hình khi được cấu hình:
 
 ```typescript
 if (fallbackConfigured && isFailoverErrorMessage(errorText)) {
@@ -384,13 +381,13 @@ if (fallbackConfigured && isFailoverErrorMessage(errorText)) {
 }
 ```
 
-## Pi Extensions
+## Tiện ích mở rộng Pi
 
-OpenClaw loads custom pi extensions for specialized behavior:
+OpenClaw tải các tiện ích mở rộng pi tùy chỉnh cho hành vi chuyên biệt:
 
-### Compaction Safeguard
+### Bảo vệ Nén
 
-`src/agents/pi-extensions/compaction-safeguard.ts` adds guardrails to compaction, including adaptive token budgeting plus tool failure and file operation summaries:
+`src/agents/pi-extensions/compaction-safeguard.ts` thêm rào chắn cho nén, bao gồm ngân sách token thích ứng cộng với tóm tắt lỗi công cụ và thao tác tệp:
 
 ```typescript
 if (resolveCompactionMode(params.cfg) === "safeguard") {
@@ -399,9 +396,9 @@ if (resolveCompactionMode(params.cfg) === "safeguard") {
 }
 ```
 
-### Context Pruning
+### Cắt tỉa Ngữ cảnh
 
-`src/agents/pi-extensions/context-pruning.ts` implements cache-TTL based context pruning:
+`src/agents/pi-extensions/context-pruning.ts` triển khai cắt tỉa ngữ cảnh dựa trên TTL cache:
 
 ```typescript
 if (cfg?.agents?.defaults?.contextPruning?.mode === "cache-ttl") {
@@ -415,53 +412,53 @@ if (cfg?.agents?.defaults?.contextPruning?.mode === "cache-ttl") {
 }
 ```
 
-## Streaming & Block Replies
+## Luồng & Phản hồi Khối
 
-### Block Chunking
+### Chia Khối
 
-`EmbeddedBlockChunker` manages streaming text into discrete reply blocks:
+`EmbeddedBlockChunker` quản lý luồng văn bản thành các khối phản hồi rời rạc:
 
 ```typescript
 const blockChunker = blockChunking ? new EmbeddedBlockChunker(blockChunking) : null;
 ```
 
-### Thinking/Final Tag Stripping
+### Loại bỏ Thẻ Suy nghĩ/Chung kết
 
-Streaming output is processed to strip `<think>`/`<thinking>` blocks and extract `<final>` content:
+Luồng đầu ra được xử lý để loại bỏ các khối `<think>`/`<thinking>` và trích xuất nội dung `<final>`:
 
 ```typescript
 const stripBlockTags = (text: string, state: { thinking: boolean; final: boolean }) => {
-  // Strip <think>...</think> content
-  // If enforceFinalTag, only return <final>...</final> content
+  // Loại bỏ nội dung <think>...</think>
+  // Nếu enforceFinalTag, chỉ trả về nội dung <final>...</final>
 };
 ```
 
-### Reply Directives
+### Chỉ thị Phản hồi
 
-Reply directives like `[[media:url]]`, `[[voice]]`, `[[reply:id]]` are parsed and extracted:
+Các chỉ thị phản hồi như `[[media:url]]`, `[[voice]]`, `[[reply:id]]` được phân tích và trích xuất:
 
 ```typescript
 const { text: cleanedText, mediaUrls, audioAsVoice, replyToId } = consumeReplyDirectives(chunk);
 ```
 
-## Error Handling
+## Xử lý Lỗi
 
-### Error Classification
+### Phân loại Lỗi
 
-`pi-embedded-helpers.ts` classifies errors for appropriate handling:
+`pi-embedded-helpers.ts` phân loại lỗi để xử lý phù hợp:
 
 ```typescript
-isContextOverflowError(errorText)     // Context too large
-isCompactionFailureError(errorText)   // Compaction failed
-isAuthAssistantError(lastAssistant)   // Auth failure
-isRateLimitAssistantError(...)        // Rate limited
-isFailoverAssistantError(...)         // Should failover
+isContextOverflowError(errorText)     // Ngữ cảnh quá lớn
+isCompactionFailureError(errorText)   // Nén thất bại
+isAuthAssistantError(lastAssistant)   // Xác thực thất bại
+isRateLimitAssistantError(...)        // Bị giới hạn tốc độ
+isFailoverAssistantError(...)         // Nên chuyển đổi dự phòng
 classifyFailoverReason(errorText)     // "auth" | "rate_limit" | "quota" | "timeout" | ...
 ```
 
-### Thinking Level Fallback
+### Suy nghĩ Cấp độ Dự phòng
 
-If a thinking level is unsupported, it falls back:
+Nếu một cấp độ suy nghĩ không được hỗ trợ, nó sẽ chuyển sang dự phòng:
 
 ```typescript
 const fallbackThinking = pickFallbackThinkingLevel({
@@ -474,9 +471,9 @@ if (fallbackThinking) {
 }
 ```
 
-## Sandbox Integration
+## Tích hợp Sandbox
 
-When sandbox mode is enabled, tools and paths are constrained:
+Khi chế độ sandbox được bật, công cụ và đường dẫn bị giới hạn:
 
 ```typescript
 const sandbox = await resolveSandboxContext({
@@ -486,67 +483,67 @@ const sandbox = await resolveSandboxContext({
 });
 
 if (sandboxRoot) {
-  // Use sandboxed read/edit/write tools
-  // Exec runs in container
-  // Browser uses bridge URL
+  // Sử dụng công cụ đọc/chỉnh sửa/viết trong sandbox
+  // Exec chạy trong container
+  // Trình duyệt sử dụng URL cầu nối
 }
 ```
 
-## Provider-Specific Handling
+## Xử lý Cụ thể cho Nhà cung cấp
 
 ### Anthropic
 
-- Refusal magic string scrubbing
-- Turn validation for consecutive roles
-- Claude Code parameter compatibility
+- Loại bỏ chuỗi ma thuật từ chối
+- Xác thực lượt cho các vai trò liên tiếp
+- Tương thích tham số Claude Code
 
 ### Google/Gemini
 
-- Turn ordering fixes (`applyGoogleTurnOrderingFix`)
-- Tool schema sanitization (`sanitizeToolsForGoogle`)
-- Session history sanitization (`sanitizeSessionHistory`)
+- Sửa lỗi thứ tự lượt (`applyGoogleTurnOrderingFix`)
+- Làm sạch lược đồ công cụ (`sanitizeToolsForGoogle`)
+- Làm sạch lịch sử phiên (`sanitizeSessionHistory`)
 
 ### OpenAI
 
-- `apply_patch` tool for Codex models
-- Thinking level downgrade handling
+- Công cụ `apply_patch` cho các mô hình Codex
+- Xử lý hạ cấp độ suy nghĩ
 
-## TUI Integration
+## Tích hợp TUI
 
-OpenClaw also has a local TUI mode that uses pi-tui components directly:
+OpenClaw cũng có chế độ TUI cục bộ sử dụng các thành phần pi-tui trực tiếp:
 
 ```typescript
 // src/tui/tui.ts
 import { ... } from "@mariozechner/pi-tui";
 ```
 
-This provides the interactive terminal experience similar to pi's native mode.
+Điều này cung cấp trải nghiệm terminal tương tác tương tự như chế độ gốc của pi.
 
-## Key Differences from Pi CLI
+## Khác biệt Chính so với Pi CLI
 
-| Aspect          | Pi CLI                  | OpenClaw Embedded                                                                              |
-| --------------- | ----------------------- | ---------------------------------------------------------------------------------------------- |
-| Invocation      | `pi` command / RPC      | SDK via `createAgentSession()`                                                                 |
-| Tools           | Default coding tools    | Custom OpenClaw tool suite                                                                     |
-| System prompt   | AGENTS.md + prompts     | Dynamic per-channel/context                                                                    |
-| Session storage | `~/.pi/agent/sessions/` | `~/.openclaw/agents/<agentId>/sessions/` (or `$OPENCLAW_STATE_DIR/agents/<agentId>/sessions/`) |
-| Auth            | Single credential       | Multi-profile with rotation                                                                    |
-| Extensions      | Loaded from disk        | Programmatic + disk paths                                                                      |
-| Event handling  | TUI rendering           | Callback-based (onBlockReply, etc.)                                                            |
+| Khía cạnh        | Pi CLI                  | OpenClaw Nhúng                                                                                 |
+| ---------------- | ----------------------- | ---------------------------------------------------------------------------------------------- |
+| Triệu hồi        | Lệnh `pi` / RPC         | SDK qua `createAgentSession()`                                                                 |
+| Công cụ          | Công cụ mã hóa mặc định | Bộ công cụ tùy chỉnh của OpenClaw                                                              |
+| Lời nhắc hệ thống| AGENTS.md + lời nhắc    | Động theo kênh/ngữ cảnh                                                                        |
+| Lưu trữ phiên    | `~/.pi/agent/sessions/` | `~/.openclaw/agents/<agentId>/sessions/` (hoặc `$OPENCLAW_STATE_DIR/agents/<agentId>/sessions/`) |
+| Xác thực         | Một thông tin xác thực  | Nhiều hồ sơ với xoay vòng                                                                      |
+| Tiện ích mở rộng | Tải từ đĩa              | Đường dẫn lập trình + đĩa                                                                      |
+| Xử lý sự kiện    | Kết xuất TUI            | Dựa trên callback (onBlockReply, v.v.)                                                         |
 
-## Future Considerations
+## Cân nhắc Tương lai
 
-Areas for potential rework:
+Các khu vực có thể cần tái cấu trúc:
 
-1. **Tool signature alignment**: Currently adapting between pi-agent-core and pi-coding-agent signatures
-2. **Session manager wrapping**: `guardSessionManager` adds safety but increases complexity
-3. **Extension loading**: Could use pi's `ResourceLoader` more directly
-4. **Streaming handler complexity**: `subscribeEmbeddedPiSession` has grown large
-5. **Provider quirks**: Many provider-specific codepaths that pi could potentially handle
+1. **Căn chỉnh chữ ký công cụ**: Hiện đang thích ứng giữa chữ ký pi-agent-core và pi-coding-agent
+2. **Bao bọc quản lý phiên**: `guardSessionManager` thêm an toàn nhưng tăng độ phức tạp
+3. **Tải tiện ích mở rộng**: Có thể sử dụng `ResourceLoader` của pi trực tiếp hơn
+4. **Độ phức tạp của trình xử lý luồng**: `subscribeEmbeddedPiSession` đã trở nên lớn
+5. **Quirks của nhà cung cấp**: Nhiều đường dẫn mã cụ thể cho nhà cung cấp mà pi có thể xử lý
 
-## Tests
+## Kiểm tra
 
-Pi integration coverage spans these suites:
+Phạm vi tích hợp Pi bao gồm các bộ sau:
 
 - `src/agents/pi-*.test.ts`
 - `src/agents/pi-auth-json.test.ts`
@@ -560,8 +557,8 @@ Pi integration coverage spans these suites:
 - `src/agents/pi-settings.test.ts`
 - `src/agents/pi-extensions/**/*.test.ts`
 
-Live/opt-in:
+Trực tiếp/tùy chọn:
 
-- `src/agents/pi-embedded-runner-extraparams.live.test.ts` (enable `OPENCLAW_LIVE_TEST=1`)
+- `src/agents/pi-embedded-runner-extraparams.live.test.ts` (bật `OPENCLAW_LIVE_TEST=1`)
 
-For current run commands, see [Pi Development Workflow](/pi-dev).
+Để biết các lệnh chạy hiện tại, xem [Quy trình Phát triển Pi](/pi-dev).

@@ -1,45 +1,45 @@
 ---
-summary: "Talk mode: continuous speech conversations with ElevenLabs TTS"
+summary: "Chế độ Talk: hội thoại liên tục với ElevenLabs TTS"
 read_when:
-  - Implementing Talk mode on macOS/iOS/Android
-  - Changing voice/TTS/interrupt behavior
-title: "Talk Mode"
+  - Triển khai chế độ Talk trên macOS/iOS/Android
+  - Thay đổi giọng nói/TTS/hành vi ngắt quãng
+title: "Chế độ Talk"
 ---
 
-# Talk Mode
+# Chế độ Talk
 
-Talk mode is a continuous voice conversation loop:
+Chế độ Talk là một vòng lặp hội thoại giọng nói liên tục:
 
-1. Listen for speech
-2. Send transcript to the model (main session, chat.send)
-3. Wait for the response
-4. Speak it via ElevenLabs (streaming playback)
+1. Nghe giọng nói
+2. Gửi bản ghi âm đến mô hình (phiên chính, chat.send)
+3. Chờ phản hồi
+4. Phát lại qua ElevenLabs (phát trực tuyến)
 
-## Behavior (macOS)
+## Hành vi (macOS)
 
-- **Always-on overlay** while Talk mode is enabled.
-- **Listening → Thinking → Speaking** phase transitions.
-- On a **short pause** (silence window), the current transcript is sent.
-- Replies are **written to WebChat** (same as typing).
-- **Interrupt on speech** (default on): if the user starts talking while the assistant is speaking, we stop playback and note the interruption timestamp for the next prompt.
+- **Luôn hiển thị** khi chế độ Talk được bật.
+- Chuyển pha **Nghe → Suy nghĩ → Nói**.
+- Khi có **khoảng dừng ngắn** (cửa sổ im lặng), bản ghi hiện tại sẽ được gửi đi.
+- Phản hồi được **viết vào WebChat** (giống như khi gõ).
+- **Ngắt quãng khi có giọng nói** (mặc định bật): nếu người dùng bắt đầu nói khi trợ lý đang nói, chúng tôi sẽ dừng phát và ghi lại thời điểm ngắt quãng cho lần nhắc tiếp theo.
 
-## Voice directives in replies
+## Chỉ thị giọng nói trong phản hồi
 
-The assistant may prefix its reply with a **single JSON line** to control voice:
+Trợ lý có thể thêm một dòng JSON để điều khiển giọng nói:
 
 ```json
 { "voice": "<voice-id>", "once": true }
 ```
 
-Rules:
+Quy tắc:
 
-- First non-empty line only.
-- Unknown keys are ignored.
-- `once: true` applies to the current reply only.
-- Without `once`, the voice becomes the new default for Talk mode.
-- The JSON line is stripped before TTS playback.
+- Chỉ dòng không rỗng đầu tiên.
+- Bỏ qua các khóa không xác định.
+- `once: true` chỉ áp dụng cho phản hồi hiện tại.
+- Nếu không có `once`, giọng nói sẽ trở thành mặc định mới cho chế độ Talk.
+- Dòng JSON sẽ bị loại bỏ trước khi phát TTS.
 
-Supported keys:
+Các khóa hỗ trợ:
 
 - `voice` / `voice_id` / `voiceId`
 - `model` / `model_id` / `modelId`
@@ -47,7 +47,7 @@ Supported keys:
 - `seed`, `normalize`, `lang`, `output_format`, `latency_tier`
 - `once`
 
-## Config (`~/.openclaw/openclaw.json`)
+## Cấu hình (`~/.openclaw/openclaw.json`)
 
 ```json5
 {
@@ -62,31 +62,31 @@ Supported keys:
 }
 ```
 
-Defaults:
+Mặc định:
 
 - `interruptOnSpeech`: true
-- `silenceTimeoutMs`: when unset, Talk keeps the platform default pause window before sending the transcript (`700 ms on macOS and Android, 900 ms on iOS`)
-- `voiceId`: falls back to `ELEVENLABS_VOICE_ID` / `SAG_VOICE_ID` (or first ElevenLabs voice when API key is available)
-- `modelId`: defaults to `eleven_v3` when unset
-- `apiKey`: falls back to `ELEVENLABS_API_KEY` (or gateway shell profile if available)
-- `outputFormat`: defaults to `pcm_44100` on macOS/iOS and `pcm_24000` on Android (set `mp3_*` to force MP3 streaming)
+- `silenceTimeoutMs`: nếu không đặt, Talk giữ cửa sổ dừng mặc định của nền tảng trước khi gửi bản ghi (`700 ms trên macOS và Android, 900 ms trên iOS`)
+- `voiceId`: mặc định là `ELEVENLABS_VOICE_ID` / `SAG_VOICE_ID` (hoặc giọng ElevenLabs đầu tiên khi có khóa API)
+- `modelId`: mặc định là `eleven_v3` nếu không đặt
+- `apiKey`: mặc định là `ELEVENLABS_API_KEY` (hoặc hồ sơ shell gateway nếu có)
+- `outputFormat`: mặc định là `pcm_44100` trên macOS/iOS và `pcm_24000` trên Android (đặt `mp3_*` để buộc phát trực tuyến MP3)
 
-## macOS UI
+## Giao diện macOS
 
-- Menu bar toggle: **Talk**
-- Config tab: **Talk Mode** group (voice id + interrupt toggle)
+- Chuyển đổi trên thanh menu: **Talk**
+- Tab cấu hình: nhóm **Chế độ Talk** (id giọng nói + chuyển đổi ngắt quãng)
 - Overlay:
-  - **Listening**: cloud pulses with mic level
-  - **Thinking**: sinking animation
-  - **Speaking**: radiating rings
-  - Click cloud: stop speaking
-  - Click X: exit Talk mode
+  - **Nghe**: đám mây nhấp nháy với mức mic
+  - **Suy nghĩ**: hoạt ảnh chìm
+  - **Nói**: vòng tròn phát ra
+  - Nhấp vào đám mây: dừng nói
+  - Nhấp vào X: thoát chế độ Talk
 
-## Notes
+## Lưu ý
 
-- Requires Speech + Microphone permissions.
-- Uses `chat.send` against session key `main`.
-- TTS uses ElevenLabs streaming API with `ELEVENLABS_API_KEY` and incremental playback on macOS/iOS/Android for lower latency.
-- `stability` for `eleven_v3` is validated to `0.0`, `0.5`, or `1.0`; other models accept `0..1`.
-- `latency_tier` is validated to `0..4` when set.
-- Android supports `pcm_16000`, `pcm_22050`, `pcm_24000`, and `pcm_44100` output formats for low-latency AudioTrack streaming.
+- Yêu cầu quyền Trợ lý giọng nói + Microphone.
+- Sử dụng `chat.send` với khóa phiên `main`.
+- TTS sử dụng API phát trực tuyến của ElevenLabs với `ELEVENLABS_API_KEY` và phát lại từng phần trên macOS/iOS/Android để giảm độ trễ.
+- `stability` cho `eleven_v3` được xác thực là `0.0`, `0.5`, hoặc `1.0`; các mô hình khác chấp nhận `0..1`.
+- `latency_tier` được xác thực là `0..4` khi được đặt.
+- Android hỗ trợ các định dạng đầu ra `pcm_16000`, `pcm_22050`, `pcm_24000`, và `pcm_44100` cho phát trực tuyến AudioTrack độ trễ thấp.

@@ -1,29 +1,25 @@
 ---
-summary: "CLI onboarding: guided setup for gateway, workspace, channels, and skills"
+summary: "CLI onboarding: hướng dẫn thiết lập gateway, workspace, kênh và kỹ năng"
 read_when:
-  - Running or configuring CLI onboarding
-  - Setting up a new machine
+  - Chạy hoặc cấu hình CLI onboarding
+  - Thiết lập máy mới
 title: "Onboarding (CLI)"
 sidebarTitle: "Onboarding: CLI"
 ---
 
 # Onboarding (CLI)
 
-CLI onboarding is the **recommended** way to set up OpenClaw on macOS,
-Linux, or Windows (via WSL2; strongly recommended).
-It configures a local Gateway or a remote Gateway connection, plus channels, skills,
-and workspace defaults in one guided flow.
+CLI onboarding là cách **được khuyến nghị** để thiết lập OpenClaw trên macOS, Linux hoặc Windows (qua WSL2; rất khuyến nghị). Nó cấu hình một Gateway cục bộ hoặc kết nối Gateway từ xa, cùng với các kênh, kỹ năng và mặc định workspace trong một quy trình hướng dẫn.
 
 ```bash
 openclaw onboard
 ```
 
 <Info>
-Fastest first chat: open the Control UI (no channel setup needed). Run
-`openclaw dashboard` and chat in the browser. Docs: [Dashboard](/web/dashboard).
+Chat nhanh nhất: mở Control UI (không cần thiết lập kênh). Chạy `openclaw dashboard` và chat trong trình duyệt. Tài liệu: [Dashboard](/web/dashboard).
 </Info>
 
-To reconfigure later:
+Để cấu hình lại sau:
 
 ```bash
 openclaw configure
@@ -31,95 +27,74 @@ openclaw agents add <name>
 ```
 
 <Note>
-`--json` does not imply non-interactive mode. For scripts, use `--non-interactive`.
+`--json` không có nghĩa là chế độ không tương tác. Đối với script, sử dụng `--non-interactive`.
 </Note>
 
 <Tip>
-CLI onboarding includes a web search step where you can pick a provider
-(Perplexity, Brave, Gemini, Grok, or Kimi) and paste your API key so the agent
-can use `web_search`. You can also configure this later with
-`openclaw configure --section web`. Docs: [Web tools](/tools/web).
+CLI onboarding bao gồm bước tìm kiếm web nơi bạn có thể chọn nhà cung cấp (Perplexity, Brave, Gemini, Grok, hoặc Kimi) và dán API key để agent có thể sử dụng `web_search`. Bạn cũng có thể cấu hình điều này sau với `openclaw configure --section web`. Tài liệu: [Web tools](/tools/web).
 </Tip>
 
 ## QuickStart vs Advanced
 
-Onboarding starts with **QuickStart** (defaults) vs **Advanced** (full control).
+Onboarding bắt đầu với **QuickStart** (mặc định) hoặc **Advanced** (kiểm soát đầy đủ).
 
 <Tabs>
-  <Tab title="QuickStart (defaults)">
-    - Local gateway (loopback)
-    - Workspace default (or existing workspace)
-    - Gateway port **18789**
-    - Gateway auth **Token** (auto‑generated, even on loopback)
-    - Tool policy default for new local setups: `tools.profile: "coding"` (existing explicit profile is preserved)
-    - DM isolation default: local onboarding writes `session.dmScope: "per-channel-peer"` when unset. Details: [CLI Setup Reference](/start/wizard-cli-reference#outputs-and-internals)
-    - Tailscale exposure **Off**
-    - Telegram + WhatsApp DMs default to **allowlist** (you'll be prompted for your phone number)
+  <Tab title="QuickStart (mặc định)">
+    - Gateway cục bộ (loopback)
+    - Mặc định workspace (hoặc workspace hiện có)
+    - Cổng Gateway **18789**
+    - Xác thực Gateway **Token** (tự động tạo, ngay cả trên loopback)
+    - Chính sách công cụ mặc định cho thiết lập cục bộ mới: `tools.profile: "coding"` (hồ sơ rõ ràng hiện có được giữ nguyên)
+    - Mặc định cô lập DM: onboarding cục bộ ghi `session.dmScope: "per-channel-peer"` khi chưa đặt. Chi tiết: [CLI Setup Reference](/start/wizard-cli-reference#outputs-and-internals)
+    - Phơi bày Tailscale **Tắt**
+    - DM Telegram + WhatsApp mặc định là **danh sách cho phép** (bạn sẽ được yêu cầu nhập số điện thoại)
   </Tab>
-  <Tab title="Advanced (full control)">
-    - Exposes every step (mode, workspace, gateway, channels, daemon, skills).
+  <Tab title="Advanced (kiểm soát đầy đủ)">
+    - Hiển thị từng bước (chế độ, workspace, gateway, kênh, daemon, kỹ năng).
   </Tab>
 </Tabs>
 
-## What onboarding configures
+## Những gì onboarding cấu hình
 
-**Local mode (default)** walks you through these steps:
+**Chế độ cục bộ (mặc định)** hướng dẫn bạn qua các bước sau:
 
-1. **Model/Auth** — choose any supported provider/auth flow (API key, OAuth, or setup-token), including Custom Provider
-   (OpenAI-compatible, Anthropic-compatible, or Unknown auto-detect). Pick a default model.
-   Security note: if this agent will run tools or process webhook/hooks content, prefer the strongest latest-generation model available and keep tool policy strict. Weaker/older tiers are easier to prompt-inject.
-   For non-interactive runs, `--secret-input-mode ref` stores env-backed refs in auth profiles instead of plaintext API key values.
-   In non-interactive `ref` mode, the provider env var must be set; passing inline key flags without that env var fails fast.
-   In interactive runs, choosing secret reference mode lets you point at either an environment variable or a configured provider ref (`file` or `exec`), with a fast preflight validation before saving.
-2. **Workspace** — Location for agent files (default `~/.openclaw/workspace`). Seeds bootstrap files.
-3. **Gateway** — Port, bind address, auth mode, Tailscale exposure.
-   In interactive token mode, choose default plaintext token storage or opt into SecretRef.
-   Non-interactive token SecretRef path: `--gateway-token-ref-env <ENV_VAR>`.
-4. **Channels** — WhatsApp, Telegram, Discord, Google Chat, Mattermost, Signal, BlueBubbles, or iMessage.
-5. **Daemon** — Installs a LaunchAgent (macOS) or systemd user unit (Linux/WSL2).
-   If token auth requires a token and `gateway.auth.token` is SecretRef-managed, daemon install validates it but does not persist the resolved token into supervisor service environment metadata.
-   If token auth requires a token and the configured token SecretRef is unresolved, daemon install is blocked with actionable guidance.
-   If both `gateway.auth.token` and `gateway.auth.password` are configured and `gateway.auth.mode` is unset, daemon install is blocked until mode is set explicitly.
-6. **Health check** — Starts the Gateway and verifies it's running.
-7. **Skills** — Installs recommended skills and optional dependencies.
+1. **Model/Auth** — chọn bất kỳ nhà cung cấp/hình thức xác thực nào được hỗ trợ (API key, OAuth, hoặc setup-token), bao gồm Nhà cung cấp Tùy chỉnh (tương thích OpenAI, tương thích Anthropic, hoặc Tự động phát hiện Không xác định). Chọn mô hình mặc định. Lưu ý bảo mật: nếu agent này sẽ chạy công cụ hoặc xử lý nội dung webhook/hooks, nên chọn mô hình thế hệ mới nhất mạnh nhất có sẵn và giữ chính sách công cụ nghiêm ngặt. Các cấp yếu hơn/cũ hơn dễ bị tiêm lệnh. Đối với các lần chạy không tương tác, `--secret-input-mode ref` lưu trữ tham chiếu dựa trên môi trường trong hồ sơ xác thực thay vì giá trị API key dạng văn bản thuần túy. Trong chế độ `ref` không tương tác, biến môi trường nhà cung cấp phải được đặt; truyền cờ khóa nội tuyến mà không có biến môi trường đó sẽ thất bại nhanh chóng. Trong các lần chạy tương tác, chọn chế độ tham chiếu bí mật cho phép bạn chỉ định biến môi trường hoặc tham chiếu nhà cung cấp đã cấu hình (`file` hoặc `exec`), với xác thực nhanh trước khi lưu.
+2. **Workspace** — Vị trí cho các tệp agent (mặc định `~/.openclaw/workspace`). Khởi tạo các tệp bootstrap.
+3. **Gateway** — Cổng, địa chỉ bind, chế độ xác thực, phơi bày Tailscale. Trong chế độ token tương tác, chọn lưu trữ token dạng văn bản thuần túy mặc định hoặc chọn SecretRef. Đường dẫn SecretRef token không tương tác: `--gateway-token-ref-env <ENV_VAR>`.
+4. **Kênh** — WhatsApp, Telegram, Discord, Google Chat, Mattermost, Signal, BlueBubbles, hoặc iMessage.
+5. **Daemon** — Cài đặt LaunchAgent (macOS) hoặc đơn vị người dùng systemd (Linux/WSL2). Nếu xác thực token yêu cầu token và `gateway.auth.token` được quản lý bởi SecretRef, cài đặt daemon xác thực nó nhưng không lưu trữ token đã giải quyết vào siêu dữ liệu môi trường dịch vụ giám sát. Nếu xác thực token yêu cầu token và SecretRef token đã cấu hình chưa được giải quyết, cài đặt daemon bị chặn với hướng dẫn có thể thực hiện. Nếu cả `gateway.auth.token` và `gateway.auth.password` đều được cấu hình và `gateway.auth.mode` chưa được đặt, cài đặt daemon bị chặn cho đến khi chế độ được đặt rõ ràng.
+6. **Kiểm tra sức khỏe** — Khởi động Gateway và xác minh nó đang chạy.
+7. **Kỹ năng** — Cài đặt các kỹ năng được khuyến nghị và các phụ thuộc tùy chọn.
 
 <Note>
-Re-running onboarding does **not** wipe anything unless you explicitly choose **Reset** (or pass `--reset`).
-CLI `--reset` defaults to config, credentials, and sessions; use `--reset-scope full` to include workspace.
-If the config is invalid or contains legacy keys, onboarding asks you to run `openclaw doctor` first.
+Chạy lại onboarding **không** xóa bất cứ thứ gì trừ khi bạn chọn **Reset** (hoặc truyền `--reset`). CLI `--reset` mặc định là cấu hình, thông tin xác thực và phiên; sử dụng `--reset-scope full` để bao gồm workspace. Nếu cấu hình không hợp lệ hoặc chứa các khóa cũ, onboarding yêu cầu bạn chạy `openclaw doctor` trước.
 </Note>
 
-**Remote mode** only configures the local client to connect to a Gateway elsewhere.
-It does **not** install or change anything on the remote host.
+**Chế độ từ xa** chỉ cấu hình client cục bộ để kết nối với Gateway ở nơi khác. Nó **không** cài đặt hoặc thay đổi bất cứ thứ gì trên máy chủ từ xa.
 
-## Add another agent
+## Thêm agent khác
 
-Use `openclaw agents add <name>` to create a separate agent with its own workspace,
-sessions, and auth profiles. Running without `--workspace` launches onboarding.
+Sử dụng `openclaw agents add <name>` để tạo một agent riêng với workspace, phiên và hồ sơ xác thực riêng. Chạy mà không có `--workspace` sẽ khởi động onboarding.
 
-What it sets:
+Những gì nó thiết lập:
 
 - `agents.list[].name`
 - `agents.list[].workspace`
 - `agents.list[].agentDir`
 
-Notes:
+Lưu ý:
 
-- Default workspaces follow `~/.openclaw/workspace-<agentId>`.
-- Add `bindings` to route inbound messages (onboarding can do this).
-- Non-interactive flags: `--model`, `--agent-dir`, `--bind`, `--non-interactive`.
+- Workspace mặc định theo `~/.openclaw/workspace-<agentId>`.
+- Thêm `bindings` để định tuyến tin nhắn đến (onboarding có thể làm điều này).
+- Cờ không tương tác: `--model`, `--agent-dir`, `--bind`, `--non-interactive`.
 
-## Full reference
+## Tham khảo đầy đủ
 
-For detailed step-by-step breakdowns and config outputs, see
-[CLI Setup Reference](/start/wizard-cli-reference).
-For non-interactive examples, see [CLI Automation](/start/wizard-cli-automation).
-For the deeper technical reference, including RPC details, see
-[Onboarding Reference](/reference/wizard).
+Để có hướng dẫn chi tiết từng bước và đầu ra cấu hình, xem [CLI Setup Reference](/start/wizard-cli-reference). Đối với các ví dụ không tương tác, xem [CLI Automation](/start/wizard-cli-automation). Để tham khảo kỹ thuật sâu hơn, bao gồm chi tiết RPC, xem [Onboarding Reference](/reference/wizard).
 
-## Related docs
+## Tài liệu liên quan
 
-- CLI command reference: [`openclaw onboard`](/cli/onboard)
-- Onboarding overview: [Onboarding Overview](/start/onboarding-overview)
-- macOS app onboarding: [Onboarding](/start/onboarding)
-- Agent first-run ritual: [Agent Bootstrapping](/start/bootstrapping)
+- Tham khảo lệnh CLI: [`openclaw onboard`](/cli/onboard)
+- Tổng quan về onboarding: [Onboarding Overview](/start/onboarding-overview)
+- Onboarding ứng dụng macOS: [Onboarding](/start/onboarding)
+- Nghi thức chạy đầu tiên của Agent: [Agent Bootstrapping](/start/bootstrapping)

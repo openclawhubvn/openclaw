@@ -1,125 +1,125 @@
 ---
-summary: "Google Chat app support status, capabilities, and configuration"
+summary: "Trạng thái hỗ trợ, khả năng và cấu hình ứng dụng Google Chat"
 read_when:
-  - Working on Google Chat channel features
+  - Đang làm việc với các tính năng kênh Google Chat
 title: "Google Chat"
 ---
 
 # Google Chat (Chat API)
 
-Status: ready for DMs + spaces via Google Chat API webhooks (HTTP only).
+Trạng thái: sẵn sàng cho tin nhắn trực tiếp và không gian qua webhook Google Chat API (chỉ HTTP).
 
-## Quick setup (beginner)
+## Thiết lập nhanh (dành cho người mới)
 
-1. Create a Google Cloud project and enable the **Google Chat API**.
-   - Go to: [Google Chat API Credentials](https://console.cloud.google.com/apis/api/chat.googleapis.com/credentials)
-   - Enable the API if it is not already enabled.
-2. Create a **Service Account**:
-   - Press **Create Credentials** > **Service Account**.
-   - Name it whatever you want (e.g., `openclaw-chat`).
-   - Leave permissions blank (press **Continue**).
-   - Leave principals with access blank (press **Done**).
-3. Create and download the **JSON Key**:
-   - In the list of service accounts, click on the one you just created.
-   - Go to the **Keys** tab.
-   - Click **Add Key** > **Create new key**.
-   - Select **JSON** and press **Create**.
-4. Store the downloaded JSON file on your gateway host (e.g., `~/.openclaw/googlechat-service-account.json`).
-5. Create a Google Chat app in the [Google Cloud Console Chat Configuration](https://console.cloud.google.com/apis/api/chat.googleapis.com/hangouts-chat):
-   - Fill in the **Application info**:
-     - **App name**: (e.g. `OpenClaw`)
-     - **Avatar URL**: (e.g. `https://openclaw.ai/logo.png`)
-     - **Description**: (e.g. `Personal AI Assistant`)
-   - Enable **Interactive features**.
-   - Under **Functionality**, check **Join spaces and group conversations**.
-   - Under **Connection settings**, select **HTTP endpoint URL**.
-   - Under **Triggers**, select **Use a common HTTP endpoint URL for all triggers** and set it to your gateway's public URL followed by `/googlechat`.
-     - _Tip: Run `openclaw status` to find your gateway's public URL._
-   - Under **Visibility**, check **Make this Chat app available to specific people and groups in &lt;Your Domain&gt;**.
-   - Enter your email address (e.g. `user@example.com`) in the text box.
-   - Click **Save** at the bottom.
-6. **Enable the app status**:
-   - After saving, **refresh the page**.
-   - Look for the **App status** section (usually near the top or bottom after saving).
-   - Change the status to **Live - available to users**.
-   - Click **Save** again.
-7. Configure OpenClaw with the service account path + webhook audience:
+1. Tạo một dự án Google Cloud và kích hoạt **Google Chat API**.
+   - Truy cập: [Google Chat API Credentials](https://console.cloud.google.com/apis/api/chat.googleapis.com/credentials)
+   - Kích hoạt API nếu chưa được kích hoạt.
+2. Tạo một **Tài khoản Dịch vụ**:
+   - Nhấn **Create Credentials** > **Service Account**.
+   - Đặt tên tùy ý (ví dụ: `openclaw-chat`).
+   - Để trống phần quyền (nhấn **Continue**).
+   - Để trống phần người dùng có quyền truy cập (nhấn **Done**).
+3. Tạo và tải xuống **Khóa JSON**:
+   - Trong danh sách tài khoản dịch vụ, nhấp vào tài khoản vừa tạo.
+   - Chuyển đến tab **Keys**.
+   - Nhấp **Add Key** > **Create new key**.
+   - Chọn **JSON** và nhấn **Create**.
+4. Lưu file JSON đã tải xuống trên máy chủ gateway (ví dụ: `~/.openclaw/googlechat-service-account.json`).
+5. Tạo một ứng dụng Google Chat trong [Google Cloud Console Chat Configuration](https://console.cloud.google.com/apis/api/chat.googleapis.com/hangouts-chat):
+   - Điền thông tin **Application info**:
+     - **App name**: (ví dụ: `OpenClaw`)
+     - **Avatar URL**: (ví dụ: `https://openclaw.ai/logo.png`)
+     - **Description**: (ví dụ: `Trợ lý AI cá nhân`)
+   - Kích hoạt **Interactive features**.
+   - Dưới **Functionality**, chọn **Join spaces and group conversations**.
+   - Dưới **Connection settings**, chọn **HTTP endpoint URL**.
+   - Dưới **Triggers**, chọn **Use a common HTTP endpoint URL for all triggers** và đặt URL công khai của gateway theo sau là `/googlechat`.
+     - _Mẹo: Chạy `openclaw status` để tìm URL công khai của gateway._
+   - Dưới **Visibility**, chọn **Make this Chat app available to specific people and groups in &lt;Your Domain&gt;**.
+   - Nhập địa chỉ email của bạn (ví dụ: `user@example.com`) vào ô văn bản.
+   - Nhấp **Save** ở dưới cùng.
+6. **Kích hoạt trạng thái ứng dụng**:
+   - Sau khi lưu, **làm mới trang**.
+   - Tìm phần **App status** (thường ở gần đầu hoặc cuối sau khi lưu).
+   - Thay đổi trạng thái thành **Live - available to users**.
+   - Nhấp **Save** lần nữa.
+7. Cấu hình OpenClaw với đường dẫn tài khoản dịch vụ + đối tượng webhook:
    - Env: `GOOGLE_CHAT_SERVICE_ACCOUNT_FILE=/path/to/service-account.json`
-   - Or config: `channels.googlechat.serviceAccountFile: "/path/to/service-account.json"`.
-8. Set the webhook audience type + value (matches your Chat app config).
-9. Start the gateway. Google Chat will POST to your webhook path.
+   - Hoặc config: `channels.googlechat.serviceAccountFile: "/path/to/service-account.json"`.
+8. Đặt loại đối tượng webhook + giá trị (khớp với cấu hình ứng dụng Chat của bạn).
+9. Khởi động gateway. Google Chat sẽ gửi POST đến đường dẫn webhook của bạn.
 
-## Add to Google Chat
+## Thêm vào Google Chat
 
-Once the gateway is running and your email is added to the visibility list:
+Khi gateway đang chạy và email của bạn đã được thêm vào danh sách hiển thị:
 
-1. Go to [Google Chat](https://chat.google.com/).
-2. Click the **+** (plus) icon next to **Direct Messages**.
-3. In the search bar (where you usually add people), type the **App name** you configured in the Google Cloud Console.
-   - **Note**: The bot will _not_ appear in the "Marketplace" browse list because it is a private app. You must search for it by name.
-4. Select your bot from the results.
-5. Click **Add** or **Chat** to start a 1:1 conversation.
-6. Send "Hello" to trigger the assistant!
+1. Truy cập [Google Chat](https://chat.google.com/).
+2. Nhấp vào biểu tượng **+** bên cạnh **Direct Messages**.
+3. Trong thanh tìm kiếm (nơi bạn thường thêm người), nhập **App name** bạn đã cấu hình trong Google Cloud Console.
+   - **Lưu ý**: Bot sẽ _không_ xuất hiện trong danh sách duyệt "Marketplace" vì đây là ứng dụng riêng tư. Bạn phải tìm kiếm theo tên.
+4. Chọn bot của bạn từ kết quả.
+5. Nhấp **Add** hoặc **Chat** để bắt đầu cuộc trò chuyện 1:1.
+6. Gửi "Hello" để kích hoạt trợ lý!
 
-## Public URL (Webhook-only)
+## URL công khai (Chỉ webhook)
 
-Google Chat webhooks require a public HTTPS endpoint. For security, **only expose the `/googlechat` path** to the internet. Keep the OpenClaw dashboard and other sensitive endpoints on your private network.
+Webhook Google Chat yêu cầu một endpoint HTTPS công khai. Để bảo mật, **chỉ nên mở đường dẫn `/googlechat`** ra internet. Giữ dashboard OpenClaw và các endpoint nhạy cảm khác trong mạng riêng của bạn.
 
-### Option A: Tailscale Funnel (Recommended)
+### Lựa chọn A: Tailscale Funnel (Khuyến nghị)
 
-Use Tailscale Serve for the private dashboard and Funnel for the public webhook path. This keeps `/` private while exposing only `/googlechat`.
+Sử dụng Tailscale Serve cho dashboard riêng tư và Funnel cho đường dẫn webhook công khai. Điều này giữ `/` riêng tư trong khi chỉ mở `/googlechat`.
 
-1. **Check what address your gateway is bound to:**
+1. **Kiểm tra địa chỉ mà gateway của bạn đang kết nối:**
 
    ```bash
    ss -tlnp | grep 18789
    ```
 
-   Note the IP address (e.g., `127.0.0.1`, `0.0.0.0`, or your Tailscale IP like `100.x.x.x`).
+   Ghi lại địa chỉ IP (ví dụ: `127.0.0.1`, `0.0.0.0`, hoặc IP Tailscale của bạn như `100.x.x.x`).
 
-2. **Expose the dashboard to the tailnet only (port 8443):**
+2. **Chỉ mở dashboard cho tailnet (cổng 8443):**
 
    ```bash
-   # If bound to localhost (127.0.0.1 or 0.0.0.0):
+   # Nếu kết nối với localhost (127.0.0.1 hoặc 0.0.0.0):
    tailscale serve --bg --https 8443 http://127.0.0.1:18789
 
-   # If bound to Tailscale IP only (e.g., 100.106.161.80):
+   # Nếu kết nối chỉ với IP Tailscale (ví dụ: 100.106.161.80):
    tailscale serve --bg --https 8443 http://100.106.161.80:18789
    ```
 
-3. **Expose only the webhook path publicly:**
+3. **Chỉ mở đường dẫn webhook công khai:**
 
    ```bash
-   # If bound to localhost (127.0.0.1 or 0.0.0.0):
+   # Nếu kết nối với localhost (127.0.0.1 hoặc 0.0.0.0):
    tailscale funnel --bg --set-path /googlechat http://127.0.0.1:18789/googlechat
 
-   # If bound to Tailscale IP only (e.g., 100.106.161.80):
+   # Nếu kết nối chỉ với IP Tailscale (ví dụ: 100.106.161.80):
    tailscale funnel --bg --set-path /googlechat http://100.106.161.80:18789/googlechat
    ```
 
-4. **Authorize the node for Funnel access:**
-   If prompted, visit the authorization URL shown in the output to enable Funnel for this node in your tailnet policy.
+4. **Ủy quyền cho node để truy cập Funnel:**
+   Nếu được yêu cầu, truy cập URL ủy quyền hiển thị trong output để kích hoạt Funnel cho node này trong chính sách tailnet của bạn.
 
-5. **Verify the configuration:**
+5. **Xác minh cấu hình:**
 
    ```bash
    tailscale serve status
    tailscale funnel status
    ```
 
-Your public webhook URL will be:
+URL webhook công khai của bạn sẽ là:
 `https://<node-name>.<tailnet>.ts.net/googlechat`
 
-Your private dashboard stays tailnet-only:
+Dashboard riêng tư của bạn chỉ dành cho tailnet:
 `https://<node-name>.<tailnet>.ts.net:8443/`
 
-Use the public URL (without `:8443`) in the Google Chat app config.
+Sử dụng URL công khai (không có `:8443`) trong cấu hình ứng dụng Google Chat.
 
-> Note: This configuration persists across reboots. To remove it later, run `tailscale funnel reset` and `tailscale serve reset`.
+> Lưu ý: Cấu hình này sẽ tồn tại qua các lần khởi động lại. Để xóa sau này, chạy `tailscale funnel reset` và `tailscale serve reset`.
 
-### Option B: Reverse Proxy (Caddy)
+### Lựa chọn B: Reverse Proxy (Caddy)
 
-If you use a reverse proxy like Caddy, only proxy the specific path:
+Nếu bạn sử dụng reverse proxy như Caddy, chỉ proxy đường dẫn cụ thể:
 
 ```caddy
 your-domain.com {
@@ -127,40 +127,40 @@ your-domain.com {
 }
 ```
 
-With this config, any request to `your-domain.com/` will be ignored or returned as 404, while `your-domain.com/googlechat` is safely routed to OpenClaw.
+Với cấu hình này, bất kỳ yêu cầu nào đến `your-domain.com/` sẽ bị bỏ qua hoặc trả về 404, trong khi `your-domain.com/googlechat` được định tuyến an toàn đến OpenClaw.
 
-### Option C: Cloudflare Tunnel
+### Lựa chọn C: Cloudflare Tunnel
 
-Configure your tunnel's ingress rules to only route the webhook path:
+Cấu hình quy tắc ingress của tunnel để chỉ định tuyến đường dẫn webhook:
 
 - **Path**: `/googlechat` -> `http://localhost:18789/googlechat`
 - **Default Rule**: HTTP 404 (Not Found)
 
-## How it works
+## Cách hoạt động
 
-1. Google Chat sends webhook POSTs to the gateway. Each request includes an `Authorization: Bearer <token>` header.
-   - OpenClaw verifies bearer auth before reading/parsing full webhook bodies when the header is present.
-   - Google Workspace Add-on requests that carry `authorizationEventObject.systemIdToken` in the body are supported via a stricter pre-auth body budget.
-2. OpenClaw verifies the token against the configured `audienceType` + `audience`:
-   - `audienceType: "app-url"` → audience is your HTTPS webhook URL.
-   - `audienceType: "project-number"` → audience is the Cloud project number.
-3. Messages are routed by space:
-   - DMs use session key `agent:<agentId>:googlechat:direct:<spaceId>`.
-   - Spaces use session key `agent:<agentId>:googlechat:group:<spaceId>`.
-4. DM access is pairing by default. Unknown senders receive a pairing code; approve with:
+1. Google Chat gửi các yêu cầu POST webhook đến gateway. Mỗi yêu cầu bao gồm một header `Authorization: Bearer <token>`.
+   - OpenClaw xác minh xác thực bearer trước khi đọc/phân tích toàn bộ nội dung webhook khi header có mặt.
+   - Các yêu cầu Google Workspace Add-on mang `authorizationEventObject.systemIdToken` trong nội dung được hỗ trợ qua ngân sách tiền xác thực nghiêm ngặt hơn.
+2. OpenClaw xác minh token dựa trên `audienceType` + `audience` đã cấu hình:
+   - `audienceType: "app-url"` → audience là URL webhook HTTPS của bạn.
+   - `audienceType: "project-number"` → audience là số dự án Cloud.
+3. Tin nhắn được định tuyến theo không gian:
+   - Tin nhắn trực tiếp sử dụng khóa phiên `agent:<agentId>:googlechat:direct:<spaceId>`.
+   - Không gian sử dụng khóa phiên `agent:<agentId>:googlechat:group:<spaceId>`.
+4. Truy cập tin nhắn trực tiếp mặc định là ghép đôi. Người gửi không xác định nhận mã ghép đôi; phê duyệt với:
    - `openclaw pairing approve googlechat <code>`
-5. Group spaces require @-mention by default. Use `botUser` if mention detection needs the app’s user name.
+5. Không gian nhóm yêu cầu @-mention mặc định. Sử dụng `botUser` nếu phát hiện mention cần tên người dùng của ứng dụng.
 
-## Targets
+## Mục tiêu
 
-Use these identifiers for delivery and allowlists:
+Sử dụng các định danh này cho việc gửi và danh sách cho phép:
 
-- Direct messages: `users/<userId>` (recommended).
-- Raw email `name@example.com` is mutable and only used for direct allowlist matching when `channels.googlechat.dangerouslyAllowNameMatching: true`.
-- Deprecated: `users/<email>` is treated as a user id, not an email allowlist.
-- Spaces: `spaces/<spaceId>`.
+- Tin nhắn trực tiếp: `users/<userId>` (khuyến nghị).
+- Email thô `name@example.com` có thể thay đổi và chỉ được sử dụng cho việc khớp danh sách cho phép trực tiếp khi `channels.googlechat.dangerouslyAllowNameMatching: true`.
+- Đã ngừng sử dụng: `users/<email>` được coi là id người dùng, không phải danh sách cho phép email.
+- Không gian: `spaces/<spaceId>`.
 
-## Config highlights
+## Điểm nổi bật của cấu hình
 
 ```json5
 {
@@ -168,11 +168,11 @@ Use these identifiers for delivery and allowlists:
     googlechat: {
       enabled: true,
       serviceAccountFile: "/path/to/service-account.json",
-      // or serviceAccountRef: { source: "file", provider: "filemain", id: "/channels/googlechat/serviceAccount" }
+      // hoặc serviceAccountRef: { source: "file", provider: "filemain", id: "/channels/googlechat/serviceAccount" }
       audienceType: "app-url",
       audience: "https://gateway.example.com/googlechat",
       webhookPath: "/googlechat",
-      botUser: "users/1234567890", // optional; helps mention detection
+      botUser: "users/1234567890", // tùy chọn; giúp phát hiện mention
       dm: {
         policy: "pairing",
         allowFrom: ["users/1234567890"],
@@ -183,7 +183,7 @@ Use these identifiers for delivery and allowlists:
           allow: true,
           requireMention: true,
           users: ["users/1234567890"],
-          systemPrompt: "Short answers only.",
+          systemPrompt: "Chỉ trả lời ngắn gọn.",
         },
       },
       actions: { reactions: true },
@@ -194,68 +194,68 @@ Use these identifiers for delivery and allowlists:
 }
 ```
 
-Notes:
+Ghi chú:
 
-- Service account credentials can also be passed inline with `serviceAccount` (JSON string).
-- `serviceAccountRef` is also supported (env/file SecretRef), including per-account refs under `channels.googlechat.accounts.<id>.serviceAccountRef`.
-- Default webhook path is `/googlechat` if `webhookPath` isn’t set.
-- `dangerouslyAllowNameMatching` re-enables mutable email principal matching for allowlists (break-glass compatibility mode).
-- Reactions are available via the `reactions` tool and `channels action` when `actions.reactions` is enabled.
-- `typingIndicator` supports `none`, `message` (default), and `reaction` (reaction requires user OAuth).
-- Attachments are downloaded through the Chat API and stored in the media pipeline (size capped by `mediaMaxMb`).
+- Thông tin xác thực tài khoản dịch vụ cũng có thể được truyền inline với `serviceAccount` (chuỗi JSON).
+- `serviceAccountRef` cũng được hỗ trợ (env/file SecretRef), bao gồm các tham chiếu theo tài khoản dưới `channels.googlechat.accounts.<id>.serviceAccountRef`.
+- Đường dẫn webhook mặc định là `/googlechat` nếu `webhookPath` không được đặt.
+- `dangerouslyAllowNameMatching` kích hoạt lại việc khớp email có thể thay đổi cho danh sách cho phép (chế độ tương thích khẩn cấp).
+- Reactions có sẵn qua công cụ `reactions` và `channels action` khi `actions.reactions` được kích hoạt.
+- `typingIndicator` hỗ trợ `none`, `message` (mặc định), và `reaction` (reaction yêu cầu OAuth người dùng).
+- Tệp đính kèm được tải xuống qua Chat API và lưu trữ trong pipeline media (kích thước giới hạn bởi `mediaMaxMb`).
 
-Secrets reference details: [Secrets Management](/gateway/secrets).
+Chi tiết tham chiếu bí mật: [Quản lý Bí mật](/gateway/secrets).
 
-## Troubleshooting
+## Khắc phục sự cố
 
 ### 405 Method Not Allowed
 
-If Google Cloud Logs Explorer shows errors like:
+Nếu Google Cloud Logs Explorer hiển thị lỗi như:
 
 ```
 status code: 405, reason phrase: HTTP error response: HTTP/1.1 405 Method Not Allowed
 ```
 
-This means the webhook handler isn't registered. Common causes:
+Điều này có nghĩa là trình xử lý webhook chưa được đăng ký. Nguyên nhân phổ biến:
 
-1. **Channel not configured**: The `channels.googlechat` section is missing from your config. Verify with:
+1. **Kênh chưa được cấu hình**: Phần `channels.googlechat` thiếu trong cấu hình của bạn. Xác minh với:
 
    ```bash
    openclaw config get channels.googlechat
    ```
 
-   If it returns "Config path not found", add the configuration (see [Config highlights](#config-highlights)).
+   Nếu trả về "Config path not found", thêm cấu hình (xem [Điểm nổi bật của cấu hình](#config-highlights)).
 
-2. **Plugin not enabled**: Check plugin status:
+2. **Plugin chưa được kích hoạt**: Kiểm tra trạng thái plugin:
 
    ```bash
    openclaw plugins list | grep googlechat
    ```
 
-   If it shows "disabled", add `plugins.entries.googlechat.enabled: true` to your config.
+   Nếu hiển thị "disabled", thêm `plugins.entries.googlechat.enabled: true` vào cấu hình của bạn.
 
-3. **Gateway not restarted**: After adding config, restart the gateway:
+3. **Gateway chưa được khởi động lại**: Sau khi thêm cấu hình, khởi động lại gateway:
 
    ```bash
    openclaw gateway restart
    ```
 
-Verify the channel is running:
+Xác minh kênh đang chạy:
 
 ```bash
 openclaw channels status
-# Should show: Google Chat default: enabled, configured, ...
+# Nên hiển thị: Google Chat default: enabled, configured, ...
 ```
 
-### Other issues
+### Các vấn đề khác
 
-- Check `openclaw channels status --probe` for auth errors or missing audience config.
-- If no messages arrive, confirm the Chat app's webhook URL + event subscriptions.
-- If mention gating blocks replies, set `botUser` to the app's user resource name and verify `requireMention`.
-- Use `openclaw logs --follow` while sending a test message to see if requests reach the gateway.
+- Kiểm tra `openclaw channels status --probe` để tìm lỗi xác thực hoặc cấu hình audience thiếu.
+- Nếu không có tin nhắn nào đến, xác nhận URL webhook + đăng ký sự kiện của ứng dụng Chat.
+- Nếu việc chặn mention ngăn cản phản hồi, đặt `botUser` thành tên tài nguyên người dùng của ứng dụng và xác minh `requireMention`.
+- Sử dụng `openclaw logs --follow` trong khi gửi tin nhắn thử nghiệm để xem liệu yêu cầu có đến gateway không.
 
-Related docs:
+Tài liệu liên quan:
 
-- [Gateway configuration](/gateway/configuration)
-- [Security](/gateway/security)
+- [Cấu hình Gateway](/gateway/configuration)
+- [Bảo mật](/gateway/security)
 - [Reactions](/tools/reactions)

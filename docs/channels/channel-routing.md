@@ -1,82 +1,76 @@
 ---
-summary: "Routing rules per channel (WhatsApp, Telegram, Discord, Slack) and shared context"
+summary: "Quy tắc định tuyến theo kênh (WhatsApp, Telegram, Discord, Slack) và ngữ cảnh chia sẻ"
 read_when:
-  - Changing channel routing or inbox behavior
-title: "Channel Routing"
+  - Thay đổi định tuyến kênh hoặc hành vi hộp thư
+title: "Định tuyến kênh"
 ---
 
-# Channels & routing
+# Kênh & định tuyến
 
-OpenClaw routes replies **back to the channel where a message came from**. The
-model does not choose a channel; routing is deterministic and controlled by the
-host configuration.
+OpenClaw định tuyến phản hồi **trở lại kênh nơi tin nhắn được gửi đến**. Mô hình không chọn kênh; định tuyến được xác định và kiểm soát bởi cấu hình của máy chủ.
 
-## Key terms
+## Thuật ngữ chính
 
 - **Channel**: `whatsapp`, `telegram`, `discord`, `slack`, `signal`, `imessage`, `webchat`.
-- **AccountId**: per‑channel account instance (when supported).
-- Optional channel default account: `channels.<channel>.defaultAccount` chooses
-  which account is used when an outbound path does not specify `accountId`.
-  - In multi-account setups, set an explicit default (`defaultAccount` or `accounts.default`) when two or more accounts are configured. Without it, fallback routing may pick the first normalized account ID.
-- **AgentId**: an isolated workspace + session store (“brain”).
-- **SessionKey**: the bucket key used to store context and control concurrency.
+- **AccountId**: phiên bản tài khoản theo từng kênh (khi được hỗ trợ).
+- Tài khoản mặc định tùy chọn cho kênh: `channels.<channel>.defaultAccount` chọn tài khoản nào được sử dụng khi đường dẫn gửi đi không chỉ định `accountId`.
+  - Trong cấu hình nhiều tài khoản, cần thiết lập mặc định rõ ràng (`defaultAccount` hoặc `accounts.default`) khi có hai hoặc nhiều tài khoản được cấu hình. Nếu không có, định tuyến dự phòng có thể chọn ID tài khoản đã chuẩn hóa đầu tiên.
+- **AgentId**: một workspace + kho lưu trữ phiên độc lập (“bộ nhớ”).
+- **SessionKey**: khóa dùng để lưu trữ ngữ cảnh và kiểm soát đồng thời.
 
-## Session key shapes (examples)
+## Hình dạng khóa phiên (ví dụ)
 
-Direct messages collapse to the agent’s **main** session:
+Tin nhắn trực tiếp gộp vào phiên **chính** của agent:
 
-- `agent:<agentId>:<mainKey>` (default: `agent:main:main`)
+- `agent:<agentId>:<mainKey>` (mặc định: `agent:main:main`)
 
-Groups and channels remain isolated per channel:
+Nhóm và kênh vẫn được cách ly theo từng kênh:
 
-- Groups: `agent:<agentId>:<channel>:group:<id>`
-- Channels/rooms: `agent:<agentId>:<channel>:channel:<id>`
+- Nhóm: `agent:<agentId>:<channel>:group:<id>`
+- Kênh/phòng: `agent:<agentId>:<channel>:channel:<id>`
 
-Threads:
+Chuỗi:
 
-- Slack/Discord threads append `:thread:<threadId>` to the base key.
-- Telegram forum topics embed `:topic:<topicId>` in the group key.
+- Chuỗi Slack/Discord thêm `:thread:<threadId>` vào khóa cơ bản.
+- Chủ đề diễn đàn Telegram nhúng `:topic:<topicId>` vào khóa nhóm.
 
-Examples:
+Ví dụ:
 
 - `agent:main:telegram:group:-1001234567890:topic:42`
 - `agent:main:discord:channel:123456:thread:987654`
 
-## Main DM route pinning
+## Ghim định tuyến DM chính
 
-When `session.dmScope` is `main`, direct messages may share one main session.
-To prevent the session’s `lastRoute` from being overwritten by non-owner DMs,
-OpenClaw infers a pinned owner from `allowFrom` when all of these are true:
+Khi `session.dmScope` là `main`, tin nhắn trực tiếp có thể chia sẻ một phiên chính. Để ngăn `lastRoute` của phiên bị ghi đè bởi DM không phải chủ sở hữu, OpenClaw suy ra một chủ sở hữu được ghim từ `allowFrom` khi tất cả các điều kiện sau đúng:
 
-- `allowFrom` has exactly one non-wildcard entry.
-- The entry can be normalized to a concrete sender ID for that channel.
-- The inbound DM sender does not match that pinned owner.
+- `allowFrom` có chính xác một mục không phải ký tự đại diện.
+- Mục có thể chuẩn hóa thành ID người gửi cụ thể cho kênh đó.
+- Người gửi DM đến không khớp với chủ sở hữu được ghim đó.
 
-In that mismatch case, OpenClaw still records inbound session metadata, but it
-skips updating the main session `lastRoute`.
+Trong trường hợp không khớp, OpenClaw vẫn ghi lại metadata phiên đến, nhưng bỏ qua việc cập nhật `lastRoute` của phiên chính.
 
-## Routing rules (how an agent is chosen)
+## Quy tắc định tuyến (cách chọn agent)
 
-Routing picks **one agent** for each inbound message:
+Định tuyến chọn **một agent** cho mỗi tin nhắn đến:
 
-1. **Exact peer match** (`bindings` with `peer.kind` + `peer.id`).
-2. **Parent peer match** (thread inheritance).
-3. **Guild + roles match** (Discord) via `guildId` + `roles`.
-4. **Guild match** (Discord) via `guildId`.
-5. **Team match** (Slack) via `teamId`.
-6. **Account match** (`accountId` on the channel).
-7. **Channel match** (any account on that channel, `accountId: "*"`).
-8. **Default agent** (`agents.list[].default`, else first list entry, fallback to `main`).
+1. **Khớp đồng cấp chính xác** (`bindings` với `peer.kind` + `peer.id`).
+2. **Khớp đồng cấp cha mẹ** (kế thừa chuỗi).
+3. **Khớp guild + vai trò** (Discord) qua `guildId` + `roles`.
+4. **Khớp guild** (Discord) qua `guildId`.
+5. **Khớp team** (Slack) qua `teamId`.
+6. **Khớp tài khoản** (`accountId` trên kênh).
+7. **Khớp kênh** (bất kỳ tài khoản nào trên kênh đó, `accountId: "*"`).
+8. **Agent mặc định** (`agents.list[].default`, nếu không có thì mục đầu tiên trong danh sách, dự phòng là `main`).
 
-When a binding includes multiple match fields (`peer`, `guildId`, `teamId`, `roles`), **all provided fields must match** for that binding to apply.
+Khi một binding bao gồm nhiều trường khớp (`peer`, `guildId`, `teamId`, `roles`), **tất cả các trường được cung cấp phải khớp** để binding đó áp dụng.
 
-The matched agent determines which workspace and session store are used.
+Agent được chọn xác định workspace và kho lưu trữ phiên nào được sử dụng.
 
-## Broadcast groups (run multiple agents)
+## Nhóm phát sóng (chạy nhiều agent)
 
-Broadcast groups let you run **multiple agents** for the same peer **when OpenClaw would normally reply** (for example: in WhatsApp groups, after mention/activation gating).
+Nhóm phát sóng cho phép bạn chạy **nhiều agent** cho cùng một đồng cấp **khi OpenClaw thường phản hồi** (ví dụ: trong các nhóm WhatsApp, sau khi kích hoạt/đề cập).
 
-Config:
+Cấu hình:
 
 ```json5
 {
@@ -88,14 +82,14 @@ Config:
 }
 ```
 
-See: [Broadcast Groups](/channels/broadcast-groups).
+Xem: [Nhóm phát sóng](/channels/broadcast-groups).
 
-## Config overview
+## Tổng quan cấu hình
 
-- `agents.list`: named agent definitions (workspace, model, etc.).
-- `bindings`: map inbound channels/accounts/peers to agents.
+- `agents.list`: định nghĩa agent được đặt tên (workspace, model, v.v.).
+- `bindings`: ánh xạ kênh/tài khoản/đồng cấp đến agent.
 
-Example:
+Ví dụ:
 
 ```json5
 {
@@ -109,31 +103,26 @@ Example:
 }
 ```
 
-## Session storage
+## Lưu trữ phiên
 
-Session stores live under the state directory (default `~/.openclaw`):
+Kho lưu trữ phiên nằm dưới thư mục trạng thái (mặc định `~/.openclaw`):
 
 - `~/.openclaw/agents/<agentId>/sessions/sessions.json`
-- JSONL transcripts live alongside the store
+- Bản ghi JSONL nằm cùng với kho lưu trữ
 
-You can override the store path via `session.store` and `{agentId}` templating.
+Bạn có thể ghi đè đường dẫn kho lưu trữ qua `session.store` và `{agentId}`.
 
-Gateway and ACP session discovery also scans disk-backed agent stores under the
-default `agents/` root and under templated `session.store` roots. Discovered
-stores must stay inside that resolved agent root and use a regular
-`sessions.json` file. Symlinks and out-of-root paths are ignored.
+Khám phá phiên Gateway và ACP cũng quét các kho lưu trữ agent trên đĩa dưới thư mục gốc `agents/` mặc định và dưới các thư mục `session.store` đã được định dạng. Các kho lưu trữ được phát hiện phải nằm trong thư mục gốc agent đã được giải quyết và sử dụng tệp `sessions.json` thông thường. Symlink và các đường dẫn ngoài thư mục gốc sẽ bị bỏ qua.
 
-## WebChat behavior
+## Hành vi WebChat
 
-WebChat attaches to the **selected agent** and defaults to the agent’s main
-session. Because of this, WebChat lets you see cross‑channel context for that
-agent in one place.
+WebChat gắn vào **agent được chọn** và mặc định vào phiên chính của agent. Vì vậy, WebChat cho phép bạn xem ngữ cảnh chéo kênh cho agent đó tại một nơi.
 
-## Reply context
+## Ngữ cảnh phản hồi
 
-Inbound replies include:
+Phản hồi đến bao gồm:
 
-- `ReplyToId`, `ReplyToBody`, and `ReplyToSender` when available.
-- Quoted context is appended to `Body` as a `[Replying to ...]` block.
+- `ReplyToId`, `ReplyToBody`, và `ReplyToSender` khi có sẵn.
+- Ngữ cảnh được trích dẫn được thêm vào `Body` dưới dạng khối `[Replying to ...]`.
 
-This is consistent across channels.
+Điều này nhất quán trên các kênh.

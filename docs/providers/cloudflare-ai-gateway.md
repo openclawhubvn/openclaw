@@ -1,31 +1,31 @@
 ---
 title: "Cloudflare AI Gateway"
-summary: "Cloudflare AI Gateway setup (auth + model selection)"
+summary: "Thiết lập Cloudflare AI Gateway (xác thực + chọn mô hình)"
 read_when:
-  - You want to use Cloudflare AI Gateway with OpenClaw
-  - You need the account ID, gateway ID, or API key env var
+  - Bạn muốn sử dụng Cloudflare AI Gateway với OpenClaw
+  - Bạn cần ID tài khoản, ID gateway, hoặc biến môi trường API key
 ---
 
 # Cloudflare AI Gateway
 
-Cloudflare AI Gateway sits in front of provider APIs and lets you add analytics, caching, and controls. For Anthropic, OpenClaw uses the Anthropic Messages API through your Gateway endpoint.
+Cloudflare AI Gateway hoạt động như một lớp trung gian trước các API của nhà cung cấp, cho phép bạn thêm phân tích, bộ nhớ đệm và kiểm soát. Đối với Anthropic, OpenClaw sử dụng Anthropic Messages API thông qua endpoint Gateway của bạn.
 
-- Provider: `cloudflare-ai-gateway`
-- Base URL: `https://gateway.ai.cloudflare.com/v1/<account_id>/<gateway_id>/anthropic`
-- Default model: `cloudflare-ai-gateway/claude-sonnet-4-6`
-- API key: `CLOUDFLARE_AI_GATEWAY_API_KEY` (your provider API key for requests through the Gateway)
+- Nhà cung cấp: `cloudflare-ai-gateway`
+- URL cơ bản: `https://gateway.ai.cloudflare.com/v1/<account_id>/<gateway_id>/anthropic`
+- Mô hình mặc định: `cloudflare-ai-gateway/claude-sonnet-4-6`
+- API key: `CLOUDFLARE_AI_GATEWAY_API_KEY` (API key của nhà cung cấp cho các yêu cầu qua Gateway)
 
-For Anthropic models, use your Anthropic API key.
+Đối với các mô hình Anthropic, sử dụng API key của Anthropic.
 
-## Quick start
+## Bắt đầu nhanh
 
-1. Set the provider API key and Gateway details:
+1. Thiết lập API key của nhà cung cấp và chi tiết Gateway:
 
 ```bash
 openclaw onboard --auth-choice cloudflare-ai-gateway-api-key
 ```
 
-2. Set a default model:
+2. Thiết lập mô hình mặc định:
 
 ```json5
 {
@@ -37,7 +37,7 @@ openclaw onboard --auth-choice cloudflare-ai-gateway-api-key
 }
 ```
 
-## Non-interactive example
+## Ví dụ không tương tác
 
 ```bash
 openclaw onboard --non-interactive \
@@ -48,9 +48,9 @@ openclaw onboard --non-interactive \
   --cloudflare-ai-gateway-api-key "$CLOUDFLARE_AI_GATEWAY_API_KEY"
 ```
 
-## Authenticated gateways
+## Gateways có xác thực
 
-If you enabled Gateway authentication in Cloudflare, add the `cf-aig-authorization` header (this is in addition to your provider API key).
+Nếu bạn đã bật xác thực Gateway trong Cloudflare, thêm header `cf-aig-authorization` (điều này bổ sung cho API key của nhà cung cấp).
 
 ```json5
 {
@@ -66,6 +66,6 @@ If you enabled Gateway authentication in Cloudflare, add the `cf-aig-authorizati
 }
 ```
 
-## Environment note
+## Lưu ý về môi trường
 
-If the Gateway runs as a daemon (launchd/systemd), make sure `CLOUDFLARE_AI_GATEWAY_API_KEY` is available to that process (for example, in `~/.openclaw/.env` or via `env.shellEnv`).
+Nếu Gateway chạy dưới dạng daemon (launchd/systemd), đảm bảo `CLOUDFLARE_AI_GATEWAY_API_KEY` có sẵn cho tiến trình đó (ví dụ, trong `~/.openclaw/.env` hoặc thông qua `env.shellEnv`).

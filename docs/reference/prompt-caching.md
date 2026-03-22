@@ -1,28 +1,28 @@
 ---
-title: "Prompt Caching"
-summary: "Prompt caching knobs, merge order, provider behavior, and tuning patterns"
+title: "Bộ nhớ đệm Prompt"
+summary: "Các tùy chỉnh bộ nhớ đệm prompt, thứ tự gộp, hành vi của nhà cung cấp và các mẫu điều chỉnh"
 read_when:
-  - You want to reduce prompt token costs with cache retention
-  - You need per-agent cache behavior in multi-agent setups
-  - You are tuning heartbeat and cache-ttl pruning together
+  - Bạn muốn giảm chi phí token prompt bằng cách giữ lại bộ nhớ đệm
+  - Bạn cần hành vi bộ nhớ đệm theo từng agent trong các thiết lập nhiều agent
+  - Bạn đang điều chỉnh nhịp tim và cắt tỉa cache-ttl cùng nhau
 ---
 
-# Prompt caching
+# Bộ nhớ đệm Prompt
 
-Prompt caching means the model provider can reuse unchanged prompt prefixes (usually system/developer instructions and other stable context) across turns instead of re-processing them every time. The first matching request writes cache tokens (`cacheWrite`), and later matching requests can read them back (`cacheRead`).
+Bộ nhớ đệm prompt cho phép nhà cung cấp mô hình tái sử dụng các tiền tố prompt không thay đổi (thường là hướng dẫn hệ thống/nhà phát triển và các ngữ cảnh ổn định khác) qua các lượt thay vì xử lý lại chúng mỗi lần. Yêu cầu đầu tiên khớp sẽ ghi các token vào bộ nhớ đệm (`cacheWrite`), và các yêu cầu khớp sau đó có thể đọc lại chúng (`cacheRead`).
 
-Why this matters: lower token cost, faster responses, and more predictable performance for long-running sessions. Without caching, repeated prompts pay the full prompt cost on every turn even when most input did not change.
+Tại sao điều này quan trọng: giảm chi phí token, phản hồi nhanh hơn và hiệu suất dự đoán tốt hơn cho các phiên làm việc dài. Nếu không có bộ nhớ đệm, các prompt lặp lại sẽ phải trả toàn bộ chi phí prompt mỗi lượt ngay cả khi hầu hết đầu vào không thay đổi.
 
-This page covers all cache-related knobs that affect prompt reuse and token cost.
+Trang này bao gồm tất cả các tùy chỉnh liên quan đến bộ nhớ đệm ảnh hưởng đến việc tái sử dụng prompt và chi phí token.
 
-For Anthropic pricing details, see:
+Để biết chi tiết về giá của Anthropic, xem:
 [https://docs.anthropic.com/docs/build-with-claude/prompt-caching](https://docs.anthropic.com/docs/build-with-claude/prompt-caching)
 
-## Primary knobs
+## Các tùy chỉnh chính
 
-### `cacheRetention` (model and per-agent)
+### `cacheRetention` (mô hình và theo từng agent)
 
-Set cache retention on model params:
+Thiết lập giữ lại bộ nhớ đệm trên tham số mô hình:
 
 ```yaml
 agents:
@@ -33,7 +33,7 @@ agents:
           cacheRetention: "short" # none | short | long
 ```
 
-Per-agent override:
+Ghi đè theo từng agent:
 
 ```yaml
 agents:
@@ -43,23 +43,23 @@ agents:
         cacheRetention: "none"
 ```
 
-Config merge order:
+Thứ tự gộp cấu hình:
 
 1. `agents.defaults.models["provider/model"].params`
-2. `agents.list[].params` (matching agent id; overrides by key)
+2. `agents.list[].params` (khớp với id agent; ghi đè theo khóa)
 
-### Legacy `cacheControlTtl`
+### `cacheControlTtl` cũ
 
-Legacy values are still accepted and mapped:
+Các giá trị cũ vẫn được chấp nhận và ánh xạ:
 
 - `5m` -> `short`
 - `1h` -> `long`
 
-Prefer `cacheRetention` for new config.
+Ưu tiên `cacheRetention` cho cấu hình mới.
 
 ### `contextPruning.mode: "cache-ttl"`
 
-Prunes old tool-result context after cache TTL windows so post-idle requests do not re-cache oversized history.
+Cắt tỉa ngữ cảnh kết quả công cụ cũ sau khi cửa sổ TTL bộ nhớ đệm để các yêu cầu sau khi không hoạt động không tái bộ nhớ đệm lịch sử quá lớn.
 
 ```yaml
 agents:
@@ -69,11 +69,11 @@ agents:
       ttl: "1h"
 ```
 
-See [Session Pruning](/concepts/session-pruning) for full behavior.
+Xem [Cắt tỉa phiên](/concepts/session-pruning) để biết hành vi đầy đủ.
 
-### Heartbeat keep-warm
+### Giữ ấm nhịp tim
 
-Heartbeat can keep cache windows warm and reduce repeated cache writes after idle gaps.
+Nhịp tim có thể giữ cho cửa sổ bộ nhớ đệm ấm và giảm việc ghi bộ nhớ đệm lặp lại sau các khoảng trống không hoạt động.
 
 ```yaml
 agents:
@@ -82,33 +82,33 @@ agents:
       every: "55m"
 ```
 
-Per-agent heartbeat is supported at `agents.list[].heartbeat`.
+Nhịp tim theo từng agent được hỗ trợ tại `agents.list[].heartbeat`.
 
-## Provider behavior
+## Hành vi của nhà cung cấp
 
-### Anthropic (direct API)
+### Anthropic (API trực tiếp)
 
-- `cacheRetention` is supported.
-- With Anthropic API-key auth profiles, OpenClaw seeds `cacheRetention: "short"` for Anthropic model refs when unset.
+- `cacheRetention` được hỗ trợ.
+- Với các hồ sơ xác thực API-key của Anthropic, OpenClaw thiết lập `cacheRetention: "short"` cho các tham chiếu mô hình Anthropic khi không được thiết lập.
 
 ### Amazon Bedrock
 
-- Anthropic Claude model refs (`amazon-bedrock/*anthropic.claude*`) support explicit `cacheRetention` pass-through.
-- Non-Anthropic Bedrock models are forced to `cacheRetention: "none"` at runtime.
+- Các tham chiếu mô hình Claude của Anthropic (`amazon-bedrock/*anthropic.claude*`) hỗ trợ truyền qua `cacheRetention` rõ ràng.
+- Các mô hình Bedrock không phải Anthropic bị buộc phải `cacheRetention: "none"` khi chạy.
 
-### OpenRouter Anthropic models
+### Mô hình Anthropic của OpenRouter
 
-For `openrouter/anthropic/*` model refs, OpenClaw injects Anthropic `cache_control` on system/developer prompt blocks to improve prompt-cache reuse.
+Đối với các tham chiếu mô hình `openrouter/anthropic/*`, OpenClaw chèn `cache_control` của Anthropic vào các khối prompt hệ thống/nhà phát triển để cải thiện việc tái sử dụng bộ nhớ đệm prompt.
 
-### Other providers
+### Các nhà cung cấp khác
 
-If the provider does not support this cache mode, `cacheRetention` has no effect.
+Nếu nhà cung cấp không hỗ trợ chế độ bộ nhớ đệm này, `cacheRetention` sẽ không có hiệu lực.
 
-## Tuning patterns
+## Mẫu điều chỉnh
 
-### Mixed traffic (recommended default)
+### Lưu lượng hỗn hợp (mặc định được khuyến nghị)
 
-Keep a long-lived baseline on your main agent, disable caching on bursty notifier agents:
+Giữ một cơ sở lâu dài trên agent chính của bạn, vô hiệu hóa bộ nhớ đệm trên các agent thông báo đột biến:
 
 ```yaml
 agents:
@@ -129,57 +129,57 @@ agents:
         cacheRetention: "none"
 ```
 
-### Cost-first baseline
+### Cơ sở ưu tiên chi phí
 
-- Set baseline `cacheRetention: "short"`.
-- Enable `contextPruning.mode: "cache-ttl"`.
-- Keep heartbeat below your TTL only for agents that benefit from warm caches.
+- Thiết lập cơ sở `cacheRetention: "short"`.
+- Kích hoạt `contextPruning.mode: "cache-ttl"`.
+- Giữ nhịp tim dưới TTL của bạn chỉ cho các agent có lợi từ bộ nhớ đệm ấm.
 
-## Cache diagnostics
+## Chẩn đoán bộ nhớ đệm
 
-OpenClaw exposes dedicated cache-trace diagnostics for embedded agent runs.
+OpenClaw cung cấp chẩn đoán dấu vết bộ nhớ đệm dành riêng cho các lần chạy agent nhúng.
 
-### `diagnostics.cacheTrace` config
+### Cấu hình `diagnostics.cacheTrace`
 
 ```yaml
 diagnostics:
   cacheTrace:
     enabled: true
-    filePath: "~/.openclaw/logs/cache-trace.jsonl" # optional
-    includeMessages: false # default true
-    includePrompt: false # default true
-    includeSystem: false # default true
+    filePath: "~/.openclaw/logs/cache-trace.jsonl" # tùy chọn
+    includeMessages: false # mặc định true
+    includePrompt: false # mặc định true
+    includeSystem: false # mặc định true
 ```
 
-Defaults:
+Mặc định:
 
 - `filePath`: `$OPENCLAW_STATE_DIR/logs/cache-trace.jsonl`
 - `includeMessages`: `true`
 - `includePrompt`: `true`
 - `includeSystem`: `true`
 
-### Env toggles (one-off debugging)
+### Chuyển đổi môi trường (gỡ lỗi một lần)
 
-- `OPENCLAW_CACHE_TRACE=1` enables cache tracing.
-- `OPENCLAW_CACHE_TRACE_FILE=/path/to/cache-trace.jsonl` overrides output path.
-- `OPENCLAW_CACHE_TRACE_MESSAGES=0|1` toggles full message payload capture.
-- `OPENCLAW_CACHE_TRACE_PROMPT=0|1` toggles prompt text capture.
-- `OPENCLAW_CACHE_TRACE_SYSTEM=0|1` toggles system prompt capture.
+- `OPENCLAW_CACHE_TRACE=1` kích hoạt theo dõi bộ nhớ đệm.
+- `OPENCLAW_CACHE_TRACE_FILE=/path/to/cache-trace.jsonl` ghi đè đường dẫn đầu ra.
+- `OPENCLAW_CACHE_TRACE_MESSAGES=0|1` chuyển đổi việc ghi lại toàn bộ tải trọng tin nhắn.
+- `OPENCLAW_CACHE_TRACE_PROMPT=0|1` chuyển đổi việc ghi lại văn bản prompt.
+- `OPENCLAW_CACHE_TRACE_SYSTEM=0|1` chuyển đổi việc ghi lại prompt hệ thống.
 
-### What to inspect
+### Những gì cần kiểm tra
 
-- Cache trace events are JSONL and include staged snapshots like `session:loaded`, `prompt:before`, `stream:context`, and `session:after`.
-- Per-turn cache token impact is visible in normal usage surfaces via `cacheRead` and `cacheWrite` (for example `/usage full` and session usage summaries).
+- Các sự kiện dấu vết bộ nhớ đệm là JSONL và bao gồm các ảnh chụp nhanh như `session:loaded`, `prompt:before`, `stream:context`, và `session:after`.
+- Ảnh hưởng token bộ nhớ đệm theo lượt có thể thấy trong các bề mặt sử dụng thông thường qua `cacheRead` và `cacheWrite` (ví dụ `/usage full` và tóm tắt sử dụng phiên).
 
-## Quick troubleshooting
+## Khắc phục sự cố nhanh
 
-- High `cacheWrite` on most turns: check for volatile system-prompt inputs and verify model/provider supports your cache settings.
-- No effect from `cacheRetention`: confirm model key matches `agents.defaults.models["provider/model"]`.
-- Bedrock Nova/Mistral requests with cache settings: expected runtime force to `none`.
+- `cacheWrite` cao trên hầu hết các lượt: kiểm tra đầu vào prompt hệ thống không ổn định và xác minh mô hình/nhà cung cấp hỗ trợ các thiết lập bộ nhớ đệm của bạn.
+- Không có hiệu lực từ `cacheRetention`: xác nhận khóa mô hình khớp với `agents.defaults.models["provider/model"]`.
+- Yêu cầu Bedrock Nova/Mistral với các thiết lập bộ nhớ đệm: dự kiến buộc chạy thời gian thành `none`.
 
-Related docs:
+Tài liệu liên quan:
 
 - [Anthropic](/providers/anthropic)
-- [Token Use and Costs](/reference/token-use)
-- [Session Pruning](/concepts/session-pruning)
-- [Gateway Configuration Reference](/gateway/configuration-reference)
+- [Sử dụng và Chi phí Token](/reference/token-use)
+- [Cắt tỉa Phiên](/concepts/session-pruning)
+- [Tham khảo Cấu hình Gateway](/gateway/configuration-reference)

@@ -1,37 +1,37 @@
 ---
-summary: "Perplexity Search API and Sonar/OpenRouter compatibility for web_search"
+summary: "API Tìm kiếm Perplexity và khả năng tương thích Sonar/OpenRouter cho web_search"
 read_when:
-  - You want to use Perplexity Search for web search
-  - You need PERPLEXITY_API_KEY or OPENROUTER_API_KEY setup
-title: "Perplexity Search"
+  - Bạn muốn sử dụng Tìm kiếm Perplexity cho tìm kiếm web
+  - Bạn cần thiết lập PERPLEXITY_API_KEY hoặc OPENROUTER_API_KEY
+title: "Tìm kiếm Perplexity"
 ---
 
-# Perplexity Search API
+# API Tìm kiếm Perplexity
 
-OpenClaw supports Perplexity Search API as a `web_search` provider.
-It returns structured results with `title`, `url`, and `snippet` fields.
+OpenClaw hỗ trợ API Tìm kiếm Perplexity như một nhà cung cấp `web_search`.
+Nó trả về kết quả có cấu trúc với các trường `title`, `url`, và `snippet`.
 
-For compatibility, OpenClaw also supports legacy Perplexity Sonar/OpenRouter setups.
-If you use `OPENROUTER_API_KEY`, an `sk-or-...` key in `plugins.entries.perplexity.config.webSearch.apiKey`, or set `plugins.entries.perplexity.config.webSearch.baseUrl` / `model`, the provider switches to the chat-completions path and returns AI-synthesized answers with citations instead of structured Search API results.
+Để tương thích, OpenClaw cũng hỗ trợ các thiết lập Perplexity Sonar/OpenRouter cũ.
+Nếu sử dụng `OPENROUTER_API_KEY`, một khóa `sk-or-...` trong `plugins.entries.perplexity.config.webSearch.apiKey`, hoặc thiết lập `plugins.entries.perplexity.config.webSearch.baseUrl` / `model`, nhà cung cấp sẽ chuyển sang đường dẫn chat-completions và trả về câu trả lời tổng hợp AI kèm trích dẫn thay vì kết quả API Tìm kiếm có cấu trúc.
 
-## Getting a Perplexity API key
+## Lấy khóa API Perplexity
 
-1. Create a Perplexity account at [perplexity.ai/settings/api](https://www.perplexity.ai/settings/api)
-2. Generate an API key in the dashboard
-3. Store the key in config or set `PERPLEXITY_API_KEY` in the Gateway environment.
+1. Tạo tài khoản Perplexity tại [perplexity.ai/settings/api](https://www.perplexity.ai/settings/api)
+2. Tạo khóa API trong dashboard
+3. Lưu khóa vào cấu hình hoặc thiết lập `PERPLEXITY_API_KEY` trong môi trường Gateway.
 
-## OpenRouter compatibility
+## Khả năng tương thích OpenRouter
 
-If you were already using OpenRouter for Perplexity Sonar, keep `provider: "perplexity"` and set `OPENROUTER_API_KEY` in the Gateway environment, or store an `sk-or-...` key in `plugins.entries.perplexity.config.webSearch.apiKey`.
+Nếu đã sử dụng OpenRouter cho Perplexity Sonar, giữ `provider: "perplexity"` và thiết lập `OPENROUTER_API_KEY` trong môi trường Gateway, hoặc lưu một khóa `sk-or-...` trong `plugins.entries.perplexity.config.webSearch.apiKey`.
 
-Optional compatibility controls:
+Các tùy chọn điều khiển tương thích tùy chọn:
 
 - `plugins.entries.perplexity.config.webSearch.baseUrl`
 - `plugins.entries.perplexity.config.webSearch.model`
 
-## Config examples
+## Ví dụ cấu hình
 
-### Native Perplexity Search API
+### API Tìm kiếm Perplexity gốc
 
 ```json5
 {
@@ -56,7 +56,7 @@ Optional compatibility controls:
 }
 ```
 
-### OpenRouter / Sonar compatibility
+### Khả năng tương thích OpenRouter / Sonar
 
 ```json5
 {
@@ -83,92 +83,92 @@ Optional compatibility controls:
 }
 ```
 
-## Where to set the key
+## Nơi đặt khóa
 
-**Via config:** run `openclaw configure --section web`. It stores the key in
-`~/.openclaw/openclaw.json` under `plugins.entries.perplexity.config.webSearch.apiKey`.
-That field also accepts SecretRef objects.
+**Qua cấu hình:** chạy `openclaw configure --section web`. Nó lưu khóa trong
+`~/.openclaw/openclaw.json` dưới `plugins.entries.perplexity.config.webSearch.apiKey`.
+Trường này cũng chấp nhận các đối tượng SecretRef.
 
-**Via environment:** set `PERPLEXITY_API_KEY` or `OPENROUTER_API_KEY`
-in the Gateway process environment. For a gateway install, put it in
-`~/.openclaw/.env` (or your service environment). See [Env vars](/help/faq#how-does-openclaw-load-environment-variables).
+**Qua môi trường:** thiết lập `PERPLEXITY_API_KEY` hoặc `OPENROUTER_API_KEY`
+trong môi trường quá trình Gateway. Đối với cài đặt gateway, đặt nó trong
+`~/.openclaw/.env` (hoặc môi trường dịch vụ của bạn). Xem [Env vars](/help/faq#how-does-openclaw-load-environment-variables).
 
-If `provider: "perplexity"` is configured and the Perplexity key SecretRef is unresolved with no env fallback, startup/reload fails fast.
+Nếu `provider: "perplexity"` được cấu hình và SecretRef khóa Perplexity không được giải quyết mà không có dự phòng môi trường, khởi động/tải lại sẽ thất bại nhanh chóng.
 
-## Tool parameters
+## Tham số công cụ
 
-These parameters apply to the native Perplexity Search API path.
+Các tham số này áp dụng cho đường dẫn API Tìm kiếm Perplexity gốc.
 
-| Parameter             | Description                                          |
-| --------------------- | ---------------------------------------------------- |
-| `query`               | Search query (required)                              |
-| `count`               | Number of results to return (1-10, default: 5)       |
-| `country`             | 2-letter ISO country code (e.g., "US", "DE")         |
-| `language`            | ISO 639-1 language code (e.g., "en", "de", "fr")     |
-| `freshness`           | Time filter: `day` (24h), `week`, `month`, or `year` |
-| `date_after`          | Only results published after this date (YYYY-MM-DD)  |
-| `date_before`         | Only results published before this date (YYYY-MM-DD) |
-| `domain_filter`       | Domain allowlist/denylist array (max 20)             |
-| `max_tokens`          | Total content budget (default: 25000, max: 1000000)  |
-| `max_tokens_per_page` | Per-page token limit (default: 2048)                 |
+| Tham số               | Mô tả                                                 |
+| --------------------- | ----------------------------------------------------- |
+| `query`               | Truy vấn tìm kiếm (bắt buộc)                          |
+| `count`               | Số lượng kết quả trả về (1-10, mặc định: 5)           |
+| `country`             | Mã quốc gia ISO 2 chữ cái (ví dụ: "US", "DE")         |
+| `language`            | Mã ngôn ngữ ISO 639-1 (ví dụ: "en", "de", "fr")       |
+| `freshness`           | Bộ lọc thời gian: `day` (24h), `week`, `month`, hoặc `year` |
+| `date_after`          | Chỉ kết quả xuất bản sau ngày này (YYYY-MM-DD)       |
+| `date_before`         | Chỉ kết quả xuất bản trước ngày này (YYYY-MM-DD)     |
+| `domain_filter`       | Mảng danh sách cho phép/chặn tên miền (tối đa 20)    |
+| `max_tokens`          | Ngân sách nội dung tổng (mặc định: 25000, tối đa: 1000000) |
+| `max_tokens_per_page` | Giới hạn token mỗi trang (mặc định: 2048)            |
 
-For the legacy Sonar/OpenRouter compatibility path, only `query` and `freshness` are supported.
-Search API-only filters such as `country`, `language`, `date_after`, `date_before`, `domain_filter`, `max_tokens`, and `max_tokens_per_page` return explicit errors.
+Đối với đường dẫn tương thích Sonar/OpenRouter cũ, chỉ hỗ trợ `query` và `freshness`.
+Các bộ lọc chỉ dành cho API Tìm kiếm như `country`, `language`, `date_after`, `date_before`, `domain_filter`, `max_tokens`, và `max_tokens_per_page` sẽ trả về lỗi rõ ràng.
 
-**Examples:**
+**Ví dụ:**
 
 ```javascript
-// Country and language-specific search
+// Tìm kiếm theo quốc gia và ngôn ngữ
 await web_search({
-  query: "renewable energy",
+  query: "năng lượng tái tạo",
   country: "DE",
   language: "de",
 });
 
-// Recent results (past week)
+// Kết quả gần đây (tuần qua)
 await web_search({
-  query: "AI news",
+  query: "tin tức AI",
   freshness: "week",
 });
 
-// Date range search
+// Tìm kiếm theo khoảng thời gian
 await web_search({
-  query: "AI developments",
+  query: "phát triển AI",
   date_after: "2024-01-01",
   date_before: "2024-06-30",
 });
 
-// Domain filtering (allowlist)
+// Lọc tên miền (danh sách cho phép)
 await web_search({
-  query: "climate research",
+  query: "nghiên cứu khí hậu",
   domain_filter: ["nature.com", "science.org", ".edu"],
 });
 
-// Domain filtering (denylist - prefix with -)
+// Lọc tên miền (danh sách chặn - thêm tiền tố -)
 await web_search({
-  query: "product reviews",
+  query: "đánh giá sản phẩm",
   domain_filter: ["-reddit.com", "-pinterest.com"],
 });
 
-// More content extraction
+// Trích xuất nội dung nhiều hơn
 await web_search({
-  query: "detailed AI research",
+  query: "nghiên cứu AI chi tiết",
   max_tokens: 50000,
   max_tokens_per_page: 4096,
 });
 ```
 
-### Domain filter rules
+### Quy tắc lọc tên miền
 
-- Maximum 20 domains per filter
-- Cannot mix allowlist and denylist in the same request
-- Use `-` prefix for denylist entries (e.g., `["-reddit.com"]`)
+- Tối đa 20 tên miền mỗi bộ lọc
+- Không thể kết hợp danh sách cho phép và danh sách chặn trong cùng một yêu cầu
+- Sử dụng tiền tố `-` cho các mục trong danh sách chặn (ví dụ: `["-reddit.com"]`)
 
-## Notes
+## Ghi chú
 
-- Perplexity Search API returns structured web search results (`title`, `url`, `snippet`)
-- OpenRouter or explicit `plugins.entries.perplexity.config.webSearch.baseUrl` / `model` switches Perplexity back to Sonar chat completions for compatibility
-- Results are cached for 15 minutes by default (configurable via `cacheTtlMinutes`)
+- API Tìm kiếm Perplexity trả về kết quả tìm kiếm web có cấu trúc (`title`, `url`, `snippet`)
+- OpenRouter hoặc `plugins.entries.perplexity.config.webSearch.baseUrl` / `model` rõ ràng chuyển Perplexity trở lại hoàn thành chat Sonar để tương thích
+- Kết quả được lưu trong bộ nhớ cache trong 15 phút theo mặc định (có thể cấu hình qua `cacheTtlMinutes`)
 
-See [Web tools](/tools/web) for the full web_search configuration.
-See [Perplexity Search API docs](https://docs.perplexity.ai/docs/search/quickstart) for more details.
+Xem [Công cụ web](/tools/web) để biết cấu hình đầy đủ của web_search.
+Xem [Tài liệu API Tìm kiếm Perplexity](https://docs.perplexity.ai/docs/search/quickstart) để biết thêm chi tiết.

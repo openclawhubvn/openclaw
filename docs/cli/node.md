@@ -1,37 +1,33 @@
 ---
-summary: "CLI reference for `openclaw node` (headless node host)"
+summary: "Tham khảo CLI cho `openclaw node` (máy chủ node không giao diện)"
 read_when:
-  - Running the headless node host
-  - Pairing a non-macOS node for system.run
+  - Chạy máy chủ node không giao diện
+  - Ghép nối một node không phải macOS cho system.run
 title: "node"
 ---
 
 # `openclaw node`
 
-Run a **headless node host** that connects to the Gateway WebSocket and exposes
-`system.run` / `system.which` on this machine.
+Chạy một **máy chủ node không giao diện** kết nối với Gateway WebSocket và cung cấp
+`system.run` / `system.which` trên máy này.
 
-## Why use a node host?
+## Tại sao sử dụng máy chủ node?
 
-Use a node host when you want agents to **run commands on other machines** in your
-network without installing a full macOS companion app there.
+Sử dụng máy chủ node khi cần các agent **chạy lệnh trên các máy khác** trong mạng mà không cần cài đặt ứng dụng đồng hành đầy đủ trên macOS.
 
-Common use cases:
+Các trường hợp sử dụng phổ biến:
 
-- Run commands on remote Linux/Windows boxes (build servers, lab machines, NAS).
-- Keep exec **sandboxed** on the gateway, but delegate approved runs to other hosts.
-- Provide a lightweight, headless execution target for automation or CI nodes.
+- Chạy lệnh trên các máy Linux/Windows từ xa (máy chủ build, máy trong phòng thí nghiệm, NAS).
+- Giữ việc thực thi **trong sandbox** trên gateway, nhưng ủy quyền các lần chạy đã được phê duyệt cho các máy chủ khác.
+- Cung cấp mục tiêu thực thi nhẹ, không giao diện cho tự động hóa hoặc các node CI.
 
-Execution is still guarded by **exec approvals** and per‑agent allowlists on the
-node host, so you can keep command access scoped and explicit.
+Việc thực thi vẫn được bảo vệ bởi **phê duyệt thực thi** và danh sách cho phép theo từng agent trên máy chủ node, giúp kiểm soát và rõ ràng quyền truy cập lệnh.
 
-## Browser proxy (zero-config)
+## Proxy trình duyệt (không cần cấu hình)
 
-Node hosts automatically advertise a browser proxy if `browser.enabled` is not
-disabled on the node. This lets the agent use browser automation on that node
-without extra configuration.
+Máy chủ node tự động quảng cáo một proxy trình duyệt nếu `browser.enabled` không bị vô hiệu hóa trên node. Điều này cho phép agent sử dụng tự động hóa trình duyệt trên node đó mà không cần cấu hình thêm.
 
-Disable it on the node if needed:
+Vô hiệu hóa trên node nếu cần:
 
 ```json5
 {
@@ -43,52 +39,52 @@ Disable it on the node if needed:
 }
 ```
 
-## Run (foreground)
+## Chạy (chế độ nền trước)
 
 ```bash
 openclaw node run --host <gateway-host> --port 18789
 ```
 
-Options:
+Tùy chọn:
 
-- `--host <host>`: Gateway WebSocket host (default: `127.0.0.1`)
-- `--port <port>`: Gateway WebSocket port (default: `18789`)
-- `--tls`: Use TLS for the gateway connection
-- `--tls-fingerprint <sha256>`: Expected TLS certificate fingerprint (sha256)
-- `--node-id <id>`: Override node id (clears pairing token)
-- `--display-name <name>`: Override the node display name
+- `--host <host>`: Máy chủ Gateway WebSocket (mặc định: `127.0.0.1`)
+- `--port <port>`: Cổng Gateway WebSocket (mặc định: `18789`)
+- `--tls`: Sử dụng TLS cho kết nối gateway
+- `--tls-fingerprint <sha256>`: Dấu vân tay chứng chỉ TLS mong đợi (sha256)
+- `--node-id <id>`: Ghi đè id node (xóa token ghép nối)
+- `--display-name <name>`: Ghi đè tên hiển thị của node
 
-## Gateway auth for node host
+## Xác thực Gateway cho máy chủ node
 
-`openclaw node run` and `openclaw node install` resolve gateway auth from config/env (no `--token`/`--password` flags on node commands):
+`openclaw node run` và `openclaw node install` giải quyết xác thực gateway từ cấu hình/môi trường (không có cờ `--token`/`--password` trên lệnh node):
 
-- `OPENCLAW_GATEWAY_TOKEN` / `OPENCLAW_GATEWAY_PASSWORD` are checked first.
-- Then local config fallback: `gateway.auth.token` / `gateway.auth.password`.
-- In local mode, node host intentionally does not inherit `gateway.remote.token` / `gateway.remote.password`.
-- If `gateway.auth.token` / `gateway.auth.password` is explicitly configured via SecretRef and unresolved, node auth resolution fails closed (no remote fallback masking).
-- In `gateway.mode=remote`, remote client fields (`gateway.remote.token` / `gateway.remote.password`) are also eligible per remote precedence rules.
-- Legacy `CLAWDBOT_GATEWAY_*` env vars are ignored for node host auth resolution.
+- `OPENCLAW_GATEWAY_TOKEN` / `OPENCLAW_GATEWAY_PASSWORD` được kiểm tra trước.
+- Sau đó là cấu hình cục bộ dự phòng: `gateway.auth.token` / `gateway.auth.password`.
+- Ở chế độ cục bộ, máy chủ node không kế thừa `gateway.remote.token` / `gateway.remote.password`.
+- Nếu `gateway.auth.token` / `gateway.auth.password` được cấu hình rõ ràng qua SecretRef và không giải quyết được, xác thực node sẽ thất bại (không có dự phòng từ xa).
+- Ở `gateway.mode=remote`, các trường khách hàng từ xa (`gateway.remote.token` / `gateway.remote.password`) cũng đủ điều kiện theo quy tắc ưu tiên từ xa.
+- Các biến môi trường `CLAWDBOT_GATEWAY_*` cũ bị bỏ qua cho việc giải quyết xác thực máy chủ node.
 
-## Service (background)
+## Dịch vụ (chạy nền)
 
-Install a headless node host as a user service.
+Cài đặt một máy chủ node không giao diện như một dịch vụ người dùng.
 
 ```bash
 openclaw node install --host <gateway-host> --port 18789
 ```
 
-Options:
+Tùy chọn:
 
-- `--host <host>`: Gateway WebSocket host (default: `127.0.0.1`)
-- `--port <port>`: Gateway WebSocket port (default: `18789`)
-- `--tls`: Use TLS for the gateway connection
-- `--tls-fingerprint <sha256>`: Expected TLS certificate fingerprint (sha256)
-- `--node-id <id>`: Override node id (clears pairing token)
-- `--display-name <name>`: Override the node display name
-- `--runtime <runtime>`: Service runtime (`node` or `bun`)
-- `--force`: Reinstall/overwrite if already installed
+- `--host <host>`: Máy chủ Gateway WebSocket (mặc định: `127.0.0.1`)
+- `--port <port>`: Cổng Gateway WebSocket (mặc định: `18789`)
+- `--tls`: Sử dụng TLS cho kết nối gateway
+- `--tls-fingerprint <sha256>`: Dấu vân tay chứng chỉ TLS mong đợi (sha256)
+- `--node-id <id>`: Ghi đè id node (xóa token ghép nối)
+- `--display-name <name>`: Ghi đè tên hiển thị của node
+- `--runtime <runtime>`: Thời gian chạy dịch vụ (`node` hoặc `bun`)
+- `--force`: Cài đặt lại/ghi đè nếu đã cài đặt
 
-Manage the service:
+Quản lý dịch vụ:
 
 ```bash
 openclaw node status
@@ -97,31 +93,31 @@ openclaw node restart
 openclaw node uninstall
 ```
 
-Use `openclaw node run` for a foreground node host (no service).
+Sử dụng `openclaw node run` cho máy chủ node nền trước (không phải dịch vụ).
 
-Service commands accept `--json` for machine-readable output.
+Các lệnh dịch vụ chấp nhận `--json` để xuất đầu ra có thể đọc được bằng máy.
 
-## Pairing
+## Ghép nối
 
-The first connection creates a pending device pairing request (`role: node`) on the Gateway.
-Approve it via:
+Kết nối đầu tiên tạo ra một yêu cầu ghép nối thiết bị đang chờ (`role: node`) trên Gateway.
+Phê duyệt qua:
 
 ```bash
 openclaw devices list
 openclaw devices approve <requestId>
 ```
 
-If the node retries pairing with changed auth details (role/scopes/public key),
-the previous pending request is superseded and a new `requestId` is created.
-Run `openclaw devices list` again before approval.
+Nếu node thử lại ghép nối với thông tin xác thực thay đổi (vai trò/phạm vi/khóa công khai),
+yêu cầu đang chờ trước đó sẽ bị thay thế và một `requestId` mới được tạo.
+Chạy `openclaw devices list` lại trước khi phê duyệt.
 
-The node host stores its node id, token, display name, and gateway connection info in
+Máy chủ node lưu trữ id node, token, tên hiển thị và thông tin kết nối gateway trong
 `~/.openclaw/node.json`.
 
-## Exec approvals
+## Phê duyệt thực thi
 
-`system.run` is gated by local exec approvals:
+`system.run` được kiểm soát bởi phê duyệt thực thi cục bộ:
 
 - `~/.openclaw/exec-approvals.json`
-- [Exec approvals](/tools/exec-approvals)
-- `openclaw approvals --node <id|name|ip>` (edit from the Gateway)
+- [Phê duyệt thực thi](/tools/exec-approvals)
+- `openclaw approvals --node <id|name|ip>` (chỉnh sửa từ Gateway)

@@ -1,54 +1,51 @@
 ---
-summary: "Deploy OpenClaw on Northflank with one-click template"
+summary: "Triển khai OpenClaw trên Northflank với mẫu một cú nhấp chuột"
 read_when:
-  - Deploying OpenClaw to Northflank
-  - You want a one-click cloud deploy with browser-based setup
+  - Triển khai OpenClaw lên Northflank
+  - Muốn triển khai đám mây một cú nhấp chuột với thiết lập qua trình duyệt
 title: "Northflank"
 ---
 
-Deploy OpenClaw on Northflank with a one-click template and finish setup in your browser.
-This is the easiest “no terminal on the server” path: Northflank runs the Gateway for you,
-and you configure everything via the `/setup` web wizard.
+Triển khai OpenClaw trên Northflank bằng mẫu một cú nhấp chuột và hoàn tất thiết lập trong trình duyệt. Đây là cách dễ nhất mà không cần dùng terminal trên máy chủ: Northflank sẽ chạy Gateway cho bạn, và bạn cấu hình mọi thứ qua trình hướng dẫn web `/setup`.
 
-## How to get started
+## Cách bắt đầu
 
-1. Click [Deploy OpenClaw](https://northflank.com/stacks/deploy-openclaw) to open the template.
-2. Create an [account on Northflank](https://app.northflank.com/signup) if you don’t already have one.
-3. Click **Deploy OpenClaw now**.
-4. Set the required environment variable: `SETUP_PASSWORD`.
-5. Click **Deploy stack** to build and run the OpenClaw template.
-6. Wait for the deployment to complete, then click **View resources**.
-7. Open the OpenClaw service.
-8. Open the public OpenClaw URL and complete setup at `/setup`.
-9. Open the Control UI at `/openclaw`.
+1. Nhấp vào [Triển khai OpenClaw](https://northflank.com/stacks/deploy-openclaw) để mở mẫu.
+2. Tạo [tài khoản trên Northflank](https://app.northflank.com/signup) nếu chưa có.
+3. Nhấp **Triển khai OpenClaw ngay**.
+4. Đặt biến môi trường cần thiết: `SETUP_PASSWORD`.
+5. Nhấp **Triển khai stack** để xây dựng và chạy mẫu OpenClaw.
+6. Chờ quá trình triển khai hoàn tất, sau đó nhấp **Xem tài nguyên**.
+7. Mở dịch vụ OpenClaw.
+8. Mở URL công khai của OpenClaw và hoàn tất thiết lập tại `/setup`.
+9. Mở Control UI tại `/openclaw`.
 
-## What you get
+## Bạn sẽ nhận được gì
 
-- Hosted OpenClaw Gateway + Control UI
-- Web setup at `/setup` (no terminal commands)
-- Persistent storage via Northflank Volume (`/data`) so config/credentials/workspace survive redeploys
+- OpenClaw Gateway + Control UI được lưu trữ
+- Thiết lập web tại `/setup` (không cần lệnh terminal)
+- Lưu trữ dữ liệu bền vững qua Northflank Volume (`/data`) để cấu hình/thông tin đăng nhập/workspace không bị mất khi triển khai lại
 
-## Setup flow
+## Quy trình thiết lập
 
-1. Visit `https://<your-northflank-domain>/setup` and enter your `SETUP_PASSWORD`.
-2. Choose a model/auth provider and paste your key.
-3. (Optional) Add Telegram/Discord/Slack tokens.
-4. Click **Run setup**.
-5. Open the Control UI at `https://<your-northflank-domain>/openclaw`
+1. Truy cập `https://<your-northflank-domain>/setup` và nhập `SETUP_PASSWORD`.
+2. Chọn mô hình/nhà cung cấp xác thực và dán khóa của bạn.
+3. (Tùy chọn) Thêm token Telegram/Discord/Slack.
+4. Nhấp **Chạy thiết lập**.
+5. Mở Control UI tại `https://<your-northflank-domain>/openclaw`.
 
-If Telegram DMs are set to pairing, web setup can approve the pairing code.
+Nếu tin nhắn Telegram được đặt để ghép đôi, thiết lập web có thể phê duyệt mã ghép đôi.
 
-## Connect a channel
+## Kết nối một kênh
 
-Paste your Telegram or Discord token into the `/setup` wizard. For setup
-instructions, see the channel docs:
+Dán token Telegram hoặc Discord của bạn vào trình hướng dẫn `/setup`. Để biết hướng dẫn thiết lập, xem tài liệu kênh:
 
-- [Telegram](/channels/telegram) (fastest — just a bot token)
+- [Telegram](/channels/telegram) (nhanh nhất — chỉ cần token bot)
 - [Discord](/channels/discord)
-- [All channels](/channels)
+- [Tất cả các kênh](/channels)
 
-## Next steps
+## Bước tiếp theo
 
-- Set up messaging channels: [Channels](/channels)
-- Configure the Gateway: [Gateway configuration](/gateway/configuration)
-- Keep OpenClaw up to date: [Updating](/install/updating)
+- Thiết lập kênh nhắn tin: [Kênh](/channels)
+- Cấu hình Gateway: [Cấu hình Gateway](/gateway/configuration)
+- Giữ OpenClaw luôn cập nhật: [Cập nhật](/install/updating)

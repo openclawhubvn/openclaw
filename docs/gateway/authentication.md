@@ -1,40 +1,22 @@
----
-summary: "Model authentication: OAuth, API keys, and setup-token"
-read_when:
-  - Debugging model auth or OAuth expiry
-  - Documenting authentication or credential storage
-title: "Authentication"
----
+# Xác thực
 
-# Authentication
+OpenClaw hỗ trợ OAuth và API keys cho các nhà cung cấp mô hình. Đối với các máy chủ gateway hoạt động liên tục, API keys thường là lựa chọn ổn định nhất. Các luồng đăng ký/OAuth cũng được hỗ trợ khi phù hợp với mô hình tài khoản của nhà cung cấp.
 
-OpenClaw supports OAuth and API keys for model providers. For always-on gateway
-hosts, API keys are usually the most predictable option. Subscription/OAuth
-flows are also supported when they match your provider account model.
+Xem [OAuth](/concepts/oauth) để biết chi tiết về luồng OAuth và cách lưu trữ. Đối với xác thực dựa trên SecretRef (`env`/`file`/`exec` providers), xem [Quản lý Secrets](/gateway/secrets). Để biết quy tắc về tính hợp lệ của thông tin xác thực được sử dụng bởi `models status --probe`, xem [Ngữ nghĩa Thông tin Xác thực](/auth-credential-semantics).
 
-See [/concepts/oauth](/concepts/oauth) for the full OAuth flow and storage
-layout.
-For SecretRef-based auth (`env`/`file`/`exec` providers), see [Secrets Management](/gateway/secrets).
-For credential eligibility/reason-code rules used by `models status --probe`, see
-[Auth Credential Semantics](/auth-credential-semantics).
+## Cài đặt đề xuất (API key, bất kỳ nhà cung cấp nào)
 
-## Recommended setup (API key, any provider)
+Nếu bạn đang chạy một gateway lâu dài, hãy bắt đầu với một API key cho nhà cung cấp bạn chọn. Đối với Anthropic, xác thực bằng API key là con đường an toàn và được khuyến nghị hơn so với xác thực bằng setup-token.
 
-If you’re running a long-lived gateway, start with an API key for your chosen
-provider.
-For Anthropic specifically, API key auth is the safe path and is recommended
-over subscription setup-token auth.
-
-1. Create an API key in your provider console.
-2. Put it on the **gateway host** (the machine running `openclaw gateway`).
+1. Tạo một API key trong bảng điều khiển của nhà cung cấp.
+2. Đặt nó trên **máy chủ gateway** (máy chạy `openclaw gateway`).
 
 ```bash
 export <PROVIDER>_API_KEY="..."
 openclaw models status
 ```
 
-3. If the Gateway runs under systemd/launchd, prefer putting the key in
-   `~/.openclaw/.env` so the daemon can read it:
+3. Nếu Gateway chạy dưới systemd/launchd, nên đặt key trong `~/.openclaw/.env` để daemon có thể đọc:
 
 ```bash
 cat >> ~/.openclaw/.env <<'EOF'
@@ -42,112 +24,105 @@ cat >> ~/.openclaw/.env <<'EOF'
 EOF
 ```
 
-Then restart the daemon (or restart your Gateway process) and re-check:
+Sau đó khởi động lại daemon (hoặc khởi động lại quá trình Gateway) và kiểm tra lại:
 
 ```bash
 openclaw models status
 openclaw doctor
 ```
 
-If you’d rather not manage env vars yourself, onboarding can store
-API keys for daemon use: `openclaw onboard`.
+Nếu bạn không muốn tự quản lý biến môi trường, quá trình onboarding có thể lưu trữ API keys để daemon sử dụng: `openclaw onboard`.
 
-See [Help](/help) for details on env inheritance (`env.shellEnv`,
-`~/.openclaw/.env`, systemd/launchd).
+Xem [Trợ giúp](/help) để biết chi tiết về kế thừa biến môi trường (`env.shellEnv`, `~/.openclaw/.env`, systemd/launchd).
 
-## Anthropic: setup-token (subscription auth)
+## Anthropic: setup-token (xác thực đăng ký)
 
-If you’re using a Claude subscription, the setup-token flow is supported. Run
-it on the **gateway host**:
+Nếu bạn đang sử dụng đăng ký Claude, luồng setup-token được hỗ trợ. Chạy nó trên **máy chủ gateway**:
 
 ```bash
 claude setup-token
 ```
 
-Then paste it into OpenClaw:
+Sau đó dán vào OpenClaw:
 
 ```bash
 openclaw models auth setup-token --provider anthropic
 ```
 
-If the token was created on another machine, paste it manually:
+Nếu token được tạo trên máy khác, dán thủ công:
 
 ```bash
 openclaw models auth paste-token --provider anthropic
 ```
 
-If you see an Anthropic error like:
+Nếu bạn thấy lỗi Anthropic như:
 
 ```
-This credential is only authorized for use with Claude Code and cannot be used for other API requests.
+Thông tin xác thực này chỉ được ủy quyền sử dụng với Claude Code và không thể sử dụng cho các yêu cầu API khác.
 ```
 
-…use an Anthropic API key instead.
+...hãy sử dụng một API key của Anthropic thay thế.
 
 <Warning>
-Anthropic setup-token support is technical compatibility only. Anthropic has blocked
-some subscription usage outside Claude Code in the past. Use it only if you decide
-the policy risk is acceptable, and verify Anthropic's current terms yourself.
+Hỗ trợ setup-token của Anthropic chỉ là tương thích kỹ thuật. Anthropic đã chặn một số sử dụng đăng ký ngoài Claude Code trong quá khứ. Chỉ sử dụng nếu bạn chấp nhận rủi ro chính sách và tự xác minh điều khoản hiện tại của Anthropic.
 </Warning>
 
-Manual token entry (any provider; writes `auth-profiles.json` + updates config):
+Nhập token thủ công (bất kỳ nhà cung cấp nào; ghi `auth-profiles.json` + cập nhật cấu hình):
 
 ```bash
 openclaw models auth paste-token --provider anthropic
 openclaw models auth paste-token --provider openrouter
 ```
 
-Auth profile refs are also supported for static credentials:
+Các tham chiếu hồ sơ xác thực cũng được hỗ trợ cho thông tin xác thực tĩnh:
 
-- `api_key` credentials can use `keyRef: { source, provider, id }`
-- `token` credentials can use `tokenRef: { source, provider, id }`
+- Thông tin xác thực `api_key` có thể sử dụng `keyRef: { source, provider, id }`
+- Thông tin xác thực `token` có thể sử dụng `tokenRef: { source, provider, id }`
 
-Automation-friendly check (exit `1` when expired/missing, `2` when expiring):
+Kiểm tra thân thiện với tự động hóa (thoát `1` khi hết hạn/thiếu, `2` khi sắp hết hạn):
 
 ```bash
 openclaw models status --check
 ```
 
-Optional ops scripts (systemd/Termux) are documented here:
+Các script ops tùy chọn (systemd/Termux) được tài liệu hóa tại đây:
 [/automation/auth-monitoring](/automation/auth-monitoring)
 
-> `claude setup-token` requires an interactive TTY.
+> `claude setup-token` yêu cầu một TTY tương tác.
 
-## Checking model auth status
+## Kiểm tra trạng thái xác thực mô hình
 
 ```bash
 openclaw models status
 openclaw doctor
 ```
 
-## API key rotation behavior (gateway)
+## Hành vi xoay vòng API key (gateway)
 
-Some providers support retrying a request with alternative keys when an API call
-hits a provider rate limit.
+Một số nhà cung cấp hỗ trợ thử lại yêu cầu với các key thay thế khi một cuộc gọi API gặp giới hạn tốc độ của nhà cung cấp.
 
-- Priority order:
-  - `OPENCLAW_LIVE_<PROVIDER>_KEY` (single override)
+- Thứ tự ưu tiên:
+  - `OPENCLAW_LIVE_<PROVIDER>_KEY` (ghi đè đơn lẻ)
   - `<PROVIDER>_API_KEYS`
   - `<PROVIDER>_API_KEY`
   - `<PROVIDER>_API_KEY_*`
-- Google providers also include `GOOGLE_API_KEY` as an additional fallback.
-- The same key list is deduplicated before use.
-- OpenClaw retries with the next key only for rate-limit errors (for example
-  `429`, `rate_limit`, `quota`, `resource exhausted`).
-- Non-rate-limit errors are not retried with alternate keys.
-- If all keys fail, the final error from the last attempt is returned.
+- Các nhà cung cấp Google cũng bao gồm `GOOGLE_API_KEY` như một phương án dự phòng bổ sung.
+- Danh sách key tương tự được loại bỏ trùng lặp trước khi sử dụng.
+- OpenClaw chỉ thử lại với key tiếp theo cho các lỗi giới hạn tốc độ (ví dụ `429`, `rate_limit`, `quota`, `resource exhausted`).
+- Các lỗi không phải giới hạn tốc độ không được thử lại với các key thay thế.
+- Nếu tất cả các key đều thất bại, lỗi cuối cùng từ lần thử cuối cùng sẽ được trả về.
 
-## Controlling which credential is used
+## Kiểm soát thông tin xác thực nào được sử dụng
 
-### Per-session (chat command)
+### Theo phiên (lệnh chat)
 
-Use `/model <alias-or-id>@<profileId>` to pin a specific provider credential for the current session (example profile ids: `anthropic:default`, `anthropic:work`).
+Sử dụng `/model <alias-or-id>@<profileId>` để ghim một thông tin xác thực nhà cung cấp cụ thể cho phiên hiện tại (ví dụ id hồ sơ: `anthropic:default`, `anthropic:work`).
 
-Use `/model` (or `/model list`) for a compact picker; use `/model status` for the full view (candidates + next auth profile, plus provider endpoint details when configured).
+Sử dụng `/model` (hoặc `/model list`) để có một bộ chọn gọn; sử dụng `/model status` để xem đầy đủ (ứng viên + hồ sơ xác thực tiếp theo, cùng với chi tiết điểm cuối nhà cung cấp khi được cấu hình).
 
-### Per-agent (CLI override)
+### Theo agent (ghi đè CLI)
 
-Set an explicit auth profile order override for an agent (stored in that agent’s `auth-profiles.json`):
+Đặt một thứ tự ghi đè hồ sơ xác thực rõ ràng cho một agent (được lưu trữ trong `auth-profiles.json` của agent đó):
 
 ```bash
 openclaw models auth order get --provider anthropic
@@ -155,25 +130,23 @@ openclaw models auth order set --provider anthropic anthropic:default
 openclaw models auth order clear --provider anthropic
 ```
 
-Use `--agent <id>` to target a specific agent; omit it to use the configured default agent.
+Sử dụng `--agent <id>` để nhắm mục tiêu một agent cụ thể; bỏ qua nó để sử dụng agent mặc định đã cấu hình.
 
-## Troubleshooting
+## Khắc phục sự cố
 
-### "No credentials found"
+### "Không tìm thấy thông tin xác thực"
 
-If the Anthropic token profile is missing, run `claude setup-token` on the
-**gateway host**, then re-check:
+Nếu hồ sơ token Anthropic bị thiếu, chạy `claude setup-token` trên **máy chủ gateway**, sau đó kiểm tra lại:
 
 ```bash
 openclaw models status
 ```
 
-### Token expiring/expired
+### Token sắp hết hạn/đã hết hạn
 
-Run `openclaw models status` to confirm which profile is expiring. If the profile
-is missing, rerun `claude setup-token` and paste the token again.
+Chạy `openclaw models status` để xác nhận hồ sơ nào sắp hết hạn. Nếu hồ sơ bị thiếu, chạy lại `claude setup-token` và dán lại token.
 
-## Requirements
+## Yêu cầu
 
-- Anthropic subscription account (for `claude setup-token`)
-- Claude Code CLI installed (`claude` command available)
+- Tài khoản đăng ký Anthropic (cho `claude setup-token`)
+- Đã cài đặt Claude Code CLI (lệnh `claude` có sẵn)

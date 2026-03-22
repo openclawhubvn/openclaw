@@ -1,177 +1,165 @@
 ---
-summary: "Bonjour/mDNS discovery + debugging (Gateway beacons, clients, and common failure modes)"
+summary: "Khám phá và gỡ lỗi Bonjour/mDNS (Gateway beacons, clients, và các lỗi thường gặp)"
 read_when:
-  - Debugging Bonjour discovery issues on macOS/iOS
-  - Changing mDNS service types, TXT records, or discovery UX
-title: "Bonjour Discovery"
+  - Gỡ lỗi vấn đề khám phá Bonjour trên macOS/iOS
+  - Thay đổi loại dịch vụ mDNS, bản ghi TXT, hoặc trải nghiệm khám phá
+title: "Khám phá Bonjour"
 ---
 
-# Bonjour / mDNS discovery
+# Khám phá Bonjour / mDNS
 
-OpenClaw uses Bonjour (mDNS / DNS‑SD) as a **LAN‑only convenience** to discover
-an active Gateway (WebSocket endpoint). It is best‑effort and does **not** replace SSH or
-Tailnet-based connectivity.
+OpenClaw sử dụng Bonjour (mDNS / DNS‑SD) như một **tiện ích chỉ dành cho mạng LAN** để tìm kiếm Gateway đang hoạt động (điểm cuối WebSocket). Đây là phương pháp nỗ lực tối đa và **không** thay thế cho kết nối SSH hoặc dựa trên Tailnet.
 
-## Wide-area Bonjour (Unicast DNS-SD) over Tailscale
+## Bonjour diện rộng (Unicast DNS-SD) qua Tailscale
 
-If the node and gateway are on different networks, multicast mDNS won’t cross the
-boundary. You can keep the same discovery UX by switching to **unicast DNS‑SD**
-("Wide‑Area Bonjour") over Tailscale.
+Nếu node và gateway nằm trên các mạng khác nhau, multicast mDNS sẽ không vượt qua được ranh giới. Bạn có thể giữ trải nghiệm khám phá tương tự bằng cách chuyển sang **unicast DNS‑SD** ("Bonjour diện rộng") qua Tailscale.
 
-High‑level steps:
+Các bước cơ bản:
 
-1. Run a DNS server on the gateway host (reachable over Tailnet).
-2. Publish DNS‑SD records for `_openclaw-gw._tcp` under a dedicated zone
-   (example: `openclaw.internal.`).
-3. Configure Tailscale **split DNS** so your chosen domain resolves via that
-   DNS server for clients (including iOS).
+1. Chạy một máy chủ DNS trên máy chủ gateway (có thể truy cập qua Tailnet).
+2. Công bố các bản ghi DNS‑SD cho `_openclaw-gw._tcp` dưới một vùng riêng biệt (ví dụ: `openclaw.internal.`).
+3. Cấu hình Tailscale **split DNS** để tên miền bạn chọn được giải quyết qua máy chủ DNS đó cho các client (bao gồm iOS).
 
-OpenClaw supports any discovery domain; `openclaw.internal.` is just an example.
-iOS/Android nodes browse both `local.` and your configured wide‑area domain.
+OpenClaw hỗ trợ bất kỳ tên miền khám phá nào; `openclaw.internal.` chỉ là một ví dụ. Các node iOS/Android duyệt cả `local.` và tên miền diện rộng bạn đã cấu hình.
 
-### Gateway config (recommended)
+### Cấu hình Gateway (khuyến nghị)
 
 ```json5
 {
-  gateway: { bind: "tailnet" }, // tailnet-only (recommended)
-  discovery: { wideArea: { enabled: true } }, // enables wide-area DNS-SD publishing
+  gateway: { bind: "tailnet" }, // chỉ tailnet (khuyến nghị)
+  discovery: { wideArea: { enabled: true } }, // kích hoạt công bố DNS-SD diện rộng
 }
 ```
 
-### One-time DNS server setup (gateway host)
+### Thiết lập máy chủ DNS một lần (máy chủ gateway)
 
 ```bash
 openclaw dns setup --apply
 ```
 
-This installs CoreDNS and configures it to:
+Lệnh này cài đặt CoreDNS và cấu hình để:
 
-- listen on port 53 only on the gateway’s Tailscale interfaces
-- serve your chosen domain (example: `openclaw.internal.`) from `~/.openclaw/dns/<domain>.db`
+- lắng nghe trên cổng 53 chỉ trên các giao diện Tailscale của gateway
+- phục vụ tên miền bạn chọn (ví dụ: `openclaw.internal.`) từ `~/.openclaw/dns/<domain>.db`
 
-Validate from a tailnet‑connected machine:
+Xác thực từ một máy kết nối tailnet:
 
 ```bash
 dns-sd -B _openclaw-gw._tcp openclaw.internal.
 dig @<TAILNET_IPV4> -p 53 _openclaw-gw._tcp.openclaw.internal PTR +short
 ```
 
-### Tailscale DNS settings
+### Cài đặt DNS Tailscale
 
-In the Tailscale admin console:
+Trong bảng điều khiển quản trị Tailscale:
 
-- Add a nameserver pointing at the gateway’s tailnet IP (UDP/TCP 53).
-- Add split DNS so your discovery domain uses that nameserver.
+- Thêm một máy chủ tên trỏ đến IP tailnet của gateway (UDP/TCP 53).
+- Thêm split DNS để tên miền khám phá của bạn sử dụng máy chủ tên đó.
 
-Once clients accept tailnet DNS, iOS nodes can browse
-`_openclaw-gw._tcp` in your discovery domain without multicast.
+Khi các client chấp nhận DNS tailnet, các node iOS có thể duyệt
+`_openclaw-gw._tcp` trong tên miền khám phá của bạn mà không cần multicast.
 
-### Gateway listener security (recommended)
+### Bảo mật listener Gateway (khuyến nghị)
 
-The Gateway WS port (default `18789`) binds to loopback by default. For LAN/tailnet
-access, bind explicitly and keep auth enabled.
+Cổng WS của Gateway (mặc định `18789`) mặc định chỉ kết nối với loopback. Để truy cập LAN/tailnet, hãy cấu hình rõ ràng và giữ cho xác thực được bật.
 
-For tailnet‑only setups:
+Đối với các thiết lập chỉ tailnet:
 
-- Set `gateway.bind: "tailnet"` in `~/.openclaw/openclaw.json`.
-- Restart the Gateway (or restart the macOS menubar app).
+- Đặt `gateway.bind: "tailnet"` trong `~/.openclaw/openclaw.json`.
+- Khởi động lại Gateway (hoặc khởi động lại ứng dụng menubar trên macOS).
 
-## What advertises
+## Ai quảng bá
 
-Only the Gateway advertises `_openclaw-gw._tcp`.
+Chỉ Gateway quảng bá `_openclaw-gw._tcp`.
 
-## Service types
+## Loại dịch vụ
 
-- `_openclaw-gw._tcp` — gateway transport beacon (used by macOS/iOS/Android nodes).
+- `_openclaw-gw._tcp` — beacon vận chuyển gateway (được sử dụng bởi các node macOS/iOS/Android).
 
-## TXT keys (non-secret hints)
+## Khóa TXT (gợi ý không bảo mật)
 
-The Gateway advertises small non‑secret hints to make UI flows convenient:
+Gateway quảng bá các gợi ý nhỏ không bảo mật để làm cho luồng giao diện người dùng thuận tiện:
 
 - `role=gateway`
-- `displayName=<friendly name>`
+- `displayName=<tên thân thiện>`
 - `lanHost=<hostname>.local`
 - `gatewayPort=<port>` (Gateway WS + HTTP)
-- `gatewayTls=1` (only when TLS is enabled)
-- `gatewayTlsSha256=<sha256>` (only when TLS is enabled and fingerprint is available)
-- `canvasPort=<port>` (only when the canvas host is enabled; currently the same as `gatewayPort`)
-- `sshPort=<port>` (defaults to 22 when not overridden)
+- `gatewayTls=1` (chỉ khi TLS được bật)
+- `gatewayTlsSha256=<sha256>` (chỉ khi TLS được bật và có sẵn dấu vân tay)
+- `canvasPort=<port>` (chỉ khi máy chủ canvas được bật; hiện tại giống với `gatewayPort`)
+- `sshPort=<port>` (mặc định là 22 khi không được ghi đè)
 - `transport=gateway`
-- `cliPath=<path>` (optional; absolute path to a runnable `openclaw` entrypoint)
-- `tailnetDns=<magicdns>` (optional hint when Tailnet is available)
+- `cliPath=<path>` (tùy chọn; đường dẫn tuyệt đối đến một điểm đầu vào `openclaw` có thể chạy)
+- `tailnetDns=<magicdns>` (gợi ý tùy chọn khi Tailnet có sẵn)
 
-Security notes:
+Ghi chú bảo mật:
 
-- Bonjour/mDNS TXT records are **unauthenticated**. Clients must not treat TXT as authoritative routing.
-- Clients should route using the resolved service endpoint (SRV + A/AAAA). Treat `lanHost`, `tailnetDns`, `gatewayPort`, and `gatewayTlsSha256` as hints only.
-- TLS pinning must never allow an advertised `gatewayTlsSha256` to override a previously stored pin.
-- iOS/Android nodes should treat discovery-based direct connects as **TLS-only** and require explicit user confirmation before trusting a first-time fingerprint.
+- Bản ghi TXT của Bonjour/mDNS **không được xác thực**. Các client không nên coi TXT là định tuyến có thẩm quyền.
+- Các client nên định tuyến bằng cách sử dụng điểm cuối dịch vụ đã giải quyết (SRV + A/AAAA). Chỉ coi `lanHost`, `tailnetDns`, `gatewayPort`, và `gatewayTlsSha256` là gợi ý.
+- TLS pinning không bao giờ được phép cho một `gatewayTlsSha256` quảng bá ghi đè lên một pin đã lưu trước đó.
+- Các node iOS/Android nên coi các kết nối trực tiếp dựa trên khám phá là **chỉ TLS** và yêu cầu xác nhận người dùng rõ ràng trước khi tin tưởng một dấu vân tay lần đầu.
 
-## Debugging on macOS
+## Gỡ lỗi trên macOS
 
-Useful built‑in tools:
+Các công cụ tích hợp hữu ích:
 
-- Browse instances:
+- Duyệt các phiên bản:
 
   ```bash
   dns-sd -B _openclaw-gw._tcp local.
   ```
 
-- Resolve one instance (replace `<instance>`):
+- Giải quyết một phiên bản (thay thế `<instance>`):
 
   ```bash
   dns-sd -L "<instance>" _openclaw-gw._tcp local.
   ```
 
-If browsing works but resolving fails, you’re usually hitting a LAN policy or
-mDNS resolver issue.
+Nếu duyệt được nhưng giải quyết không thành công, thường là do chính sách LAN hoặc vấn đề với trình giải quyết mDNS.
 
-## Debugging in Gateway logs
+## Gỡ lỗi trong nhật ký Gateway
 
-The Gateway writes a rolling log file (printed on startup as
-`gateway log file: ...`). Look for `bonjour:` lines, especially:
+Gateway ghi một tệp nhật ký cuộn (được in khi khởi động là
+`gateway log file: ...`). Tìm các dòng `bonjour:`, đặc biệt là:
 
 - `bonjour: advertise failed ...`
 - `bonjour: ... name conflict resolved` / `hostname conflict resolved`
 - `bonjour: watchdog detected non-announced service ...`
 
-## Debugging on iOS node
+## Gỡ lỗi trên node iOS
 
-The iOS node uses `NWBrowser` to discover `_openclaw-gw._tcp`.
+Node iOS sử dụng `NWBrowser` để khám phá `_openclaw-gw._tcp`.
 
-To capture logs:
+Để thu thập nhật ký:
 
-- Settings → Gateway → Advanced → **Discovery Debug Logs**
-- Settings → Gateway → Advanced → **Discovery Logs** → reproduce → **Copy**
+- Cài đặt → Gateway → Nâng cao → **Nhật ký gỡ lỗi khám phá**
+- Cài đặt → Gateway → Nâng cao → **Nhật ký khám phá** → tái tạo → **Sao chép**
 
-The log includes browser state transitions and result‑set changes.
+Nhật ký bao gồm các chuyển đổi trạng thái trình duyệt và thay đổi tập hợp kết quả.
 
-## Common failure modes
+## Các lỗi thường gặp
 
-- **Bonjour doesn’t cross networks**: use Tailnet or SSH.
-- **Multicast blocked**: some Wi‑Fi networks disable mDNS.
-- **Sleep / interface churn**: macOS may temporarily drop mDNS results; retry.
-- **Browse works but resolve fails**: keep machine names simple (avoid emojis or
-  punctuation), then restart the Gateway. The service instance name derives from
-  the host name, so overly complex names can confuse some resolvers.
+- **Bonjour không vượt qua các mạng**: sử dụng Tailnet hoặc SSH.
+- **Multicast bị chặn**: một số mạng Wi‑Fi vô hiệu hóa mDNS.
+- **Ngủ / thay đổi giao diện**: macOS có thể tạm thời bỏ qua kết quả mDNS; thử lại.
+- **Duyệt được nhưng giải quyết không thành công**: giữ tên máy đơn giản (tránh biểu tượng cảm xúc hoặc dấu câu), sau đó khởi động lại Gateway. Tên phiên bản dịch vụ được lấy từ tên máy chủ, vì vậy tên quá phức tạp có thể gây nhầm lẫn cho một số trình giải quyết.
 
-## Escaped instance names (`\032`)
+## Tên phiên bản thoát (`\032`)
 
-Bonjour/DNS‑SD often escapes bytes in service instance names as decimal `\DDD`
-sequences (e.g. spaces become `\032`).
+Bonjour/DNS‑SD thường thoát các byte trong tên phiên bản dịch vụ dưới dạng chuỗi thập phân `\DDD` (ví dụ: khoảng trắng trở thành `\032`).
 
-- This is normal at the protocol level.
-- UIs should decode for display (iOS uses `BonjourEscapes.decode`).
+- Điều này là bình thường ở cấp độ giao thức.
+- Giao diện người dùng nên giải mã để hiển thị (iOS sử dụng `BonjourEscapes.decode`).
 
-## Disabling / configuration
+## Vô hiệu hóa / cấu hình
 
-- `OPENCLAW_DISABLE_BONJOUR=1` disables advertising (legacy: `OPENCLAW_DISABLE_BONJOUR`).
-- `gateway.bind` in `~/.openclaw/openclaw.json` controls the Gateway bind mode.
-- `OPENCLAW_SSH_PORT` overrides the SSH port advertised in TXT (legacy: `OPENCLAW_SSH_PORT`).
-- `OPENCLAW_TAILNET_DNS` publishes a MagicDNS hint in TXT (legacy: `OPENCLAW_TAILNET_DNS`).
-- `OPENCLAW_CLI_PATH` overrides the advertised CLI path (legacy: `OPENCLAW_CLI_PATH`).
+- `OPENCLAW_DISABLE_BONJOUR=1` vô hiệu hóa quảng bá (cũ: `OPENCLAW_DISABLE_BONJOUR`).
+- `gateway.bind` trong `~/.openclaw/openclaw.json` kiểm soát chế độ bind của Gateway.
+- `OPENCLAW_SSH_PORT` ghi đè cổng SSH được quảng bá trong TXT (cũ: `OPENCLAW_SSH_PORT`).
+- `OPENCLAW_TAILNET_DNS` công bố một gợi ý MagicDNS trong TXT (cũ: `OPENCLAW_TAILNET_DNS`).
+- `OPENCLAW_CLI_PATH` ghi đè đường dẫn CLI được quảng bá (cũ: `OPENCLAW_CLI_PATH`).
 
-## Related docs
+## Tài liệu liên quan
 
-- Discovery policy and transport selection: [Discovery](/gateway/discovery)
-- Node pairing + approvals: [Gateway pairing](/gateway/pairing)
+- Chính sách khám phá và lựa chọn vận chuyển: [Khám phá](/gateway/discovery)
+- Ghép nối node + phê duyệt: [Ghép nối Gateway](/gateway/pairing)

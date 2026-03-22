@@ -1,29 +1,29 @@
 ---
-summary: "Where OpenClaw loads environment variables and the precedence order"
+summary: "Nơi OpenClaw tải các biến môi trường và thứ tự ưu tiên"
 read_when:
-  - You need to know which env vars are loaded, and in what order
-  - You are debugging missing API keys in the Gateway
-  - You are documenting provider auth or deployment environments
-title: "Environment Variables"
+  - Cần biết biến môi trường nào được tải và thứ tự tải
+  - Đang gỡ lỗi thiếu khóa API trong Gateway
+  - Đang viết tài liệu về xác thực nhà cung cấp hoặc môi trường triển khai
+title: "Biến Môi Trường"
 ---
 
-# Environment variables
+# Biến Môi Trường
 
-OpenClaw pulls environment variables from multiple sources. The rule is **never override existing values**.
+OpenClaw lấy các biến môi trường từ nhiều nguồn khác nhau. Quy tắc là **không ghi đè giá trị hiện có**.
 
-## Precedence (highest → lowest)
+## Thứ tự ưu tiên (cao nhất → thấp nhất)
 
-1. **Process environment** (what the Gateway process already has from the parent shell/daemon).
-2. **`.env` in the current working directory** (dotenv default; does not override).
-3. **Global `.env`** at `~/.openclaw/.env` (aka `$OPENCLAW_STATE_DIR/.env`; does not override).
-4. **Config `env` block** in `~/.openclaw/openclaw.json` (applied only if missing).
-5. **Optional login-shell import** (`env.shellEnv.enabled` or `OPENCLAW_LOAD_SHELL_ENV=1`), applied only for missing expected keys.
+1. **Môi trường tiến trình** (những gì tiến trình Gateway đã có từ shell/daemon cha).
+2. **`.env` trong thư mục làm việc hiện tại** (mặc định của dotenv; không ghi đè).
+3. **`.env` toàn cục** tại `~/.openclaw/.env` (còn gọi là `$OPENCLAW_STATE_DIR/.env`; không ghi đè).
+4. **Khối `env` trong cấu hình** tại `~/.openclaw/openclaw.json` (chỉ áp dụng nếu thiếu).
+5. **Nhập từ shell đăng nhập tùy chọn** (`env.shellEnv.enabled` hoặc `OPENCLAW_LOAD_SHELL_ENV=1`), chỉ áp dụng cho các khóa dự kiến bị thiếu.
 
-If the config file is missing entirely, step 4 is skipped; shell import still runs if enabled.
+Nếu file cấu hình hoàn toàn thiếu, bước 4 sẽ bị bỏ qua; nhập từ shell vẫn chạy nếu được kích hoạt.
 
-## Config `env` block
+## Khối `env` trong cấu hình
 
-Two equivalent ways to set inline env vars (both are non-overriding):
+Có hai cách tương đương để thiết lập biến môi trường nội tuyến (cả hai đều không ghi đè):
 
 ```json5
 {
@@ -36,9 +36,9 @@ Two equivalent ways to set inline env vars (both are non-overriding):
 }
 ```
 
-## Shell env import
+## Nhập môi trường shell
 
-`env.shellEnv` runs your login shell and imports only **missing** expected keys:
+`env.shellEnv` chạy shell đăng nhập của bạn và chỉ nhập các khóa dự kiến **bị thiếu**:
 
 ```json5
 {
@@ -51,32 +51,31 @@ Two equivalent ways to set inline env vars (both are non-overriding):
 }
 ```
 
-Env var equivalents:
+Các biến môi trường tương đương:
 
 - `OPENCLAW_LOAD_SHELL_ENV=1`
 - `OPENCLAW_SHELL_ENV_TIMEOUT_MS=15000`
 
-## Runtime-injected env vars
+## Biến môi trường được tiêm vào lúc chạy
 
-OpenClaw also injects context markers into spawned child processes:
+OpenClaw cũng tiêm các dấu hiệu ngữ cảnh vào các tiến trình con được tạo ra:
 
-- `OPENCLAW_SHELL=exec`: set for commands run through the `exec` tool.
-- `OPENCLAW_SHELL=acp`: set for ACP runtime backend process spawns (for example `acpx`).
-- `OPENCLAW_SHELL=acp-client`: set for `openclaw acp client` when it spawns the ACP bridge process.
-- `OPENCLAW_SHELL=tui-local`: set for local TUI `!` shell commands.
+- `OPENCLAW_SHELL=exec`: thiết lập cho các lệnh chạy qua công cụ `exec`.
+- `OPENCLAW_SHELL=acp`: thiết lập cho các tiến trình backend runtime ACP (ví dụ `acpx`).
+- `OPENCLAW_SHELL=acp-client`: thiết lập cho `openclaw acp client` khi nó tạo ra tiến trình cầu nối ACP.
+- `OPENCLAW_SHELL=tui-local`: thiết lập cho các lệnh shell TUI `!` cục bộ.
 
-These are runtime markers (not required user config). They can be used in shell/profile logic
-to apply context-specific rules.
+Đây là các dấu hiệu runtime (không yêu cầu cấu hình người dùng). Chúng có thể được sử dụng trong logic shell/profile để áp dụng các quy tắc cụ thể theo ngữ cảnh.
 
-## UI env vars
+## Biến môi trường UI
 
-- `OPENCLAW_THEME=light`: force the light TUI palette when your terminal has a light background.
-- `OPENCLAW_THEME=dark`: force the dark TUI palette.
-- `COLORFGBG`: if your terminal exports it, OpenClaw uses the background color hint to auto-pick the TUI palette.
+- `OPENCLAW_THEME=light`: ép buộc bảng màu TUI sáng khi terminal của bạn có nền sáng.
+- `OPENCLAW_THEME=dark`: ép buộc bảng màu TUI tối.
+- `COLORFGBG`: nếu terminal của bạn xuất nó, OpenClaw sử dụng gợi ý màu nền để tự động chọn bảng màu TUI.
 
-## Env var substitution in config
+## Thay thế biến môi trường trong cấu hình
 
-You can reference env vars directly in config string values using `${VAR_NAME}` syntax:
+Bạn có thể tham chiếu trực tiếp các biến môi trường trong giá trị chuỗi cấu hình bằng cú pháp `${VAR_NAME}`:
 
 ```json5
 {
@@ -90,38 +89,38 @@ You can reference env vars directly in config string values using `${VAR_NAME}` 
 }
 ```
 
-See [Configuration: Env var substitution](/gateway/configuration-reference#env-var-substitution) for full details.
+Xem [Cấu hình: Thay thế biến môi trường](/gateway/configuration-reference#env-var-substitution) để biết chi tiết đầy đủ.
 
-## Secret refs vs `${ENV}` strings
+## Tham chiếu bí mật so với chuỗi `${ENV}`
 
-OpenClaw supports two env-driven patterns:
+OpenClaw hỗ trợ hai mẫu dựa trên biến môi trường:
 
-- `${VAR}` string substitution in config values.
-- SecretRef objects (`{ source: "env", provider: "default", id: "VAR" }`) for fields that support secrets references.
+- Thay thế chuỗi `${VAR}` trong các giá trị cấu hình.
+- Đối tượng SecretRef (`{ source: "env", provider: "default", id: "VAR" }`) cho các trường hỗ trợ tham chiếu bí mật.
 
-Both resolve from process env at activation time. SecretRef details are documented in [Secrets Management](/gateway/secrets).
+Cả hai đều được giải quyết từ môi trường tiến trình tại thời điểm kích hoạt. Chi tiết SecretRef được ghi trong [Quản lý Bí mật](/gateway/secrets).
 
-## Path-related env vars
+## Biến môi trường liên quan đến đường dẫn
 
-| Variable               | Purpose                                                                                                                                                                          |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `OPENCLAW_HOME`        | Override the home directory used for all internal path resolution (`~/.openclaw/`, agent dirs, sessions, credentials). Useful when running OpenClaw as a dedicated service user. |
-| `OPENCLAW_STATE_DIR`   | Override the state directory (default `~/.openclaw`).                                                                                                                            |
-| `OPENCLAW_CONFIG_PATH` | Override the config file path (default `~/.openclaw/openclaw.json`).                                                                                                             |
+| Biến                  | Mục đích                                                                                                                                                                          |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OPENCLAW_HOME`       | Ghi đè thư mục home được sử dụng cho tất cả các giải quyết đường dẫn nội bộ (`~/.openclaw/`, thư mục agent, phiên, thông tin xác thực). Hữu ích khi chạy OpenClaw như một người dùng dịch vụ chuyên dụng. |
+| `OPENCLAW_STATE_DIR`  | Ghi đè thư mục trạng thái (mặc định `~/.openclaw`).                                                                                                                             |
+| `OPENCLAW_CONFIG_PATH`| Ghi đè đường dẫn file cấu hình (mặc định `~/.openclaw/openclaw.json`).                                                                                                          |
 
-## Logging
+## Ghi nhật ký
 
-| Variable             | Purpose                                                                                                                                                                                      |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `OPENCLAW_LOG_LEVEL` | Override log level for both file and console (e.g. `debug`, `trace`). Takes precedence over `logging.level` and `logging.consoleLevel` in config. Invalid values are ignored with a warning. |
+| Biến                  | Mục đích                                                                                                                                                                                      |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OPENCLAW_LOG_LEVEL`  | Ghi đè mức độ ghi nhật ký cho cả file và console (ví dụ: `debug`, `trace`). Ưu tiên hơn `logging.level` và `logging.consoleLevel` trong cấu hình. Các giá trị không hợp lệ sẽ bị bỏ qua với cảnh báo. |
 
 ### `OPENCLAW_HOME`
 
-When set, `OPENCLAW_HOME` replaces the system home directory (`$HOME` / `os.homedir()`) for all internal path resolution. This enables full filesystem isolation for headless service accounts.
+Khi được thiết lập, `OPENCLAW_HOME` thay thế thư mục home hệ thống (`$HOME` / `os.homedir()`) cho tất cả các giải quyết đường dẫn nội bộ. Điều này cho phép cách ly hoàn toàn hệ thống tập tin cho các tài khoản dịch vụ không có giao diện.
 
-**Precedence:** `OPENCLAW_HOME` > `$HOME` > `USERPROFILE` > `os.homedir()`
+**Thứ tự ưu tiên:** `OPENCLAW_HOME` > `$HOME` > `USERPROFILE` > `os.homedir()`
 
-**Example** (macOS LaunchDaemon):
+**Ví dụ** (macOS LaunchDaemon):
 
 ```xml
 <key>EnvironmentVariables</key>
@@ -131,33 +130,30 @@ When set, `OPENCLAW_HOME` replaces the system home directory (`$HOME` / `os.home
 </dict>
 ```
 
-`OPENCLAW_HOME` can also be set to a tilde path (e.g. `~/svc`), which gets expanded using `$HOME` before use.
+`OPENCLAW_HOME` cũng có thể được thiết lập thành một đường dẫn tilde (ví dụ: `~/svc`), sẽ được mở rộng bằng `$HOME` trước khi sử dụng.
 
-## nvm users: web_fetch TLS failures
+## Người dùng nvm: lỗi TLS khi web_fetch
 
-If Node.js was installed via **nvm** (not the system package manager), the built-in `fetch()` uses
-nvm's bundled CA store, which may be missing modern root CAs (ISRG Root X1/X2 for Let's Encrypt,
-DigiCert Global Root G2, etc.). This causes `web_fetch` to fail with `"fetch failed"` on most HTTPS sites.
+Nếu Node.js được cài đặt qua **nvm** (không phải trình quản lý gói hệ thống), `fetch()` tích hợp sử dụng kho CA đi kèm của nvm, có thể thiếu các CA gốc hiện đại (ISRG Root X1/X2 cho Let's Encrypt, DigiCert Global Root G2, v.v.). Điều này gây ra lỗi `web_fetch` với `"fetch failed"` trên hầu hết các trang HTTPS.
 
-On Linux, OpenClaw automatically detects nvm and applies the fix in the actual startup environment:
+Trên Linux, OpenClaw tự động phát hiện nvm và áp dụng sửa lỗi trong môi trường khởi động thực tế:
 
-- `openclaw gateway install` writes `NODE_EXTRA_CA_CERTS` into the systemd service environment
-- the `openclaw` CLI entrypoint re-execs itself with `NODE_EXTRA_CA_CERTS` set before Node startup
+- `openclaw gateway install` ghi `NODE_EXTRA_CA_CERTS` vào môi trường dịch vụ systemd
+- điểm vào CLI `openclaw` tự tái thực thi với `NODE_EXTRA_CA_CERTS` được thiết lập trước khi Node khởi động
 
-**Manual fix (for older versions or direct `node ...` launches):**
+**Sửa lỗi thủ công (cho các phiên bản cũ hơn hoặc khởi chạy trực tiếp `node ...`):**
 
-Export the variable before starting OpenClaw:
+Xuất biến trước khi khởi động OpenClaw:
 
 ```bash
 export NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 openclaw gateway run
 ```
 
-Do not rely on writing only to `~/.openclaw/.env` for this variable; Node reads
-`NODE_EXTRA_CA_CERTS` at process startup.
+Không dựa vào việc chỉ ghi vào `~/.openclaw/.env` cho biến này; Node đọc `NODE_EXTRA_CA_CERTS` khi tiến trình khởi động.
 
-## Related
+## Liên quan
 
-- [Gateway configuration](/gateway/configuration)
-- [FAQ: env vars and .env loading](/help/faq#env-vars-and-env-loading)
-- [Models overview](/concepts/models)
+- [Cấu hình Gateway](/gateway/configuration)
+- [FAQ: biến môi trường và tải .env](/help/faq#env-vars-and-env-loading)
+- [Tổng quan về mô hình](/concepts/models)

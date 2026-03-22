@@ -1,11 +1,11 @@
 ---
-title: "BOOT.md Template"
-summary: "Workspace template for BOOT.md"
+title: "Mẫu BOOT.md"
+summary: "Mẫu Workspace cho BOOT.md"
 read_when:
-  - Adding a BOOT.md checklist
+  - Thêm checklist BOOT.md
 ---
 
 # BOOT.md
 
-Add short, explicit instructions for what OpenClaw should do on startup (enable `hooks.internal.enabled`).
-If the task sends a message, use the message tool and then reply with NO_REPLY.
+Thêm hướng dẫn ngắn gọn, rõ ràng về những gì OpenClaw cần thực hiện khi khởi động (kích hoạt `hooks.internal.enabled`).
+Nếu tác vụ gửi một tin nhắn, hãy sử dụng công cụ nhắn tin và sau đó trả lời với NO_REPLY.

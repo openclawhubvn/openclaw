@@ -1,22 +1,22 @@
 ---
-summary: "CLI reference for `openclaw memory` (status/index/search)"
+summary: "Tham khảo CLI cho `openclaw memory` (trạng thái/chỉ mục/tìm kiếm)"
 read_when:
-  - You want to index or search semantic memory
-  - You’re debugging memory availability or indexing
+  - Bạn muốn lập chỉ mục hoặc tìm kiếm bộ nhớ ngữ nghĩa
+  - Bạn đang gỡ lỗi khả năng bộ nhớ hoặc lập chỉ mục
 title: "memory"
 ---
 
 # `openclaw memory`
 
-Manage semantic memory indexing and search.
-Provided by the active memory plugin (default: `memory-core`; set `plugins.slots.memory = "none"` to disable).
+Quản lý lập chỉ mục và tìm kiếm bộ nhớ ngữ nghĩa.
+Được cung cấp bởi plugin bộ nhớ đang hoạt động (mặc định: `memory-core`; đặt `plugins.slots.memory = "none"` để vô hiệu hóa).
 
-Related:
+Liên quan:
 
-- Memory concept: [Memory](/concepts/memory)
+- Khái niệm bộ nhớ: [Memory](/concepts/memory)
 - Plugins: [Plugins](/tools/plugin)
 
-## Examples
+## Ví dụ
 
 ```bash
 openclaw memory status
@@ -31,36 +31,36 @@ openclaw memory status --agent main
 openclaw memory index --agent main --verbose
 ```
 
-## Options
+## Tùy chọn
 
-`memory status` and `memory index`:
+`memory status` và `memory index`:
 
-- `--agent <id>`: scope to a single agent. Without it, these commands run for each configured agent; if no agent list is configured, they fall back to the default agent.
-- `--verbose`: emit detailed logs during probes and indexing.
+- `--agent <id>`: chỉ định phạm vi cho một agent duy nhất. Nếu không có, các lệnh này sẽ chạy cho mỗi agent đã cấu hình; nếu không có danh sách agent nào được cấu hình, chúng sẽ quay về agent mặc định.
+- `--verbose`: xuất nhật ký chi tiết trong quá trình kiểm tra và lập chỉ mục.
 
 `memory status`:
 
-- `--deep`: probe vector + embedding availability.
-- `--index`: run a reindex if the store is dirty (implies `--deep`).
-- `--json`: print JSON output.
+- `--deep`: kiểm tra khả năng vector + embedding.
+- `--index`: chạy lập chỉ mục lại nếu kho lưu trữ bị thay đổi (bao gồm `--deep`).
+- `--json`: xuất kết quả dưới dạng JSON.
 
 `memory index`:
 
-- `--force`: force a full reindex.
+- `--force`: buộc lập chỉ mục lại toàn bộ.
 
 `memory search`:
 
-- Query input: pass either positional `[query]` or `--query <text>`.
-- If both are provided, `--query` wins.
-- If neither is provided, the command exits with an error.
-- `--agent <id>`: scope to a single agent (default: the default agent).
-- `--max-results <n>`: limit the number of results returned.
-- `--min-score <n>`: filter out low-score matches.
-- `--json`: print JSON results.
+- Đầu vào truy vấn: có thể truyền dưới dạng `[query]` hoặc `--query <text>`.
+- Nếu cả hai đều được cung cấp, `--query` sẽ được ưu tiên.
+- Nếu không có cái nào được cung cấp, lệnh sẽ thoát với lỗi.
+- `--agent <id>`: chỉ định phạm vi cho một agent duy nhất (mặc định: agent mặc định).
+- `--max-results <n>`: giới hạn số lượng kết quả trả về.
+- `--min-score <n>`: lọc các kết quả có điểm thấp.
+- `--json`: xuất kết quả dưới dạng JSON.
 
-Notes:
+Lưu ý:
 
-- `memory index --verbose` prints per-phase details (provider, model, sources, batch activity).
-- `memory status` includes any extra paths configured via `memorySearch.extraPaths`.
-- If effectively active memory remote API key fields are configured as SecretRefs, the command resolves those values from the active gateway snapshot. If gateway is unavailable, the command fails fast.
-- Gateway version skew note: this command path requires a gateway that supports `secrets.resolve`; older gateways return an unknown-method error.
+- `memory index --verbose` in chi tiết từng giai đoạn (nhà cung cấp, mô hình, nguồn, hoạt động theo lô).
+- `memory status` bao gồm bất kỳ đường dẫn bổ sung nào được cấu hình qua `memorySearch.extraPaths`.
+- Nếu các trường khóa API bộ nhớ từ xa đang hoạt động được cấu hình dưới dạng SecretRefs, lệnh sẽ giải quyết các giá trị đó từ ảnh chụp nhanh của gateway đang hoạt động. Nếu gateway không khả dụng, lệnh sẽ thất bại nhanh chóng.
+- Lưu ý về phiên bản gateway: đường dẫn lệnh này yêu cầu một gateway hỗ trợ `secrets.resolve`; các gateway cũ hơn sẽ trả về lỗi phương thức không xác định.

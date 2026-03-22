@@ -1,56 +1,46 @@
 ---
-summary: "Exec approvals, allowlists, and sandbox escape prompts"
+summary: "Phê duyệt thực thi, danh sách cho phép và các yêu cầu thoát sandbox"
 read_when:
-  - Configuring exec approvals or allowlists
-  - Implementing exec approval UX in the macOS app
-  - Reviewing sandbox escape prompts and implications
-title: "Exec Approvals"
+  - Cấu hình phê duyệt thực thi hoặc danh sách cho phép
+  - Triển khai UX phê duyệt thực thi trong ứng dụng macOS
+  - Xem xét các yêu cầu thoát sandbox và tác động
+title: "Phê Duyệt Thực Thi"
 ---
 
-# Exec approvals
+# Phê Duyệt Thực Thi
 
-Exec approvals are the **companion app / node host guardrail** for letting a sandboxed agent run
-commands on a real host (`gateway` or `node`). Think of it like a safety interlock:
-commands are allowed only when policy + allowlist + (optional) user approval all agree.
-Exec approvals are **in addition** to tool policy and elevated gating (unless elevated is set to `full`, which skips approvals).
-Effective policy is the **stricter** of `tools.exec.*` and approvals defaults; if an approvals field is omitted, the `tools.exec` value is used.
+Phê duyệt thực thi là **hàng rào bảo vệ cho ứng dụng đồng hành / máy chủ node** để cho phép một agent bị sandbox chạy lệnh trên máy chủ thực (`gateway` hoặc `node`). Hãy nghĩ về nó như một khóa an toàn: lệnh chỉ được phép khi chính sách + danh sách cho phép + (tùy chọn) phê duyệt của người dùng đều đồng ý. Phê duyệt thực thi là **bổ sung** cho chính sách công cụ và kiểm soát nâng cao (trừ khi chế độ nâng cao được đặt là `full`, bỏ qua phê duyệt). Chính sách hiệu quả là **nghiêm ngặt hơn** giữa `tools.exec.*` và mặc định phê duyệt; nếu một trường phê duyệt bị bỏ qua, giá trị `tools.exec` sẽ được sử dụng.
 
-If the companion app UI is **not available**, any request that requires a prompt is
-resolved by the **ask fallback** (default: deny).
+Nếu giao diện ứng dụng đồng hành **không khả dụng**, bất kỳ yêu cầu nào cần nhắc nhở sẽ được giải quyết bằng **hỏi dự phòng** (mặc định: từ chối).
 
-## Where it applies
+## Áp Dụng Ở Đâu
 
-Exec approvals are enforced locally on the execution host:
+Phê duyệt thực thi được thực thi cục bộ trên máy chủ thực thi:
 
-- **gateway host** → `openclaw` process on the gateway machine
-- **node host** → node runner (macOS companion app or headless node host)
+- **máy chủ gateway** → quá trình `openclaw` trên máy gateway
+- **máy chủ node** → node runner (ứng dụng đồng hành macOS hoặc máy chủ node không giao diện)
 
-Trust model note:
+Ghi chú mô hình tin cậy:
 
-- Gateway-authenticated callers are trusted operators for that Gateway.
-- Paired nodes extend that trusted operator capability onto the node host.
-- Exec approvals reduce accidental execution risk, but are not a per-user auth boundary.
-- Approved node-host runs bind canonical execution context: canonical cwd, exact argv, env
-  binding when present, and pinned executable path when applicable.
-- For shell scripts and direct interpreter/runtime file invocations, OpenClaw also tries to bind
-  one concrete local file operand. If that bound file changes after approval but before execution,
-  the run is denied instead of executing drifted content.
-- This file binding is intentionally best-effort, not a complete semantic model of every
-  interpreter/runtime loader path. If approval mode cannot identify exactly one concrete local
-  file to bind, it refuses to mint an approval-backed run instead of pretending full coverage.
+- Người gọi được xác thực qua Gateway là các nhà vận hành đáng tin cậy cho Gateway đó.
+- Các node được ghép nối mở rộng khả năng vận hành đáng tin cậy đó lên máy chủ node.
+- Phê duyệt thực thi giảm rủi ro thực thi ngẫu nhiên, nhưng không phải là ranh giới xác thực từng người dùng.
+- Các lần chạy trên máy chủ node được phê duyệt ràng buộc ngữ cảnh thực thi chuẩn: cwd chuẩn, argv chính xác, ràng buộc môi trường khi có, và đường dẫn thực thi cố định khi áp dụng.
+- Đối với các script shell và các lệnh gọi trực tiếp file interpreter/runtime, OpenClaw cũng cố gắng ràng buộc một file cục bộ cụ thể. Nếu file đó thay đổi sau khi phê duyệt nhưng trước khi thực thi, lần chạy sẽ bị từ chối thay vì thực thi nội dung đã thay đổi.
+- Ràng buộc file này được thực hiện với nỗ lực tốt nhất, không phải là mô hình ngữ nghĩa hoàn chỉnh của mọi đường dẫn loader interpreter/runtime. Nếu chế độ phê duyệt không thể xác định chính xác một file cục bộ cụ thể để ràng buộc, nó từ chối tạo một lần chạy được hỗ trợ phê duyệt thay vì giả vờ bao phủ hoàn toàn.
 
-macOS split:
+Phân chia macOS:
 
-- **node host service** forwards `system.run` to the **macOS app** over local IPC.
-- **macOS app** enforces approvals + executes the command in UI context.
+- **dịch vụ máy chủ node** chuyển tiếp `system.run` đến **ứng dụng macOS** qua IPC cục bộ.
+- **ứng dụng macOS** thực thi phê duyệt + thực thi lệnh trong ngữ cảnh giao diện người dùng.
 
-## Settings and storage
+## Cài Đặt và Lưu Trữ
 
-Approvals live in a local JSON file on the execution host:
+Phê duyệt được lưu trong một file JSON cục bộ trên máy chủ thực thi:
 
 `~/.openclaw/exec-approvals.json`
 
-Example schema:
+Ví dụ schema:
 
 ```json
 {
@@ -85,80 +75,58 @@ Example schema:
 }
 ```
 
-## Policy knobs
+## Các Tùy Chọn Chính Sách
 
-### Security (`exec.security`)
+### Bảo Mật (`exec.security`)
 
-- **deny**: block all host exec requests.
-- **allowlist**: allow only allowlisted commands.
-- **full**: allow everything (equivalent to elevated).
+- **deny**: chặn tất cả các yêu cầu thực thi trên máy chủ.
+- **allowlist**: chỉ cho phép các lệnh trong danh sách cho phép.
+- **full**: cho phép mọi thứ (tương đương với chế độ nâng cao).
 
-### Ask (`exec.ask`)
+### Hỏi (`exec.ask`)
 
-- **off**: never prompt.
-- **on-miss**: prompt only when allowlist does not match.
-- **always**: prompt on every command.
+- **off**: không bao giờ nhắc nhở.
+- **on-miss**: chỉ nhắc nhở khi danh sách cho phép không khớp.
+- **always**: nhắc nhở trên mọi lệnh.
 
-### Ask fallback (`askFallback`)
+### Hỏi Dự Phòng (`askFallback`)
 
-If a prompt is required but no UI is reachable, fallback decides:
+Nếu cần nhắc nhở nhưng không có giao diện người dùng nào có thể truy cập, dự phòng quyết định:
 
-- **deny**: block.
-- **allowlist**: allow only if allowlist matches.
-- **full**: allow.
+- **deny**: chặn.
+- **allowlist**: chỉ cho phép nếu danh sách cho phép khớp.
+- **full**: cho phép.
 
-## Allowlist (per agent)
+## Danh Sách Cho Phép (theo agent)
 
-Allowlists are **per agent**. If multiple agents exist, switch which agent you’re
-editing in the macOS app. Patterns are **case-insensitive glob matches**.
-Patterns should resolve to **binary paths** (basename-only entries are ignored).
-Legacy `agents.default` entries are migrated to `agents.main` on load.
+Danh sách cho phép là **theo agent**. Nếu có nhiều agent, chuyển đổi agent bạn đang chỉnh sửa trong ứng dụng macOS. Các mẫu là **khớp glob không phân biệt chữ hoa chữ thường**. Các mẫu nên giải quyết thành **đường dẫn nhị phân** (các mục chỉ có tên cơ sở bị bỏ qua). Các mục `agents.default` cũ được chuyển sang `agents.main` khi tải.
 
-Examples:
+Ví dụ:
 
 - `~/Projects/**/bin/peekaboo`
 - `~/.local/bin/*`
 - `/opt/homebrew/bin/rg`
 
-Each allowlist entry tracks:
+Mỗi mục trong danh sách cho phép theo dõi:
 
-- **id** stable UUID used for UI identity (optional)
-- **last used** timestamp
-- **last used command**
-- **last resolved path**
+- **id** UUID ổn định dùng cho nhận diện giao diện người dùng (tùy chọn)
+- **lần sử dụng cuối** dấu thời gian
+- **lệnh sử dụng cuối**
+- **đường dẫn giải quyết cuối**
 
-## Auto-allow skill CLIs
+## Tự Động Cho Phép CLI Kỹ Năng
 
-When **Auto-allow skill CLIs** is enabled, executables referenced by known skills
-are treated as allowlisted on nodes (macOS node or headless node host). This uses
-`skills.bins` over the Gateway RPC to fetch the skill bin list. Disable this if you want strict manual allowlists.
+Khi **Tự động cho phép CLI kỹ năng** được bật, các thực thi được tham chiếu bởi các kỹ năng đã biết được coi là đã có trong danh sách cho phép trên các node (node macOS hoặc máy chủ node không giao diện). Điều này sử dụng `skills.bins` qua Gateway RPC để lấy danh sách bin kỹ năng. Tắt tính năng này nếu bạn muốn danh sách cho phép thủ công nghiêm ngặt.
 
-Important trust notes:
+Ghi chú tin cậy quan trọng:
 
-- This is an **implicit convenience allowlist**, separate from manual path allowlist entries.
-- It is intended for trusted operator environments where Gateway and node are in the same trust boundary.
-- If you require strict explicit trust, keep `autoAllowSkills: false` and use manual path allowlist entries only.
+- Đây là một **danh sách cho phép tiện lợi ngầm**, tách biệt với các mục danh sách cho phép đường dẫn thủ công.
+- Nó được dự định cho các môi trường vận hành đáng tin cậy nơi Gateway và node nằm trong cùng một ranh giới tin cậy.
+- Nếu bạn yêu cầu sự tin cậy rõ ràng nghiêm ngặt, giữ `autoAllowSkills: false` và chỉ sử dụng các mục danh sách cho phép đường dẫn thủ công.
 
-## Safe bins (stdin-only)
+## Bins An Toàn (chỉ stdin)
 
-`tools.exec.safeBins` defines a small list of **stdin-only** binaries (for example `jq`)
-that can run in allowlist mode **without** explicit allowlist entries. Safe bins reject
-positional file args and path-like tokens, so they can only operate on the incoming stream.
-Treat this as a narrow fast-path for stream filters, not a general trust list.
-Do **not** add interpreter or runtime binaries (for example `python3`, `node`, `ruby`, `bash`, `sh`, `zsh`) to `safeBins`.
-If a command can evaluate code, execute subcommands, or read files by design, prefer explicit allowlist entries and keep approval prompts enabled.
-Custom safe bins must define an explicit profile in `tools.exec.safeBinProfiles.<bin>`.
-Validation is deterministic from argv shape only (no host filesystem existence checks), which
-prevents file-existence oracle behavior from allow/deny differences.
-File-oriented options are denied for default safe bins (for example `sort -o`, `sort --output`,
-`sort --files0-from`, `sort --compress-program`, `sort --random-source`,
-`sort --temporary-directory`/`-T`, `wc --files0-from`, `jq -f/--from-file`,
-`grep -f/--file`).
-Safe bins also enforce explicit per-binary flag policy for options that break stdin-only
-behavior (for example `sort -o/--output/--compress-program` and grep recursive flags).
-Long options are validated fail-closed in safe-bin mode: unknown flags and ambiguous
-abbreviations are rejected.
-Denied flags by safe-bin profile:
+`tools.exec.safeBins` định nghĩa một danh sách nhỏ các nhị phân **chỉ stdin** (ví dụ `jq`) có thể chạy trong chế độ danh sách cho phép **mà không cần** các mục danh sách cho phép rõ ràng. Các bins an toàn từ chối các đối số file vị trí và các token giống đường dẫn, vì vậy chúng chỉ có thể hoạt động trên luồng đầu vào. Xem đây là một đường dẫn nhanh hẹp cho các bộ lọc luồng, không phải là một danh sách tin cậy chung. **Không** thêm các nhị phân interpreter hoặc runtime (ví dụ `python3`, `node`, `ruby`, `bash`, `sh`, `zsh`) vào `safeBins`. Nếu một lệnh có thể đánh giá mã, thực thi các lệnh con, hoặc đọc file theo thiết kế, hãy ưu tiên các mục danh sách cho phép rõ ràng và giữ các nhắc nhở phê duyệt được bật. Các bins an toàn tùy chỉnh phải định nghĩa một hồ sơ rõ ràng trong `tools.exec.safeBinProfiles.<bin>`. Việc xác thực là xác định từ hình dạng argv chỉ (không có kiểm tra sự tồn tại của hệ thống file máy chủ), điều này ngăn chặn hành vi oracle sự tồn tại của file từ sự khác biệt cho phép/từ chối. Các tùy chọn hướng file bị từ chối cho các bins an toàn mặc định (ví dụ `sort -o`, `sort --output`, `sort --files0-from`, `sort --compress-program`, `sort --random-source`, `sort --temporary-directory`/`-T`, `wc --files0-from`, `jq -f/--from-file`, `grep -f/--file`). Các bins an toàn cũng thực thi chính sách cờ rõ ràng cho từng nhị phân cho các tùy chọn phá vỡ hành vi chỉ stdin (ví dụ `sort -o/--output/--compress-program` và các cờ đệ quy grep). Các tùy chọn dài được xác thực đóng kín trong chế độ bin an toàn: các cờ không xác định và các viết tắt mơ hồ bị từ chối. Các cờ bị từ chối theo hồ sơ bin an toàn:
 
 [//]: # "SAFE_BIN_DENIED_FLAGS:START"
 
@@ -169,59 +137,34 @@ Denied flags by safe-bin profile:
 
 [//]: # "SAFE_BIN_DENIED_FLAGS:END"
 
-Safe bins also force argv tokens to be treated as **literal text** at execution time (no globbing
-and no `$VARS` expansion) for stdin-only segments, so patterns like `*` or `$HOME/...` cannot be
-used to smuggle file reads.
-Safe bins must also resolve from trusted binary directories (system defaults plus optional
-`tools.exec.safeBinTrustedDirs`). `PATH` entries are never auto-trusted.
-Default trusted safe-bin directories are intentionally minimal: `/bin`, `/usr/bin`.
-If your safe-bin executable lives in package-manager/user paths (for example
-`/opt/homebrew/bin`, `/usr/local/bin`, `/opt/local/bin`, `/snap/bin`), add them explicitly
-to `tools.exec.safeBinTrustedDirs`.
-Shell chaining and redirections are not auto-allowed in allowlist mode.
+Các bins an toàn cũng buộc các token argv được coi là **văn bản gốc** tại thời điểm thực thi (không có globbing và không có mở rộng `$VARS`) cho các đoạn chỉ stdin, vì vậy các mẫu như `*` hoặc `$HOME/...` không thể được sử dụng để lén lút đọc file. Các bins an toàn cũng phải giải quyết từ các thư mục nhị phân đáng tin cậy (mặc định hệ thống cộng với tùy chọn `tools.exec.safeBinTrustedDirs`). Các mục `PATH` không bao giờ được tự động tin cậy. Các thư mục bin an toàn đáng tin cậy mặc định được giữ tối thiểu: `/bin`, `/usr/bin`. Nếu thực thi bin an toàn của bạn nằm trong các đường dẫn quản lý gói/người dùng (ví dụ `/opt/homebrew/bin`, `/usr/local/bin`, `/opt/local/bin`, `/snap/bin`), hãy thêm chúng rõ ràng vào `tools.exec.safeBinTrustedDirs`. Chuỗi shell và chuyển hướng không được tự động cho phép trong chế độ danh sách cho phép.
 
-Shell chaining (`&&`, `||`, `;`) is allowed when every top-level segment satisfies the allowlist
-(including safe bins or skill auto-allow). Redirections remain unsupported in allowlist mode.
-Command substitution (`$()` / backticks) is rejected during allowlist parsing, including inside
-double quotes; use single quotes if you need literal `$()` text.
-On macOS companion-app approvals, raw shell text containing shell control or expansion syntax
-(`&&`, `||`, `;`, `|`, `` ` ``, `$`, `<`, `>`, `(`, `)`) is treated as an allowlist miss unless
-the shell binary itself is allowlisted.
-For shell wrappers (`bash|sh|zsh ... -c/-lc`), request-scoped env overrides are reduced to a
-small explicit allowlist (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`).
-For allow-always decisions in allowlist mode, known dispatch wrappers
-(`env`, `nice`, `nohup`, `stdbuf`, `timeout`) persist inner executable paths instead of wrapper
-paths. Shell multiplexers (`busybox`, `toybox`) are also unwrapped for shell applets (`sh`, `ash`,
-etc.) so inner executables are persisted instead of multiplexer binaries. If a wrapper or
-multiplexer cannot be safely unwrapped, no allowlist entry is persisted automatically.
+Chuỗi shell (`&&`, `||`, `;`) được cho phép khi mọi đoạn cấp cao nhất thỏa mãn danh sách cho phép (bao gồm các bins an toàn hoặc tự động cho phép kỹ năng). Chuyển hướng vẫn không được hỗ trợ trong chế độ danh sách cho phép. Thay thế lệnh (`$()` / backticks) bị từ chối trong quá trình phân tích danh sách cho phép, bao gồm cả bên trong dấu ngoặc kép; sử dụng dấu ngoặc đơn nếu bạn cần văn bản `$()` gốc. Trên các phê duyệt ứng dụng đồng hành macOS, văn bản shell thô chứa cú pháp điều khiển hoặc mở rộng shell (`&&`, `||`, `;`, `|`, `` ` ``, `$`, `<`, `>`, `(`, `)`) được coi là một lần bỏ lỡ danh sách cho phép trừ khi chính nhị phân shell được cho phép. Đối với các trình bao bọc shell (`bash|sh|zsh ... -c/-lc`), các ghi đè môi trường theo phạm vi yêu cầu được giảm xuống một danh sách cho phép rõ ràng nhỏ (`TERM`, `LANG`, `LC_*`, `COLORTERM`, `NO_COLOR`, `FORCE_COLOR`). Đối với các quyết định cho phép luôn trong chế độ danh sách cho phép, các trình bao bọc phân phối đã biết (`env`, `nice`, `nohup`, `stdbuf`, `timeout`) duy trì các đường dẫn thực thi bên trong thay vì các đường dẫn trình bao bọc. Các bộ ghép shell (`busybox`, `toybox`) cũng được mở ra cho các applet shell (`sh`, `ash`, v.v.) để các thực thi bên trong được duy trì thay vì các nhị phân bộ ghép. Nếu một trình bao bọc hoặc bộ ghép không thể được mở ra an toàn, không có mục danh sách cho phép nào được duy trì tự động.
 
-Default safe bins: `jq`, `cut`, `uniq`, `head`, `tail`, `tr`, `wc`.
+Các bins an toàn mặc định: `jq`, `cut`, `uniq`, `head`, `tail`, `tr`, `wc`.
 
-`grep` and `sort` are not in the default list. If you opt in, keep explicit allowlist entries for
-their non-stdin workflows.
-For `grep` in safe-bin mode, provide the pattern with `-e`/`--regexp`; positional pattern form is
-rejected so file operands cannot be smuggled as ambiguous positionals.
+`grep` và `sort` không có trong danh sách mặc định. Nếu bạn chọn tham gia, hãy giữ các mục danh sách cho phép rõ ràng cho các quy trình không stdin của chúng. Đối với `grep` trong chế độ bin an toàn, cung cấp mẫu với `-e`/`--regexp`; dạng mẫu vị trí bị từ chối để các toán hạng file không thể được lén lút như các vị trí mơ hồ.
 
-### Safe bins versus allowlist
+### Bins An Toàn So Với Danh Sách Cho Phép
 
-| Topic            | `tools.exec.safeBins`                                  | Allowlist (`exec-approvals.json`)                            |
+| Chủ đề          | `tools.exec.safeBins`                                  | Danh sách cho phép (`exec-approvals.json`)                   |
 | ---------------- | ------------------------------------------------------ | ------------------------------------------------------------ |
-| Goal             | Auto-allow narrow stdin filters                        | Explicitly trust specific executables                        |
-| Match type       | Executable name + safe-bin argv policy                 | Resolved executable path glob pattern                        |
-| Argument scope   | Restricted by safe-bin profile and literal-token rules | Path match only; arguments are otherwise your responsibility |
-| Typical examples | `jq`, `head`, `tail`, `wc`                             | `python3`, `node`, `ffmpeg`, custom CLIs                     |
-| Best use         | Low-risk text transforms in pipelines                  | Any tool with broader behavior or side effects               |
+| Mục tiêu         | Tự động cho phép các bộ lọc stdin hẹp                 | Tin tưởng rõ ràng các thực thi cụ thể                        |
+| Loại khớp        | Tên thực thi + chính sách argv bin an toàn            | Mẫu glob đường dẫn thực thi đã giải quyết                    |
+| Phạm vi đối số   | Bị hạn chế bởi hồ sơ bin an toàn và quy tắc token gốc  | Chỉ khớp đường dẫn; các đối số khác là trách nhiệm của bạn   |
+| Ví dụ điển hình  | `jq`, `head`, `tail`, `wc`                             | `python3`, `node`, `ffmpeg`, CLI tùy chỉnh                   |
+| Sử dụng tốt nhất | Chuyển đổi văn bản rủi ro thấp trong các pipeline     | Bất kỳ công cụ nào có hành vi rộng hơn hoặc tác động phụ     |
 
-Configuration location:
+Vị trí cấu hình:
 
-- `safeBins` comes from config (`tools.exec.safeBins` or per-agent `agents.list[].tools.exec.safeBins`).
-- `safeBinTrustedDirs` comes from config (`tools.exec.safeBinTrustedDirs` or per-agent `agents.list[].tools.exec.safeBinTrustedDirs`).
-- `safeBinProfiles` comes from config (`tools.exec.safeBinProfiles` or per-agent `agents.list[].tools.exec.safeBinProfiles`). Per-agent profile keys override global keys.
-- allowlist entries live in host-local `~/.openclaw/exec-approvals.json` under `agents.<id>.allowlist` (or via Control UI / `openclaw approvals allowlist ...`).
-- `openclaw security audit` warns with `tools.exec.safe_bins_interpreter_unprofiled` when interpreter/runtime bins appear in `safeBins` without explicit profiles.
-- `openclaw doctor --fix` can scaffold missing custom `safeBinProfiles.<bin>` entries as `{}` (review and tighten afterward). Interpreter/runtime bins are not auto-scaffolded.
+- `safeBins` đến từ cấu hình (`tools.exec.safeBins` hoặc theo agent `agents.list[].tools.exec.safeBins`).
+- `safeBinTrustedDirs` đến từ cấu hình (`tools.exec.safeBinTrustedDirs` hoặc theo agent `agents.list[].tools.exec.safeBinTrustedDirs`).
+- `safeBinProfiles` đến từ cấu hình (`tools.exec.safeBinProfiles` hoặc theo agent `agents.list[].tools.exec.safeBinProfiles`). Các khóa hồ sơ theo agent ghi đè các khóa toàn cầu.
+- Các mục danh sách cho phép nằm trong `~/.openclaw/exec-approvals.json` cục bộ máy chủ dưới `agents.<id>.allowlist` (hoặc qua giao diện điều khiển / `openclaw approvals allowlist ...`).
+- `openclaw security audit` cảnh báo với `tools.exec.safe_bins_interpreter_unprofiled` khi các nhị phân interpreter/runtime xuất hiện trong `safeBins` mà không có hồ sơ rõ ràng.
+- `openclaw doctor --fix` có thể tạo khung các mục `safeBinProfiles.<bin>` tùy chỉnh bị thiếu dưới dạng `{}` (xem xét và thắt chặt sau đó). Các nhị phân interpreter/runtime không được tự động tạo khung.
 
-Custom profile example:
+Ví dụ hồ sơ tùy chỉnh:
 
 ```json5
 {
@@ -241,70 +184,51 @@ Custom profile example:
 }
 ```
 
-## Control UI editing
+## Chỉnh Sửa Giao Diện Điều Khiển
 
-Use the **Control UI → Nodes → Exec approvals** card to edit defaults, per‑agent
-overrides, and allowlists. Pick a scope (Defaults or an agent), tweak the policy,
-add/remove allowlist patterns, then **Save**. The UI shows **last used** metadata
-per pattern so you can keep the list tidy.
+Sử dụng thẻ **Control UI → Nodes → Exec approvals** để chỉnh sửa mặc định, ghi đè theo agent và danh sách cho phép. Chọn phạm vi (Mặc định hoặc một agent), điều chỉnh chính sách, thêm/xóa các mẫu danh sách cho phép, sau đó **Lưu**. Giao diện hiển thị siêu dữ liệu **lần sử dụng cuối** cho mỗi mẫu để bạn có thể giữ danh sách gọn gàng.
 
-The target selector chooses **Gateway** (local approvals) or a **Node**. Nodes
-must advertise `system.execApprovals.get/set` (macOS app or headless node host).
-If a node does not advertise exec approvals yet, edit its local
-`~/.openclaw/exec-approvals.json` directly.
+Bộ chọn mục tiêu chọn **Gateway** (phê duyệt cục bộ) hoặc một **Node**. Các node phải quảng cáo `system.execApprovals.get/set` (ứng dụng macOS hoặc máy chủ node không giao diện). Nếu một node chưa quảng cáo phê duyệt thực thi, hãy chỉnh sửa trực tiếp `~/.openclaw/exec-approvals.json` cục bộ của nó.
 
-CLI: `openclaw approvals` supports gateway or node editing (see [Approvals CLI](/cli/approvals)).
+CLI: `openclaw approvals` hỗ trợ chỉnh sửa gateway hoặc node (xem [CLI Phê Duyệt](/cli/approvals)).
 
-## Approval flow
+## Luồng Phê Duyệt
 
-When a prompt is required, the gateway broadcasts `exec.approval.requested` to operator clients.
-The Control UI and macOS app resolve it via `exec.approval.resolve`, then the gateway forwards the
-approved request to the node host.
+Khi cần nhắc nhở, gateway phát `exec.approval.requested` đến các khách hàng vận hành. Giao diện điều khiển và ứng dụng macOS giải quyết nó qua `exec.approval.resolve`, sau đó gateway chuyển tiếp yêu cầu đã được phê duyệt đến máy chủ node.
 
-For `host=node`, approval requests include a canonical `systemRunPlan` payload. The gateway uses
-that plan as the authoritative command/cwd/session context when forwarding approved `system.run`
-requests.
+Đối với `host=node`, các yêu cầu phê duyệt bao gồm payload `systemRunPlan` chuẩn. Gateway sử dụng kế hoạch đó làm ngữ cảnh lệnh/cwd/phiên chuẩn khi chuyển tiếp các yêu cầu `system.run` đã được phê duyệt.
 
-## Interpreter/runtime commands
+## Lệnh Interpreter/Runtime
 
-Approval-backed interpreter/runtime runs are intentionally conservative:
+Các lần chạy interpreter/runtime được hỗ trợ phê duyệt được thực hiện một cách bảo thủ:
 
-- Exact argv/cwd/env context is always bound.
-- Direct shell script and direct runtime file forms are best-effort bound to one concrete local
-  file snapshot.
-- Common package-manager wrapper forms that still resolve to one direct local file (for example
-  `pnpm exec`, `pnpm node`, `npm exec`, `npx`) are unwrapped before binding.
-- If OpenClaw cannot identify exactly one concrete local file for an interpreter/runtime command
-  (for example package scripts, eval forms, runtime-specific loader chains, or ambiguous multi-file
-  forms), approval-backed execution is denied instead of claiming semantic coverage it does not
-  have.
-- For those workflows, prefer sandboxing, a separate host boundary, or an explicit trusted
-  allowlist/full workflow where the operator accepts the broader runtime semantics.
+- Ngữ cảnh argv/cwd/env chính xác luôn được ràng buộc.
+- Các script shell trực tiếp và các dạng file runtime trực tiếp được ràng buộc với nỗ lực tốt nhất vào một snapshot file cục bộ cụ thể.
+- Các dạng trình bao bọc quản lý gói thông thường vẫn giải quyết thành một file cục bộ trực tiếp (ví dụ `pnpm exec`, `pnpm node`, `npm exec`, `npx`) được mở ra trước khi ràng buộc.
+- Nếu OpenClaw không thể xác định chính xác một file cục bộ cụ thể cho một lệnh interpreter/runtime (ví dụ các script gói, các dạng eval, các chuỗi loader cụ thể runtime, hoặc các dạng đa file mơ hồ), thực thi được hỗ trợ phê duyệt bị từ chối thay vì tuyên bố bao phủ ngữ nghĩa mà nó không có.
+- Đối với các quy trình đó, ưu tiên sandboxing, một ranh giới máy chủ riêng biệt, hoặc một danh sách cho phép tin cậy rõ ràng / quy trình đầy đủ nơi nhà vận hành chấp nhận các ngữ nghĩa runtime rộng hơn.
 
-When approvals are required, the exec tool returns immediately with an approval id. Use that id to
-correlate later system events (`Exec finished` / `Exec denied`). If no decision arrives before the
-timeout, the request is treated as an approval timeout and surfaced as a denial reason.
+Khi cần phê duyệt, công cụ thực thi trả về ngay lập tức với một id phê duyệt. Sử dụng id đó để liên kết các sự kiện hệ thống sau này (`Exec finished` / `Exec denied`). Nếu không có quyết định nào đến trước khi hết thời gian, yêu cầu được coi là hết thời gian phê duyệt và được hiển thị là lý do từ chối.
 
-The confirmation dialog includes:
+Hộp thoại xác nhận bao gồm:
 
-- command + args
+- lệnh + args
 - cwd
-- agent id
-- resolved executable path
-- host + policy metadata
+- id agent
+- đường dẫn thực thi đã giải quyết
+- máy chủ + siêu dữ liệu chính sách
 
-Actions:
+Hành động:
 
-- **Allow once** → run now
-- **Always allow** → add to allowlist + run
-- **Deny** → block
+- **Cho phép một lần** → chạy ngay
+- **Luôn cho phép** → thêm vào danh sách cho phép + chạy
+- **Từ chối** → chặn
 
-## Approval forwarding to chat channels
+## Chuyển Tiếp Phê Duyệt Đến Các Kênh Chat
 
-You can forward exec approval prompts to any chat channel (including plugin channels) and approve
-them with `/approve`. This uses the normal outbound delivery pipeline.
+Bạn có thể chuyển tiếp các yêu cầu phê duyệt thực thi đến bất kỳ kênh chat nào (bao gồm các kênh plugin) và phê duyệt chúng với `/approve`. Điều này sử dụng pipeline phân phối outbound thông thường.
 
-Config:
+Cấu hình:
 
 ```json5
 {
@@ -313,7 +237,7 @@ Config:
       enabled: true,
       mode: "session", // "session" | "targets" | "both"
       agentFilter: ["main"],
-      sessionFilter: ["discord"], // substring or regex
+      sessionFilter: ["discord"], // substring hoặc regex
       targets: [
         { channel: "slack", to: "U12345678" },
         { channel: "telegram", to: "123456789" },
@@ -323,7 +247,7 @@ Config:
 }
 ```
 
-Reply in chat:
+Trả lời trong chat:
 
 ```
 /approve <id> allow-once
@@ -331,33 +255,30 @@ Reply in chat:
 /approve <id> deny
 ```
 
-### Built-in chat approval clients
+### Khách Hàng Phê Duyệt Chat Tích Hợp
 
-Discord and Telegram can also act as explicit exec approval clients with channel-specific config.
+Discord và Telegram cũng có thể hoạt động như các khách hàng phê duyệt thực thi rõ ràng với cấu hình kênh cụ thể.
 
 - Discord: `channels.discord.execApprovals.*`
 - Telegram: `channels.telegram.execApprovals.*`
 
-These clients are opt-in. If a channel does not have exec approvals enabled, OpenClaw does not treat
-that channel as an approval surface just because the conversation happened there.
+Các khách hàng này là tùy chọn. Nếu một kênh không có phê duyệt thực thi được bật, OpenClaw không coi kênh đó là một bề mặt phê duyệt chỉ vì cuộc trò chuyện diễn ra ở đó.
 
-Shared behavior:
+Hành vi chia sẻ:
 
-- only configured approvers can approve or deny
-- the requester does not need to be an approver
-- when channel delivery is enabled, approval prompts include the command text
-- if no operator UI or configured approval client can accept the request, the prompt falls back to `askFallback`
+- chỉ những người phê duyệt được cấu hình mới có thể phê duyệt hoặc từ chối
+- người yêu cầu không cần phải là người phê duyệt
+- khi phân phối kênh được bật, các yêu cầu phê duyệt bao gồm văn bản lệnh
+- nếu không có giao diện người dùng vận hành hoặc khách hàng phê duyệt được cấu hình nào có thể chấp nhận yêu cầu, nhắc nhở sẽ quay lại `askFallback`
 
-Telegram defaults to approver DMs (`target: "dm"`). You can switch to `channel` or `both` when you
-want approval prompts to appear in the originating Telegram chat/topic as well. For Telegram forum
-topics, OpenClaw preserves the topic for the approval prompt and the post-approval follow-up.
+Telegram mặc định gửi tin nhắn cho người phê duyệt (`target: "dm"`). Bạn có thể chuyển sang `channel` hoặc `both` khi bạn muốn các yêu cầu phê duyệt xuất hiện trong cuộc trò chuyện/topic Telegram gốc. Đối với các topic diễn đàn Telegram, OpenClaw giữ nguyên topic cho yêu cầu phê duyệt và theo dõi sau phê duyệt.
 
-See:
+Xem thêm:
 
 - [Discord](/channels/discord#exec-approvals-in-discord)
 - [Telegram](/channels/telegram#exec-approvals-in-telegram)
 
-### macOS IPC flow
+### Luồng IPC macOS
 
 ```
 Gateway -> Node Service (WS)
@@ -366,35 +287,32 @@ Gateway -> Node Service (WS)
              Mac App (UI + approvals + system.run)
 ```
 
-Security notes:
+Ghi chú bảo mật:
 
-- Unix socket mode `0600`, token stored in `exec-approvals.json`.
-- Same-UID peer check.
-- Challenge/response (nonce + HMAC token + request hash) + short TTL.
+- Chế độ socket Unix `0600`, token được lưu trữ trong `exec-approvals.json`.
+- Kiểm tra peer cùng UID.
+- Thử thách/đáp ứng (nonce + token HMAC + hash yêu cầu) + TTL ngắn.
 
-## System events
+## Sự Kiện Hệ Thống
 
-Exec lifecycle is surfaced as system messages:
+Vòng đời thực thi được hiển thị dưới dạng thông điệp hệ thống:
 
-- `Exec running` (only if the command exceeds the running notice threshold)
+- `Exec running` (chỉ khi lệnh vượt quá ngưỡng thông báo đang chạy)
 - `Exec finished`
 - `Exec denied`
 
-These are posted to the agent’s session after the node reports the event.
-Gateway-host exec approvals emit the same lifecycle events when the command finishes (and optionally when running longer than the threshold).
-Approval-gated execs reuse the approval id as the `runId` in these messages for easy correlation.
+Những thông điệp này được gửi đến phiên của agent sau khi node báo cáo sự kiện. Các phê duyệt thực thi trên máy chủ Gateway phát ra các sự kiện vòng đời tương tự khi lệnh kết thúc (và tùy chọn khi chạy lâu hơn ngưỡng). Các thực thi được bảo vệ phê duyệt tái sử dụng id phê duyệt làm `runId` trong các thông điệp này để dễ dàng liên kết.
 
-## Implications
+## Tác Động
 
-- **full** is powerful; prefer allowlists when possible.
-- **ask** keeps you in the loop while still allowing fast approvals.
-- Per-agent allowlists prevent one agent’s approvals from leaking into others.
-- Approvals only apply to host exec requests from **authorized senders**. Unauthorized senders cannot issue `/exec`.
-- `/exec security=full` is a session-level convenience for authorized operators and skips approvals by design.
-  To hard-block host exec, set approvals security to `deny` or deny the `exec` tool via tool policy.
+- **full** rất mạnh mẽ; ưu tiên danh sách cho phép khi có thể.
+- **ask** giữ bạn trong vòng lặp trong khi vẫn cho phép phê duyệt nhanh.
+- Danh sách cho phép theo agent ngăn chặn các phê duyệt của một agent rò rỉ sang các agent khác.
+- Phê duyệt chỉ áp dụng cho các yêu cầu thực thi trên máy chủ từ **người gửi được ủy quyền**. Người gửi không được ủy quyền không thể phát hành `/exec`.
+- `/exec security=full` là một tiện ích cấp phiên cho các nhà vận hành được ủy quyền và bỏ qua phê duyệt theo thiết kế. Để chặn thực thi trên máy chủ, đặt bảo mật phê duyệt thành `deny` hoặc từ chối công cụ `exec` qua chính sách công cụ.
 
-Related:
+Liên quan:
 
-- [Exec tool](/tools/exec)
-- [Elevated mode](/tools/elevated)
-- [Skills](/tools/skills)
+- [Công cụ Exec](/tools/exec)
+- [Chế độ Nâng Cao](/tools/elevated)
+- [Kỹ Năng](/tools/skills)

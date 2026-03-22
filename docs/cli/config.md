@@ -1,17 +1,15 @@
 ---
-summary: "CLI reference for `openclaw config` (get/set/unset/file/validate)"
+summary: "Tham khảo CLI cho `openclaw config` (get/set/unset/file/validate)"
 read_when:
-  - You want to read or edit config non-interactively
+  - Bạn muốn đọc hoặc chỉnh sửa cấu hình không tương tác
 title: "config"
 ---
 
 # `openclaw config`
 
-Config helpers for non-interactive edits in `openclaw.json`: get/set/unset/validate
-values by path and print the active config file. Run without a subcommand to
-open the configure wizard (same as `openclaw configure`).
+Công cụ hỗ trợ cấu hình cho các chỉnh sửa không tương tác trong `openclaw.json`: lấy/đặt/xóa/kiểm tra giá trị theo đường dẫn và in ra file cấu hình đang hoạt động. Chạy mà không có lệnh con để mở trình hướng dẫn cấu hình (giống như `openclaw configure`).
 
-## Examples
+## Ví dụ
 
 ```bash
 openclaw config file
@@ -27,26 +25,25 @@ openclaw config validate
 openclaw config validate --json
 ```
 
-## Paths
+## Đường dẫn
 
-Paths use dot or bracket notation:
+Đường dẫn sử dụng ký hiệu dấu chấm hoặc dấu ngoặc:
 
 ```bash
 openclaw config get agents.defaults.workspace
 openclaw config get agents.list[0].id
 ```
 
-Use the agent list index to target a specific agent:
+Sử dụng chỉ số danh sách agent để nhắm đến một agent cụ thể:
 
 ```bash
 openclaw config get agents.list
 openclaw config set agents.list[1].tools.exec.node "node-id-or-name"
 ```
 
-## Values
+## Giá trị
 
-Values are parsed as JSON5 when possible; otherwise they are treated as strings.
-Use `--strict-json` to require JSON5 parsing. `--json` remains supported as a legacy alias.
+Giá trị được phân tích dưới dạng JSON5 khi có thể; nếu không, chúng được coi là chuỗi. Sử dụng `--strict-json` để yêu cầu phân tích JSON5. `--json` vẫn được hỗ trợ như một alias cũ.
 
 ```bash
 openclaw config set agents.defaults.heartbeat.every "0m"
@@ -54,12 +51,12 @@ openclaw config set gateway.port 19001 --strict-json
 openclaw config set channels.whatsapp.groups '["*"]' --strict-json
 ```
 
-## `config set` modes
+## Các chế độ `config set`
 
-`openclaw config set` supports four assignment styles:
+`openclaw config set` hỗ trợ bốn kiểu gán:
 
-1. Value mode: `openclaw config set <path> <value>`
-2. SecretRef builder mode:
+1. Chế độ giá trị: `openclaw config set <path> <value>`
+2. Chế độ xây dựng SecretRef:
 
 ```bash
 openclaw config set channels.discord.token \
@@ -68,7 +65,7 @@ openclaw config set channels.discord.token \
   --ref-id DISCORD_BOT_TOKEN
 ```
 
-3. Provider builder mode (`secrets.providers.<alias>` path only):
+3. Chế độ xây dựng Provider (chỉ đường dẫn `secrets.providers.<alias>`):
 
 ```bash
 openclaw config set secrets.providers.vault \
@@ -79,7 +76,7 @@ openclaw config set secrets.providers.vault \
   --provider-timeout-ms 5000
 ```
 
-4. Batch mode (`--batch-json` or `--batch-file`):
+4. Chế độ hàng loạt (`--batch-json` hoặc `--batch-file`):
 
 ```bash
 openclaw config set --batch-json '[
@@ -98,10 +95,9 @@ openclaw config set --batch-json '[
 openclaw config set --batch-file ./config-set.batch.json --dry-run
 ```
 
-Batch parsing always uses the batch payload (`--batch-json`/`--batch-file`) as the source of truth.
-`--strict-json` / `--json` do not change batch parsing behavior.
+Phân tích hàng loạt luôn sử dụng payload hàng loạt (`--batch-json`/`--batch-file`) làm nguồn gốc. `--strict-json` / `--json` không thay đổi hành vi phân tích hàng loạt.
 
-JSON path/value mode remains supported for both SecretRefs and providers:
+Chế độ đường dẫn/giá trị JSON vẫn được hỗ trợ cho cả SecretRefs và providers:
 
 ```bash
 openclaw config set channels.discord.token \
@@ -113,39 +109,39 @@ openclaw config set secrets.providers.vaultfile \
   --strict-json
 ```
 
-## Provider Builder Flags
+## Cờ xây dựng Provider
 
-Provider builder targets must use `secrets.providers.<alias>` as the path.
+Các mục tiêu xây dựng Provider phải sử dụng `secrets.providers.<alias>` làm đường dẫn.
 
-Common flags:
+Các cờ thông dụng:
 
 - `--provider-source <env|file|exec>`
 - `--provider-timeout-ms <ms>` (`file`, `exec`)
 
-Env provider (`--provider-source env`):
+Provider môi trường (`--provider-source env`):
 
-- `--provider-allowlist <ENV_VAR>` (repeatable)
+- `--provider-allowlist <ENV_VAR>` (có thể lặp lại)
 
-File provider (`--provider-source file`):
+Provider file (`--provider-source file`):
 
-- `--provider-path <path>` (required)
+- `--provider-path <path>` (bắt buộc)
 - `--provider-mode <singleValue|json>`
 - `--provider-max-bytes <bytes>`
 
-Exec provider (`--provider-source exec`):
+Provider exec (`--provider-source exec`):
 
-- `--provider-command <path>` (required)
-- `--provider-arg <arg>` (repeatable)
+- `--provider-command <path>` (bắt buộc)
+- `--provider-arg <arg>` (có thể lặp lại)
 - `--provider-no-output-timeout-ms <ms>`
 - `--provider-max-output-bytes <bytes>`
 - `--provider-json-only`
-- `--provider-env <KEY=VALUE>` (repeatable)
-- `--provider-pass-env <ENV_VAR>` (repeatable)
-- `--provider-trusted-dir <path>` (repeatable)
+- `--provider-env <KEY=VALUE>` (có thể lặp lại)
+- `--provider-pass-env <ENV_VAR>` (có thể lặp lại)
+- `--provider-trusted-dir <path>` (có thể lặp lại)
 - `--provider-allow-insecure-path`
 - `--provider-allow-symlink-command`
 
-Hardened exec provider example:
+Ví dụ về provider exec được bảo vệ:
 
 ```bash
 openclaw config set secrets.providers.vault \
@@ -159,9 +155,9 @@ openclaw config set secrets.providers.vault \
   --provider-timeout-ms 5000
 ```
 
-## Dry run
+## Chạy thử
 
-Use `--dry-run` to validate changes without writing `openclaw.json`.
+Sử dụng `--dry-run` để kiểm tra thay đổi mà không ghi vào `openclaw.json`.
 
 ```bash
 openclaw config set channels.discord.token \
@@ -185,25 +181,25 @@ openclaw config set channels.discord.token \
   --allow-exec
 ```
 
-Dry-run behavior:
+Hành vi chạy thử:
 
-- Builder mode: runs SecretRef resolvability checks for changed refs/providers.
-- JSON mode (`--strict-json`, `--json`, or batch mode): runs schema validation plus SecretRef resolvability checks.
-- Exec SecretRef checks are skipped by default during dry-run to avoid command side effects.
-- Use `--allow-exec` with `--dry-run` to opt in to exec SecretRef checks (this may execute provider commands).
-- `--allow-exec` is dry-run only and errors if used without `--dry-run`.
+- Chế độ xây dựng: chạy kiểm tra khả năng giải quyết SecretRef cho các ref/provider đã thay đổi.
+- Chế độ JSON (`--strict-json`, `--json`, hoặc chế độ hàng loạt): chạy kiểm tra schema và khả năng giải quyết SecretRef.
+- Kiểm tra SecretRef exec bị bỏ qua mặc định trong chạy thử để tránh tác động phụ từ lệnh.
+- Sử dụng `--allow-exec` với `--dry-run` để cho phép kiểm tra SecretRef exec (có thể thực thi lệnh provider).
+- `--allow-exec` chỉ dành cho chạy thử và sẽ báo lỗi nếu dùng mà không có `--dry-run`.
 
-`--dry-run --json` prints a machine-readable report:
+`--dry-run --json` in ra báo cáo có thể đọc bằng máy:
 
-- `ok`: whether dry-run passed
-- `operations`: number of assignments evaluated
-- `checks`: whether schema/resolvability checks ran
-- `checks.resolvabilityComplete`: whether resolvability checks ran to completion (false when exec refs are skipped)
-- `refsChecked`: number of refs actually resolved during dry-run
-- `skippedExecRefs`: number of exec refs skipped because `--allow-exec` was not set
-- `errors`: structured schema/resolvability failures when `ok=false`
+- `ok`: liệu chạy thử có thành công
+- `operations`: số lượng gán được đánh giá
+- `checks`: liệu kiểm tra schema/khả năng giải quyết có chạy
+- `checks.resolvabilityComplete`: liệu kiểm tra khả năng giải quyết có hoàn thành (false khi các ref exec bị bỏ qua)
+- `refsChecked`: số lượng ref thực sự được giải quyết trong chạy thử
+- `skippedExecRefs`: số lượng ref exec bị bỏ qua vì `--allow-exec` không được đặt
+- `errors`: lỗi cấu trúc schema/khả năng giải quyết khi `ok=false`
 
-### JSON Output Shape
+### Định dạng đầu ra JSON
 
 ```json5
 {
@@ -222,13 +218,13 @@ Dry-run behavior:
     {
       kind: "schema" | "resolvability",
       message: string,
-      ref?: string, // present for resolvability errors
+      ref?: string, // có mặt cho lỗi khả năng giải quyết
     },
   ],
 }
 ```
 
-Success example:
+Ví dụ thành công:
 
 ```json
 {
@@ -246,7 +242,7 @@ Success example:
 }
 ```
 
-Failure example:
+Ví dụ thất bại:
 
 ```json
 {
@@ -271,23 +267,22 @@ Failure example:
 }
 ```
 
-If dry-run fails:
+Nếu chạy thử thất bại:
 
-- `config schema validation failed`: your post-change config shape is invalid; fix path/value or provider/ref object shape.
-- `SecretRef assignment(s) could not be resolved`: referenced provider/ref currently cannot resolve (missing env var, invalid file pointer, exec provider failure, or provider/source mismatch).
-- `Dry run note: skipped <n> exec SecretRef resolvability check(s)`: dry-run skipped exec refs; rerun with `--allow-exec` if you need exec resolvability validation.
-- For batch mode, fix failing entries and rerun `--dry-run` before writing.
+- `config schema validation failed`: cấu trúc config sau thay đổi không hợp lệ; sửa đường dẫn/giá trị hoặc cấu trúc đối tượng provider/ref.
+- `SecretRef assignment(s) could not be resolved`: provider/ref được tham chiếu hiện không thể giải quyết (biến môi trường thiếu, con trỏ file không hợp lệ, lỗi provider exec, hoặc không khớp provider/source).
+- `Dry run note: skipped <n> exec SecretRef resolvability check(s)`: chạy thử đã bỏ qua các ref exec; chạy lại với `--allow-exec` nếu cần kiểm tra khả năng giải quyết exec.
+- Đối với chế độ hàng loạt, sửa các mục bị lỗi và chạy lại `--dry-run` trước khi ghi.
 
-## Subcommands
+## Lệnh con
 
-- `config file`: Print the active config file path (resolved from `OPENCLAW_CONFIG_PATH` or default location).
+- `config file`: In ra đường dẫn file cấu hình đang hoạt động (được giải quyết từ `OPENCLAW_CONFIG_PATH` hoặc vị trí mặc định).
 
-Restart the gateway after edits.
+Khởi động lại gateway sau khi chỉnh sửa.
 
-## Validate
+## Kiểm tra
 
-Validate the current config against the active schema without starting the
-gateway.
+Kiểm tra cấu hình hiện tại so với schema đang hoạt động mà không cần khởi động gateway.
 
 ```bash
 openclaw config validate

@@ -1,19 +1,18 @@
 ---
-summary: "Deep troubleshooting runbook for gateway, channels, automation, nodes, and browser"
+summary: "Hướng dẫn xử lý sự cố chuyên sâu cho gateway, kênh, tự động hóa, node và trình duyệt"
 read_when:
-  - The troubleshooting hub pointed you here for deeper diagnosis
-  - You need stable symptom based runbook sections with exact commands
-title: "Troubleshooting"
+  - Trung tâm xử lý sự cố đã chỉ bạn đến đây để chẩn đoán sâu hơn
+  - Bạn cần các phần hướng dẫn dựa trên triệu chứng ổn định với các lệnh chính xác
+title: "Xử lý sự cố"
 ---
 
-# Gateway troubleshooting
+# Xử lý sự cố Gateway
 
-This page is the deep runbook.
-Start at [/help/troubleshooting](/help/troubleshooting) if you want the fast triage flow first.
+Đây là hướng dẫn chuyên sâu. Nếu bạn muốn quy trình phân loại nhanh, hãy bắt đầu tại [/help/troubleshooting](/help/troubleshooting).
 
-## Command ladder
+## Thứ tự lệnh
 
-Run these first, in this order:
+Chạy các lệnh này trước, theo thứ tự sau:
 
 ```bash
 openclaw status
@@ -23,15 +22,15 @@ openclaw doctor
 openclaw channels status --probe
 ```
 
-Expected healthy signals:
+Dấu hiệu hoạt động bình thường:
 
-- `openclaw gateway status` shows `Runtime: running` and `RPC probe: ok`.
-- `openclaw doctor` reports no blocking config/service issues.
-- `openclaw channels status --probe` shows connected/ready channels.
+- `openclaw gateway status` hiển thị `Runtime: running` và `RPC probe: ok`.
+- `openclaw doctor` không báo cáo vấn đề cấu hình/dịch vụ nào gây cản trở.
+- `openclaw channels status --probe` hiển thị các kênh đã kết nối/sẵn sàng.
 
-## Anthropic 429 extra usage required for long context
+## Anthropic 429 cần sử dụng thêm cho ngữ cảnh dài
 
-Use this when logs/errors include:
+Sử dụng khi nhật ký/lỗi bao gồm:
 `HTTP 429: rate_limit_error: Extra usage is required for long context requests`.
 
 ```bash
@@ -40,27 +39,27 @@ openclaw models status
 openclaw config get agents.defaults.models
 ```
 
-Look for:
+Tìm kiếm:
 
-- Selected Anthropic Opus/Sonnet model has `params.context1m: true`.
-- Current Anthropic credential is not eligible for long-context usage.
-- Requests fail only on long sessions/model runs that need the 1M beta path.
+- Mô hình Anthropic Opus/Sonnet được chọn có `params.context1m: true`.
+- Thông tin xác thực Anthropic hiện tại không đủ điều kiện cho việc sử dụng ngữ cảnh dài.
+- Yêu cầu chỉ thất bại trong các phiên dài/chạy mô hình cần đường dẫn 1M beta.
 
-Fix options:
+Các tùy chọn khắc phục:
 
-1. Disable `context1m` for that model to fall back to the normal context window.
-2. Use an Anthropic API key with billing, or enable Anthropic Extra Usage on the subscription account.
-3. Configure fallback models so runs continue when Anthropic long-context requests are rejected.
+1. Vô hiệu hóa `context1m` cho mô hình đó để quay lại cửa sổ ngữ cảnh bình thường.
+2. Sử dụng khóa API Anthropic có thanh toán, hoặc kích hoạt Anthropic Extra Usage trên tài khoản đăng ký.
+3. Cấu hình các mô hình dự phòng để tiếp tục chạy khi yêu cầu ngữ cảnh dài của Anthropic bị từ chối.
 
-Related:
+Liên quan:
 
 - [/providers/anthropic](/providers/anthropic)
 - [/reference/token-use](/reference/token-use)
 - [/help/faq#why-am-i-seeing-http-429-ratelimiterror-from-anthropic](/help/faq#why-am-i-seeing-http-429-ratelimiterror-from-anthropic)
 
-## No replies
+## Không có phản hồi
 
-If channels are up but nothing answers, check routing and policy before reconnecting anything.
+Nếu các kênh đang hoạt động nhưng không có phản hồi, kiểm tra định tuyến và chính sách trước khi kết nối lại.
 
 ```bash
 openclaw status
@@ -70,27 +69,27 @@ openclaw config get channels
 openclaw logs --follow
 ```
 
-Look for:
+Tìm kiếm:
 
-- Pairing pending for DM senders.
-- Group mention gating (`requireMention`, `mentionPatterns`).
-- Channel/group allowlist mismatches.
+- Ghép đôi đang chờ xử lý cho người gửi DM.
+- Chính sách nhắc nhóm (`requireMention`, `mentionPatterns`).
+- Không khớp danh sách cho phép kênh/nhóm.
 
-Common signatures:
+Dấu hiệu phổ biến:
 
-- `drop guild message (mention required` → group message ignored until mention.
-- `pairing request` → sender needs approval.
-- `blocked` / `allowlist` → sender/channel was filtered by policy.
+- `drop guild message (mention required` → tin nhắn nhóm bị bỏ qua cho đến khi được nhắc.
+- `pairing request` → người gửi cần được phê duyệt.
+- `blocked` / `allowlist` → người gửi/kênh bị lọc bởi chính sách.
 
-Related:
+Liên quan:
 
 - [/channels/troubleshooting](/channels/troubleshooting)
 - [/channels/pairing](/channels/pairing)
 - [/channels/groups](/channels/groups)
 
-## Dashboard control ui connectivity
+## Kết nối giao diện điều khiển Dashboard
 
-When dashboard/control UI will not connect, validate URL, auth mode, and secure context assumptions.
+Khi giao diện điều khiển/dashboard không kết nối được, hãy xác thực URL, chế độ xác thực và giả định ngữ cảnh bảo mật.
 
 ```bash
 openclaw gateway status
@@ -100,35 +99,33 @@ openclaw doctor
 openclaw gateway status --json
 ```
 
-Look for:
+Tìm kiếm:
 
-- Correct probe URL and dashboard URL.
-- Auth mode/token mismatch between client and gateway.
-- HTTP usage where device identity is required.
+- URL kiểm tra và URL dashboard chính xác.
+- Không khớp chế độ xác thực/token giữa client và gateway.
+- Sử dụng HTTP khi cần nhận diện thiết bị.
 
-Common signatures:
+Dấu hiệu phổ biến:
 
-- `device identity required` → non-secure context or missing device auth.
-- `device nonce required` / `device nonce mismatch` → client is not completing the
-  challenge-based device auth flow (`connect.challenge` + `device.nonce`).
-- `device signature invalid` / `device signature expired` → client signed the wrong
-  payload (or stale timestamp) for the current handshake.
-- `AUTH_TOKEN_MISMATCH` with `canRetryWithDeviceToken=true` → client can do one trusted retry with cached device token.
-- repeated `unauthorized` after that retry → shared token/device token drift; refresh token config and re-approve/rotate device token if needed.
-- `gateway connect failed:` → wrong host/port/url target.
+- `device identity required` → ngữ cảnh không bảo mật hoặc thiếu xác thực thiết bị.
+- `device nonce required` / `device nonce mismatch` → client không hoàn thành luồng xác thực thiết bị dựa trên thử thách (`connect.challenge` + `device.nonce`).
+- `device signature invalid` / `device signature expired` → client ký payload sai (hoặc dấu thời gian cũ) cho quá trình bắt tay hiện tại.
+- `AUTH_TOKEN_MISMATCH` với `canRetryWithDeviceToken=true` → client có thể thử lại một lần với token thiết bị đã lưu trong bộ nhớ cache.
+- lặp lại `unauthorized` sau lần thử lại đó → token chia sẻ/token thiết bị bị lệch; làm mới cấu hình token và phê duyệt/làm mới token thiết bị nếu cần.
+- `gateway connect failed:` → sai host/port/url mục tiêu.
 
-### Auth detail codes quick map
+### Bản đồ nhanh mã chi tiết xác thực
 
-Use `error.details.code` from the failed `connect` response to pick the next action:
+Sử dụng `error.details.code` từ phản hồi `connect` thất bại để chọn hành động tiếp theo:
 
-| Detail code                  | Meaning                                                  | Recommended action                                                                                                                                                   |
+| Mã chi tiết                  | Ý nghĩa                                                  | Hành động đề xuất                                                                                                                                                   |
 | ---------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `AUTH_TOKEN_MISSING`         | Client did not send a required shared token.             | Paste/set token in the client and retry. For dashboard paths: `openclaw config get gateway.auth.token` then paste into Control UI settings.                          |
-| `AUTH_TOKEN_MISMATCH`        | Shared token did not match gateway auth token.           | If `canRetryWithDeviceToken=true`, allow one trusted retry. If still failing, run the [token drift recovery checklist](/cli/devices#token-drift-recovery-checklist). |
-| `AUTH_DEVICE_TOKEN_MISMATCH` | Cached per-device token is stale or revoked.             | Rotate/re-approve device token using [devices CLI](/cli/devices), then reconnect.                                                                                    |
-| `PAIRING_REQUIRED`           | Device identity is known but not approved for this role. | Approve pending request: `openclaw devices list` then `openclaw devices approve <requestId>`.                                                                        |
+| `AUTH_TOKEN_MISSING`         | Client không gửi token chia sẻ cần thiết.                 | Dán/đặt token trong client và thử lại. Đối với đường dẫn dashboard: `openclaw config get gateway.auth.token` sau đó dán vào cài đặt Control UI.                          |
+| `AUTH_TOKEN_MISMATCH`        | Token chia sẻ không khớp với token xác thực gateway.     | Nếu `canRetryWithDeviceToken=true`, cho phép thử lại một lần. Nếu vẫn thất bại, chạy [danh sách kiểm tra khôi phục lệch token](/cli/devices#token-drift-recovery-checklist). |
+| `AUTH_DEVICE_TOKEN_MISMATCH` | Token thiết bị lưu trong bộ nhớ cache đã cũ hoặc bị thu hồi. | Làm mới/phê duyệt lại token thiết bị bằng [CLI thiết bị](/cli/devices), sau đó kết nối lại.                                                                                    |
+| `PAIRING_REQUIRED`           | Nhận diện thiết bị đã biết nhưng chưa được phê duyệt cho vai trò này. | Phê duyệt yêu cầu đang chờ: `openclaw devices list` sau đó `openclaw devices approve <requestId>`.                                                                        |
 
-Device auth v2 migration check:
+Kiểm tra di chuyển xác thực thiết bị v2:
 
 ```bash
 openclaw --version
@@ -136,22 +133,22 @@ openclaw doctor
 openclaw gateway status
 ```
 
-If logs show nonce/signature errors, update the connecting client and verify it:
+Nếu nhật ký hiển thị lỗi nonce/chữ ký, cập nhật client kết nối và xác minh:
 
-1. waits for `connect.challenge`
-2. signs the challenge-bound payload
-3. sends `connect.params.device.nonce` with the same challenge nonce
+1. chờ `connect.challenge`
+2. ký payload ràng buộc thử thách
+3. gửi `connect.params.device.nonce` với nonce thử thách tương tự
 
-Related:
+Liên quan:
 
 - [/web/control-ui](/web/control-ui)
 - [/gateway/authentication](/gateway/authentication)
 - [/gateway/remote](/gateway/remote)
 - [/cli/devices](/cli/devices)
 
-## Gateway service not running
+## Dịch vụ Gateway không chạy
 
-Use this when service is installed but process does not stay up.
+Sử dụng khi dịch vụ đã được cài đặt nhưng quá trình không duy trì hoạt động.
 
 ```bash
 openclaw gateway status
@@ -161,27 +158,27 @@ openclaw doctor
 openclaw gateway status --deep
 ```
 
-Look for:
+Tìm kiếm:
 
-- `Runtime: stopped` with exit hints.
-- Service config mismatch (`Config (cli)` vs `Config (service)`).
-- Port/listener conflicts.
+- `Runtime: stopped` với gợi ý thoát.
+- Không khớp cấu hình dịch vụ (`Config (cli)` so với `Config (service)`).
+- Xung đột cổng/người nghe.
 
-Common signatures:
+Dấu hiệu phổ biến:
 
-- `Gateway start blocked: set gateway.mode=local` → local gateway mode is not enabled. Fix: set `gateway.mode="local"` in your config (or run `openclaw configure`). If you are running OpenClaw via Podman using the dedicated `openclaw` user, the config lives at `~openclaw/.openclaw/openclaw.json`.
-- `refusing to bind gateway ... without auth` → non-loopback bind without token/password.
-- `another gateway instance is already listening` / `EADDRINUSE` → port conflict.
+- `Gateway start blocked: set gateway.mode=local` → chế độ gateway cục bộ chưa được kích hoạt. Khắc phục: đặt `gateway.mode="local"` trong cấu hình của bạn (hoặc chạy `openclaw configure`). Nếu bạn đang chạy OpenClaw qua Podman bằng người dùng `openclaw` chuyên dụng, cấu hình nằm tại `~openclaw/.openclaw/openclaw.json`.
+- `refusing to bind gateway ... without auth` → không ràng buộc loopback mà không có token/mật khẩu.
+- `another gateway instance is already listening` / `EADDRINUSE` → xung đột cổng.
 
-Related:
+Liên quan:
 
 - [/gateway/background-process](/gateway/background-process)
 - [/gateway/configuration](/gateway/configuration)
 - [/gateway/doctor](/gateway/doctor)
 
-## Channel connected messages not flowing
+## Tin nhắn kênh đã kết nối không lưu thông
 
-If channel state is connected but message flow is dead, focus on policy, permissions, and channel specific delivery rules.
+Nếu trạng thái kênh đã kết nối nhưng luồng tin nhắn bị ngừng, tập trung vào chính sách, quyền và quy tắc phân phối cụ thể của kênh.
 
 ```bash
 openclaw channels status --probe
@@ -191,28 +188,28 @@ openclaw logs --follow
 openclaw config get channels
 ```
 
-Look for:
+Tìm kiếm:
 
-- DM policy (`pairing`, `allowlist`, `open`, `disabled`).
-- Group allowlist and mention requirements.
-- Missing channel API permissions/scopes.
+- Chính sách DM (`pairing`, `allowlist`, `open`, `disabled`).
+- Danh sách cho phép nhóm và yêu cầu nhắc.
+- Thiếu quyền/phạm vi API kênh.
 
-Common signatures:
+Dấu hiệu phổ biến:
 
-- `mention required` → message ignored by group mention policy.
-- `pairing` / pending approval traces → sender is not approved.
-- `missing_scope`, `not_in_channel`, `Forbidden`, `401/403` → channel auth/permissions issue.
+- `mention required` → tin nhắn bị bỏ qua bởi chính sách nhắc nhóm.
+- `pairing` / dấu vết phê duyệt đang chờ xử lý → người gửi chưa được phê duyệt.
+- `missing_scope`, `not_in_channel`, `Forbidden`, `401/403` → vấn đề xác thực/quyền kênh.
 
-Related:
+Liên quan:
 
 - [/channels/troubleshooting](/channels/troubleshooting)
 - [/channels/whatsapp](/channels/whatsapp)
 - [/channels/telegram](/channels/telegram)
 - [/channels/discord](/channels/discord)
 
-## Cron and heartbeat delivery
+## Giao hàng cron và nhịp tim
 
-If cron or heartbeat did not run or did not deliver, verify scheduler state first, then delivery target.
+Nếu cron hoặc nhịp tim không chạy hoặc không giao hàng, hãy xác minh trạng thái bộ lập lịch trước, sau đó là mục tiêu giao hàng.
 
 ```bash
 openclaw cron status
@@ -222,29 +219,29 @@ openclaw system heartbeat last
 openclaw logs --follow
 ```
 
-Look for:
+Tìm kiếm:
 
-- Cron enabled and next wake present.
-- Job run history status (`ok`, `skipped`, `error`).
-- Heartbeat skip reasons (`quiet-hours`, `requests-in-flight`, `alerts-disabled`).
+- Cron được kích hoạt và lần thức tiếp theo có mặt.
+- Trạng thái lịch sử chạy công việc (`ok`, `skipped`, `error`).
+- Lý do bỏ qua nhịp tim (`quiet-hours`, `requests-in-flight`, `alerts-disabled`).
 
-Common signatures:
+Dấu hiệu phổ biến:
 
-- `cron: scheduler disabled; jobs will not run automatically` → cron disabled.
-- `cron: timer tick failed` → scheduler tick failed; check file/log/runtime errors.
-- `heartbeat skipped` with `reason=quiet-hours` → outside active hours window.
-- `heartbeat: unknown accountId` → invalid account id for heartbeat delivery target.
-- `heartbeat skipped` with `reason=dm-blocked` → heartbeat target resolved to a DM-style destination while `agents.defaults.heartbeat.directPolicy` (or per-agent override) is set to `block`.
+- `cron: scheduler disabled; jobs will not run automatically` → cron bị vô hiệu hóa.
+- `cron: timer tick failed` → tick bộ lập lịch thất bại; kiểm tra lỗi file/nhật ký/thời gian chạy.
+- `heartbeat skipped` với `reason=quiet-hours` → ngoài cửa sổ giờ hoạt động.
+- `heartbeat: unknown accountId` → id tài khoản không hợp lệ cho mục tiêu giao hàng nhịp tim.
+- `heartbeat skipped` với `reason=dm-blocked` → mục tiêu nhịp tim được giải quyết thành đích kiểu DM trong khi `agents.defaults.heartbeat.directPolicy` (hoặc ghi đè theo agent) được đặt thành `block`.
 
-Related:
+Liên quan:
 
 - [/automation/troubleshooting](/automation/troubleshooting)
 - [/automation/cron-jobs](/automation/cron-jobs)
 - [/gateway/heartbeat](/gateway/heartbeat)
 
-## Node paired tool fails
+## Công cụ node ghép đôi thất bại
 
-If a node is paired but tools fail, isolate foreground, permission, and approval state.
+Nếu một node đã được ghép đôi nhưng công cụ thất bại, hãy cô lập trạng thái nền trước, quyền và phê duyệt.
 
 ```bash
 openclaw nodes status
@@ -254,28 +251,28 @@ openclaw logs --follow
 openclaw status
 ```
 
-Look for:
+Tìm kiếm:
 
-- Node online with expected capabilities.
-- OS permission grants for camera/mic/location/screen.
-- Exec approvals and allowlist state.
+- Node trực tuyến với các khả năng mong đợi.
+- Cấp quyền hệ điều hành cho camera/mic/vị trí/màn hình.
+- Trạng thái phê duyệt thực thi và danh sách cho phép.
 
-Common signatures:
+Dấu hiệu phổ biến:
 
-- `NODE_BACKGROUND_UNAVAILABLE` → node app must be in foreground.
-- `*_PERMISSION_REQUIRED` / `LOCATION_PERMISSION_REQUIRED` → missing OS permission.
-- `SYSTEM_RUN_DENIED: approval required` → exec approval pending.
-- `SYSTEM_RUN_DENIED: allowlist miss` → command blocked by allowlist.
+- `NODE_BACKGROUND_UNAVAILABLE` → ứng dụng node phải ở nền trước.
+- `*_PERMISSION_REQUIRED` / `LOCATION_PERMISSION_REQUIRED` → thiếu quyền hệ điều hành.
+- `SYSTEM_RUN_DENIED: approval required` → phê duyệt thực thi đang chờ xử lý.
+- `SYSTEM_RUN_DENIED: allowlist miss` → lệnh bị chặn bởi danh sách cho phép.
 
-Related:
+Liên quan:
 
 - [/nodes/troubleshooting](/nodes/troubleshooting)
 - [/nodes/index](/nodes/index)
 - [/tools/exec-approvals](/tools/exec-approvals)
 
-## Browser tool fails
+## Công cụ trình duyệt thất bại
 
-Use this when browser tool actions fail even though the gateway itself is healthy.
+Sử dụng khi các hành động công cụ trình duyệt thất bại mặc dù gateway tự nó vẫn hoạt động tốt.
 
 ```bash
 openclaw browser status
@@ -285,29 +282,29 @@ openclaw logs --follow
 openclaw doctor
 ```
 
-Look for:
+Tìm kiếm:
 
-- Valid browser executable path.
-- CDP profile reachability.
-- Local Chrome availability for `existing-session` / `user` profiles.
+- Đường dẫn thực thi trình duyệt hợp lệ.
+- Khả năng truy cập hồ sơ CDP.
+- Khả dụng Chrome cục bộ cho các hồ sơ `existing-session` / `user`.
 
-Common signatures:
+Dấu hiệu phổ biến:
 
-- `Failed to start Chrome CDP on port` → browser process failed to launch.
-- `browser.executablePath not found` → configured path is invalid.
-- `No Chrome tabs found for profile="user"` → the Chrome MCP attach profile has no open local Chrome tabs.
-- `Browser attachOnly is enabled ... not reachable` → attach-only profile has no reachable target.
+- `Failed to start Chrome CDP on port` → quá trình trình duyệt không khởi động được.
+- `browser.executablePath not found` → đường dẫn cấu hình không hợp lệ.
+- `No Chrome tabs found for profile="user"` → hồ sơ đính kèm Chrome MCP không có tab Chrome cục bộ mở.
+- `Browser attachOnly is enabled ... not reachable` → hồ sơ chỉ đính kèm không có mục tiêu có thể truy cập.
 
-Related:
+Liên quan:
 
 - [/tools/browser-linux-troubleshooting](/tools/browser-linux-troubleshooting)
 - [/tools/browser](/tools/browser)
 
-## If you upgraded and something suddenly broke
+## Nếu bạn đã nâng cấp và có gì đó đột ngột bị hỏng
 
-Most post-upgrade breakage is config drift or stricter defaults now being enforced.
+Hầu hết các sự cố sau nâng cấp là do lệch cấu hình hoặc các mặc định nghiêm ngặt hơn hiện đang được thực thi.
 
-### 1) Auth and URL override behavior changed
+### 1) Hành vi ghi đè xác thực và URL đã thay đổi
 
 ```bash
 openclaw gateway status
@@ -316,17 +313,17 @@ openclaw config get gateway.remote.url
 openclaw config get gateway.auth.mode
 ```
 
-What to check:
+Những gì cần kiểm tra:
 
-- If `gateway.mode=remote`, CLI calls may be targeting remote while your local service is fine.
-- Explicit `--url` calls do not fall back to stored credentials.
+- Nếu `gateway.mode=remote`, các cuộc gọi CLI có thể đang nhắm mục tiêu từ xa trong khi dịch vụ cục bộ của bạn vẫn ổn.
+- Các cuộc gọi `--url` rõ ràng không quay lại thông tin xác thực đã lưu.
 
-Common signatures:
+Dấu hiệu phổ biến:
 
-- `gateway connect failed:` → wrong URL target.
-- `unauthorized` → endpoint reachable but wrong auth.
+- `gateway connect failed:` → sai mục tiêu URL.
+- `unauthorized` → điểm cuối có thể truy cập nhưng xác thực sai.
 
-### 2) Bind and auth guardrails are stricter
+### 2) Các rào cản ràng buộc và xác thực nghiêm ngặt hơn
 
 ```bash
 openclaw config get gateway.bind
@@ -335,17 +332,17 @@ openclaw gateway status
 openclaw logs --follow
 ```
 
-What to check:
+Những gì cần kiểm tra:
 
-- Non-loopback binds (`lan`, `tailnet`, `custom`) need auth configured.
-- Old keys like `gateway.token` do not replace `gateway.auth.token`.
+- Các ràng buộc không loopback (`lan`, `tailnet`, `custom`) cần cấu hình xác thực.
+- Các khóa cũ như `gateway.token` không thay thế `gateway.auth.token`.
 
-Common signatures:
+Dấu hiệu phổ biến:
 
-- `refusing to bind gateway ... without auth` → bind+auth mismatch.
-- `RPC probe: failed` while runtime is running → gateway alive but inaccessible with current auth/url.
+- `refusing to bind gateway ... without auth` → không khớp ràng buộc+xác thực.
+- `RPC probe: failed` trong khi thời gian chạy đang hoạt động → gateway sống nhưng không thể truy cập với xác thực/url hiện tại.
 
-### 3) Pairing and device identity state changed
+### 3) Trạng thái ghép đôi và nhận diện thiết bị đã thay đổi
 
 ```bash
 openclaw devices list
@@ -354,24 +351,24 @@ openclaw logs --follow
 openclaw doctor
 ```
 
-What to check:
+Những gì cần kiểm tra:
 
-- Pending device approvals for dashboard/nodes.
-- Pending DM pairing approvals after policy or identity changes.
+- Phê duyệt thiết bị đang chờ xử lý cho dashboard/nodes.
+- Phê duyệt ghép đôi DM đang chờ xử lý sau khi thay đổi chính sách hoặc nhận diện.
 
-Common signatures:
+Dấu hiệu phổ biến:
 
-- `device identity required` → device auth not satisfied.
-- `pairing required` → sender/device must be approved.
+- `device identity required` → xác thực thiết bị không được thỏa mãn.
+- `pairing required` → người gửi/thiết bị phải được phê duyệt.
 
-If the service config and runtime still disagree after checks, reinstall service metadata from the same profile/state directory:
+Nếu cấu hình dịch vụ và thời gian chạy vẫn không đồng ý sau khi kiểm tra, cài đặt lại siêu dữ liệu dịch vụ từ cùng một thư mục hồ sơ/trạng thái:
 
 ```bash
 openclaw gateway install --force
 openclaw gateway restart
 ```
 
-Related:
+Liên quan:
 
 - [/gateway/pairing](/gateway/pairing)
 - [/gateway/authentication](/gateway/authentication)

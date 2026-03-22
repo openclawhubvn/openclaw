@@ -1,97 +1,97 @@
 ---
-summary: "Run multiple OpenClaw Gateways on one host (isolation, ports, and profiles)"
+summary: "Chạy nhiều OpenClaw Gateway trên một máy chủ (cách ly, cổng, và cấu hình)"
 read_when:
-  - Running more than one Gateway on the same machine
-  - You need isolated config/state/ports per Gateway
-title: "Multiple Gateways"
+  - Chạy nhiều hơn một Gateway trên cùng một máy
+  - Cần cấu hình/trạng thái/cổng riêng biệt cho từng Gateway
+title: "Nhiều Gateway"
 ---
 
-# Multiple Gateways (same host)
+# Nhiều Gateway (trên cùng một máy chủ)
 
-Most setups should use one Gateway because a single Gateway can handle multiple messaging connections and agents. If you need stronger isolation or redundancy (e.g., a rescue bot), run separate Gateways with isolated profiles/ports.
+Hầu hết các thiết lập nên sử dụng một Gateway vì một Gateway có thể xử lý nhiều kết nối tin nhắn và agent. Nếu cần cách ly mạnh hơn hoặc dự phòng (ví dụ, một bot cứu hộ), hãy chạy các Gateway riêng biệt với cấu hình và cổng riêng.
 
-## Isolation checklist (required)
+## Danh sách kiểm tra cách ly (bắt buộc)
 
-- `OPENCLAW_CONFIG_PATH` — per-instance config file
-- `OPENCLAW_STATE_DIR` — per-instance sessions, creds, caches
-- `agents.defaults.workspace` — per-instance workspace root
-- `gateway.port` (or `--port`) — unique per instance
-- Derived ports (browser/canvas) must not overlap
+- `OPENCLAW_CONFIG_PATH` — file cấu hình cho từng instance
+- `OPENCLAW_STATE_DIR` — phiên, thông tin xác thực, bộ nhớ đệm cho từng instance
+- `agents.defaults.workspace` — thư mục gốc workspace cho từng instance
+- `gateway.port` (hoặc `--port`) — duy nhất cho từng instance
+- Các cổng phát sinh (trình duyệt/canvas) không được trùng lặp
 
-If these are shared, you will hit config races and port conflicts.
+Nếu các yếu tố này được chia sẻ, bạn sẽ gặp xung đột cấu hình và cổng.
 
-## Recommended: profiles (`--profile`)
+## Khuyến nghị: sử dụng profile (`--profile`)
 
-Profiles auto-scope `OPENCLAW_STATE_DIR` + `OPENCLAW_CONFIG_PATH` and suffix service names.
+Profile tự động định phạm vi cho `OPENCLAW_STATE_DIR` + `OPENCLAW_CONFIG_PATH` và thêm hậu tố vào tên dịch vụ.
 
 ```bash
-# main
+# chính
 openclaw --profile main setup
 openclaw --profile main gateway --port 18789
 
-# rescue
+# cứu hộ
 openclaw --profile rescue setup
 openclaw --profile rescue gateway --port 19001
 ```
 
-Per-profile services:
+Dịch vụ theo profile:
 
 ```bash
 openclaw --profile main gateway install
 openclaw --profile rescue gateway install
 ```
 
-## Rescue-bot guide
+## Hướng dẫn bot cứu hộ
 
-Run a second Gateway on the same host with its own:
+Chạy một Gateway thứ hai trên cùng máy chủ với:
 
-- profile/config
-- state dir
-- workspace
-- base port (plus derived ports)
+- profile/cấu hình riêng
+- thư mục trạng thái riêng
+- workspace riêng
+- cổng cơ sở (và các cổng phát sinh)
 
-This keeps the rescue bot isolated from the main bot so it can debug or apply config changes if the primary bot is down.
+Điều này giúp bot cứu hộ cách ly khỏi bot chính để có thể gỡ lỗi hoặc áp dụng thay đổi cấu hình nếu bot chính bị ngừng hoạt động.
 
-Port spacing: leave at least 20 ports between base ports so the derived browser/canvas/CDP ports never collide.
+Khoảng cách cổng: để ít nhất 20 cổng giữa các cổng cơ sở để các cổng trình duyệt/canvas/CDP phát sinh không bị trùng.
 
-### How to install (rescue bot)
+### Cách cài đặt (bot cứu hộ)
 
 ```bash
-# Main bot (existing or fresh, without --profile param)
-# Runs on port 18789 + Chrome CDC/Canvas/... Ports
+# Bot chính (đã có hoặc mới, không có tham số --profile)
+# Chạy trên cổng 18789 + cổng Chrome CDC/Canvas/...
 openclaw onboard
 openclaw gateway install
 
-# Rescue bot (isolated profile + ports)
+# Bot cứu hộ (profile và cổng cách ly)
 openclaw --profile rescue onboard
-# Notes:
-# - workspace name will be postfixed with -rescue per default
-# - Port should be at least 18789 + 20 Ports,
-#   better choose completely different base port, like 19789,
-# - rest of the onboarding is the same as normal
+# Lưu ý:
+# - Tên workspace sẽ được thêm hậu tố -rescue theo mặc định
+# - Cổng nên ít nhất là 18789 + 20 cổng,
+#   tốt hơn là chọn cổng cơ sở hoàn toàn khác, như 19789,
+# - phần còn lại của quá trình onboard giống như bình thường
 
-# To install the service (if not happened automatically during setup)
+# Để cài đặt dịch vụ (nếu chưa tự động thực hiện trong quá trình setup)
 openclaw --profile rescue gateway install
 ```
 
-## Port mapping (derived)
+## Ánh xạ cổng (phát sinh)
 
-Base port = `gateway.port` (or `OPENCLAW_GATEWAY_PORT` / `--port`).
+Cổng cơ sở = `gateway.port` (hoặc `OPENCLAW_GATEWAY_PORT` / `--port`).
 
-- browser control service port = base + 2 (loopback only)
-- canvas host is served on the Gateway HTTP server (same port as `gateway.port`)
-- Browser profile CDP ports auto-allocate from `browser.controlPort + 9 .. + 108`
+- cổng dịch vụ điều khiển trình duyệt = cơ sở + 2 (chỉ loopback)
+- máy chủ canvas được phục vụ trên máy chủ HTTP của Gateway (cùng cổng với `gateway.port`)
+- Các cổng CDP của profile trình duyệt tự động phân bổ từ `browser.controlPort + 9 .. + 108`
 
-If you override any of these in config or env, you must keep them unique per instance.
+Nếu bạn ghi đè bất kỳ cổng nào trong cấu hình hoặc môi trường, hãy đảm bảo chúng duy nhất cho từng instance.
 
-## Browser/CDP notes (common footgun)
+## Lưu ý về Browser/CDP (lỗi thường gặp)
 
-- Do **not** pin `browser.cdpUrl` to the same values on multiple instances.
-- Each instance needs its own browser control port and CDP range (derived from its gateway port).
-- If you need explicit CDP ports, set `browser.profiles.<name>.cdpPort` per instance.
-- Remote Chrome: use `browser.profiles.<name>.cdpUrl` (per profile, per instance).
+- Không ghim `browser.cdpUrl` vào cùng giá trị trên nhiều instance.
+- Mỗi instance cần cổng điều khiển trình duyệt và dải CDP riêng (phát sinh từ cổng gateway của nó).
+- Nếu cần cổng CDP cụ thể, đặt `browser.profiles.<name>.cdpPort` cho từng instance.
+- Chrome từ xa: sử dụng `browser.profiles.<name>.cdpUrl` (cho từng profile, từng instance).
 
-## Manual env example
+## Ví dụ môi trường thủ công
 
 ```bash
 OPENCLAW_CONFIG_PATH=~/.openclaw/main.json \
@@ -103,7 +103,7 @@ OPENCLAW_STATE_DIR=~/.openclaw-rescue \
 openclaw gateway --port 19001
 ```
 
-## Quick checks
+## Kiểm tra nhanh
 
 ```bash
 openclaw --profile main status

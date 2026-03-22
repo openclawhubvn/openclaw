@@ -1,108 +1,108 @@
 ---
-summary: "Context: what the model sees, how it is built, and how to inspect it"
+summary: "Ngữ cảnh: những gì mô hình thấy, cách nó được xây dựng và cách kiểm tra"
 read_when:
-  - You want to understand what “context” means in OpenClaw
-  - You are debugging why the model “knows” something (or forgot it)
-  - You want to reduce context overhead (/context, /status, /compact)
-title: "Context"
+  - Bạn muốn hiểu "ngữ cảnh" trong OpenClaw nghĩa là gì
+  - Bạn đang gỡ lỗi tại sao mô hình "biết" điều gì đó (hoặc quên nó)
+  - Bạn muốn giảm tải ngữ cảnh (/context, /status, /compact)
+title: "Ngữ cảnh"
 ---
 
-# Context
+# Ngữ cảnh
 
-“Context” is **everything OpenClaw sends to the model for a run**. It is bounded by the model’s **context window** (token limit).
+"Ngữ cảnh" là **tất cả những gì OpenClaw gửi đến mô hình để thực thi**. Nó bị giới hạn bởi **cửa sổ ngữ cảnh** của mô hình (giới hạn token).
 
-Beginner mental model:
+Mô hình tư duy cho người mới bắt đầu:
 
-- **System prompt** (OpenClaw-built): rules, tools, skills list, time/runtime, and injected workspace files.
-- **Conversation history**: your messages + the assistant’s messages for this session.
-- **Tool calls/results + attachments**: command output, file reads, images/audio, etc.
+- **System prompt** (do OpenClaw tạo): quy tắc, công cụ, danh sách kỹ năng, thời gian/thời gian chạy, và các tệp workspace được chèn vào.
+- **Lịch sử hội thoại**: tin nhắn của bạn + tin nhắn của trợ lý trong phiên này.
+- **Lệnh công cụ/kết quả + tệp đính kèm**: đầu ra lệnh, đọc tệp, hình ảnh/âm thanh, v.v.
 
-Context is _not the same thing_ as “memory”: memory can be stored on disk and reloaded later; context is what’s inside the model’s current window.
+Ngữ cảnh _không giống_ như "bộ nhớ": bộ nhớ có thể được lưu trữ trên đĩa và tải lại sau; ngữ cảnh là những gì nằm trong cửa sổ hiện tại của mô hình.
 
-## Quick start (inspect context)
+## Bắt đầu nhanh (kiểm tra ngữ cảnh)
 
-- `/status` → quick “how full is my window?” view + session settings.
-- `/context list` → what’s injected + rough sizes (per file + totals).
-- `/context detail` → deeper breakdown: per-file, per-tool schema sizes, per-skill entry sizes, and system prompt size.
-- `/usage tokens` → append per-reply usage footer to normal replies.
-- `/compact` → summarize older history into a compact entry to free window space.
+- `/status` → xem nhanh "cửa sổ của tôi đầy bao nhiêu?" + cài đặt phiên.
+- `/context list` → những gì được chèn vào + kích thước sơ bộ (mỗi tệp + tổng cộng).
+- `/context detail` → phân tích sâu hơn: kích thước từng tệp, từng công cụ, từng mục kỹ năng, và kích thước system prompt.
+- `/usage tokens` → thêm footer sử dụng theo từng phản hồi vào các phản hồi thông thường.
+- `/compact` → tóm tắt lịch sử cũ thành một mục gọn để giải phóng không gian cửa sổ.
 
-See also: [Slash commands](/tools/slash-commands), [Token use & costs](/reference/token-use), [Compaction](/concepts/compaction).
+Xem thêm: [Slash commands](/tools/slash-commands), [Token use & costs](/reference/token-use), [Compaction](/concepts/compaction).
 
-## Example output
+## Ví dụ đầu ra
 
-Values vary by model, provider, tool policy, and what’s in your workspace.
+Giá trị thay đổi theo mô hình, nhà cung cấp, chính sách công cụ và những gì có trong workspace của bạn.
 
 ### `/context list`
 
 ```
-🧠 Context breakdown
+🧠 Phân tích ngữ cảnh
 Workspace: <workspaceDir>
-Bootstrap max/file: 20,000 chars
+Bootstrap tối đa/tệp: 20,000 ký tự
 Sandbox: mode=non-main sandboxed=false
-System prompt (run): 38,412 chars (~9,603 tok) (Project Context 23,901 chars (~5,976 tok))
+System prompt (run): 38,412 ký tự (~9,603 tok) (Ngữ cảnh dự án 23,901 ký tự (~5,976 tok))
 
-Injected workspace files:
-- AGENTS.md: OK | raw 1,742 chars (~436 tok) | injected 1,742 chars (~436 tok)
-- SOUL.md: OK | raw 912 chars (~228 tok) | injected 912 chars (~228 tok)
-- TOOLS.md: TRUNCATED | raw 54,210 chars (~13,553 tok) | injected 20,962 chars (~5,241 tok)
-- IDENTITY.md: OK | raw 211 chars (~53 tok) | injected 211 chars (~53 tok)
-- USER.md: OK | raw 388 chars (~97 tok) | injected 388 chars (~97 tok)
-- HEARTBEAT.md: MISSING | raw 0 | injected 0
-- BOOTSTRAP.md: OK | raw 0 chars (~0 tok) | injected 0 chars (~0 tok)
+Các tệp workspace được chèn vào:
+- AGENTS.md: OK | raw 1,742 ký tự (~436 tok) | chèn 1,742 ký tự (~436 tok)
+- SOUL.md: OK | raw 912 ký tự (~228 tok) | chèn 912 ký tự (~228 tok)
+- TOOLS.md: TRUNCATED | raw 54,210 ký tự (~13,553 tok) | chèn 20,962 ký tự (~5,241 tok)
+- IDENTITY.md: OK | raw 211 ký tự (~53 tok) | chèn 211 ký tự (~53 tok)
+- USER.md: OK | raw 388 ký tự (~97 tok) | chèn 388 ký tự (~97 tok)
+- HEARTBEAT.md: MISSING | raw 0 | chèn 0
+- BOOTSTRAP.md: OK | raw 0 ký tự (~0 tok) | chèn 0 ký tự (~0 tok)
 
-Skills list (system prompt text): 2,184 chars (~546 tok) (12 skills)
-Tools: read, edit, write, exec, process, browser, message, sessions_send, …
-Tool list (system prompt text): 1,032 chars (~258 tok)
-Tool schemas (JSON): 31,988 chars (~7,997 tok) (counts toward context; not shown as text)
-Tools: (same as above)
+Danh sách kỹ năng (văn bản system prompt): 2,184 ký tự (~546 tok) (12 kỹ năng)
+Công cụ: đọc, chỉnh sửa, viết, thực thi, xử lý, trình duyệt, tin nhắn, sessions_send, …
+Danh sách công cụ (văn bản system prompt): 1,032 ký tự (~258 tok)
+Schemas công cụ (JSON): 31,988 ký tự (~7,997 tok) (tính vào ngữ cảnh; không hiển thị dưới dạng văn bản)
+Công cụ: (như trên)
 
-Session tokens (cached): 14,250 total / ctx=32,000
+Token phiên (đã lưu): 14,250 tổng / ctx=32,000
 ```
 
 ### `/context detail`
 
 ```
-🧠 Context breakdown (detailed)
+🧠 Phân tích ngữ cảnh (chi tiết)
 …
-Top skills (prompt entry size):
-- frontend-design: 412 chars (~103 tok)
-- oracle: 401 chars (~101 tok)
-… (+10 more skills)
+Kỹ năng hàng đầu (kích thước mục prompt):
+- frontend-design: 412 ký tự (~103 tok)
+- oracle: 401 ký tự (~101 tok)
+… (+10 kỹ năng khác)
 
-Top tools (schema size):
-- browser: 9,812 chars (~2,453 tok)
-- exec: 6,240 chars (~1,560 tok)
-… (+N more tools)
+Công cụ hàng đầu (kích thước schema):
+- trình duyệt: 9,812 ký tự (~2,453 tok)
+- thực thi: 6,240 ký tự (~1,560 tok)
+… (+N công cụ khác)
 ```
 
-## What counts toward the context window
+## Những gì tính vào cửa sổ ngữ cảnh
 
-Everything the model receives counts, including:
+Mọi thứ mà mô hình nhận được đều tính vào, bao gồm:
 
-- System prompt (all sections).
-- Conversation history.
-- Tool calls + tool results.
-- Attachments/transcripts (images/audio/files).
-- Compaction summaries and pruning artifacts.
-- Provider “wrappers” or hidden headers (not visible, still counted).
+- System prompt (tất cả các phần).
+- Lịch sử hội thoại.
+- Lệnh công cụ + kết quả công cụ.
+- Tệp đính kèm/bản ghi (hình ảnh/âm thanh/tệp).
+- Tóm tắt nén và các hiện vật cắt tỉa.
+- "Wrappers" của nhà cung cấp hoặc tiêu đề ẩn (không hiển thị, vẫn được tính).
 
-## How OpenClaw builds the system prompt
+## Cách OpenClaw xây dựng system prompt
 
-The system prompt is **OpenClaw-owned** and rebuilt each run. It includes:
+System prompt là **sở hữu của OpenClaw** và được xây dựng lại mỗi lần chạy. Nó bao gồm:
 
-- Tool list + short descriptions.
-- Skills list (metadata only; see below).
-- Workspace location.
-- Time (UTC + converted user time if configured).
-- Runtime metadata (host/OS/model/thinking).
-- Injected workspace bootstrap files under **Project Context**.
+- Danh sách công cụ + mô tả ngắn.
+- Danh sách kỹ năng (chỉ metadata; xem bên dưới).
+- Vị trí workspace.
+- Thời gian (UTC + thời gian người dùng đã chuyển đổi nếu được cấu hình).
+- Metadata thời gian chạy (host/OS/mô hình/suy nghĩ).
+- Các tệp bootstrap workspace được chèn vào dưới **Ngữ cảnh dự án**.
 
-Full breakdown: [System Prompt](/concepts/system-prompt).
+Phân tích đầy đủ: [System Prompt](/concepts/system-prompt).
 
-## Injected workspace files (Project Context)
+## Các tệp workspace được chèn vào (Ngữ cảnh dự án)
 
-By default, OpenClaw injects a fixed set of workspace files (if present):
+Theo mặc định, OpenClaw chèn một tập hợp cố định các tệp workspace (nếu có):
 
 - `AGENTS.md`
 - `SOUL.md`
@@ -110,63 +110,56 @@ By default, OpenClaw injects a fixed set of workspace files (if present):
 - `IDENTITY.md`
 - `USER.md`
 - `HEARTBEAT.md`
-- `BOOTSTRAP.md` (first-run only)
+- `BOOTSTRAP.md` (chỉ lần chạy đầu tiên)
 
-Large files are truncated per-file using `agents.defaults.bootstrapMaxChars` (default `20000` chars). OpenClaw also enforces a total bootstrap injection cap across files with `agents.defaults.bootstrapTotalMaxChars` (default `150000` chars). `/context` shows **raw vs injected** sizes and whether truncation happened.
+Các tệp lớn bị cắt ngắn theo từng tệp sử dụng `agents.defaults.bootstrapMaxChars` (mặc định `20000` ký tự). OpenClaw cũng áp đặt giới hạn tổng số ký tự bootstrap trên các tệp với `agents.defaults.bootstrapTotalMaxChars` (mặc định `150000` ký tự). `/context` hiển thị kích thước **raw vs chèn** và liệu có xảy ra cắt ngắn hay không.
 
-When truncation occurs, the runtime can inject an in-prompt warning block under Project Context. Configure this with `agents.defaults.bootstrapPromptTruncationWarning` (`off`, `once`, `always`; default `once`).
+Khi cắt ngắn xảy ra, thời gian chạy có thể chèn một khối cảnh báo trong prompt dưới Ngữ cảnh dự án. Cấu hình điều này với `agents.defaults.bootstrapPromptTruncationWarning` (`off`, `once`, `always`; mặc định `once`).
 
-## Skills: injected vs loaded on-demand
+## Kỹ năng: chèn vào vs tải theo yêu cầu
 
-The system prompt includes a compact **skills list** (name + description + location). This list has real overhead.
+System prompt bao gồm một danh sách **kỹ năng** gọn (tên + mô tả + vị trí). Danh sách này có tải thực sự.
 
-Skill instructions are _not_ included by default. The model is expected to `read` the skill’s `SKILL.md` **only when needed**.
+Hướng dẫn kỹ năng _không_ được bao gồm theo mặc định. Mô hình được kỳ vọng sẽ `đọc` `SKILL.md` của kỹ năng **chỉ khi cần thiết**.
 
-## Tools: there are two costs
+## Công cụ: có hai chi phí
 
-Tools affect context in two ways:
+Công cụ ảnh hưởng đến ngữ cảnh theo hai cách:
 
-1. **Tool list text** in the system prompt (what you see as “Tooling”).
-2. **Tool schemas** (JSON). These are sent to the model so it can call tools. They count toward context even though you don’t see them as plain text.
+1. **Văn bản danh sách công cụ** trong system prompt (những gì bạn thấy là "Tooling").
+2. **Schemas công cụ** (JSON). Chúng được gửi đến mô hình để nó có thể gọi công cụ. Chúng tính vào ngữ cảnh mặc dù bạn không thấy chúng dưới dạng văn bản thuần túy.
 
-`/context detail` breaks down the biggest tool schemas so you can see what dominates.
+`/context detail` phân tích các schemas công cụ lớn nhất để bạn có thể thấy những gì chiếm ưu thế.
 
-## Commands, directives, and "inline shortcuts"
+## Lệnh, chỉ thị và "phím tắt nội tuyến"
 
-Slash commands are handled by the Gateway. There are a few different behaviors:
+Slash commands được xử lý bởi Gateway. Có một số hành vi khác nhau:
 
-- **Standalone commands**: a message that is only `/...` runs as a command.
-- **Directives**: `/think`, `/verbose`, `/reasoning`, `/elevated`, `/model`, `/queue` are stripped before the model sees the message.
-  - Directive-only messages persist session settings.
-  - Inline directives in a normal message act as per-message hints.
-- **Inline shortcuts** (allowlisted senders only): certain `/...` tokens inside a normal message can run immediately (example: “hey /status”), and are stripped before the model sees the remaining text.
+- **Lệnh độc lập**: một tin nhắn chỉ có `/...` chạy như một lệnh.
+- **Chỉ thị**: `/think`, `/verbose`, `/reasoning`, `/elevated`, `/model`, `/queue` được loại bỏ trước khi mô hình thấy tin nhắn.
+  - Tin nhắn chỉ có chỉ thị duy trì cài đặt phiên.
+  - Chỉ thị nội tuyến trong một tin nhắn thông thường hoạt động như gợi ý theo tin nhắn.
+- **Phím tắt nội tuyến** (chỉ người gửi được cho phép): một số token `/...` bên trong một tin nhắn thông thường có thể chạy ngay lập tức (ví dụ: “hey /status”), và được loại bỏ trước khi mô hình thấy văn bản còn lại.
 
-Details: [Slash commands](/tools/slash-commands).
+Chi tiết: [Slash commands](/tools/slash-commands).
 
-## Sessions, compaction, and pruning (what persists)
+## Phiên, nén, và cắt tỉa (những gì tồn tại)
 
-What persists across messages depends on the mechanism:
+Những gì tồn tại qua các tin nhắn phụ thuộc vào cơ chế:
 
-- **Normal history** persists in the session transcript until compacted/pruned by policy.
-- **Compaction** persists a summary into the transcript and keeps recent messages intact.
-- **Pruning** removes old tool results from the _in-memory_ prompt for a run, but does not rewrite the transcript.
+- **Lịch sử thông thường** tồn tại trong bản ghi phiên cho đến khi được nén/cắt tỉa theo chính sách.
+- **Nén** tồn tại một tóm tắt vào bản ghi và giữ lại các tin nhắn gần đây.
+- **Cắt tỉa** loại bỏ kết quả công cụ cũ khỏi prompt _trong bộ nhớ_ cho một lần chạy, nhưng không viết lại bản ghi.
 
-Docs: [Session](/concepts/session), [Compaction](/concepts/compaction), [Session pruning](/concepts/session-pruning).
+Tài liệu: [Session](/concepts/session), [Compaction](/concepts/compaction), [Session pruning](/concepts/session-pruning).
 
-By default, OpenClaw uses the built-in `legacy` context engine for assembly and
-compaction. If you install a plugin that provides `kind: "context-engine"` and
-select it with `plugins.slots.contextEngine`, OpenClaw delegates context
-assembly, `/compact`, and related subagent context lifecycle hooks to that
-engine instead. `ownsCompaction: false` does not auto-fallback to the legacy
-engine; the active engine must still implement `compact()` correctly. See
-[Context Engine](/concepts/context-engine) for the full
-pluggable interface, lifecycle hooks, and configuration.
+Theo mặc định, OpenClaw sử dụng công cụ ngữ cảnh `legacy` tích hợp sẵn để lắp ráp và nén. Nếu bạn cài đặt một plugin cung cấp `kind: "context-engine"` và chọn nó với `plugins.slots.contextEngine`, OpenClaw sẽ ủy quyền lắp ráp ngữ cảnh, `/compact`, và các hook vòng đời ngữ cảnh subagent liên quan cho công cụ đó. `ownsCompaction: false` không tự động quay lại công cụ legacy; công cụ đang hoạt động vẫn phải thực hiện `compact()` đúng cách. Xem [Context Engine](/concepts/context-engine) để biết giao diện có thể cắm đầy đủ, các hook vòng đời, và cấu hình.
 
-## What `/context` actually reports
+## Những gì `/context` thực sự báo cáo
 
-`/context` prefers the latest **run-built** system prompt report when available:
+`/context` ưu tiên báo cáo system prompt **được xây dựng trong lần chạy gần nhất** khi có sẵn:
 
-- `System prompt (run)` = captured from the last embedded (tool-capable) run and persisted in the session store.
-- `System prompt (estimate)` = computed on the fly when no run report exists (or when running via a CLI backend that doesn’t generate the report).
+- `System prompt (run)` = được ghi lại từ lần chạy nhúng (có khả năng công cụ) cuối cùng và được lưu trữ trong kho phiên.
+- `System prompt (estimate)` = được tính toán ngay khi không có báo cáo chạy (hoặc khi chạy qua backend CLI không tạo báo cáo).
 
-Either way, it reports sizes and top contributors; it does **not** dump the full system prompt or tool schemas.
+Dù bằng cách nào, nó báo cáo kích thước và các yếu tố đóng góp hàng đầu; nó **không** đổ toàn bộ system prompt hoặc schemas công cụ.

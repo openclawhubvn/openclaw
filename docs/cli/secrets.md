@@ -1,24 +1,24 @@
 ---
-summary: "CLI reference for `openclaw secrets` (reload, audit, configure, apply)"
+summary: "Tham khảo CLI cho `openclaw secrets` (reload, audit, configure, apply)"
 read_when:
-  - Re-resolving secret refs at runtime
-  - Auditing plaintext residues and unresolved refs
-  - Configuring SecretRefs and applying one-way scrub changes
+  - Tái giải quyết tham chiếu bí mật khi chạy
+  - Kiểm tra dư lượng văn bản rõ và tham chiếu chưa giải quyết
+  - Cấu hình SecretRefs và áp dụng thay đổi xóa một chiều
 title: "secrets"
 ---
 
 # `openclaw secrets`
 
-Use `openclaw secrets` to manage SecretRefs and keep the active runtime snapshot healthy.
+Sử dụng `openclaw secrets` để quản lý SecretRefs và duy trì trạng thái runtime hiện tại.
 
-Command roles:
+Các vai trò lệnh:
 
-- `reload`: gateway RPC (`secrets.reload`) that re-resolves refs and swaps runtime snapshot only on full success (no config writes).
-- `audit`: read-only scan of configuration/auth/generated-model stores and legacy residues for plaintext, unresolved refs, and precedence drift (exec refs are skipped unless `--allow-exec` is set).
-- `configure`: interactive planner for provider setup, target mapping, and preflight (TTY required).
-- `apply`: execute a saved plan (`--dry-run` for validation only; dry-run skips exec checks by default, and write mode rejects exec-containing plans unless `--allow-exec` is set), then scrub targeted plaintext residues.
+- `reload`: gateway RPC (`secrets.reload`) tái giải quyết tham chiếu và thay thế trạng thái runtime chỉ khi thành công hoàn toàn (không ghi cấu hình).
+- `audit`: quét chỉ đọc các kho cấu hình/xác thực/mô hình tạo ra và dư lượng cũ cho văn bản rõ, tham chiếu chưa giải quyết, và sự trôi dạt ưu tiên (tham chiếu thực thi bị bỏ qua trừ khi `--allow-exec` được đặt).
+- `configure`: lập kế hoạch tương tác cho thiết lập nhà cung cấp, ánh xạ mục tiêu, và kiểm tra trước (yêu cầu TTY).
+- `apply`: thực thi một kế hoạch đã lưu (`--dry-run` chỉ để xác thực; dry-run bỏ qua kiểm tra thực thi theo mặc định, và chế độ ghi từ chối các kế hoạch chứa thực thi trừ khi `--allow-exec` được đặt), sau đó xóa dư lượng văn bản rõ mục tiêu.
 
-Recommended operator loop:
+Vòng lặp vận hành được khuyến nghị:
 
 ```bash
 openclaw secrets audit --check
@@ -29,47 +29,47 @@ openclaw secrets audit --check
 openclaw secrets reload
 ```
 
-If your plan includes `exec` SecretRefs/providers, pass `--allow-exec` on both dry-run and write apply commands.
+Nếu kế hoạch của bạn bao gồm SecretRefs/nhà cung cấp `exec`, hãy thêm `--allow-exec` vào cả lệnh dry-run và apply.
 
-Exit code note for CI/gates:
+Ghi chú mã thoát cho CI/gates:
 
-- `audit --check` returns `1` on findings.
-- unresolved refs return `2`.
+- `audit --check` trả về `1` khi có phát hiện.
+- tham chiếu chưa giải quyết trả về `2`.
 
-Related:
+Liên quan:
 
-- Secrets guide: [Secrets Management](/gateway/secrets)
-- Credential surface: [SecretRef Credential Surface](/reference/secretref-credential-surface)
-- Security guide: [Security](/gateway/security)
+- Hướng dẫn quản lý bí mật: [Secrets Management](/gateway/secrets)
+- Bề mặt thông tin xác thực: [SecretRef Credential Surface](/reference/secretref-credential-surface)
+- Hướng dẫn bảo mật: [Security](/gateway/security)
 
-## Reload runtime snapshot
+## Tải lại trạng thái runtime
 
-Re-resolve secret refs and atomically swap runtime snapshot.
+Tái giải quyết tham chiếu bí mật và thay thế trạng thái runtime một cách nguyên tử.
 
 ```bash
 openclaw secrets reload
 openclaw secrets reload --json
 ```
 
-Notes:
+Ghi chú:
 
-- Uses gateway RPC method `secrets.reload`.
-- If resolution fails, gateway keeps last-known-good snapshot and returns an error (no partial activation).
-- JSON response includes `warningCount`.
+- Sử dụng phương thức gateway RPC `secrets.reload`.
+- Nếu giải quyết thất bại, gateway giữ lại trạng thái tốt nhất đã biết và trả về lỗi (không kích hoạt một phần).
+- Phản hồi JSON bao gồm `warningCount`.
 
-## Audit
+## Kiểm tra
 
-Scan OpenClaw state for:
+Quét trạng thái OpenClaw để tìm:
 
-- plaintext secret storage
-- unresolved refs
-- precedence drift (`auth-profiles.json` credentials shadowing `openclaw.json` refs)
-- generated `agents/*/agent/models.json` residues (provider `apiKey` values and sensitive provider headers)
-- legacy residues (legacy auth store entries, OAuth reminders)
+- lưu trữ bí mật văn bản rõ
+- tham chiếu chưa giải quyết
+- sự trôi dạt ưu tiên (thông tin xác thực `auth-profiles.json` che khuất tham chiếu `openclaw.json`)
+- dư lượng tạo ra `agents/*/agent/models.json` (giá trị `apiKey` của nhà cung cấp và tiêu đề nhạy cảm của nhà cung cấp)
+- dư lượng cũ (mục lưu trữ xác thực cũ, nhắc nhở OAuth)
 
-Header residue note:
+Ghi chú dư lượng tiêu đề:
 
-- Sensitive provider header detection is name-heuristic based (common auth/credential header names and fragments such as `authorization`, `x-api-key`, `token`, `secret`, `password`, and `credential`).
+- Phát hiện tiêu đề nhạy cảm của nhà cung cấp dựa trên tên-heuristic (tên và đoạn mã tiêu đề xác thực/thông tin xác thực phổ biến như `authorization`, `x-api-key`, `token`, `secret`, `password`, và `credential`).
 
 ```bash
 openclaw secrets audit
@@ -78,25 +78,25 @@ openclaw secrets audit --json
 openclaw secrets audit --allow-exec
 ```
 
-Exit behavior:
+Hành vi thoát:
 
-- `--check` exits non-zero on findings.
-- unresolved refs exit with higher-priority non-zero code.
+- `--check` thoát với mã khác không khi có phát hiện.
+- tham chiếu chưa giải quyết thoát với mã khác không ưu tiên cao hơn.
 
-Report shape highlights:
+Điểm nổi bật của báo cáo:
 
 - `status`: `clean | findings | unresolved`
 - `resolution`: `refsChecked`, `skippedExecRefs`, `resolvabilityComplete`
 - `summary`: `plaintextCount`, `unresolvedRefCount`, `shadowedRefCount`, `legacyResidueCount`
-- finding codes:
+- mã phát hiện:
   - `PLAINTEXT_FOUND`
   - `REF_UNRESOLVED`
   - `REF_SHADOWED`
   - `LEGACY_RESIDUE`
 
-## Configure (interactive helper)
+## Cấu hình (trợ giúp tương tác)
 
-Build provider and SecretRef changes interactively, run preflight, and optionally apply:
+Xây dựng thay đổi nhà cung cấp và SecretRef một cách tương tác, chạy kiểm tra trước, và áp dụng tùy chọn:
 
 ```bash
 openclaw secrets configure
@@ -108,42 +108,42 @@ openclaw secrets configure --agent ops
 openclaw secrets configure --json
 ```
 
-Flow:
+Quy trình:
 
-- Provider setup first (`add/edit/remove` for `secrets.providers` aliases).
-- Credential mapping second (select fields and assign `{source, provider, id}` refs).
-- Preflight and optional apply last.
+- Thiết lập nhà cung cấp trước (`thêm/sửa/xóa` cho bí danh `secrets.providers`).
+- Ánh xạ thông tin xác thực thứ hai (chọn trường và gán tham chiếu `{source, provider, id}`).
+- Kiểm tra trước và áp dụng tùy chọn cuối cùng.
 
-Flags:
+Cờ:
 
-- `--providers-only`: configure `secrets.providers` only, skip credential mapping.
-- `--skip-provider-setup`: skip provider setup and map credentials to existing providers.
-- `--agent <id>`: scope `auth-profiles.json` target discovery and writes to one agent store.
-- `--allow-exec`: allow exec SecretRef checks during preflight/apply (may execute provider commands).
+- `--providers-only`: chỉ cấu hình `secrets.providers`, bỏ qua ánh xạ thông tin xác thực.
+- `--skip-provider-setup`: bỏ qua thiết lập nhà cung cấp và ánh xạ thông tin xác thực tới các nhà cung cấp hiện có.
+- `--agent <id>`: giới hạn khám phá mục tiêu `auth-profiles.json` và ghi vào một kho đại lý.
+- `--allow-exec`: cho phép kiểm tra SecretRef thực thi trong quá trình kiểm tra trước/áp dụng (có thể thực thi lệnh nhà cung cấp).
 
-Notes:
+Ghi chú:
 
-- Requires an interactive TTY.
-- You cannot combine `--providers-only` with `--skip-provider-setup`.
-- `configure` targets secret-bearing fields in `openclaw.json` plus `auth-profiles.json` for the selected agent scope.
-- `configure` supports creating new `auth-profiles.json` mappings directly in the picker flow.
-- Canonical supported surface: [SecretRef Credential Surface](/reference/secretref-credential-surface).
-- It performs preflight resolution before apply.
-- If preflight/apply includes exec refs, keep `--allow-exec` set for both steps.
-- Generated plans default to scrub options (`scrubEnv`, `scrubAuthProfilesForProviderTargets`, `scrubLegacyAuthJson` all enabled).
-- Apply path is one-way for scrubbed plaintext values.
-- Without `--apply`, CLI still prompts `Apply this plan now?` after preflight.
-- With `--apply` (and no `--yes`), CLI prompts an extra irreversible confirmation.
+- Yêu cầu một TTY tương tác.
+- Không thể kết hợp `--providers-only` với `--skip-provider-setup`.
+- `configure` nhắm mục tiêu các trường mang bí mật trong `openclaw.json` cộng với `auth-profiles.json` cho phạm vi đại lý đã chọn.
+- `configure` hỗ trợ tạo ánh xạ `auth-profiles.json` mới trực tiếp trong quy trình chọn.
+- Bề mặt hỗ trợ chuẩn: [SecretRef Credential Surface](/reference/secretref-credential-surface).
+- Nó thực hiện giải quyết trước khi áp dụng.
+- Nếu kiểm tra trước/áp dụng bao gồm tham chiếu thực thi, giữ `--allow-exec` được đặt cho cả hai bước.
+- Các kế hoạch tạo ra mặc định có các tùy chọn xóa (`scrubEnv`, `scrubAuthProfilesForProviderTargets`, `scrubLegacyAuthJson` đều được bật).
+- Đường dẫn áp dụng là một chiều cho các giá trị văn bản rõ đã bị xóa.
+- Không có `--apply`, CLI vẫn nhắc `Áp dụng kế hoạch này ngay bây giờ?` sau khi kiểm tra trước.
+- Với `--apply` (và không có `--yes`), CLI nhắc thêm một xác nhận không thể đảo ngược.
 
-Exec provider safety note:
+Ghi chú an toàn nhà cung cấp thực thi:
 
-- Homebrew installs often expose symlinked binaries under `/opt/homebrew/bin/*`.
-- Set `allowSymlinkCommand: true` only when needed for trusted package-manager paths, and pair it with `trustedDirs` (for example `["/opt/homebrew"]`).
-- On Windows, if ACL verification is unavailable for a provider path, OpenClaw fails closed. For trusted paths only, set `allowInsecurePath: true` on that provider to bypass path security checks.
+- Cài đặt Homebrew thường phơi bày các tệp nhị phân liên kết tượng trưng dưới `/opt/homebrew/bin/*`.
+- Đặt `allowSymlinkCommand: true` chỉ khi cần thiết cho các đường dẫn trình quản lý gói đáng tin cậy, và kết hợp với `trustedDirs` (ví dụ `["/opt/homebrew"]`).
+- Trên Windows, nếu xác minh ACL không khả dụng cho một đường dẫn nhà cung cấp, OpenClaw sẽ thất bại. Đối với các đường dẫn đáng tin cậy, chỉ cần đặt `allowInsecurePath: true` trên nhà cung cấp đó để bỏ qua kiểm tra bảo mật đường dẫn.
 
-## Apply a saved plan
+## Áp dụng một kế hoạch đã lưu
 
-Apply or preflight a plan generated previously:
+Áp dụng hoặc kiểm tra trước một kế hoạch đã tạo trước đó:
 
 ```bash
 openclaw secrets apply --from /tmp/openclaw-secrets-plan.json
@@ -153,31 +153,31 @@ openclaw secrets apply --from /tmp/openclaw-secrets-plan.json --dry-run --allow-
 openclaw secrets apply --from /tmp/openclaw-secrets-plan.json --json
 ```
 
-Exec behavior:
+Hành vi thực thi:
 
-- `--dry-run` validates preflight without writing files.
-- exec SecretRef checks are skipped by default in dry-run.
-- write mode rejects plans that contain exec SecretRefs/providers unless `--allow-exec` is set.
-- Use `--allow-exec` to opt in to exec provider checks/execution in either mode.
+- `--dry-run` xác thực kiểm tra trước mà không ghi tệp.
+- kiểm tra SecretRef thực thi bị bỏ qua theo mặc định trong dry-run.
+- chế độ ghi từ chối các kế hoạch chứa SecretRefs/nhà cung cấp thực thi trừ khi `--allow-exec` được đặt.
+- Sử dụng `--allow-exec` để chọn tham gia kiểm tra/thực thi nhà cung cấp thực thi trong cả hai chế độ.
 
-Plan contract details (allowed target paths, validation rules, and failure semantics):
+Chi tiết hợp đồng kế hoạch (đường dẫn mục tiêu được phép, quy tắc xác thực, và ngữ nghĩa thất bại):
 
 - [Secrets Apply Plan Contract](/gateway/secrets-plan-contract)
 
-What `apply` may update:
+Những gì `apply` có thể cập nhật:
 
-- `openclaw.json` (SecretRef targets + provider upserts/deletes)
-- `auth-profiles.json` (provider-target scrubbing)
-- legacy `auth.json` residues
-- `~/.openclaw/.env` known secret keys whose values were migrated
+- `openclaw.json` (mục tiêu SecretRef + thêm/xóa nhà cung cấp)
+- `auth-profiles.json` (xóa mục tiêu nhà cung cấp)
+- dư lượng `auth.json` cũ
+- `~/.openclaw/.env` các khóa bí mật đã biết có giá trị đã được di chuyển
 
-## Why no rollback backups
+## Tại sao không có sao lưu rollback
 
-`secrets apply` intentionally does not write rollback backups containing old plaintext values.
+`secrets apply` cố ý không ghi sao lưu rollback chứa các giá trị văn bản rõ cũ.
 
-Safety comes from strict preflight + atomic-ish apply with best-effort in-memory restore on failure.
+An toàn đến từ kiểm tra trước nghiêm ngặt + áp dụng gần như nguyên tử với nỗ lực tốt nhất khôi phục trong bộ nhớ khi thất bại.
 
-## Example
+## Ví dụ
 
 ```bash
 openclaw secrets audit --check
@@ -185,4 +185,4 @@ openclaw secrets configure
 openclaw secrets audit --check
 ```
 
-If `audit --check` still reports plaintext findings, update the remaining reported target paths and rerun audit.
+Nếu `audit --check` vẫn báo cáo phát hiện văn bản rõ, cập nhật các đường dẫn mục tiêu còn lại được báo cáo và chạy lại kiểm tra.

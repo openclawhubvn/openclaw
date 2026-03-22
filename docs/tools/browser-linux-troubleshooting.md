@@ -1,43 +1,43 @@
 ---
-summary: "Fix Chrome/Brave/Edge/Chromium CDP startup issues for OpenClaw browser control on Linux"
-read_when: "Browser control fails on Linux, especially with snap Chromium"
-title: "Browser Troubleshooting"
+summary: "Khắc phục sự cố khởi động Chrome/Brave/Edge/Chromium CDP cho điều khiển trình duyệt OpenClaw trên Linux"
+read_when: "Điều khiển trình duyệt không hoạt động trên Linux, đặc biệt với snap Chromium"
+title: "Khắc phục sự cố trình duyệt"
 ---
 
-# Browser Troubleshooting (Linux)
+# Khắc phục sự cố trình duyệt (Linux)
 
-## Problem: "Failed to start Chrome CDP on port 18800"
+## Vấn đề: "Không thể khởi động Chrome CDP trên cổng 18800"
 
-OpenClaw's browser control server fails to launch Chrome/Brave/Edge/Chromium with the error:
+Máy chủ điều khiển trình duyệt của OpenClaw không thể khởi động Chrome/Brave/Edge/Chromium với lỗi:
 
 ```
 {"error":"Error: Failed to start Chrome CDP on port 18800 for profile \"openclaw\"."}
 ```
 
-### Root Cause
+### Nguyên nhân gốc rễ
 
-On Ubuntu (and many Linux distros), the default Chromium installation is a **snap package**. Snap's AppArmor confinement interferes with how OpenClaw spawns and monitors the browser process.
+Trên Ubuntu (và nhiều bản phân phối Linux khác), Chromium mặc định được cài đặt dưới dạng **gói snap**. Cơ chế bảo mật AppArmor của snap gây cản trở cho việc OpenClaw khởi chạy và giám sát quá trình trình duyệt.
 
-The `apt install chromium` command installs a stub package that redirects to snap:
+Lệnh `apt install chromium` cài đặt một gói giả chỉ dẫn đến snap:
 
 ```
 Note, selecting 'chromium-browser' instead of 'chromium'
 chromium-browser is already the newest version (2:1snap1-0ubuntu2).
 ```
 
-This is NOT a real browser - it's just a wrapper.
+Đây KHÔNG phải là trình duyệt thực sự - chỉ là một lớp bọc.
 
-### Solution 1: Install Google Chrome (Recommended)
+### Giải pháp 1: Cài đặt Google Chrome (Khuyến nghị)
 
-Install the official Google Chrome `.deb` package, which is not sandboxed by snap:
+Cài đặt gói `.deb` chính thức của Google Chrome, không bị sandbox bởi snap:
 
 ```bash
 wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo dpkg -i google-chrome-stable_current_amd64.deb
-sudo apt --fix-broken install -y  # if there are dependency errors
+sudo apt --fix-broken install -y  # nếu có lỗi phụ thuộc
 ```
 
-Then update your OpenClaw config (`~/.openclaw/openclaw.json`):
+Sau đó cập nhật cấu hình OpenClaw (`~/.openclaw/openclaw.json`):
 
 ```json
 {
@@ -50,11 +50,11 @@ Then update your OpenClaw config (`~/.openclaw/openclaw.json`):
 }
 ```
 
-### Solution 2: Use Snap Chromium with Attach-Only Mode
+### Giải pháp 2: Sử dụng Snap Chromium với chế độ chỉ đính kèm
 
-If you must use snap Chromium, configure OpenClaw to attach to a manually-started browser:
+Nếu cần sử dụng snap Chromium, cấu hình OpenClaw để đính kèm vào trình duyệt đã khởi động thủ công:
 
-1. Update config:
+1. Cập nhật cấu hình:
 
 ```json
 {
@@ -67,7 +67,7 @@ If you must use snap Chromium, configure OpenClaw to attach to a manually-starte
 }
 ```
 
-2. Start Chromium manually:
+2. Khởi động Chromium thủ công:
 
 ```bash
 chromium-browser --headless --no-sandbox --disable-gpu \
@@ -76,7 +76,7 @@ chromium-browser --headless --no-sandbox --disable-gpu \
   about:blank &
 ```
 
-3. Optionally create a systemd user service to auto-start Chrome:
+3. Tùy chọn tạo dịch vụ người dùng systemd để tự động khởi động Chrome:
 
 ```ini
 # ~/.config/systemd/user/openclaw-browser.service
@@ -93,46 +93,45 @@ RestartSec=5
 WantedBy=default.target
 ```
 
-Enable with: `systemctl --user enable --now openclaw-browser.service`
+Kích hoạt với: `systemctl --user enable --now openclaw-browser.service`
 
-### Verifying the Browser Works
+### Kiểm tra trình duyệt hoạt động
 
-Check status:
+Kiểm tra trạng thái:
 
 ```bash
 curl -s http://127.0.0.1:18791/ | jq '{running, pid, chosenBrowser}'
 ```
 
-Test browsing:
+Kiểm tra duyệt web:
 
 ```bash
 curl -s -X POST http://127.0.0.1:18791/start
 curl -s http://127.0.0.1:18791/tabs
 ```
 
-### Config Reference
+### Tham khảo cấu hình
 
-| Option                   | Description                                                          | Default                                                     |
-| ------------------------ | -------------------------------------------------------------------- | ----------------------------------------------------------- |
-| `browser.enabled`        | Enable browser control                                               | `true`                                                      |
-| `browser.executablePath` | Path to a Chromium-based browser binary (Chrome/Brave/Edge/Chromium) | auto-detected (prefers default browser when Chromium-based) |
-| `browser.headless`       | Run without GUI                                                      | `false`                                                     |
-| `browser.noSandbox`      | Add `--no-sandbox` flag (needed for some Linux setups)               | `false`                                                     |
-| `browser.attachOnly`     | Don't launch browser, only attach to existing                        | `false`                                                     |
-| `browser.cdpPort`        | Chrome DevTools Protocol port                                        | `18800`                                                     |
+| Tùy chọn                  | Mô tả                                                               | Mặc định                                                    |
+| ------------------------- | ------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `browser.enabled`         | Bật điều khiển trình duyệt                                          | `true`                                                      |
+| `browser.executablePath`  | Đường dẫn đến tệp thực thi của trình duyệt dựa trên Chromium        | tự động phát hiện (ưu tiên trình duyệt mặc định khi dựa trên Chromium) |
+| `browser.headless`        | Chạy không có giao diện người dùng                                  | `false`                                                     |
+| `browser.noSandbox`       | Thêm cờ `--no-sandbox` (cần thiết cho một số cấu hình Linux)        | `false`                                                     |
+| `browser.attachOnly`      | Không khởi động trình duyệt, chỉ đính kèm vào trình duyệt hiện có   | `false`                                                     |
+| `browser.cdpPort`         | Cổng giao thức Chrome DevTools                                      | `18800`                                                     |
 
-### Problem: "No Chrome tabs found for profile=\"user\""
+### Vấn đề: "Không tìm thấy tab Chrome cho profile=\"user\""
 
-You're using an `existing-session` / Chrome MCP profile. OpenClaw can see local Chrome,
-but there are no open tabs available to attach to.
+Bạn đang sử dụng profile `existing-session` / Chrome MCP. OpenClaw có thể thấy Chrome cục bộ, nhưng không có tab nào mở để đính kèm.
 
-Fix options:
+Các cách khắc phục:
 
-1. **Use the managed browser:** `openclaw browser start --browser-profile openclaw`
-   (or set `browser.defaultProfile: "openclaw"`).
-2. **Use Chrome MCP:** make sure local Chrome is running with at least one open tab, then retry with `--browser-profile user`.
+1. **Sử dụng trình duyệt được quản lý:** `openclaw browser start --browser-profile openclaw`
+   (hoặc đặt `browser.defaultProfile: "openclaw"`).
+2. **Sử dụng Chrome MCP:** đảm bảo Chrome cục bộ đang chạy với ít nhất một tab mở, sau đó thử lại với `--browser-profile user`.
 
-Notes:
+Lưu ý:
 
-- `user` is host-only. For Linux servers, containers, or remote hosts, prefer CDP profiles.
-- Local `openclaw` profiles auto-assign `cdpPort`/`cdpUrl`; only set those for remote CDP.
+- `user` chỉ dành cho máy chủ cục bộ. Đối với máy chủ Linux, container, hoặc máy chủ từ xa, ưu tiên sử dụng profile CDP.
+- Profile `openclaw` cục bộ tự động gán `cdpPort`/`cdpUrl`; chỉ đặt những giá trị này cho CDP từ xa.

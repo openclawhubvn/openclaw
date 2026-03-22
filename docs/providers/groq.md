@@ -1,32 +1,30 @@
 ---
 title: "Groq"
-summary: "Groq setup (auth + model selection)"
+summary: "Thiết lập Groq (xác thực + chọn mô hình)"
 read_when:
-  - You want to use Groq with OpenClaw
-  - You need the API key env var or CLI auth choice
+  - Bạn muốn sử dụng Groq với OpenClaw
+  - Bạn cần biến môi trường API key hoặc lựa chọn xác thực CLI
 ---
 
 # Groq
 
-[Groq](https://groq.com) provides ultra-fast inference on open-source models
-(Llama, Gemma, Mistral, and more) using custom LPU hardware. OpenClaw connects
-to Groq through its OpenAI-compatible API.
+[Groq](https://groq.com) cung cấp khả năng suy luận siêu nhanh trên các mô hình mã nguồn mở (Llama, Gemma, Mistral và nhiều hơn nữa) bằng cách sử dụng phần cứng LPU tùy chỉnh. OpenClaw kết nối với Groq thông qua API tương thích với OpenAI.
 
-- Provider: `groq`
-- Auth: `GROQ_API_KEY`
-- API: OpenAI-compatible
+- Nhà cung cấp: `groq`
+- Xác thực: `GROQ_API_KEY`
+- API: Tương thích OpenAI
 
-## Quick start
+## Bắt đầu nhanh
 
-1. Get an API key from [console.groq.com/keys](https://console.groq.com/keys).
+1. Lấy API key từ [console.groq.com/keys](https://console.groq.com/keys).
 
-2. Set the API key:
+2. Thiết lập API key:
 
 ```bash
 export GROQ_API_KEY="gsk_..."
 ```
 
-3. Set a default model:
+3. Thiết lập mô hình mặc định:
 
 ```json5
 {
@@ -38,7 +36,7 @@ export GROQ_API_KEY="gsk_..."
 }
 ```
 
-## Config file example
+## Ví dụ file cấu hình
 
 ```json5
 {
@@ -51,11 +49,9 @@ export GROQ_API_KEY="gsk_..."
 }
 ```
 
-## Audio transcription
+## Chuyển đổi âm thanh
 
-Groq also provides fast Whisper-based audio transcription. When configured as a
-media-understanding provider, OpenClaw uses Groq's `whisper-large-v3-turbo`
-model to transcribe voice messages.
+Groq cũng cung cấp khả năng chuyển đổi âm thanh nhanh chóng dựa trên Whisper. Khi được cấu hình như một nhà cung cấp hiểu biết về phương tiện, OpenClaw sử dụng mô hình `whisper-large-v3-turbo` của Groq để chuyển đổi tin nhắn thoại.
 
 ```json5
 {
@@ -69,28 +65,24 @@ model to transcribe voice messages.
 }
 ```
 
-## Environment note
+## Lưu ý về môi trường
 
-If the Gateway runs as a daemon (launchd/systemd), make sure `GROQ_API_KEY` is
-available to that process (for example, in `~/.openclaw/.env` or via
-`env.shellEnv`).
+Nếu Gateway chạy dưới dạng daemon (launchd/systemd), đảm bảo rằng `GROQ_API_KEY` có sẵn cho tiến trình đó (ví dụ, trong `~/.openclaw/.env` hoặc thông qua `env.shellEnv`).
 
-## Available models
+## Các mô hình có sẵn
 
-Groq's model catalog changes frequently. Run `openclaw models list | grep groq`
-to see currently available models, or check
-[console.groq.com/docs/models](https://console.groq.com/docs/models).
+Danh mục mô hình của Groq thay đổi thường xuyên. Chạy `openclaw models list | grep groq` để xem các mô hình hiện có, hoặc kiểm tra tại [console.groq.com/docs/models](https://console.groq.com/docs/models).
 
-Popular choices include:
+Các lựa chọn phổ biến bao gồm:
 
-- **Llama 3.3 70B Versatile** - general-purpose, large context
-- **Llama 3.1 8B Instant** - fast, lightweight
-- **Gemma 2 9B** - compact, efficient
-- **Mixtral 8x7B** - MoE architecture, strong reasoning
+- **Llama 3.3 70B Versatile** - đa dụng, ngữ cảnh lớn
+- **Llama 3.1 8B Instant** - nhanh, nhẹ
+- **Gemma 2 9B** - gọn nhẹ, hiệu quả
+- **Mixtral 8x7B** - kiến trúc MoE, khả năng suy luận mạnh
 
-## Links
+## Liên kết
 
 - [Groq Console](https://console.groq.com)
-- [API Documentation](https://console.groq.com/docs)
-- [Model List](https://console.groq.com/docs/models)
-- [Pricing](https://groq.com/pricing)
+- [Tài liệu API](https://console.groq.com/docs)
+- [Danh sách mô hình](https://console.groq.com/docs/models)
+- [Giá cả](https://groq.com/pricing)

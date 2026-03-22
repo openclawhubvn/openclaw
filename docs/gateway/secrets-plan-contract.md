@@ -1,21 +1,21 @@
 ---
-summary: "Contract for `secrets apply` plans: target validation, path matching, and `auth-profiles.json` target scope"
+summary: "Hợp đồng cho kế hoạch `secrets apply`: xác thực mục tiêu, khớp đường dẫn, và phạm vi mục tiêu `auth-profiles.json`"
 read_when:
-  - Generating or reviewing `openclaw secrets apply` plans
-  - Debugging `Invalid plan target path` errors
-  - Understanding target type and path validation behavior
-title: "Secrets Apply Plan Contract"
+  - Tạo hoặc xem xét kế hoạch `openclaw secrets apply`
+  - Gỡ lỗi lỗi `Invalid plan target path`
+  - Hiểu hành vi xác thực loại và đường dẫn mục tiêu
+title: "Hợp đồng Kế hoạch Secrets Apply"
 ---
 
-# Secrets apply plan contract
+# Hợp đồng kế hoạch secrets apply
 
-This page defines the strict contract enforced by `openclaw secrets apply`.
+Trang này định nghĩa hợp đồng nghiêm ngặt được thực thi bởi `openclaw secrets apply`.
 
-If a target does not match these rules, apply fails before mutating configuration.
+Nếu một mục tiêu không tuân thủ các quy tắc này, việc áp dụng sẽ thất bại trước khi thay đổi cấu hình.
 
-## Plan file shape
+## Cấu trúc file kế hoạch
 
-`openclaw secrets apply --from <plan.json>` expects a `targets` array of plan targets:
+`openclaw secrets apply --from <plan.json>` yêu cầu một mảng `targets` chứa các mục tiêu kế hoạch:
 
 ```json5
 {
@@ -40,77 +40,77 @@ If a target does not match these rules, apply fails before mutating configuratio
 }
 ```
 
-## Supported target scope
+## Phạm vi mục tiêu được hỗ trợ
 
-Plan targets are accepted for supported credential paths in:
+Các mục tiêu kế hoạch được chấp nhận cho các đường dẫn thông tin xác thực được hỗ trợ trong:
 
-- [SecretRef Credential Surface](/reference/secretref-credential-surface)
+- [Bề mặt Thông tin Xác thực SecretRef](/reference/secretref-credential-surface)
 
-## Target type behavior
+## Hành vi loại mục tiêu
 
-General rule:
+Quy tắc chung:
 
-- `target.type` must be recognized and must match the normalized `target.path` shape.
+- `target.type` phải được nhận diện và phải khớp với cấu trúc `target.path` đã chuẩn hóa.
 
-Compatibility aliases remain accepted for existing plans:
+Các bí danh tương thích vẫn được chấp nhận cho các kế hoạch hiện có:
 
 - `models.providers.apiKey`
 - `skills.entries.apiKey`
 - `channels.googlechat.serviceAccount`
 
-## Path validation rules
+## Quy tắc xác thực đường dẫn
 
-Each target is validated with all of the following:
+Mỗi mục tiêu được xác thực với tất cả các điều sau:
 
-- `type` must be a recognized target type.
-- `path` must be a non-empty dot path.
-- `pathSegments` can be omitted. If provided, it must normalize to exactly the same path as `path`.
-- Forbidden segments are rejected: `__proto__`, `prototype`, `constructor`.
-- The normalized path must match the registered path shape for the target type.
-- If `providerId` or `accountId` is set, it must match the id encoded in the path.
-- `auth-profiles.json` targets require `agentId`.
-- When creating a new `auth-profiles.json` mapping, include `authProfileProvider`.
+- `type` phải là một loại mục tiêu được nhận diện.
+- `path` phải là một đường dẫn không rỗng dạng dấu chấm.
+- `pathSegments` có thể được bỏ qua. Nếu có, nó phải chuẩn hóa chính xác giống như `path`.
+- Các đoạn bị cấm sẽ bị từ chối: `__proto__`, `prototype`, `constructor`.
+- Đường dẫn đã chuẩn hóa phải khớp với cấu trúc đường dẫn đã đăng ký cho loại mục tiêu.
+- Nếu `providerId` hoặc `accountId` được đặt, nó phải khớp với id được mã hóa trong đường dẫn.
+- Các mục tiêu `auth-profiles.json` yêu cầu `agentId`.
+- Khi tạo một ánh xạ mới trong `auth-profiles.json`, bao gồm `authProfileProvider`.
 
-## Failure behavior
+## Hành vi khi thất bại
 
-If a target fails validation, apply exits with an error like:
+Nếu một mục tiêu không vượt qua xác thực, việc áp dụng sẽ thoát với lỗi như:
 
 ```text
 Invalid plan target path for models.providers.apiKey: models.providers.openai.baseUrl
 ```
 
-No writes are committed for an invalid plan.
+Không có thay đổi nào được ghi lại cho một kế hoạch không hợp lệ.
 
-## Exec provider consent behavior
+## Hành vi đồng ý của nhà cung cấp exec
 
-- `--dry-run` skips exec SecretRef checks by default.
-- Plans containing exec SecretRefs/providers are rejected in write mode unless `--allow-exec` is set.
-- When validating/applying exec-containing plans, pass `--allow-exec` in both dry-run and write commands.
+- `--dry-run` bỏ qua kiểm tra SecretRef exec theo mặc định.
+- Các kế hoạch chứa SecretRefs/nhà cung cấp exec bị từ chối ở chế độ ghi trừ khi `--allow-exec` được đặt.
+- Khi xác thực/áp dụng các kế hoạch chứa exec, hãy truyền `--allow-exec` trong cả lệnh dry-run và ghi.
 
-## Runtime and audit scope notes
+## Ghi chú về phạm vi thời gian chạy và kiểm toán
 
-- Ref-only `auth-profiles.json` entries (`keyRef`/`tokenRef`) are included in runtime resolution and audit coverage.
-- `secrets apply` writes supported `openclaw.json` targets, supported `auth-profiles.json` targets, and optional scrub targets.
+- Các mục nhập chỉ có ref trong `auth-profiles.json` (`keyRef`/`tokenRef`) được bao gồm trong giải quyết thời gian chạy và phạm vi kiểm toán.
+- `secrets apply` ghi các mục tiêu `openclaw.json` được hỗ trợ, các mục tiêu `auth-profiles.json` được hỗ trợ, và các mục tiêu xóa tùy chọn.
 
-## Operator checks
+## Kiểm tra của người vận hành
 
 ```bash
-# Validate plan without writes
+# Xác thực kế hoạch mà không ghi
 openclaw secrets apply --from /tmp/openclaw-secrets-plan.json --dry-run
 
-# Then apply for real
+# Sau đó áp dụng thực sự
 openclaw secrets apply --from /tmp/openclaw-secrets-plan.json
 
-# For exec-containing plans, opt in explicitly in both modes
+# Đối với các kế hoạch chứa exec, chọn tham gia rõ ràng ở cả hai chế độ
 openclaw secrets apply --from /tmp/openclaw-secrets-plan.json --dry-run --allow-exec
 openclaw secrets apply --from /tmp/openclaw-secrets-plan.json --allow-exec
 ```
 
-If apply fails with an invalid target path message, regenerate the plan with `openclaw secrets configure` or fix the target path to a supported shape above.
+Nếu việc áp dụng thất bại với thông báo đường dẫn mục tiêu không hợp lệ, hãy tạo lại kế hoạch với `openclaw secrets configure` hoặc sửa đường dẫn mục tiêu thành cấu trúc được hỗ trợ ở trên.
 
-## Related docs
+## Tài liệu liên quan
 
-- [Secrets Management](/gateway/secrets)
+- [Quản lý Secrets](/gateway/secrets)
 - [CLI `secrets`](/cli/secrets)
-- [SecretRef Credential Surface](/reference/secretref-credential-surface)
-- [Configuration Reference](/gateway/configuration-reference)
+- [Bề mặt Thông tin Xác thực SecretRef](/reference/secretref-credential-surface)
+- [Tham khảo Cấu hình](/gateway/configuration-reference)

@@ -1,262 +1,262 @@
 ---
-summary: "Complete reference for CLI setup flow, auth/model setup, outputs, and internals"
+summary: "Tham khảo đầy đủ về quy trình thiết lập CLI, cấu hình xác thực/mô hình, đầu ra và nội bộ"
 read_when:
-  - You need detailed behavior for openclaw onboard
-  - You are debugging onboarding results or integrating onboarding clients
-title: "CLI Setup Reference"
-sidebarTitle: "CLI reference"
+  - Cần hành vi chi tiết cho onboard OpenClaw
+  - Đang gỡ lỗi kết quả onboarding hoặc tích hợp khách hàng onboarding
+title: "Tham khảo Thiết lập CLI"
+sidebarTitle: "Tham khảo CLI"
 ---
 
-# CLI Setup Reference
+# Tham khảo Thiết lập CLI
 
-This page is the full reference for `openclaw onboard`.
-For the short guide, see [Onboarding (CLI)](/start/wizard).
+Trang này cung cấp tham khảo đầy đủ cho `openclaw onboard`.
+Để xem hướng dẫn ngắn, hãy xem [Onboarding (CLI)](/start/wizard).
 
-## What the wizard does
+## Những gì wizard thực hiện
 
-Local mode (default) walks you through:
+Chế độ cục bộ (mặc định) hướng dẫn bạn qua:
 
-- Model and auth setup (OpenAI Code subscription OAuth, Anthropic API key or setup token, plus MiniMax, GLM, Ollama, Moonshot, and AI Gateway options)
-- Workspace location and bootstrap files
-- Gateway settings (port, bind, auth, tailscale)
-- Channels and providers (Telegram, WhatsApp, Discord, Google Chat, Mattermost plugin, Signal)
-- Daemon install (LaunchAgent or systemd user unit)
-- Health check
-- Skills setup
+- Thiết lập mô hình và xác thực (OpenAI Code subscription OAuth, khóa API Anthropic hoặc token thiết lập, cùng với các tùy chọn MiniMax, GLM, Ollama, Moonshot và AI Gateway)
+- Vị trí Workspace và các file khởi động
+- Cài đặt Gateway (cổng, bind, xác thực, tailscale)
+- Kênh và nhà cung cấp (Telegram, WhatsApp, Discord, Google Chat, plugin Mattermost, Signal)
+- Cài đặt Daemon (LaunchAgent hoặc systemd user unit)
+- Kiểm tra sức khỏe
+- Thiết lập kỹ năng
 
-Remote mode configures this machine to connect to a gateway elsewhere.
-It does not install or modify anything on the remote host.
+Chế độ từ xa cấu hình máy này để kết nối với một gateway ở nơi khác.
+Nó không cài đặt hoặc thay đổi bất kỳ thứ gì trên máy chủ từ xa.
 
-## Local flow details
+## Chi tiết quy trình cục bộ
 
 <Steps>
-  <Step title="Existing config detection">
-    - If `~/.openclaw/openclaw.json` exists, choose Keep, Modify, or Reset.
-    - Re-running the wizard does not wipe anything unless you explicitly choose Reset (or pass `--reset`).
-    - CLI `--reset` defaults to `config+creds+sessions`; use `--reset-scope full` to also remove workspace.
-    - If config is invalid or contains legacy keys, the wizard stops and asks you to run `openclaw doctor` before continuing.
-    - Reset uses `trash` and offers scopes:
-      - Config only
-      - Config + credentials + sessions
-      - Full reset (also removes workspace)
+  <Step title="Phát hiện cấu hình hiện có">
+    - Nếu `~/.openclaw/openclaw.json` tồn tại, chọn Giữ, Sửa đổi hoặc Đặt lại.
+    - Chạy lại wizard không xóa bất kỳ thứ gì trừ khi bạn chọn Đặt lại (hoặc sử dụng `--reset`).
+    - CLI `--reset` mặc định là `config+creds+sessions`; sử dụng `--reset-scope full` để xóa cả workspace.
+    - Nếu cấu hình không hợp lệ hoặc chứa khóa cũ, wizard dừng lại và yêu cầu bạn chạy `openclaw doctor` trước khi tiếp tục.
+    - Đặt lại sử dụng `trash` và cung cấp các phạm vi:
+      - Chỉ cấu hình
+      - Cấu hình + thông tin xác thực + phiên
+      - Đặt lại hoàn toàn (cũng xóa workspace)
   </Step>
-  <Step title="Model and auth">
-    - Full option matrix is in [Auth and model options](#auth-and-model-options).
+  <Step title="Mô hình và xác thực">
+    - Ma trận tùy chọn đầy đủ có trong [Tùy chọn xác thực và mô hình](#auth-and-model-options).
   </Step>
   <Step title="Workspace">
-    - Default `~/.openclaw/workspace` (configurable).
-    - Seeds workspace files needed for first-run bootstrap ritual.
-    - Workspace layout: [Agent workspace](/concepts/agent-workspace).
+    - Mặc định `~/.openclaw/workspace` (có thể cấu hình).
+    - Khởi tạo các file workspace cần thiết cho lần chạy đầu tiên.
+    - Bố cục Workspace: [Agent workspace](/concepts/agent-workspace).
   </Step>
   <Step title="Gateway">
-    - Prompts for port, bind, auth mode, and tailscale exposure.
-    - Recommended: keep token auth enabled even for loopback so local WS clients must authenticate.
-    - In token mode, interactive setup offers:
-      - **Generate/store plaintext token** (default)
-      - **Use SecretRef** (opt-in)
-    - In password mode, interactive setup also supports plaintext or SecretRef storage.
-    - Non-interactive token SecretRef path: `--gateway-token-ref-env <ENV_VAR>`.
-      - Requires a non-empty env var in the onboarding process environment.
-      - Cannot be combined with `--gateway-token`.
-    - Disable auth only if you fully trust every local process.
-    - Non-loopback binds still require auth.
+    - Nhắc nhở về cổng, bind, chế độ xác thực và phơi bày tailscale.
+    - Khuyến nghị: giữ xác thực token được bật ngay cả cho loopback để các client WS cục bộ phải xác thực.
+    - Trong chế độ token, thiết lập tương tác cung cấp:
+      - **Tạo/lưu trữ token dạng văn bản** (mặc định)
+      - **Sử dụng SecretRef** (tùy chọn)
+    - Trong chế độ mật khẩu, thiết lập tương tác cũng hỗ trợ lưu trữ dạng văn bản hoặc SecretRef.
+    - Đường dẫn SecretRef token không tương tác: `--gateway-token-ref-env <ENV_VAR>`.
+      - Yêu cầu một biến môi trường không rỗng trong môi trường quy trình onboarding.
+      - Không thể kết hợp với `--gateway-token`.
+    - Chỉ vô hiệu hóa xác thực nếu bạn hoàn toàn tin tưởng mọi quy trình cục bộ.
+    - Các bind không phải loopback vẫn yêu cầu xác thực.
   </Step>
-  <Step title="Channels">
-    - [WhatsApp](/channels/whatsapp): optional QR login
-    - [Telegram](/channels/telegram): bot token
-    - [Discord](/channels/discord): bot token
-    - [Google Chat](/channels/googlechat): service account JSON + webhook audience
-    - [Mattermost](/channels/mattermost) plugin: bot token + base URL
-    - [Signal](/channels/signal): optional `signal-cli` install + account config
-    - [BlueBubbles](/channels/bluebubbles): recommended for iMessage; server URL + password + webhook
-    - [iMessage](/channels/imessage): legacy `imsg` CLI path + DB access
-    - DM security: default is pairing. First DM sends a code; approve via
-      `openclaw pairing approve <channel> <code>` or use allowlists.
+  <Step title="Kênh">
+    - [WhatsApp](/channels/whatsapp): đăng nhập QR tùy chọn
+    - [Telegram](/channels/telegram): token bot
+    - [Discord](/channels/discord): token bot
+    - [Google Chat](/channels/googlechat): tài khoản dịch vụ JSON + đối tượng webhook
+    - [Plugin Mattermost](/channels/mattermost): token bot + URL cơ sở
+    - [Signal](/channels/signal): cài đặt `signal-cli` tùy chọn + cấu hình tài khoản
+    - [BlueBubbles](/channels/bluebubbles): khuyến nghị cho iMessage; URL máy chủ + mật khẩu + webhook
+    - [iMessage](/channels/imessage): đường dẫn CLI `imsg` cũ + truy cập DB
+    - Bảo mật DM: mặc định là ghép đôi. DM đầu tiên gửi mã; phê duyệt qua
+      `openclaw pairing approve <channel> <code>` hoặc sử dụng danh sách cho phép.
   </Step>
-  <Step title="Daemon install">
+  <Step title="Cài đặt Daemon">
     - macOS: LaunchAgent
-      - Requires logged-in user session; for headless, use a custom LaunchDaemon (not shipped).
-    - Linux and Windows via WSL2: systemd user unit
-      - Wizard attempts `loginctl enable-linger <user>` so gateway stays up after logout.
-      - May prompt for sudo (writes `/var/lib/systemd/linger`); it tries without sudo first.
-    - Runtime selection: Node (recommended; required for WhatsApp and Telegram). Bun is not recommended.
+      - Yêu cầu phiên người dùng đã đăng nhập; cho headless, sử dụng LaunchDaemon tùy chỉnh (không được cung cấp).
+    - Linux và Windows qua WSL2: systemd user unit
+      - Wizard cố gắng `loginctl enable-linger <user>` để gateway duy trì sau khi đăng xuất.
+      - Có thể yêu cầu sudo (ghi vào `/var/lib/systemd/linger`); nó thử mà không cần sudo trước.
+    - Lựa chọn runtime: Node (khuyến nghị; yêu cầu cho WhatsApp và Telegram). Bun không được khuyến nghị.
   </Step>
-  <Step title="Health check">
-    - Starts gateway (if needed) and runs `openclaw health`.
-    - `openclaw status --deep` adds gateway health probes to status output.
+  <Step title="Kiểm tra sức khỏe">
+    - Khởi động gateway (nếu cần) và chạy `openclaw health`.
+    - `openclaw status --deep` thêm các kiểm tra sức khỏe gateway vào đầu ra trạng thái.
   </Step>
-  <Step title="Skills">
-    - Reads available skills and checks requirements.
-    - Lets you choose node manager: npm or pnpm (bun not recommended).
-    - Installs optional dependencies (some use Homebrew on macOS).
+  <Step title="Kỹ năng">
+    - Đọc các kỹ năng có sẵn và kiểm tra yêu cầu.
+    - Cho phép bạn chọn trình quản lý node: npm hoặc pnpm (không khuyến nghị bun).
+    - Cài đặt các phụ thuộc tùy chọn (một số sử dụng Homebrew trên macOS).
   </Step>
-  <Step title="Finish">
-    - Summary and next steps, including iOS, Android, and macOS app options.
+  <Step title="Hoàn tất">
+    - Tóm tắt và các bước tiếp theo, bao gồm các tùy chọn ứng dụng iOS, Android và macOS.
   </Step>
 </Steps>
 
 <Note>
-If no GUI is detected, the wizard prints SSH port-forward instructions for the Control UI instead of opening a browser.
-If Control UI assets are missing, the wizard attempts to build them; fallback is `pnpm ui:build` (auto-installs UI deps).
+Nếu không phát hiện GUI, wizard sẽ in hướng dẫn chuyển tiếp cổng SSH cho Control UI thay vì mở trình duyệt.
+Nếu thiếu tài sản Control UI, wizard sẽ cố gắng xây dựng chúng; phương án dự phòng là `pnpm ui:build` (tự động cài đặt các phụ thuộc UI).
 </Note>
 
-## Remote mode details
+## Chi tiết chế độ từ xa
 
-Remote mode configures this machine to connect to a gateway elsewhere.
+Chế độ từ xa cấu hình máy này để kết nối với một gateway ở nơi khác.
 
 <Info>
-Remote mode does not install or modify anything on the remote host.
+Chế độ từ xa không cài đặt hoặc thay đổi bất kỳ thứ gì trên máy chủ từ xa.
 </Info>
 
-What you set:
+Những gì bạn thiết lập:
 
-- Remote gateway URL (`ws://...`)
-- Token if remote gateway auth is required (recommended)
+- URL gateway từ xa (`ws://...`)
+- Token nếu yêu cầu xác thực gateway từ xa (khuyến nghị)
 
 <Note>
-- If gateway is loopback-only, use SSH tunneling or a tailnet.
-- Discovery hints:
+- Nếu gateway chỉ dành cho loopback, sử dụng SSH tunneling hoặc một tailnet.
+- Gợi ý khám phá:
   - macOS: Bonjour (`dns-sd`)
   - Linux: Avahi (`avahi-browse`)
 </Note>
 
-## Auth and model options
+## Tùy chọn xác thực và mô hình
 
 <AccordionGroup>
-  <Accordion title="Anthropic API key">
-    Uses `ANTHROPIC_API_KEY` if present or prompts for a key, then saves it for daemon use.
+  <Accordion title="Khóa API Anthropic">
+    Sử dụng `ANTHROPIC_API_KEY` nếu có hoặc yêu cầu nhập khóa, sau đó lưu để daemon sử dụng.
   </Accordion>
   <Accordion title="Anthropic OAuth (Claude Code CLI)">
-    - macOS: checks Keychain item "Claude Code-credentials"
-    - Linux and Windows: reuses `~/.claude/.credentials.json` if present
+    - macOS: kiểm tra mục Keychain "Claude Code-credentials"
+    - Linux và Windows: tái sử dụng `~/.claude/.credentials.json` nếu có
 
-    On macOS, choose "Always Allow" so launchd starts do not block.
+    Trên macOS, chọn "Always Allow" để các lần khởi động launchd không bị chặn.
 
   </Accordion>
-  <Accordion title="Anthropic token (setup-token paste)">
-    Run `claude setup-token` on any machine, then paste the token.
-    You can name it; blank uses default.
+  <Accordion title="Token Anthropic (dán token thiết lập)">
+    Chạy `claude setup-token` trên bất kỳ máy nào, sau đó dán token.
+    Bạn có thể đặt tên cho nó; để trống sẽ sử dụng mặc định.
   </Accordion>
-  <Accordion title="OpenAI Code subscription (Codex CLI reuse)">
-    If `~/.codex/auth.json` exists, the wizard can reuse it.
+  <Accordion title="OpenAI Code subscription (tái sử dụng Codex CLI)">
+    Nếu `~/.codex/auth.json` tồn tại, wizard có thể tái sử dụng nó.
   </Accordion>
   <Accordion title="OpenAI Code subscription (OAuth)">
-    Browser flow; paste `code#state`.
+    Quy trình trình duyệt; dán `code#state`.
 
-    Sets `agents.defaults.model` to `openai-codex/gpt-5.4` when model is unset or `openai/*`.
+    Đặt `agents.defaults.model` thành `openai-codex/gpt-5.4` khi mô hình chưa được đặt hoặc `openai/*`.
 
   </Accordion>
-  <Accordion title="OpenAI API key">
-    Uses `OPENAI_API_KEY` if present or prompts for a key, then stores the credential in auth profiles.
+  <Accordion title="Khóa API OpenAI">
+    Sử dụng `OPENAI_API_KEY` nếu có hoặc yêu cầu nhập khóa, sau đó lưu thông tin xác thực vào hồ sơ xác thực.
 
-    Sets `agents.defaults.model` to `openai/gpt-5.4` when model is unset, `openai/*`, or `openai-codex/*`.
+    Đặt `agents.defaults.model` thành `openai/gpt-5.4` khi mô hình chưa được đặt, `openai/*`, hoặc `openai-codex/*`.
 
   </Accordion>
   <Accordion title="xAI (Grok) API key">
-    Prompts for `XAI_API_KEY` and configures xAI as a model provider.
+    Yêu cầu nhập `XAI_API_KEY` và cấu hình xAI làm nhà cung cấp mô hình.
   </Accordion>
   <Accordion title="OpenCode">
-    Prompts for `OPENCODE_API_KEY` (or `OPENCODE_ZEN_API_KEY`) and lets you choose the Zen or Go catalog.
-    Setup URL: [opencode.ai/auth](https://opencode.ai/auth).
+    Yêu cầu nhập `OPENCODE_API_KEY` (hoặc `OPENCODE_ZEN_API_KEY`) và cho phép bạn chọn catalog Zen hoặc Go.
+    URL thiết lập: [opencode.ai/auth](https://opencode.ai/auth).
   </Accordion>
-  <Accordion title="API key (generic)">
-    Stores the key for you.
+  <Accordion title="Khóa API (chung)">
+    Lưu trữ khóa cho bạn.
   </Accordion>
   <Accordion title="Vercel AI Gateway">
-    Prompts for `AI_GATEWAY_API_KEY`.
-    More detail: [Vercel AI Gateway](/providers/vercel-ai-gateway).
+    Yêu cầu nhập `AI_GATEWAY_API_KEY`.
+    Chi tiết thêm: [Vercel AI Gateway](/providers/vercel-ai-gateway).
   </Accordion>
   <Accordion title="Cloudflare AI Gateway">
-    Prompts for account ID, gateway ID, and `CLOUDFLARE_AI_GATEWAY_API_KEY`.
-    More detail: [Cloudflare AI Gateway](/providers/cloudflare-ai-gateway).
+    Yêu cầu nhập ID tài khoản, ID gateway, và `CLOUDFLARE_AI_GATEWAY_API_KEY`.
+    Chi tiết thêm: [Cloudflare AI Gateway](/providers/cloudflare-ai-gateway).
   </Accordion>
   <Accordion title="MiniMax">
-    Config is auto-written. Hosted default is `MiniMax-M2.7`; `MiniMax-M2.5` stays available.
-    More detail: [MiniMax](/providers/minimax).
+    Cấu hình được tự động ghi. Mặc định được lưu trữ là `MiniMax-M2.7`; `MiniMax-M2.5` vẫn có sẵn.
+    Chi tiết thêm: [MiniMax](/providers/minimax).
   </Accordion>
-  <Accordion title="Synthetic (Anthropic-compatible)">
-    Prompts for `SYNTHETIC_API_KEY`.
-    More detail: [Synthetic](/providers/synthetic).
+  <Accordion title="Synthetic (tương thích Anthropic)">
+    Yêu cầu nhập `SYNTHETIC_API_KEY`.
+    Chi tiết thêm: [Synthetic](/providers/synthetic).
   </Accordion>
-  <Accordion title="Ollama (Cloud and local open models)">
-    Prompts for base URL (default `http://127.0.0.1:11434`), then offers Cloud + Local or Local mode.
-    Discovers available models and suggests defaults.
-    More detail: [Ollama](/providers/ollama).
+  <Accordion title="Ollama (Cloud và mô hình mở cục bộ)">
+    Yêu cầu nhập URL cơ sở (mặc định `http://127.0.0.1:11434`), sau đó cung cấp chế độ Cloud + Local hoặc Local.
+    Phát hiện các mô hình có sẵn và đề xuất mặc định.
+    Chi tiết thêm: [Ollama](/providers/ollama).
   </Accordion>
-  <Accordion title="Moonshot and Kimi Coding">
-    Moonshot (Kimi K2) and Kimi Coding configs are auto-written.
-    More detail: [Moonshot AI (Kimi + Kimi Coding)](/providers/moonshot).
+  <Accordion title="Moonshot và Kimi Coding">
+    Cấu hình Moonshot (Kimi K2) và Kimi Coding được tự động ghi.
+    Chi tiết thêm: [Moonshot AI (Kimi + Kimi Coding)](/providers/moonshot).
   </Accordion>
-  <Accordion title="Custom provider">
-    Works with OpenAI-compatible and Anthropic-compatible endpoints.
+  <Accordion title="Nhà cung cấp tùy chỉnh">
+    Hoạt động với các điểm cuối tương thích OpenAI và Anthropic.
 
-    Interactive onboarding supports the same API key storage choices as other provider API key flows:
-    - **Paste API key now** (plaintext)
-    - **Use secret reference** (env ref or configured provider ref, with preflight validation)
+    Onboarding tương tác hỗ trợ các lựa chọn lưu trữ khóa API giống như các luồng khóa API nhà cung cấp khác:
+    - **Dán khóa API ngay bây giờ** (dạng văn bản)
+    - **Sử dụng tham chiếu bí mật** (tham chiếu biến môi trường hoặc tham chiếu nhà cung cấp đã cấu hình, với xác thực trước chuyến bay)
 
-    Non-interactive flags:
+    Cờ không tương tác:
     - `--auth-choice custom-api-key`
     - `--custom-base-url`
     - `--custom-model-id`
-    - `--custom-api-key` (optional; falls back to `CUSTOM_API_KEY`)
-    - `--custom-provider-id` (optional)
-    - `--custom-compatibility <openai|anthropic>` (optional; default `openai`)
+    - `--custom-api-key` (tùy chọn; dự phòng cho `CUSTOM_API_KEY`)
+    - `--custom-provider-id` (tùy chọn)
+    - `--custom-compatibility <openai|anthropic>` (tùy chọn; mặc định `openai`)
 
   </Accordion>
-  <Accordion title="Skip">
-    Leaves auth unconfigured.
+  <Accordion title="Bỏ qua">
+    Để xác thực chưa được cấu hình.
   </Accordion>
 </AccordionGroup>
 
-Model behavior:
+Hành vi mô hình:
 
-- Pick default model from detected options, or enter provider and model manually.
-- Wizard runs a model check and warns if the configured model is unknown or missing auth.
+- Chọn mô hình mặc định từ các tùy chọn được phát hiện, hoặc nhập nhà cung cấp và mô hình thủ công.
+- Wizard chạy kiểm tra mô hình và cảnh báo nếu mô hình được cấu hình không xác định hoặc thiếu xác thực.
 
-Credential and profile paths:
+Đường dẫn thông tin xác thực và hồ sơ:
 
-- OAuth credentials: `~/.openclaw/credentials/oauth.json`
-- Auth profiles (API keys + OAuth): `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
+- Thông tin xác thực OAuth: `~/.openclaw/credentials/oauth.json`
+- Hồ sơ xác thực (khóa API + OAuth): `~/.openclaw/agents/<agentId>/agent/auth-profiles.json`
 
-Credential storage mode:
+Chế độ lưu trữ thông tin xác thực:
 
-- Default onboarding behavior persists API keys as plaintext values in auth profiles.
-- `--secret-input-mode ref` enables reference mode instead of plaintext key storage.
-  In interactive setup, you can choose either:
-  - environment variable ref (for example `keyRef: { source: "env", provider: "default", id: "OPENAI_API_KEY" }`)
-  - configured provider ref (`file` or `exec`) with provider alias + id
-- Interactive reference mode runs a fast preflight validation before saving.
-  - Env refs: validates variable name + non-empty value in the current onboarding environment.
-  - Provider refs: validates provider config and resolves the requested id.
-  - If preflight fails, onboarding shows the error and lets you retry.
-- In non-interactive mode, `--secret-input-mode ref` is env-backed only.
-  - Set the provider env var in the onboarding process environment.
-  - Inline key flags (for example `--openai-api-key`) require that env var to be set; otherwise onboarding fails fast.
-  - For custom providers, non-interactive `ref` mode stores `models.providers.<id>.apiKey` as `{ source: "env", provider: "default", id: "CUSTOM_API_KEY" }`.
-  - In that custom-provider case, `--custom-api-key` requires `CUSTOM_API_KEY` to be set; otherwise onboarding fails fast.
-- Gateway auth credentials support plaintext and SecretRef choices in interactive setup:
-  - Token mode: **Generate/store plaintext token** (default) or **Use SecretRef**.
-  - Password mode: plaintext or SecretRef.
-- Non-interactive token SecretRef path: `--gateway-token-ref-env <ENV_VAR>`.
-- Existing plaintext setups continue to work unchanged.
+- Hành vi onboarding mặc định lưu trữ khóa API dưới dạng giá trị văn bản trong hồ sơ xác thực.
+- `--secret-input-mode ref` kích hoạt chế độ tham chiếu thay vì lưu trữ khóa dạng văn bản.
+  Trong thiết lập tương tác, bạn có thể chọn:
+  - tham chiếu biến môi trường (ví dụ `keyRef: { source: "env", provider: "default", id: "OPENAI_API_KEY" }`)
+  - tham chiếu nhà cung cấp đã cấu hình (`file` hoặc `exec`) với bí danh nhà cung cấp + id
+- Chế độ tham chiếu tương tác chạy xác thực trước chuyến bay nhanh trước khi lưu.
+  - Tham chiếu biến môi trường: xác thực tên biến + giá trị không rỗng trong môi trường onboarding hiện tại.
+  - Tham chiếu nhà cung cấp: xác thực cấu hình nhà cung cấp và giải quyết id yêu cầu.
+  - Nếu xác thực trước chuyến bay thất bại, onboarding hiển thị lỗi và cho phép bạn thử lại.
+- Trong chế độ không tương tác, `--secret-input-mode ref` chỉ hỗ trợ biến môi trường.
+  - Đặt biến môi trường nhà cung cấp trong môi trường quy trình onboarding.
+  - Cờ khóa nội tuyến (ví dụ `--openai-api-key`) yêu cầu biến môi trường đó được đặt; nếu không onboarding sẽ thất bại nhanh chóng.
+  - Đối với nhà cung cấp tùy chỉnh, chế độ `ref` không tương tác lưu trữ `models.providers.<id>.apiKey` dưới dạng `{ source: "env", provider: "default", id: "CUSTOM_API_KEY" }`.
+  - Trong trường hợp nhà cung cấp tùy chỉnh đó, `--custom-api-key` yêu cầu `CUSTOM_API_KEY` được đặt; nếu không onboarding sẽ thất bại nhanh chóng.
+- Thông tin xác thực xác thực Gateway hỗ trợ các lựa chọn văn bản và SecretRef trong thiết lập tương tác:
+  - Chế độ token: **Tạo/lưu trữ token dạng văn bản** (mặc định) hoặc **Sử dụng SecretRef**.
+  - Chế độ mật khẩu: văn bản hoặc SecretRef.
+- Đường dẫn SecretRef token không tương tác: `--gateway-token-ref-env <ENV_VAR>`.
+- Các thiết lập văn bản hiện có vẫn hoạt động không thay đổi.
 
 <Note>
-Headless and server tip: complete OAuth on a machine with a browser, then copy
-`~/.openclaw/credentials/oauth.json` (or `$OPENCLAW_STATE_DIR/credentials/oauth.json`)
-to the gateway host.
+Mẹo cho headless và server: hoàn thành OAuth trên máy có trình duyệt, sau đó sao chép
+`~/.openclaw/credentials/oauth.json` (hoặc `$OPENCLAW_STATE_DIR/credentials/oauth.json`)
+đến máy chủ gateway.
 </Note>
 
-## Outputs and internals
+## Đầu ra và nội bộ
 
-Typical fields in `~/.openclaw/openclaw.json`:
+Các trường điển hình trong `~/.openclaw/openclaw.json`:
 
 - `agents.defaults.workspace`
-- `agents.defaults.model` / `models.providers` (if Minimax chosen)
-- `tools.profile` (local onboarding defaults to `"coding"` when unset; existing explicit values are preserved)
-- `gateway.*` (mode, bind, auth, tailscale)
-- `session.dmScope` (local onboarding defaults this to `per-channel-peer` when unset; existing explicit values are preserved)
+- `agents.defaults.model` / `models.providers` (nếu chọn Minimax)
+- `tools.profile` (onboarding cục bộ mặc định là `"coding"` khi chưa được đặt; các giá trị rõ ràng hiện có được giữ nguyên)
+- `gateway.*` (chế độ, bind, xác thực, tailscale)
+- `session.dmScope` (onboarding cục bộ mặc định là `per-channel-peer` khi chưa được đặt; các giá trị rõ ràng hiện có được giữ nguyên)
 - `channels.telegram.botToken`, `channels.discord.token`, `channels.signal.*`, `channels.imessage.*`
-- Channel allowlists (Slack, Discord, Matrix, Microsoft Teams) when you opt in during prompts (names resolve to IDs when possible)
+- Danh sách cho phép kênh (Slack, Discord, Matrix, Microsoft Teams) khi bạn chọn tham gia trong các lời nhắc (tên được giải quyết thành ID khi có thể)
 - `skills.install.nodeManager`
 - `wizard.lastRunAt`
 - `wizard.lastRunVersion`
@@ -264,36 +264,36 @@ Typical fields in `~/.openclaw/openclaw.json`:
 - `wizard.lastRunCommand`
 - `wizard.lastRunMode`
 
-`openclaw agents add` writes `agents.list[]` and optional `bindings`.
+`openclaw agents add` ghi `agents.list[]` và các `bindings` tùy chọn.
 
-WhatsApp credentials go under `~/.openclaw/credentials/whatsapp/<accountId>/`.
-Sessions are stored under `~/.openclaw/agents/<agentId>/sessions/`.
+Thông tin xác thực WhatsApp được lưu dưới `~/.openclaw/credentials/whatsapp/<accountId>/`.
+Các phiên được lưu dưới `~/.openclaw/agents/<agentId>/sessions/`.
 
 <Note>
-Some channels are delivered as plugins. When selected during setup, the wizard
-prompts to install the plugin (npm or local path) before channel configuration.
+Một số kênh được cung cấp dưới dạng plugin. Khi được chọn trong quá trình thiết lập, wizard
+sẽ nhắc nhở cài đặt plugin (npm hoặc đường dẫn cục bộ) trước khi cấu hình kênh.
 </Note>
 
-Gateway wizard RPC:
+RPC wizard Gateway:
 
 - `wizard.start`
 - `wizard.next`
 - `wizard.cancel`
 - `wizard.status`
 
-Clients (macOS app and Control UI) can render steps without re-implementing onboarding logic.
+Các client (ứng dụng macOS và Control UI) có thể hiển thị các bước mà không cần triển khai lại logic onboarding.
 
-Signal setup behavior:
+Hành vi thiết lập Signal:
 
-- Downloads the appropriate release asset
-- Stores it under `~/.openclaw/tools/signal-cli/<version>/`
-- Writes `channels.signal.cliPath` in config
-- JVM builds require Java 21
-- Native builds are used when available
-- Windows uses WSL2 and follows Linux signal-cli flow inside WSL
+- Tải xuống tài sản phát hành phù hợp
+- Lưu trữ dưới `~/.openclaw/tools/signal-cli/<version>/`
+- Ghi `channels.signal.cliPath` trong cấu hình
+- Các bản dựng JVM yêu cầu Java 21
+- Các bản dựng gốc được sử dụng khi có sẵn
+- Windows sử dụng WSL2 và theo luồng signal-cli Linux bên trong WSL
 
-## Related docs
+## Tài liệu liên quan
 
-- Onboarding hub: [Onboarding (CLI)](/start/wizard)
-- Automation and scripts: [CLI Automation](/start/wizard-cli-automation)
-- Command reference: [`openclaw onboard`](/cli/onboard)
+- Trung tâm Onboarding: [Onboarding (CLI)](/start/wizard)
+- Tự động hóa và script: [Tự động hóa CLI](/start/wizard-cli-automation)
+- Tham khảo lệnh: [`openclaw onboard`](/cli/onboard)

@@ -1,66 +1,64 @@
 ---
-summary: "Install, configure, and manage OpenClaw plugins"
+summary: "Cài đặt, cấu hình và quản lý plugin OpenClaw"
 read_when:
-  - Installing or configuring plugins
-  - Understanding plugin discovery and load rules
-  - Working with Codex/Claude-compatible plugin bundles
+  - Cài đặt hoặc cấu hình plugin
+  - Hiểu về khám phá và quy tắc tải plugin
+  - Làm việc với gói plugin tương thích Codex/Claude
 title: "Plugins"
-sidebarTitle: "Install and Configure"
+sidebarTitle: "Cài đặt và Cấu hình"
 ---
 
 # Plugins
 
-Plugins extend OpenClaw with new capabilities: channels, model providers, tools,
-skills, speech, image generation, and more. Some plugins are **core** (shipped
-with OpenClaw), others are **external** (published on npm by the community).
+Plugins mở rộng khả năng của OpenClaw với các tính năng mới: kênh, nhà cung cấp mô hình, công cụ, kỹ năng, giọng nói, tạo hình ảnh và nhiều hơn nữa. Một số plugin là **core** (đi kèm với OpenClaw), số khác là **external** (được cộng đồng phát hành trên npm).
 
-## Quick start
+## Bắt đầu nhanh
 
 <Steps>
-  <Step title="See what is loaded">
+  <Step title="Xem những gì đã được tải">
     ```bash
     openclaw plugins list
     ```
   </Step>
 
-  <Step title="Install a plugin">
+  <Step title="Cài đặt một plugin">
     ```bash
-    # From npm
+    # Từ npm
     openclaw plugins install @openclaw/voice-call
 
-    # From a local directory or archive
+    # Từ thư mục hoặc tệp lưu trữ cục bộ
     openclaw plugins install ./my-plugin
     openclaw plugins install ./my-plugin.tgz
     ```
 
   </Step>
 
-  <Step title="Restart the Gateway">
+  <Step title="Khởi động lại Gateway">
     ```bash
     openclaw gateway restart
     ```
 
-    Then configure under `plugins.entries.\<id\>.config` in your config file.
+    Sau đó cấu hình dưới `plugins.entries.\<id\>.config` trong file cấu hình của bạn.
 
   </Step>
 </Steps>
 
-## Plugin types
+## Các loại plugin
 
-OpenClaw recognizes two plugin formats:
+OpenClaw nhận diện hai định dạng plugin:
 
-| Format     | How it works                                                       | Examples                                               |
-| ---------- | ------------------------------------------------------------------ | ------------------------------------------------------ |
-| **Native** | `openclaw.plugin.json` + runtime module; executes in-process       | Official plugins, community npm packages               |
-| **Bundle** | Codex/Claude/Cursor-compatible layout; mapped to OpenClaw features | `.codex-plugin/`, `.claude-plugin/`, `.cursor-plugin/` |
+| Định dạng  | Cách hoạt động                                                      | Ví dụ                                                    |
+| ---------- | ------------------------------------------------------------------ | -------------------------------------------------------- |
+| **Native** | `openclaw.plugin.json` + module runtime; thực thi trong quá trình  | Plugin chính thức, gói npm cộng đồng                     |
+| **Bundle** | Bố cục tương thích Codex/Claude/Cursor; ánh xạ tới các tính năng OpenClaw | `.codex-plugin/`, `.claude-plugin/`, `.cursor-plugin/` |
 
-Both show up under `openclaw plugins list`. See [Plugin Bundles](/plugins/bundles) for bundle details.
+Cả hai đều xuất hiện dưới `openclaw plugins list`. Xem [Plugin Bundles](/plugins/bundles) để biết chi tiết về bundle.
 
-## Official plugins
+## Plugin chính thức
 
-### Installable (npm)
+### Có thể cài đặt (npm)
 
-| Plugin          | Package                | Docs                                 |
+| Plugin          | Gói                    | Tài liệu                              |
 | --------------- | ---------------------- | ------------------------------------ |
 | Matrix          | `@openclaw/matrix`     | [Matrix](/channels/matrix)           |
 | Microsoft Teams | `@openclaw/msteams`    | [Microsoft Teams](/channels/msteams) |
@@ -69,10 +67,10 @@ Both show up under `openclaw plugins list`. See [Plugin Bundles](/plugins/bundle
 | Zalo            | `@openclaw/zalo`       | [Zalo](/channels/zalo)               |
 | Zalo Personal   | `@openclaw/zalouser`   | [Zalo Personal](/plugins/zalouser)   |
 
-### Core (shipped with OpenClaw)
+### Core (đi kèm với OpenClaw)
 
 <AccordionGroup>
-  <Accordion title="Model providers (enabled by default)">
+  <Accordion title="Nhà cung cấp mô hình (bật mặc định)">
     `anthropic`, `byteplus`, `cloudflare-ai-gateway`, `github-copilot`, `google`,
     `huggingface`, `kilocode`, `kimi-coding`, `minimax`, `mistral`, `modelstudio`,
     `moonshot`, `nvidia`, `openai`, `opencode`, `opencode-go`, `openrouter`,
@@ -80,23 +78,23 @@ Both show up under `openclaw plugins list`. See [Plugin Bundles](/plugins/bundle
     `vercel-ai-gateway`, `volcengine`, `xiaomi`, `zai`
   </Accordion>
 
-  <Accordion title="Memory plugins">
-    - `memory-core` — bundled memory search (default via `plugins.slots.memory`)
-    - `memory-lancedb` — install-on-demand long-term memory with auto-recall/capture (set `plugins.slots.memory = "memory-lancedb"`)
+  <Accordion title="Plugin bộ nhớ">
+    - `memory-core` — tìm kiếm bộ nhớ đi kèm (mặc định qua `plugins.slots.memory`)
+    - `memory-lancedb` — cài đặt theo yêu cầu bộ nhớ dài hạn với tự động nhớ lại/ghi lại (đặt `plugins.slots.memory = "memory-lancedb"`)
   </Accordion>
 
-  <Accordion title="Speech providers (enabled by default)">
+  <Accordion title="Nhà cung cấp giọng nói (bật mặc định)">
     `elevenlabs`, `microsoft`
   </Accordion>
 
-  <Accordion title="Other">
-    - `copilot-proxy` — VS Code Copilot Proxy bridge (disabled by default)
+  <Accordion title="Khác">
+    - `copilot-proxy` — cầu nối VS Code Copilot Proxy (tắt mặc định)
   </Accordion>
 </AccordionGroup>
 
-Looking for third-party plugins? See [Community Plugins](/plugins/community).
+Tìm kiếm plugin bên thứ ba? Xem [Community Plugins](/plugins/community).
 
-## Configuration
+## Cấu hình
 
 ```json5
 {
@@ -112,99 +110,99 @@ Looking for third-party plugins? See [Community Plugins](/plugins/community).
 }
 ```
 
-| Field            | Description                                               |
-| ---------------- | --------------------------------------------------------- |
-| `enabled`        | Master toggle (default: `true`)                           |
-| `allow`          | Plugin allowlist (optional)                               |
-| `deny`           | Plugin denylist (optional; deny wins)                     |
-| `load.paths`     | Extra plugin files/directories                            |
-| `slots`          | Exclusive slot selectors (e.g. `memory`, `contextEngine`) |
-| `entries.\<id\>` | Per-plugin toggles + config                               |
+| Trường            | Mô tả                                                     |
+| ----------------- | --------------------------------------------------------- |
+| `enabled`         | Công tắc chính (mặc định: `true`)                         |
+| `allow`           | Danh sách cho phép plugin (tùy chọn)                      |
+| `deny`            | Danh sách từ chối plugin (tùy chọn; từ chối sẽ ưu tiên)   |
+| `load.paths`      | Tệp/thư mục plugin bổ sung                                |
+| `slots`           | Bộ chọn slot độc quyền (ví dụ: `memory`, `contextEngine`) |
+| `entries.\<id\>`  | Công tắc và cấu hình cho từng plugin                      |
 
-Config changes **require a gateway restart**.
+Thay đổi cấu hình **yêu cầu khởi động lại gateway**.
 
-<Accordion title="Plugin states: disabled vs missing vs invalid">
-  - **Disabled**: plugin exists but enablement rules turned it off. Config is preserved.
-  - **Missing**: config references a plugin id that discovery did not find.
-  - **Invalid**: plugin exists but its config does not match the declared schema.
+<Accordion title="Trạng thái plugin: tắt, thiếu, không hợp lệ">
+  - **Tắt**: plugin tồn tại nhưng quy tắc bật tắt đã tắt nó. Cấu hình được giữ lại.
+  - **Thiếu**: cấu hình tham chiếu đến một id plugin mà không tìm thấy.
+  - **Không hợp lệ**: plugin tồn tại nhưng cấu hình không khớp với schema đã khai báo.
 </Accordion>
 
-## Discovery and precedence
+## Khám phá và ưu tiên
 
-OpenClaw scans for plugins in this order (first match wins):
+OpenClaw quét tìm plugin theo thứ tự này (khớp đầu tiên sẽ thắng):
 
 <Steps>
-  <Step title="Config paths">
-    `plugins.load.paths` — explicit file or directory paths.
+  <Step title="Đường dẫn cấu hình">
+    `plugins.load.paths` — đường dẫn tệp hoặc thư mục rõ ràng.
   </Step>
 
-  <Step title="Workspace extensions">
-    `\<workspace\>/.openclaw/extensions/*.ts` and `\<workspace\>/.openclaw/extensions/*/index.ts`.
+  <Step title="Mở rộng không gian làm việc">
+    `\<workspace\>/.openclaw/extensions/*.ts` và `\<workspace\>/.openclaw/extensions/*/index.ts`.
   </Step>
 
-  <Step title="Global extensions">
-    `~/.openclaw/extensions/*.ts` and `~/.openclaw/extensions/*/index.ts`.
+  <Step title="Mở rộng toàn cầu">
+    `~/.openclaw/extensions/*.ts` và `~/.openclaw/extensions/*/index.ts`.
   </Step>
 
-  <Step title="Bundled plugins">
-    Shipped with OpenClaw. Many are enabled by default (model providers, speech).
-    Others require explicit enablement.
+  <Step title="Plugin đi kèm">
+    Đi kèm với OpenClaw. Nhiều plugin được bật mặc định (nhà cung cấp mô hình, giọng nói).
+    Các plugin khác yêu cầu bật rõ ràng.
   </Step>
 </Steps>
 
-### Enablement rules
+### Quy tắc bật tắt
 
-- `plugins.enabled: false` disables all plugins
-- `plugins.deny` always wins over allow
-- `plugins.entries.\<id\>.enabled: false` disables that plugin
-- Workspace-origin plugins are **disabled by default** (must be explicitly enabled)
-- Bundled plugins follow the built-in default-on set unless overridden
-- Exclusive slots can force-enable the selected plugin for that slot
+- `plugins.enabled: false` tắt tất cả plugin
+- `plugins.deny` luôn ưu tiên hơn cho phép
+- `plugins.entries.\<id\>.enabled: false` tắt plugin đó
+- Plugin nguồn gốc từ không gian làm việc **bị tắt mặc định** (phải được bật rõ ràng)
+- Plugin đi kèm tuân theo bộ mặc định bật sẵn trừ khi bị ghi đè
+- Slot độc quyền có thể buộc bật plugin đã chọn cho slot đó
 
-## Plugin slots (exclusive categories)
+## Slot plugin (danh mục độc quyền)
 
-Some categories are exclusive (only one active at a time):
+Một số danh mục là độc quyền (chỉ có một hoạt động tại một thời điểm):
 
 ```json5
 {
   plugins: {
     slots: {
-      memory: "memory-core", // or "none" to disable
-      contextEngine: "legacy", // or a plugin id
+      memory: "memory-core", // hoặc "none" để tắt
+      contextEngine: "legacy", // hoặc một id plugin
     },
   },
 }
 ```
 
-| Slot            | What it controls      | Default             |
-| --------------- | --------------------- | ------------------- |
-| `memory`        | Active memory plugin  | `memory-core`       |
-| `contextEngine` | Active context engine | `legacy` (built-in) |
+| Slot            | Điều khiển gì           | Mặc định             |
+| --------------- | ----------------------- | ------------------- |
+| `memory`        | Plugin bộ nhớ hoạt động | `memory-core`       |
+| `contextEngine` | Động cơ ngữ cảnh hoạt động | `legacy` (tích hợp) |
 
-## CLI reference
+## Tham khảo CLI
 
 ```bash
-openclaw plugins list                    # compact inventory
-openclaw plugins inspect <id>            # deep detail
-openclaw plugins inspect <id> --json     # machine-readable
-openclaw plugins status                  # operational summary
-openclaw plugins doctor                  # diagnostics
+openclaw plugins list                    # danh sách gọn
+openclaw plugins inspect <id>            # chi tiết sâu
+openclaw plugins inspect <id> --json     # định dạng máy đọc được
+openclaw plugins status                  # tóm tắt hoạt động
+openclaw plugins doctor                  # chẩn đoán
 
-openclaw plugins install <npm-spec>      # install from npm
-openclaw plugins install <path>          # install from local path
-openclaw plugins install -l <path>       # link (no copy) for dev
-openclaw plugins update <id>             # update one plugin
-openclaw plugins update --all            # update all
+openclaw plugins install <npm-spec>      # cài đặt từ npm
+openclaw plugins install <path>          # cài đặt từ đường dẫn cục bộ
+openclaw plugins install -l <path>       # liên kết (không sao chép) cho phát triển
+openclaw plugins update <id>             # cập nhật một plugin
+openclaw plugins update --all            # cập nhật tất cả
 
 openclaw plugins enable <id>
 openclaw plugins disable <id>
 ```
 
-See [`openclaw plugins` CLI reference](/cli/plugins) for full details.
+Xem [tham khảo CLI `openclaw plugins`](/cli/plugins) để biết chi tiết đầy đủ.
 
-## Plugin API overview
+## Tổng quan API Plugin
 
-Plugins export either a function or an object with `register(api)`:
+Plugins xuất ra một hàm hoặc một đối tượng với `register(api)`:
 
 ```typescript
 export default definePluginEntry({
@@ -224,28 +222,28 @@ export default definePluginEntry({
 });
 ```
 
-Common registration methods:
+Các phương thức đăng ký phổ biến:
 
-| Method                               | What it registers    |
-| ------------------------------------ | -------------------- |
-| `registerProvider`                   | Model provider (LLM) |
-| `registerChannel`                    | Chat channel         |
-| `registerTool`                       | Agent tool           |
-| `registerHook` / `on(...)`           | Lifecycle hooks      |
-| `registerSpeechProvider`             | Text-to-speech / STT |
-| `registerMediaUnderstandingProvider` | Image/audio analysis |
-| `registerImageGenerationProvider`    | Image generation     |
-| `registerWebSearchProvider`          | Web search           |
-| `registerHttpRoute`                  | HTTP endpoint        |
-| `registerCommand` / `registerCli`    | CLI commands         |
-| `registerContextEngine`              | Context engine       |
-| `registerService`                    | Background service   |
+| Phương thức                          | Đăng ký cái gì         |
+| ------------------------------------ | ---------------------- |
+| `registerProvider`                   | Nhà cung cấp mô hình (LLM) |
+| `registerChannel`                    | Kênh chat              |
+| `registerTool`                       | Công cụ agent          |
+| `registerHook` / `on(...)`           | Hook vòng đời          |
+| `registerSpeechProvider`             | Chuyển văn bản thành giọng nói / STT |
+| `registerMediaUnderstandingProvider` | Phân tích hình ảnh/âm thanh |
+| `registerImageGenerationProvider`    | Tạo hình ảnh           |
+| `registerWebSearchProvider`          | Tìm kiếm web           |
+| `registerHttpRoute`                  | Endpoint HTTP          |
+| `registerCommand` / `registerCli`    | Lệnh CLI               |
+| `registerContextEngine`              | Động cơ ngữ cảnh       |
+| `registerService`                    | Dịch vụ nền            |
 
-## Related
+## Liên quan
 
-- [Building Plugins](/plugins/building-plugins) — create your own plugin
-- [Plugin Bundles](/plugins/bundles) — Codex/Claude/Cursor bundle compatibility
-- [Plugin Manifest](/plugins/manifest) — manifest schema
-- [Registering Tools](/plugins/building-plugins#registering-agent-tools) — add agent tools in a plugin
-- [Plugin Internals](/plugins/architecture) — capability model and load pipeline
-- [Community Plugins](/plugins/community) — third-party listings
+- [Xây dựng Plugins](/plugins/building-plugins) — tạo plugin của riêng bạn
+- [Plugin Bundles](/plugins/bundles) — tương thích gói Codex/Claude/Cursor
+- [Plugin Manifest](/plugins/manifest) — schema manifest
+- [Đăng ký Công cụ](/plugins/building-plugins#registering-agent-tools) — thêm công cụ agent trong một plugin
+- [Nội bộ Plugin](/plugins/architecture) — mô hình khả năng và quy trình tải
+- [Community Plugins](/plugins/community) — danh sách bên thứ ba

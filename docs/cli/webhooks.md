@@ -1,16 +1,16 @@
 ---
-summary: "CLI reference for `openclaw webhooks` (webhook helpers + Gmail Pub/Sub)"
+summary: "Tham khảo CLI cho `openclaw webhooks` (trợ giúp webhook + Gmail Pub/Sub)"
 read_when:
-  - You want to wire Gmail Pub/Sub events into OpenClaw
-  - You want webhook helper commands
+  - Bạn muốn kết nối sự kiện Gmail Pub/Sub vào OpenClaw
+  - Bạn cần lệnh trợ giúp webhook
 title: "webhooks"
 ---
 
 # `openclaw webhooks`
 
-Webhook helpers and integrations (Gmail Pub/Sub, webhook helpers).
+Trợ giúp webhook và tích hợp (Gmail Pub/Sub, trợ giúp webhook).
 
-Related:
+Liên quan:
 
 - Webhooks: [Webhook](/automation/webhook)
 - Gmail Pub/Sub: [Gmail Pub/Sub](/automation/gmail-pubsub)
@@ -22,4 +22,4 @@ openclaw webhooks gmail setup --account you@example.com
 openclaw webhooks gmail run
 ```
 
-See [Gmail Pub/Sub documentation](/automation/gmail-pubsub) for details.
+Xem chi tiết tại [tài liệu Gmail Pub/Sub](/automation/gmail-pubsub).

@@ -1,19 +1,19 @@
 ---
-summary: "CLI reference for `openclaw pairing` (approve/list pairing requests)"
+summary: "Tham khảo CLI cho `openclaw pairing` (duyệt/xem danh sách yêu cầu ghép đôi)"
 read_when:
-  - You’re using pairing-mode DMs and need to approve senders
+  - Bạn đang sử dụng chế độ ghép đôi DMs và cần duyệt người gửi
 title: "pairing"
 ---
 
 # `openclaw pairing`
 
-Approve or inspect DM pairing requests (for channels that support pairing).
+Duyệt hoặc kiểm tra các yêu cầu ghép đôi DM (dành cho các kênh hỗ trợ ghép đôi).
 
-Related:
+Liên quan:
 
-- Pairing flow: [Pairing](/channels/pairing)
+- Quy trình ghép đôi: [Pairing](/channels/pairing)
 
-## Commands
+## Lệnh
 
 ```bash
 openclaw pairing list telegram
@@ -24,9 +24,9 @@ openclaw pairing approve telegram <code>
 openclaw pairing approve --channel telegram --account work <code> --notify
 ```
 
-## Notes
+## Ghi chú
 
-- Channel input: pass it positionally (`pairing list telegram`) or with `--channel <channel>`.
-- `pairing list` supports `--account <accountId>` for multi-account channels.
-- `pairing approve` supports `--account <accountId>` and `--notify`.
-- If only one pairing-capable channel is configured, `pairing approve <code>` is allowed.
+- Đầu vào kênh: có thể truyền theo vị trí (`pairing list telegram`) hoặc dùng `--channel <channel>`.
+- `pairing list` hỗ trợ `--account <accountId>` cho các kênh đa tài khoản.
+- `pairing approve` hỗ trợ `--account <accountId>` và `--notify`.
+- Nếu chỉ có một kênh hỗ trợ ghép đôi được cấu hình, có thể dùng `pairing approve <code>`.

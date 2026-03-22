@@ -1,33 +1,33 @@
 ---
-summary: "macOS Skills settings UI and gateway-backed status"
+summary: "Giao diện cài đặt Skills trên macOS và trạng thái hỗ trợ từ gateway"
 read_when:
-  - Updating the macOS Skills settings UI
-  - Changing skills gating or install behavior
+  - Cập nhật giao diện cài đặt Skills trên macOS
+  - Thay đổi hành vi cài đặt hoặc điều kiện sử dụng skills
 title: "Skills (macOS)"
 ---
 
 # Skills (macOS)
 
-The macOS app surfaces OpenClaw skills via the gateway; it does not parse skills locally.
+Ứng dụng macOS hiển thị các skills của OpenClaw thông qua gateway; không phân tích skills trực tiếp trên máy.
 
-## Data source
+## Nguồn dữ liệu
 
-- `skills.status` (gateway) returns all skills plus eligibility and missing requirements
-  (including allowlist blocks for bundled skills).
-- Requirements are derived from `metadata.openclaw.requires` in each `SKILL.md`.
+- `skills.status` (gateway) trả về tất cả các skills cùng với điều kiện sử dụng và yêu cầu còn thiếu
+  (bao gồm cả các chặn allowlist cho skills đi kèm).
+- Yêu cầu được lấy từ `metadata.openclaw.requires` trong mỗi `SKILL.md`.
 
-## Install actions
+## Hành động cài đặt
 
-- `metadata.openclaw.install` defines install options (brew/node/go/uv).
-- The app calls `skills.install` to run installers on the gateway host.
-- The gateway surfaces only one preferred installer when multiple are provided
-  (brew when available, otherwise node manager from `skills.install`, default npm).
+- `metadata.openclaw.install` xác định các tùy chọn cài đặt (brew/node/go/uv).
+- Ứng dụng gọi `skills.install` để chạy các trình cài đặt trên máy chủ gateway.
+- Gateway chỉ hiển thị một trình cài đặt ưu tiên khi có nhiều lựa chọn
+  (ưu tiên brew nếu có, nếu không thì dùng node manager từ `skills.install`, mặc định là npm).
 
-## Env/API keys
+## Khóa Env/API
 
-- The app stores keys in `~/.openclaw/openclaw.json` under `skills.entries.<skillKey>`.
-- `skills.update` patches `enabled`, `apiKey`, and `env`.
+- Ứng dụng lưu trữ khóa trong `~/.openclaw/openclaw.json` dưới `skills.entries.<skillKey>`.
+- `skills.update` cập nhật `enabled`, `apiKey`, và `env`.
 
-## Remote mode
+## Chế độ từ xa
 
-- Install + config updates happen on the gateway host (not the local Mac).
+- Việc cài đặt và cập nhật cấu hình diễn ra trên máy chủ gateway (không phải trên máy Mac cục bộ).

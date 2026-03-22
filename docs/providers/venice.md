@@ -1,74 +1,74 @@
 ---
-summary: "Use Venice AI privacy-focused models in OpenClaw"
+summary: "Sử dụng mô hình Venice AI tập trung vào quyền riêng tư trong OpenClaw"
 read_when:
-  - You want privacy-focused inference in OpenClaw
-  - You want Venice AI setup guidance
+  - Bạn muốn suy luận tập trung vào quyền riêng tư trong OpenClaw
+  - Bạn cần hướng dẫn cài đặt Venice AI
 title: "Venice AI"
 ---
 
-# Venice AI (Venice highlight)
+# Venice AI (Điểm nổi bật của Venice)
 
-**Venice** is our highlight Venice setup for privacy-first inference with optional anonymized access to proprietary models.
+**Venice** là thiết lập nổi bật của chúng tôi cho suy luận ưu tiên quyền riêng tư với quyền truy cập ẩn danh tùy chọn vào các mô hình độc quyền.
 
-Venice AI provides privacy-focused AI inference with support for uncensored models and access to major proprietary models through their anonymized proxy. All inference is private by default—no training on your data, no logging.
+Venice AI cung cấp suy luận AI tập trung vào quyền riêng tư với hỗ trợ cho các mô hình không bị kiểm duyệt và truy cập vào các mô hình độc quyền lớn thông qua proxy ẩn danh của họ. Tất cả suy luận đều riêng tư theo mặc định — không đào tạo trên dữ liệu của bạn, không ghi nhật ký.
 
-## Why Venice in OpenClaw
+## Tại sao chọn Venice trong OpenClaw
 
-- **Private inference** for open-source models (no logging).
-- **Uncensored models** when you need them.
-- **Anonymized access** to proprietary models (Opus/GPT/Gemini) when quality matters.
-- OpenAI-compatible `/v1` endpoints.
+- **Suy luận riêng tư** cho các mô hình mã nguồn mở (không ghi nhật ký).
+- **Mô hình không bị kiểm duyệt** khi bạn cần.
+- **Truy cập ẩn danh** vào các mô hình độc quyền (Opus/GPT/Gemini) khi chất lượng quan trọng.
+- Các endpoint tương thích với OpenAI `/v1`.
 
-## Privacy Modes
+## Chế độ quyền riêng tư
 
-Venice offers two privacy levels — understanding this is key to choosing your model:
+Venice cung cấp hai mức độ quyền riêng tư — hiểu rõ điều này là chìa khóa để chọn mô hình của bạn:
 
-| Mode           | Description                                                                                                                       | Models                                                        |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| **Private**    | Fully private. Prompts/responses are **never stored or logged**. Ephemeral.                                                       | Llama, Qwen, DeepSeek, Kimi, MiniMax, Venice Uncensored, etc. |
-| **Anonymized** | Proxied through Venice with metadata stripped. The underlying provider (OpenAI, Anthropic, Google, xAI) sees anonymized requests. | Claude, GPT, Gemini, Grok                                     |
+| Chế độ         | Mô tả                                                                                                                       | Mô hình                                                        |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| **Riêng tư**   | Hoàn toàn riêng tư. Các yêu cầu/phản hồi **không bao giờ được lưu trữ hoặc ghi lại**. Tạm thời.                             | Llama, Qwen, DeepSeek, Kimi, MiniMax, Venice Uncensored, v.v. |
+| **Ẩn danh**    | Được proxy thông qua Venice với metadata bị loại bỏ. Nhà cung cấp cơ sở (OpenAI, Anthropic, Google, xAI) thấy các yêu cầu ẩn danh. | Claude, GPT, Gemini, Grok                                     |
 
-## Features
+## Tính năng
 
-- **Privacy-focused**: Choose between "private" (fully private) and "anonymized" (proxied) modes
-- **Uncensored models**: Access to models without content restrictions
-- **Major model access**: Use Claude, GPT, Gemini, and Grok via Venice's anonymized proxy
-- **OpenAI-compatible API**: Standard `/v1` endpoints for easy integration
-- **Streaming**: ✅ Supported on all models
-- **Function calling**: ✅ Supported on select models (check model capabilities)
-- **Vision**: ✅ Supported on models with vision capability
-- **No hard rate limits**: Fair-use throttling may apply for extreme usage
+- **Tập trung vào quyền riêng tư**: Chọn giữa chế độ "riêng tư" (hoàn toàn riêng tư) và "ẩn danh" (proxy)
+- **Mô hình không bị kiểm duyệt**: Truy cập vào các mô hình không có hạn chế nội dung
+- **Truy cập mô hình lớn**: Sử dụng Claude, GPT, Gemini và Grok thông qua proxy ẩn danh của Venice
+- **API tương thích OpenAI**: Endpoint chuẩn `/v1` để dễ dàng tích hợp
+- **Streaming**: ✅ Hỗ trợ trên tất cả các mô hình
+- **Gọi hàm**: ✅ Hỗ trợ trên một số mô hình (kiểm tra khả năng của mô hình)
+- **Vision**: ✅ Hỗ trợ trên các mô hình có khả năng vision
+- **Không giới hạn tốc độ cứng**: Có thể áp dụng giới hạn sử dụng công bằng cho việc sử dụng quá mức
 
-## Setup
+## Cài đặt
 
-### 1. Get API Key
+### 1. Lấy API Key
 
-1. Sign up at [venice.ai](https://venice.ai)
-2. Go to **Settings → API Keys → Create new key**
-3. Copy your API key (format: `vapi_xxxxxxxxxxxx`)
+1. Đăng ký tại [venice.ai](https://venice.ai)
+2. Đi tới **Settings → API Keys → Create new key**
+3. Sao chép API key của bạn (định dạng: `vapi_xxxxxxxxxxxx`)
 
-### 2. Configure OpenClaw
+### 2. Cấu hình OpenClaw
 
-**Option A: Environment Variable**
+**Lựa chọn A: Biến môi trường**
 
 ```bash
 export VENICE_API_KEY="vapi_xxxxxxxxxxxx"
 ```
 
-**Option B: Interactive Setup (Recommended)**
+**Lựa chọn B: Cài đặt tương tác (Khuyến nghị)**
 
 ```bash
 openclaw onboard --auth-choice venice-api-key
 ```
 
-This will:
+Điều này sẽ:
 
-1. Prompt for your API key (or use existing `VENICE_API_KEY`)
-2. Show all available Venice models
-3. Let you pick your default model
-4. Configure the provider automatically
+1. Yêu cầu nhập API key của bạn (hoặc sử dụng `VENICE_API_KEY` hiện có)
+2. Hiển thị tất cả các mô hình Venice có sẵn
+3. Cho phép bạn chọn mô hình mặc định của mình
+4. Tự động cấu hình nhà cung cấp
 
-**Option C: Non-interactive**
+**Lựa chọn C: Không tương tác**
 
 ```bash
 openclaw onboard --non-interactive \
@@ -76,175 +76,175 @@ openclaw onboard --non-interactive \
   --venice-api-key "vapi_xxxxxxxxxxxx"
 ```
 
-### 3. Verify Setup
+### 3. Xác minh cài đặt
 
 ```bash
 openclaw agent --model venice/kimi-k2-5 --message "Hello, are you working?"
 ```
 
-## Model Selection
+## Lựa chọn mô hình
 
-After setup, OpenClaw shows all available Venice models. Pick based on your needs:
+Sau khi cài đặt, OpenClaw hiển thị tất cả các mô hình Venice có sẵn. Chọn dựa trên nhu cầu của bạn:
 
-- **Default model**: `venice/kimi-k2-5` for strong private reasoning plus vision.
-- **High-capability option**: `venice/claude-opus-4-6` for the strongest anonymized Venice path.
-- **Privacy**: Choose "private" models for fully private inference.
-- **Capability**: Choose "anonymized" models to access Claude, GPT, Gemini via Venice's proxy.
+- **Mô hình mặc định**: `venice/kimi-k2-5` cho suy luận riêng tư mạnh mẽ cộng với vision.
+- **Tùy chọn khả năng cao**: `venice/claude-opus-4-6` cho đường dẫn Venice ẩn danh mạnh nhất.
+- **Quyền riêng tư**: Chọn mô hình "riêng tư" cho suy luận hoàn toàn riêng tư.
+- **Khả năng**: Chọn mô hình "ẩn danh" để truy cập Claude, GPT, Gemini qua proxy của Venice.
 
-Change your default model anytime:
+Thay đổi mô hình mặc định của bạn bất cứ lúc nào:
 
 ```bash
 openclaw models set venice/kimi-k2-5
 openclaw models set venice/claude-opus-4-6
 ```
 
-List all available models:
+Liệt kê tất cả các mô hình có sẵn:
 
 ```bash
 openclaw models list | grep venice
 ```
 
-## Configure via `openclaw configure`
+## Cấu hình qua `openclaw configure`
 
-1. Run `openclaw configure`
-2. Select **Model/auth**
-3. Choose **Venice AI**
+1. Chạy `openclaw configure`
+2. Chọn **Model/auth**
+3. Chọn **Venice AI**
 
-## Which Model Should I Use?
+## Nên sử dụng mô hình nào?
 
-| Use Case                   | Recommended Model                | Why                                          |
-| -------------------------- | -------------------------------- | -------------------------------------------- |
-| **General chat (default)** | `kimi-k2-5`                      | Strong private reasoning plus vision         |
-| **Best overall quality**   | `claude-opus-4-6`                | Strongest anonymized Venice option           |
-| **Privacy + coding**       | `qwen3-coder-480b-a35b-instruct` | Private coding model with large context      |
-| **Private vision**         | `kimi-k2-5`                      | Vision support without leaving private mode  |
-| **Fast + cheap**           | `qwen3-4b`                       | Lightweight reasoning model                  |
-| **Complex private tasks**  | `deepseek-v3.2`                  | Strong reasoning, but no Venice tool support |
-| **Uncensored**             | `venice-uncensored`              | No content restrictions                      |
+| Trường hợp sử dụng            | Mô hình khuyến nghị              | Lý do                                         |
+| ----------------------------- | -------------------------------- | --------------------------------------------- |
+| **Trò chuyện chung (mặc định)** | `kimi-k2-5`                      | Suy luận riêng tư mạnh mẽ cộng với vision     |
+| **Chất lượng tổng thể tốt nhất** | `claude-opus-4-6`                | Tùy chọn Venice ẩn danh mạnh nhất             |
+| **Quyền riêng tư + mã hóa**   | `qwen3-coder-480b-a35b-instruct` | Mô hình mã hóa riêng tư với ngữ cảnh lớn     |
+| **Vision riêng tư**           | `kimi-k2-5`                      | Hỗ trợ vision mà không rời khỏi chế độ riêng tư |
+| **Nhanh + rẻ**                | `qwen3-4b`                       | Mô hình suy luận nhẹ                          |
+| **Nhiệm vụ phức tạp riêng tư** | `deepseek-v3.2`                  | Suy luận mạnh mẽ, nhưng không hỗ trợ công cụ Venice |
+| **Không bị kiểm duyệt**       | `venice-uncensored`              | Không có hạn chế nội dung                     |
 
-## Available Models (41 Total)
+## Các mô hình có sẵn (Tổng cộng 41)
 
-### Private Models (26) - Fully Private, No Logging
+### Mô hình riêng tư (26) - Hoàn toàn riêng tư, không ghi nhật ký
 
-| Model ID                               | Name                                | Context | Features                   |
-| -------------------------------------- | ----------------------------------- | ------- | -------------------------- |
-| `kimi-k2-5`                            | Kimi K2.5                           | 256k    | Default, reasoning, vision |
-| `kimi-k2-thinking`                     | Kimi K2 Thinking                    | 256k    | Reasoning                  |
-| `llama-3.3-70b`                        | Llama 3.3 70B                       | 128k    | General                    |
-| `llama-3.2-3b`                         | Llama 3.2 3B                        | 128k    | General                    |
-| `hermes-3-llama-3.1-405b`              | Hermes 3 Llama 3.1 405B             | 128k    | General, tools disabled    |
-| `qwen3-235b-a22b-thinking-2507`        | Qwen3 235B Thinking                 | 128k    | Reasoning                  |
-| `qwen3-235b-a22b-instruct-2507`        | Qwen3 235B Instruct                 | 128k    | General                    |
-| `qwen3-coder-480b-a35b-instruct`       | Qwen3 Coder 480B                    | 256k    | Coding                     |
-| `qwen3-coder-480b-a35b-instruct-turbo` | Qwen3 Coder 480B Turbo              | 256k    | Coding                     |
-| `qwen3-5-35b-a3b`                      | Qwen3.5 35B A3B                     | 256k    | Reasoning, vision          |
-| `qwen3-next-80b`                       | Qwen3 Next 80B                      | 256k    | General                    |
-| `qwen3-vl-235b-a22b`                   | Qwen3 VL 235B (Vision)              | 256k    | Vision                     |
-| `qwen3-4b`                             | Venice Small (Qwen3 4B)             | 32k     | Fast, reasoning            |
-| `deepseek-v3.2`                        | DeepSeek V3.2                       | 160k    | Reasoning, tools disabled  |
-| `venice-uncensored`                    | Venice Uncensored (Dolphin-Mistral) | 32k     | Uncensored, tools disabled |
-| `mistral-31-24b`                       | Venice Medium (Mistral)             | 128k    | Vision                     |
-| `google-gemma-3-27b-it`                | Google Gemma 3 27B Instruct         | 198k    | Vision                     |
-| `openai-gpt-oss-120b`                  | OpenAI GPT OSS 120B                 | 128k    | General                    |
-| `nvidia-nemotron-3-nano-30b-a3b`       | NVIDIA Nemotron 3 Nano 30B          | 128k    | General                    |
-| `olafangensan-glm-4.7-flash-heretic`   | GLM 4.7 Flash Heretic               | 128k    | Reasoning                  |
-| `zai-org-glm-4.6`                      | GLM 4.6                             | 198k    | General                    |
-| `zai-org-glm-4.7`                      | GLM 4.7                             | 198k    | Reasoning                  |
-| `zai-org-glm-4.7-flash`                | GLM 4.7 Flash                       | 128k    | Reasoning                  |
-| `zai-org-glm-5`                        | GLM 5                               | 198k    | Reasoning                  |
-| `minimax-m21`                          | MiniMax M2.1                        | 198k    | Reasoning                  |
-| `minimax-m25`                          | MiniMax M2.5                        | 198k    | Reasoning                  |
+| ID Mô hình                              | Tên                                 | Ngữ cảnh | Tính năng                    |
+| --------------------------------------- | ----------------------------------- | ------- | ---------------------------- |
+| `kimi-k2-5`                             | Kimi K2.5                           | 256k    | Mặc định, suy luận, vision   |
+| `kimi-k2-thinking`                      | Kimi K2 Thinking                    | 256k    | Suy luận                     |
+| `llama-3.3-70b`                         | Llama 3.3 70B                       | 128k    | Chung                        |
+| `llama-3.2-3b`                          | Llama 3.2 3B                        | 128k    | Chung                        |
+| `hermes-3-llama-3.1-405b`               | Hermes 3 Llama 3.1 405B             | 128k    | Chung, công cụ bị vô hiệu hóa |
+| `qwen3-235b-a22b-thinking-2507`         | Qwen3 235B Thinking                 | 128k    | Suy luận                     |
+| `qwen3-235b-a22b-instruct-2507`         | Qwen3 235B Instruct                 | 128k    | Chung                        |
+| `qwen3-coder-480b-a35b-instruct`        | Qwen3 Coder 480B                    | 256k    | Mã hóa                       |
+| `qwen3-coder-480b-a35b-instruct-turbo`  | Qwen3 Coder 480B Turbo              | 256k    | Mã hóa                       |
+| `qwen3-5-35b-a3b`                       | Qwen3.5 35B A3B                     | 256k    | Suy luận, vision             |
+| `qwen3-next-80b`                        | Qwen3 Next 80B                      | 256k    | Chung                        |
+| `qwen3-vl-235b-a22b`                    | Qwen3 VL 235B (Vision)              | 256k    | Vision                       |
+| `qwen3-4b`                              | Venice Small (Qwen3 4B)             | 32k     | Nhanh, suy luận              |
+| `deepseek-v3.2`                         | DeepSeek V3.2                       | 160k    | Suy luận, công cụ bị vô hiệu hóa |
+| `venice-uncensored`                     | Venice Uncensored (Dolphin-Mistral) | 32k     | Không bị kiểm duyệt, công cụ bị vô hiệu hóa |
+| `mistral-31-24b`                        | Venice Medium (Mistral)             | 128k    | Vision                       |
+| `google-gemma-3-27b-it`                 | Google Gemma 3 27B Instruct         | 198k    | Vision                       |
+| `openai-gpt-oss-120b`                   | OpenAI GPT OSS 120B                 | 128k    | Chung                        |
+| `nvidia-nemotron-3-nano-30b-a3b`        | NVIDIA Nemotron 3 Nano 30B          | 128k    | Chung                        |
+| `olafangensan-glm-4.7-flash-heretic`    | GLM 4.7 Flash Heretic               | 128k    | Suy luận                     |
+| `zai-org-glm-4.6`                       | GLM 4.6                             | 198k    | Chung                        |
+| `zai-org-glm-4.7`                       | GLM 4.7                             | 198k    | Suy luận                     |
+| `zai-org-glm-4.7-flash`                 | GLM 4.7 Flash                       | 128k    | Suy luận                     |
+| `zai-org-glm-5`                         | GLM 5                               | 198k    | Suy luận                     |
+| `minimax-m21`                           | MiniMax M2.1                        | 198k    | Suy luận                     |
+| `minimax-m25`                           | MiniMax M2.5                        | 198k    | Suy luận                     |
 
-### Anonymized Models (15) - Via Venice Proxy
+### Mô hình ẩn danh (15) - Qua Proxy Venice
 
-| Model ID                        | Name                           | Context | Features                  |
-| ------------------------------- | ------------------------------ | ------- | ------------------------- |
-| `claude-opus-4-6`               | Claude Opus 4.6 (via Venice)   | 1M      | Reasoning, vision         |
-| `claude-opus-4-5`               | Claude Opus 4.5 (via Venice)   | 198k    | Reasoning, vision         |
-| `claude-sonnet-4-6`             | Claude Sonnet 4.6 (via Venice) | 1M      | Reasoning, vision         |
-| `claude-sonnet-4-5`             | Claude Sonnet 4.5 (via Venice) | 198k    | Reasoning, vision         |
-| `openai-gpt-54`                 | GPT-5.4 (via Venice)           | 1M      | Reasoning, vision         |
-| `openai-gpt-53-codex`           | GPT-5.3 Codex (via Venice)     | 400k    | Reasoning, vision, coding |
-| `openai-gpt-52`                 | GPT-5.2 (via Venice)           | 256k    | Reasoning                 |
-| `openai-gpt-52-codex`           | GPT-5.2 Codex (via Venice)     | 256k    | Reasoning, vision, coding |
-| `openai-gpt-4o-2024-11-20`      | GPT-4o (via Venice)            | 128k    | Vision                    |
-| `openai-gpt-4o-mini-2024-07-18` | GPT-4o Mini (via Venice)       | 128k    | Vision                    |
-| `gemini-3-1-pro-preview`        | Gemini 3.1 Pro (via Venice)    | 1M      | Reasoning, vision         |
-| `gemini-3-pro-preview`          | Gemini 3 Pro (via Venice)      | 198k    | Reasoning, vision         |
-| `gemini-3-flash-preview`        | Gemini 3 Flash (via Venice)    | 256k    | Reasoning, vision         |
-| `grok-41-fast`                  | Grok 4.1 Fast (via Venice)     | 1M      | Reasoning, vision         |
-| `grok-code-fast-1`              | Grok Code Fast 1 (via Venice)  | 256k    | Reasoning, coding         |
+| ID Mô hình                        | Tên                             | Ngữ cảnh | Tính năng                   |
+| --------------------------------- | ------------------------------- | ------- | --------------------------- |
+| `claude-opus-4-6`                 | Claude Opus 4.6 (qua Venice)    | 1M      | Suy luận, vision            |
+| `claude-opus-4-5`                 | Claude Opus 4.5 (qua Venice)    | 198k    | Suy luận, vision            |
+| `claude-sonnet-4-6`               | Claude Sonnet 4.6 (qua Venice)  | 1M      | Suy luận, vision            |
+| `claude-sonnet-4-5`               | Claude Sonnet 4.5 (qua Venice)  | 198k    | Suy luận, vision            |
+| `openai-gpt-54`                   | GPT-5.4 (qua Venice)            | 1M      | Suy luận, vision            |
+| `openai-gpt-53-codex`             | GPT-5.3 Codex (qua Venice)      | 400k    | Suy luận, vision, mã hóa    |
+| `openai-gpt-52`                   | GPT-5.2 (qua Venice)            | 256k    | Suy luận                    |
+| `openai-gpt-52-codex`             | GPT-5.2 Codex (qua Venice)      | 256k    | Suy luận, vision, mã hóa    |
+| `openai-gpt-4o-2024-11-20`        | GPT-4o (qua Venice)             | 128k    | Vision                      |
+| `openai-gpt-4o-mini-2024-07-18`   | GPT-4o Mini (qua Venice)        | 128k    | Vision                      |
+| `gemini-3-1-pro-preview`          | Gemini 3.1 Pro (qua Venice)     | 1M      | Suy luận, vision            |
+| `gemini-3-pro-preview`            | Gemini 3 Pro (qua Venice)       | 198k    | Suy luận, vision            |
+| `gemini-3-flash-preview`          | Gemini 3 Flash (qua Venice)     | 256k    | Suy luận, vision            |
+| `grok-41-fast`                    | Grok 4.1 Fast (qua Venice)      | 1M      | Suy luận, vision            |
+| `grok-code-fast-1`                | Grok Code Fast 1 (qua Venice)   | 256k    | Suy luận, mã hóa            |
 
-## Model Discovery
+## Khám phá mô hình
 
-OpenClaw automatically discovers models from the Venice API when `VENICE_API_KEY` is set. If the API is unreachable, it falls back to a static catalog.
+OpenClaw tự động phát hiện các mô hình từ API Venice khi `VENICE_API_KEY` được thiết lập. Nếu API không thể truy cập, nó sẽ sử dụng danh mục tĩnh.
 
-The `/models` endpoint is public (no auth needed for listing), but inference requires a valid API key.
+Endpoint `/models` là công khai (không cần xác thực để liệt kê), nhưng suy luận yêu cầu một API key hợp lệ.
 
-## Streaming & Tool Support
+## Hỗ trợ Streaming & Công cụ
 
-| Feature              | Support                                                 |
-| -------------------- | ------------------------------------------------------- |
-| **Streaming**        | ✅ All models                                           |
-| **Function calling** | ✅ Most models (check `supportsFunctionCalling` in API) |
-| **Vision/Images**    | ✅ Models marked with "Vision" feature                  |
-| **JSON mode**        | ✅ Supported via `response_format`                      |
+| Tính năng            | Hỗ trợ                                                   |
+| -------------------- | -------------------------------------------------------- |
+| **Streaming**        | ✅ Tất cả các mô hình                                    |
+| **Gọi hàm**          | ✅ Hầu hết các mô hình (kiểm tra `supportsFunctionCalling` trong API) |
+| **Vision/Hình ảnh**  | ✅ Các mô hình được đánh dấu với tính năng "Vision"      |
+| **Chế độ JSON**      | ✅ Hỗ trợ qua `response_format`                          |
 
-## Pricing
+## Giá cả
 
-Venice uses a credit-based system. Check [venice.ai/pricing](https://venice.ai/pricing) for current rates:
+Venice sử dụng hệ thống dựa trên tín dụng. Kiểm tra [venice.ai/pricing](https://venice.ai/pricing) để biết giá hiện tại:
 
-- **Private models**: Generally lower cost
-- **Anonymized models**: Similar to direct API pricing + small Venice fee
+- **Mô hình riêng tư**: Thường có chi phí thấp hơn
+- **Mô hình ẩn danh**: Tương tự giá API trực tiếp + phí nhỏ của Venice
 
-## Comparison: Venice vs Direct API
+## So sánh: Venice vs API trực tiếp
 
-| Aspect       | Venice (Anonymized)           | Direct API          |
-| ------------ | ----------------------------- | ------------------- |
-| **Privacy**  | Metadata stripped, anonymized | Your account linked |
-| **Latency**  | +10-50ms (proxy)              | Direct              |
-| **Features** | Most features supported       | Full features       |
-| **Billing**  | Venice credits                | Provider billing    |
+| Khía cạnh      | Venice (Ẩn danh)             | API trực tiếp       |
+| -------------- | ----------------------------- | ------------------- |
+| **Quyền riêng tư** | Metadata bị loại bỏ, ẩn danh | Tài khoản của bạn được liên kết |
+| **Độ trễ**     | +10-50ms (proxy)              | Trực tiếp           |
+| **Tính năng**  | Hầu hết các tính năng được hỗ trợ | Đầy đủ tính năng    |
+| **Thanh toán** | Tín dụng Venice               | Thanh toán nhà cung cấp |
 
-## Usage Examples
+## Ví dụ sử dụng
 
 ```bash
-# Use the default private model
+# Sử dụng mô hình riêng tư mặc định
 openclaw agent --model venice/kimi-k2-5 --message "Quick health check"
 
-# Use Claude Opus via Venice (anonymized)
+# Sử dụng Claude Opus qua Venice (ẩn danh)
 openclaw agent --model venice/claude-opus-4-6 --message "Summarize this task"
 
-# Use uncensored model
+# Sử dụng mô hình không bị kiểm duyệt
 openclaw agent --model venice/venice-uncensored --message "Draft options"
 
-# Use vision model with image
+# Sử dụng mô hình vision với hình ảnh
 openclaw agent --model venice/qwen3-vl-235b-a22b --message "Review attached image"
 
-# Use coding model
+# Sử dụng mô hình mã hóa
 openclaw agent --model venice/qwen3-coder-480b-a35b-instruct --message "Refactor this function"
 ```
 
-## Troubleshooting
+## Khắc phục sự cố
 
-### API key not recognized
+### API key không được nhận diện
 
 ```bash
 echo $VENICE_API_KEY
 openclaw models list | grep venice
 ```
 
-Ensure the key starts with `vapi_`.
+Đảm bảo key bắt đầu với `vapi_`.
 
-### Model not available
+### Mô hình không có sẵn
 
-The Venice model catalog updates dynamically. Run `openclaw models list` to see currently available models. Some models may be temporarily offline.
+Danh mục mô hình Venice cập nhật động. Chạy `openclaw models list` để xem các mô hình hiện có. Một số mô hình có thể tạm thời không hoạt động.
 
-### Connection issues
+### Vấn đề kết nối
 
-Venice API is at `https://api.venice.ai/api/v1`. Ensure your network allows HTTPS connections.
+API Venice nằm tại `https://api.venice.ai/api/v1`. Đảm bảo mạng của bạn cho phép kết nối HTTPS.
 
-## Config file example
+## Ví dụ file cấu hình
 
 ```json5
 {
@@ -274,9 +274,9 @@ Venice API is at `https://api.venice.ai/api/v1`. Ensure your network allows HTTP
 }
 ```
 
-## Links
+## Liên kết
 
 - [Venice AI](https://venice.ai)
-- [API Documentation](https://docs.venice.ai)
-- [Pricing](https://venice.ai/pricing)
-- [Status](https://status.venice.ai)
+- [Tài liệu API](https://docs.venice.ai)
+- [Giá cả](https://venice.ai/pricing)
+- [Trạng thái](https://status.venice.ai)

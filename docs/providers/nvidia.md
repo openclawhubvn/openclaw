@@ -1,18 +1,18 @@
 ---
-summary: "Use NVIDIA's OpenAI-compatible API in OpenClaw"
+summary: "Sử dụng API tương thích OpenAI của NVIDIA trong OpenClaw"
 read_when:
-  - You want to use NVIDIA models in OpenClaw
-  - You need NVIDIA_API_KEY setup
+  - Bạn muốn sử dụng các mô hình của NVIDIA trong OpenClaw
+  - Bạn cần thiết lập NVIDIA_API_KEY
 title: "NVIDIA"
 ---
 
 # NVIDIA
 
-NVIDIA provides an OpenAI-compatible API at `https://integrate.api.nvidia.com/v1` for Nemotron and NeMo models. Authenticate with an API key from [NVIDIA NGC](https://catalog.ngc.nvidia.com/).
+NVIDIA cung cấp một API tương thích với OpenAI tại `https://integrate.api.nvidia.com/v1` cho các mô hình Nemotron và NeMo. Xác thực bằng API key từ [NVIDIA NGC](https://catalog.ngc.nvidia.com/).
 
-## CLI setup
+## Thiết lập CLI
 
-Export the key once, then run onboarding and set an NVIDIA model:
+Xuất API key một lần, sau đó chạy onboarding và thiết lập mô hình NVIDIA:
 
 ```bash
 export NVIDIA_API_KEY="nvapi-..."
@@ -20,9 +20,9 @@ openclaw onboard --auth-choice skip
 openclaw models set nvidia/nvidia/llama-3.1-nemotron-70b-instruct
 ```
 
-If you still pass `--token`, remember it lands in shell history and `ps` output; prefer the env var when possible.
+Nếu vẫn sử dụng `--token`, hãy nhớ rằng nó sẽ xuất hiện trong lịch sử shell và đầu ra `ps`; nên ưu tiên sử dụng biến môi trường khi có thể.
 
-## Config snippet
+## Đoạn cấu hình
 
 ```json5
 {
@@ -43,13 +43,13 @@ If you still pass `--token`, remember it lands in shell history and `ps` output;
 }
 ```
 
-## Model IDs
+## ID Mô hình
 
-- `nvidia/llama-3.1-nemotron-70b-instruct` (default)
+- `nvidia/llama-3.1-nemotron-70b-instruct` (mặc định)
 - `meta/llama-3.3-70b-instruct`
 - `nvidia/mistral-nemo-minitron-8b-8k-instruct`
 
-## Notes
+## Ghi chú
 
-- OpenAI-compatible `/v1` endpoint; use an API key from NVIDIA NGC.
-- Provider auto-enables when `NVIDIA_API_KEY` is set; uses static defaults (131,072-token context window, 4,096 max tokens).
+- Endpoint `/v1` tương thích với OpenAI; sử dụng API key từ NVIDIA NGC.
+- Nhà cung cấp tự động kích hoạt khi `NVIDIA_API_KEY` được thiết lập; sử dụng các giá trị mặc định tĩnh (cửa sổ ngữ cảnh 131,072 token, tối đa 4,096 token).

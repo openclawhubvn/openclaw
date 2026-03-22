@@ -1,32 +1,31 @@
 ---
-summary: "CLI reference for `openclaw devices` (device pairing + token rotation/revocation)"
+summary: "Tham khảo CLI cho `openclaw devices` (ghép nối thiết bị + xoay vòng/hủy token)"
 read_when:
-  - You are approving device pairing requests
-  - You need to rotate or revoke device tokens
+  - Bạn đang phê duyệt yêu cầu ghép nối thiết bị
+  - Bạn cần xoay vòng hoặc hủy token thiết bị
 title: "devices"
 ---
 
 # `openclaw devices`
 
-Manage device pairing requests and device-scoped tokens.
+Quản lý yêu cầu ghép nối thiết bị và token theo phạm vi thiết bị.
 
-## Commands
+## Lệnh
 
 ### `openclaw devices list`
 
-List pending pairing requests and paired devices.
+Liệt kê các yêu cầu ghép nối đang chờ và các thiết bị đã ghép nối.
 
 ```
 openclaw devices list
 openclaw devices list --json
 ```
 
-Pending request output includes the requested role and scopes so approvals can
-be reviewed before you approve.
+Kết quả của yêu cầu đang chờ bao gồm vai trò và phạm vi yêu cầu để bạn có thể xem xét trước khi phê duyệt.
 
 ### `openclaw devices remove <deviceId>`
 
-Remove one paired device entry.
+Xóa một thiết bị đã ghép nối.
 
 ```
 openclaw devices remove <deviceId>
@@ -35,7 +34,7 @@ openclaw devices remove <deviceId> --json
 
 ### `openclaw devices clear --yes [--pending]`
 
-Clear paired devices in bulk.
+Xóa hàng loạt các thiết bị đã ghép nối.
 
 ```
 openclaw devices clear --yes
@@ -45,13 +44,9 @@ openclaw devices clear --yes --pending --json
 
 ### `openclaw devices approve [requestId] [--latest]`
 
-Approve a pending device pairing request. If `requestId` is omitted, OpenClaw
-automatically approves the most recent pending request.
+Phê duyệt một yêu cầu ghép nối thiết bị đang chờ. Nếu không có `requestId`, OpenClaw tự động phê duyệt yêu cầu đang chờ gần nhất.
 
-Note: if a device retries pairing with changed auth details (role/scopes/public
-key), OpenClaw supersedes the previous pending entry and issues a new
-`requestId`. Run `openclaw devices list` right before approval to use the
-current ID.
+Lưu ý: nếu một thiết bị thử lại ghép nối với thông tin xác thực thay đổi (vai trò/phạm vi/khóa công khai), OpenClaw sẽ thay thế mục đang chờ trước đó và cấp một `requestId` mới. Chạy `openclaw devices list` ngay trước khi phê duyệt để sử dụng ID hiện tại.
 
 ```
 openclaw devices approve
@@ -61,7 +56,7 @@ openclaw devices approve --latest
 
 ### `openclaw devices reject <requestId>`
 
-Reject a pending device pairing request.
+Từ chối một yêu cầu ghép nối thiết bị đang chờ.
 
 ```
 openclaw devices reject <requestId>
@@ -69,7 +64,7 @@ openclaw devices reject <requestId>
 
 ### `openclaw devices rotate --device <id> --role <role> [--scope <scope...>]`
 
-Rotate a device token for a specific role (optionally updating scopes).
+Xoay vòng token thiết bị cho một vai trò cụ thể (có thể cập nhật phạm vi).
 
 ```
 openclaw devices rotate --device <deviceId> --role operator --scope operator.read --scope operator.write
@@ -77,53 +72,52 @@ openclaw devices rotate --device <deviceId> --role operator --scope operator.rea
 
 ### `openclaw devices revoke --device <id> --role <role>`
 
-Revoke a device token for a specific role.
+Hủy token thiết bị cho một vai trò cụ thể.
 
 ```
 openclaw devices revoke --device <deviceId> --role node
 ```
 
-## Common options
+## Tùy chọn chung
 
-- `--url <url>`: Gateway WebSocket URL (defaults to `gateway.remote.url` when configured).
-- `--token <token>`: Gateway token (if required).
-- `--password <password>`: Gateway password (password auth).
-- `--timeout <ms>`: RPC timeout.
-- `--json`: JSON output (recommended for scripting).
+- `--url <url>`: URL WebSocket của Gateway (mặc định là `gateway.remote.url` khi đã cấu hình).
+- `--token <token>`: Token của Gateway (nếu cần).
+- `--password <password>`: Mật khẩu của Gateway (xác thực bằng mật khẩu).
+- `--timeout <ms>`: Thời gian chờ RPC.
+- `--json`: Đầu ra JSON (khuyến nghị cho scripting).
 
-Note: when you set `--url`, the CLI does not fall back to config or environment credentials.
-Pass `--token` or `--password` explicitly. Missing explicit credentials is an error.
+Lưu ý: khi bạn đặt `--url`, CLI sẽ không sử dụng thông tin cấu hình hoặc môi trường. Phải truyền `--token` hoặc `--password` rõ ràng. Thiếu thông tin xác thực rõ ràng sẽ gây lỗi.
 
-## Notes
+## Ghi chú
 
-- Token rotation returns a new token (sensitive). Treat it like a secret.
-- These commands require `operator.pairing` (or `operator.admin`) scope.
-- `devices clear` is intentionally gated by `--yes`.
-- If pairing scope is unavailable on local loopback (and no explicit `--url` is passed), list/approve can use a local pairing fallback.
+- Xoay vòng token trả về một token mới (nhạy cảm). Hãy xử lý như một bí mật.
+- Các lệnh này yêu cầu phạm vi `operator.pairing` (hoặc `operator.admin`).
+- `devices clear` yêu cầu xác nhận bằng `--yes`.
+- Nếu phạm vi ghép nối không khả dụng trên loopback cục bộ (và không có `--url` rõ ràng), list/approve có thể sử dụng fallback ghép nối cục bộ.
 
-## Token drift recovery checklist
+## Danh sách kiểm tra khôi phục token drift
 
-Use this when Control UI or other clients keep failing with `AUTH_TOKEN_MISMATCH` or `AUTH_DEVICE_TOKEN_MISMATCH`.
+Sử dụng khi Control UI hoặc các client khác liên tục gặp lỗi `AUTH_TOKEN_MISMATCH` hoặc `AUTH_DEVICE_TOKEN_MISMATCH`.
 
-1. Confirm current gateway token source:
+1. Xác nhận nguồn token gateway hiện tại:
 
 ```bash
 openclaw config get gateway.auth.token
 ```
 
-2. List paired devices and identify the affected device id:
+2. Liệt kê các thiết bị đã ghép nối và xác định ID thiết bị bị ảnh hưởng:
 
 ```bash
 openclaw devices list
 ```
 
-3. Rotate operator token for the affected device:
+3. Xoay vòng token operator cho thiết bị bị ảnh hưởng:
 
 ```bash
 openclaw devices rotate --device <deviceId> --role operator
 ```
 
-4. If rotation is not enough, remove stale pairing and approve again:
+4. Nếu xoay vòng không đủ, xóa ghép nối cũ và phê duyệt lại:
 
 ```bash
 openclaw devices remove <deviceId>
@@ -131,9 +125,9 @@ openclaw devices list
 openclaw devices approve <requestId>
 ```
 
-5. Retry client connection with the current shared token/password.
+5. Thử kết nối lại client với token/mật khẩu hiện tại.
 
-Related:
+Liên quan:
 
-- [Dashboard auth troubleshooting](/web/dashboard#if-you-see-unauthorized-1008)
-- [Gateway troubleshooting](/gateway/troubleshooting#dashboard-control-ui-connectivity)
+- [Khắc phục sự cố xác thực Dashboard](/web/dashboard#if-you-see-unauthorized-1008)
+- [Khắc phục sự cố Gateway](/gateway/troubleshooting#dashboard-control-ui-connectivity)

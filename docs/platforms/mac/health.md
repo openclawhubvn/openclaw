@@ -1,34 +1,34 @@
 ---
-summary: "How the macOS app reports gateway/Baileys health states"
+summary: "Cách ứng dụng macOS báo cáo trạng thái sức khỏe của gateway/Baileys"
 read_when:
-  - Debugging mac app health indicators
-title: "Health Checks (macOS)"
+  - Gỡ lỗi chỉ số sức khỏe của ứng dụng macOS
+title: "Kiểm tra sức khỏe (macOS)"
 ---
 
-# Health Checks on macOS
+# Kiểm tra sức khỏe trên macOS
 
-How to see whether the linked channel is healthy from the menu bar app.
+Cách kiểm tra xem kênh liên kết có hoạt động tốt từ ứng dụng trên thanh menu hay không.
 
-## Menu bar
+## Thanh menu
 
-- Status dot now reflects Baileys health:
-  - Green: linked + socket opened recently.
-  - Orange: connecting/retrying.
-  - Red: logged out or probe failed.
-- Secondary line reads "linked · auth 12m" or shows the failure reason.
-- "Run Health Check" menu item triggers an on-demand probe.
+- Chấm trạng thái hiện nay phản ánh sức khỏe của Baileys:
+  - Màu xanh lá: đã liên kết + socket mở gần đây.
+  - Màu cam: đang kết nối/lặp lại.
+  - Màu đỏ: đã đăng xuất hoặc kiểm tra thất bại.
+- Dòng phụ hiển thị "đã liên kết · xác thực 12m" hoặc lý do thất bại.
+- Mục menu "Chạy kiểm tra sức khỏe" kích hoạt kiểm tra theo yêu cầu.
 
-## Settings
+## Cài đặt
 
-- General tab gains a Health card showing: linked auth age, session-store path/count, last check time, last error/status code, and buttons for Run Health Check / Reveal Logs.
-- Uses a cached snapshot so the UI loads instantly and falls back gracefully when offline.
-- **Channels tab** surfaces channel status + controls for WhatsApp/Telegram (login QR, logout, probe, last disconnect/error).
+- Tab Chung có thêm thẻ Sức khỏe hiển thị: tuổi xác thực liên kết, đường dẫn/số lượng lưu trữ phiên, thời gian kiểm tra cuối, mã lỗi/trạng thái cuối, và nút Chạy kiểm tra sức khỏe / Hiển thị nhật ký.
+- Sử dụng ảnh chụp nhanh được lưu trữ để giao diện tải ngay lập tức và hoạt động tốt khi offline.
+- **Tab Kênh** hiển thị trạng thái kênh + điều khiển cho WhatsApp/Telegram (mã QR đăng nhập, đăng xuất, kiểm tra, ngắt kết nối/lỗi cuối).
 
-## How the probe works
+## Cách hoạt động của kiểm tra
 
-- App runs `openclaw health --json` via `ShellExecutor` every ~60s and on demand. The probe loads creds and reports status without sending messages.
-- Cache the last good snapshot and the last error separately to avoid flicker; show the timestamp of each.
+- Ứng dụng chạy `openclaw health --json` qua `ShellExecutor` mỗi ~60 giây và theo yêu cầu. Kiểm tra tải thông tin xác thực và báo cáo trạng thái mà không gửi tin nhắn.
+- Lưu trữ riêng ảnh chụp nhanh tốt nhất và lỗi cuối để tránh nhấp nháy; hiển thị dấu thời gian của từng cái.
 
-## When in doubt
+## Khi không chắc chắn
 
-- You can still use the CLI flow in [Gateway health](/gateway/health) (`openclaw status`, `openclaw status --deep`, `openclaw health --json`) and tail `/tmp/openclaw/openclaw-*.log` for `web-heartbeat` / `web-reconnect`.
+- Bạn vẫn có thể sử dụng luồng CLI trong [Sức khỏe Gateway](/gateway/health) (`openclaw status`, `openclaw status --deep`, `openclaw health --json`) và theo dõi `/tmp/openclaw/openclaw-*.log` cho `web-heartbeat` / `web-reconnect`.

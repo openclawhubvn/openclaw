@@ -1,32 +1,30 @@
 ---
-summary: "Use Anthropic Claude via API keys or setup-token in OpenClaw"
+summary: "Sử dụng Anthropic Claude qua API keys hoặc setup-token trong OpenClaw"
 read_when:
-  - You want to use Anthropic models in OpenClaw
-  - You want setup-token instead of API keys
+  - Bạn muốn sử dụng mô hình Anthropic trong OpenClaw
+  - Bạn muốn dùng setup-token thay vì API keys
 title: "Anthropic"
 ---
 
 # Anthropic (Claude)
 
-Anthropic builds the **Claude** model family and provides access via an API.
-In OpenClaw you can authenticate with an API key or a **setup-token**.
+Anthropic phát triển dòng mô hình **Claude** và cung cấp truy cập qua API. Trong OpenClaw, bạn có thể xác thực bằng API key hoặc **setup-token**.
 
-## Option A: Anthropic API key
+## Lựa chọn A: API key của Anthropic
 
-**Best for:** standard API access and usage-based billing.
-Create your API key in the Anthropic Console.
+**Phù hợp nhất cho:** truy cập API tiêu chuẩn và thanh toán dựa trên mức sử dụng. Tạo API key trong Anthropic Console.
 
-### CLI setup
+### Thiết lập CLI
 
 ```bash
 openclaw onboard
-# choose: Anthropic API key
+# chọn: Anthropic API key
 
-# or non-interactive
+# hoặc không tương tác
 openclaw onboard --anthropic-api-key "$ANTHROPIC_API_KEY"
 ```
 
-### Config snippet
+### Đoạn cấu hình
 
 ```json5
 {
@@ -35,22 +33,22 @@ openclaw onboard --anthropic-api-key "$ANTHROPIC_API_KEY"
 }
 ```
 
-## Thinking defaults (Claude 4.6)
+## Mặc định suy nghĩ (Claude 4.6)
 
-- Anthropic Claude 4.6 models default to `adaptive` thinking in OpenClaw when no explicit thinking level is set.
-- You can override per-message (`/think:<level>`) or in model params:
+- Mô hình Anthropic Claude 4.6 mặc định là `adaptive` trong OpenClaw khi không có mức suy nghĩ cụ thể nào được đặt.
+- Bạn có thể ghi đè theo từng tin nhắn (`/think:<level>`) hoặc trong tham số mô hình:
   `agents.defaults.models["anthropic/<model>"].params.thinking`.
-- Related Anthropic docs:
+- Tài liệu liên quan của Anthropic:
   - [Adaptive thinking](https://platform.claude.com/docs/en/build-with-claude/adaptive-thinking)
   - [Extended thinking](https://platform.claude.com/docs/en/build-with-claude/extended-thinking)
 
-## Fast mode (Anthropic API)
+## Chế độ nhanh (Anthropic API)
 
-OpenClaw's shared `/fast` toggle also supports direct Anthropic API-key traffic.
+Chế độ `/fast` chia sẻ của OpenClaw cũng hỗ trợ lưu lượng trực tiếp từ API-key của Anthropic.
 
-- `/fast on` maps to `service_tier: "auto"`
-- `/fast off` maps to `service_tier: "standard_only"`
-- Config default:
+- `/fast on` ánh xạ tới `service_tier: "auto"`
+- `/fast off` ánh xạ tới `service_tier: "standard_only"`
+- Cấu hình mặc định:
 
 ```json5
 {
@@ -66,25 +64,25 @@ OpenClaw's shared `/fast` toggle also supports direct Anthropic API-key traffic.
 }
 ```
 
-Important limits:
+Giới hạn quan trọng:
 
-- This is **API-key only**. Anthropic setup-token / OAuth auth does not honor OpenClaw fast-mode tier injection.
-- OpenClaw only injects Anthropic service tiers for direct `api.anthropic.com` requests. If you route `anthropic/*` through a proxy or gateway, `/fast` leaves `service_tier` untouched.
-- Anthropic reports the effective tier on the response under `usage.service_tier`. On accounts without Priority Tier capacity, `service_tier: "auto"` may still resolve to `standard`.
+- Đây chỉ dành cho **API-key**. Setup-token / OAuth của Anthropic không hỗ trợ tiêm tầng nhanh của OpenClaw.
+- OpenClaw chỉ tiêm tầng dịch vụ của Anthropic cho các yêu cầu trực tiếp `api.anthropic.com`. Nếu bạn định tuyến `anthropic/*` qua proxy hoặc gateway, `/fast` sẽ giữ nguyên `service_tier`.
+- Anthropic báo cáo tầng hiệu quả trong phản hồi dưới `usage.service_tier`. Trên các tài khoản không có khả năng Tầng Ưu tiên, `service_tier: "auto"` có thể vẫn giải quyết thành `standard`.
 
-## Prompt caching (Anthropic API)
+## Bộ nhớ đệm prompt (Anthropic API)
 
-OpenClaw supports Anthropic's prompt caching feature. This is **API-only**; subscription auth does not honor cache settings.
+OpenClaw hỗ trợ tính năng bộ nhớ đệm prompt của Anthropic. Đây chỉ dành cho **API**; xác thực đăng ký không hỗ trợ cài đặt bộ nhớ đệm.
 
-### Configuration
+### Cấu hình
 
-Use the `cacheRetention` parameter in your model config:
+Sử dụng tham số `cacheRetention` trong cấu hình mô hình của bạn:
 
-| Value   | Cache Duration | Description                         |
-| ------- | -------------- | ----------------------------------- |
-| `none`  | No caching     | Disable prompt caching              |
-| `short` | 5 minutes      | Default for API Key auth            |
-| `long`  | 1 hour         | Extended cache (requires beta flag) |
+| Giá trị | Thời gian lưu trữ | Mô tả                               |
+| ------- | ----------------- | ----------------------------------- |
+| `none`  | Không lưu trữ     | Tắt bộ nhớ đệm prompt               |
+| `short` | 5 phút            | Mặc định cho xác thực API Key       |
+| `long`  | 1 giờ             | Bộ nhớ đệm mở rộng (yêu cầu cờ beta) |
 
 ```json5
 {
@@ -100,13 +98,13 @@ Use the `cacheRetention` parameter in your model config:
 }
 ```
 
-### Defaults
+### Mặc định
 
-When using Anthropic API Key authentication, OpenClaw automatically applies `cacheRetention: "short"` (5-minute cache) for all Anthropic models. You can override this by explicitly setting `cacheRetention` in your config.
+Khi sử dụng xác thực API Key của Anthropic, OpenClaw tự động áp dụng `cacheRetention: "short"` (bộ nhớ đệm 5 phút) cho tất cả các mô hình Anthropic. Bạn có thể ghi đè điều này bằng cách đặt `cacheRetention` rõ ràng trong cấu hình của bạn.
 
-### Per-agent cacheRetention overrides
+### Ghi đè cacheRetention theo từng agent
 
-Use model-level params as your baseline, then override specific agents via `agents.list[].params`.
+Sử dụng tham số cấp mô hình làm cơ sở, sau đó ghi đè các agent cụ thể qua `agents.list[].params`.
 
 ```json5
 {
@@ -115,47 +113,45 @@ Use model-level params as your baseline, then override specific agents via `agen
       model: { primary: "anthropic/claude-opus-4-6" },
       models: {
         "anthropic/claude-opus-4-6": {
-          params: { cacheRetention: "long" }, // baseline for most agents
+          params: { cacheRetention: "long" }, // cơ sở cho hầu hết các agent
         },
       },
     },
     list: [
       { id: "research", default: true },
-      { id: "alerts", params: { cacheRetention: "none" } }, // override for this agent only
+      { id: "alerts", params: { cacheRetention: "none" } }, // ghi đè chỉ cho agent này
     ],
   },
 }
 ```
 
-Config merge order for cache-related params:
+Thứ tự hợp nhất cấu hình cho các tham số liên quan đến bộ nhớ đệm:
 
 1. `agents.defaults.models["provider/model"].params`
-2. `agents.list[].params` (matching `id`, overrides by key)
+2. `agents.list[].params` (khớp `id`, ghi đè theo khóa)
 
-This lets one agent keep a long-lived cache while another agent on the same model disables caching to avoid write costs on bursty/low-reuse traffic.
+Điều này cho phép một agent giữ bộ nhớ đệm lâu dài trong khi một agent khác trên cùng mô hình tắt bộ nhớ đệm để tránh chi phí ghi trên lưu lượng đột biến/thấp tái sử dụng.
 
-### Bedrock Claude notes
+### Ghi chú Claude trên Bedrock
 
-- Anthropic Claude models on Bedrock (`amazon-bedrock/*anthropic.claude*`) accept `cacheRetention` pass-through when configured.
-- Non-Anthropic Bedrock models are forced to `cacheRetention: "none"` at runtime.
-- Anthropic API-key smart defaults also seed `cacheRetention: "short"` for Claude-on-Bedrock model refs when no explicit value is set.
+- Các mô hình Anthropic Claude trên Bedrock (`amazon-bedrock/*anthropic.claude*`) chấp nhận truyền qua `cacheRetention` khi được cấu hình.
+- Các mô hình Bedrock không phải của Anthropic bị buộc phải `cacheRetention: "none"` khi chạy.
+- Mặc định thông minh của API-key Anthropic cũng đặt `cacheRetention: "short"` cho các tham chiếu mô hình Claude-on-Bedrock khi không có giá trị rõ ràng nào được đặt.
 
-### Legacy parameter
+### Tham số cũ
 
-The older `cacheControlTtl` parameter is still supported for backwards compatibility:
+Tham số `cacheControlTtl` cũ vẫn được hỗ trợ để tương thích ngược:
 
-- `"5m"` maps to `short`
-- `"1h"` maps to `long`
+- `"5m"` ánh xạ tới `short`
+- `"1h"` ánh xạ tới `long`
 
-We recommend migrating to the new `cacheRetention` parameter.
+Chúng tôi khuyến nghị chuyển sang tham số `cacheRetention` mới.
 
-OpenClaw includes the `extended-cache-ttl-2025-04-11` beta flag for Anthropic API
-requests; keep it if you override provider headers (see [/gateway/configuration](/gateway/configuration)).
+OpenClaw bao gồm cờ beta `extended-cache-ttl-2025-04-11` cho các yêu cầu API của Anthropic; giữ nó nếu bạn ghi đè các tiêu đề của nhà cung cấp (xem [/gateway/configuration](/gateway/configuration)).
 
-## 1M context window (Anthropic beta)
+## Cửa sổ ngữ cảnh 1M (Anthropic beta)
 
-Anthropic's 1M context window is beta-gated. In OpenClaw, enable it per model
-with `params.context1m: true` for supported Opus/Sonnet models.
+Cửa sổ ngữ cảnh 1M của Anthropic đang trong giai đoạn beta. Trong OpenClaw, kích hoạt nó cho từng mô hình với `params.context1m: true` cho các mô hình Opus/Sonnet được hỗ trợ.
 
 ```json5
 {
@@ -171,53 +167,47 @@ with `params.context1m: true` for supported Opus/Sonnet models.
 }
 ```
 
-OpenClaw maps this to `anthropic-beta: context-1m-2025-08-07` on Anthropic
-requests.
+OpenClaw ánh xạ điều này tới `anthropic-beta: context-1m-2025-08-07` trên các yêu cầu của Anthropic.
 
-This only activates when `params.context1m` is explicitly set to `true` for
-that model.
+Điều này chỉ kích hoạt khi `params.context1m` được đặt rõ ràng là `true` cho mô hình đó.
 
-Requirement: Anthropic must allow long-context usage on that credential
-(typically API key billing, or a subscription account with Extra Usage
-enabled). Otherwise Anthropic returns:
+Yêu cầu: Anthropic phải cho phép sử dụng ngữ cảnh dài trên thông tin xác thực đó (thường là thanh toán API key, hoặc tài khoản đăng ký với Extra Usage được kích hoạt). Nếu không, Anthropic trả về:
 `HTTP 429: rate_limit_error: Extra usage is required for long context requests`.
 
-Note: Anthropic currently rejects `context-1m-*` beta requests when using
-OAuth/subscription tokens (`sk-ant-oat-*`). OpenClaw automatically skips the
-context1m beta header for OAuth auth and keeps the required OAuth betas.
+Lưu ý: Hiện tại Anthropic từ chối các yêu cầu beta `context-1m-*` khi sử dụng token OAuth/subscription (`sk-ant-oat-*`). OpenClaw tự động bỏ qua tiêu đề beta context1m cho xác thực OAuth và giữ các beta OAuth cần thiết.
 
-## Option B: Claude setup-token
+## Lựa chọn B: Claude setup-token
 
-**Best for:** using your Claude subscription.
+**Phù hợp nhất cho:** sử dụng đăng ký Claude của bạn.
 
-### Where to get a setup-token
+### Nơi lấy setup-token
 
-Setup-tokens are created by the **Claude Code CLI**, not the Anthropic Console. You can run this on **any machine**:
+Setup-tokens được tạo bởi **Claude Code CLI**, không phải Anthropic Console. Bạn có thể chạy điều này trên **bất kỳ máy nào**:
 
 ```bash
 claude setup-token
 ```
 
-Paste the token into OpenClaw (wizard: **Anthropic token (paste setup-token)**), or run it on the gateway host:
+Dán token vào OpenClaw (trình hướng dẫn: **Anthropic token (paste setup-token)**), hoặc chạy nó trên máy chủ gateway:
 
 ```bash
 openclaw models auth setup-token --provider anthropic
 ```
 
-If you generated the token on a different machine, paste it:
+Nếu bạn tạo token trên một máy khác, dán nó:
 
 ```bash
 openclaw models auth paste-token --provider anthropic
 ```
 
-### CLI setup (setup-token)
+### Thiết lập CLI (setup-token)
 
 ```bash
-# Paste a setup-token during setup
+# Dán một setup-token trong quá trình thiết lập
 openclaw onboard --auth-choice setup-token
 ```
 
-### Config snippet (setup-token)
+### Đoạn cấu hình (setup-token)
 
 ```json5
 {
@@ -225,35 +215,33 @@ openclaw onboard --auth-choice setup-token
 }
 ```
 
-## Notes
+## Ghi chú
 
-- Generate the setup-token with `claude setup-token` and paste it, or run `openclaw models auth setup-token` on the gateway host.
-- If you see “OAuth token refresh failed …” on a Claude subscription, re-auth with a setup-token. See [/gateway/troubleshooting](/gateway/troubleshooting).
-- Auth details + reuse rules are in [/concepts/oauth](/concepts/oauth).
+- Tạo setup-token với `claude setup-token` và dán nó, hoặc chạy `openclaw models auth setup-token` trên máy chủ gateway.
+- Nếu bạn thấy “OAuth token refresh failed …” trên một đăng ký Claude, xác thực lại với setup-token. Xem [/gateway/troubleshooting](/gateway/troubleshooting).
+- Chi tiết xác thực + quy tắc tái sử dụng có trong [/concepts/oauth](/concepts/oauth).
 
-## Troubleshooting
+## Khắc phục sự cố
 
-**401 errors / token suddenly invalid**
+**Lỗi 401 / token đột ngột không hợp lệ**
 
-- Claude subscription auth can expire or be revoked. Re-run `claude setup-token`
-  and paste it into the **gateway host**.
-- If the Claude CLI login lives on a different machine, use
-  `openclaw models auth paste-token --provider anthropic` on the gateway host.
+- Xác thực đăng ký Claude có thể hết hạn hoặc bị thu hồi. Chạy lại `claude setup-token` và dán nó vào **máy chủ gateway**.
+- Nếu đăng nhập Claude CLI nằm trên một máy khác, sử dụng
+  `openclaw models auth paste-token --provider anthropic` trên máy chủ gateway.
 
-**No API key found for provider "anthropic"**
+**Không tìm thấy API key cho nhà cung cấp "anthropic"**
 
-- Auth is **per agent**. New agents don’t inherit the main agent’s keys.
-- Re-run onboarding for that agent, or paste a setup-token / API key on the
-  gateway host, then verify with `openclaw models status`.
+- Xác thực là **theo từng agent**. Các agent mới không thừa hưởng khóa của agent chính.
+- Chạy lại onboarding cho agent đó, hoặc dán một setup-token / API key trên máy chủ gateway, sau đó xác minh với `openclaw models status`.
 
-**No credentials found for profile `anthropic:default`**
+**Không tìm thấy thông tin xác thực cho hồ sơ `anthropic:default`**
 
-- Run `openclaw models status` to see which auth profile is active.
-- Re-run onboarding, or paste a setup-token / API key for that profile.
+- Chạy `openclaw models status` để xem hồ sơ xác thực nào đang hoạt động.
+- Chạy lại onboarding, hoặc dán một setup-token / API key cho hồ sơ đó.
 
-**No available auth profile (all in cooldown/unavailable)**
+**Không có hồ sơ xác thực nào khả dụng (tất cả đều trong cooldown/không khả dụng)**
 
-- Check `openclaw models status --json` for `auth.unusableProfiles`.
-- Add another Anthropic profile or wait for cooldown.
+- Kiểm tra `openclaw models status --json` cho `auth.unusableProfiles`.
+- Thêm một hồ sơ Anthropic khác hoặc chờ cooldown.
 
-More: [/gateway/troubleshooting](/gateway/troubleshooting) and [/help/faq](/help/faq).
+Thêm thông tin: [/gateway/troubleshooting](/gateway/troubleshooting) và [/help/faq](/help/faq).

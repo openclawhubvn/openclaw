@@ -1,81 +1,81 @@
 ---
-summary: "Group chat behavior across surfaces (WhatsApp/Telegram/Discord/Slack/Signal/iMessage/Microsoft Teams/Zalo)"
+summary: "Hành vi chat nhóm trên các nền tảng (WhatsApp/Telegram/Discord/Slack/Signal/iMessage/Microsoft Teams/Zalo)"
 read_when:
-  - Changing group chat behavior or mention gating
-title: "Groups"
+  - Thay đổi hành vi chat nhóm hoặc điều chỉnh nhắc đến
+title: "Nhóm"
 ---
 
-# Groups
+# Nhóm
 
-OpenClaw treats group chats consistently across surfaces: WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Microsoft Teams, Zalo.
+OpenClaw xử lý các cuộc trò chuyện nhóm nhất quán trên các nền tảng: WhatsApp, Telegram, Discord, Slack, Signal, iMessage, Microsoft Teams, Zalo.
 
-## Beginner intro (2 minutes)
+## Giới thiệu cho người mới (2 phút)
 
-OpenClaw “lives” on your own messaging accounts. There is no separate WhatsApp bot user.
-If **you** are in a group, OpenClaw can see that group and respond there.
+OpenClaw hoạt động trên tài khoản nhắn tin của bạn. Không có người dùng bot WhatsApp riêng biệt.
+Nếu **bạn** có trong một nhóm, OpenClaw có thể thấy và phản hồi trong nhóm đó.
 
-Default behavior:
+Hành vi mặc định:
 
-- Groups are restricted (`groupPolicy: "allowlist"`).
-- Replies require a mention unless you explicitly disable mention gating.
+- Nhóm bị giới hạn (`groupPolicy: "allowlist"`).
+- Phản hồi yêu cầu nhắc đến trừ khi bạn tắt tính năng này.
 
-Translation: allowlisted senders can trigger OpenClaw by mentioning it.
+Dịch: người gửi trong danh sách cho phép có thể kích hoạt OpenClaw bằng cách nhắc đến nó.
 
-> TL;DR
+> Tóm tắt
 >
-> - **DM access** is controlled by `*.allowFrom`.
-> - **Group access** is controlled by `*.groupPolicy` + allowlists (`*.groups`, `*.groupAllowFrom`).
-> - **Reply triggering** is controlled by mention gating (`requireMention`, `/activation`).
+> - **Truy cập DM** được kiểm soát bởi `*.allowFrom`.
+> - **Truy cập nhóm** được kiểm soát bởi `*.groupPolicy` + danh sách cho phép (`*.groups`, `*.groupAllowFrom`).
+> - **Kích hoạt phản hồi** được kiểm soát bởi nhắc đến (`requireMention`, `/activation`).
 
-Quick flow (what happens to a group message):
+Luồng nhanh (điều gì xảy ra với tin nhắn nhóm):
 
 ```
-groupPolicy? disabled -> drop
-groupPolicy? allowlist -> group allowed? no -> drop
-requireMention? yes -> mentioned? no -> store for context only
-otherwise -> reply
+groupPolicy? disabled -> bỏ qua
+groupPolicy? allowlist -> nhóm được phép? không -> bỏ qua
+requireMention? có -> được nhắc đến? không -> lưu cho ngữ cảnh
+khác -> phản hồi
 ```
 
-![Group message flow](/images/groups-flow.svg)
+![Luồng tin nhắn nhóm](/images/groups-flow.svg)
 
-If you want...
+Nếu bạn muốn...
 
-| Goal                                         | What to set                                                |
-| -------------------------------------------- | ---------------------------------------------------------- |
-| Allow all groups but only reply on @mentions | `groups: { "*": { requireMention: true } }`                |
-| Disable all group replies                    | `groupPolicy: "disabled"`                                  |
-| Only specific groups                         | `groups: { "<group-id>": { ... } }` (no `"*"` key)         |
-| Only you can trigger in groups               | `groupPolicy: "allowlist"`, `groupAllowFrom: ["+1555..."]` |
+| Mục tiêu                                      | Cài đặt gì                                                |
+| --------------------------------------------- | --------------------------------------------------------- |
+| Cho phép tất cả nhóm nhưng chỉ phản hồi khi được nhắc đến | `groups: { "*": { requireMention: true } }`                |
+| Tắt tất cả phản hồi nhóm                       | `groupPolicy: "disabled"`                                  |
+| Chỉ cho phép nhóm cụ thể                       | `groups: { "<group-id>": { ... } }` (không có khóa `"*"` ) |
+| Chỉ bạn có thể kích hoạt trong nhóm            | `groupPolicy: "allowlist"`, `groupAllowFrom: ["+1555..."]` |
 
-## Session keys
+## Khóa phiên
 
-- Group sessions use `agent:<agentId>:<channel>:group:<id>` session keys (rooms/channels use `agent:<agentId>:<channel>:channel:<id>`).
-- Telegram forum topics add `:topic:<threadId>` to the group id so each topic has its own session.
-- Direct chats use the main session (or per-sender if configured).
-- Heartbeats are skipped for group sessions.
+- Phiên nhóm sử dụng khóa phiên `agent:<agentId>:<channel>:group:<id>` (phòng/kênh sử dụng `agent:<agentId>:<channel>:channel:<id>`).
+- Chủ đề diễn đàn Telegram thêm `:topic:<threadId>` vào id nhóm để mỗi chủ đề có phiên riêng.
+- Trò chuyện trực tiếp sử dụng phiên chính (hoặc theo người gửi nếu được cấu hình).
+- Bỏ qua nhịp tim cho phiên nhóm.
 
-## Pattern: personal DMs + public groups (single agent)
+## Mẫu: DMs cá nhân + nhóm công khai (một agent)
 
-Yes — this works well if your “personal” traffic is **DMs** and your “public” traffic is **groups**.
+Có — điều này hoạt động tốt nếu lưu lượng "cá nhân" của bạn là **DMs** và lưu lượng "công khai" là **nhóm**.
 
-Why: in single-agent mode, DMs typically land in the **main** session key (`agent:main:main`), while groups always use **non-main** session keys (`agent:main:<channel>:group:<id>`). If you enable sandboxing with `mode: "non-main"`, those group sessions run in Docker while your main DM session stays on-host.
+Lý do: trong chế độ một agent, DMs thường nằm trong khóa phiên **chính** (`agent:main:main`), trong khi nhóm luôn sử dụng khóa phiên **không chính** (`agent:main:<channel>:group:<id>`). Nếu bạn bật sandboxing với `mode: "non-main"`, các phiên nhóm đó chạy trong Docker trong khi phiên DM chính của bạn vẫn ở trên máy chủ.
 
-This gives you one agent “brain” (shared workspace + memory), but two execution postures:
+Điều này mang lại cho bạn một "bộ não" agent (không gian làm việc + bộ nhớ chia sẻ), nhưng hai tư thế thực thi:
 
-- **DMs**: full tools (host)
-- **Groups**: sandbox + restricted tools (Docker)
+- **DMs**: công cụ đầy đủ (trên máy chủ)
+- **Nhóm**: sandbox + công cụ hạn chế (Docker)
 
-> If you need truly separate workspaces/personas (“personal” and “public” must never mix), use a second agent + bindings. See [Multi-Agent Routing](/concepts/multi-agent).
+> Nếu bạn cần không gian làm việc/nhân vật hoàn toàn riêng biệt ("cá nhân" và "công khai" không bao giờ được trộn lẫn), hãy sử dụng agent thứ hai + ràng buộc. Xem [Định tuyến Multi-Agent](/concepts/multi-agent).
 
-Example (DMs on host, groups sandboxed + messaging-only tools):
+Ví dụ (DMs trên máy chủ, nhóm trong sandbox + chỉ công cụ nhắn tin):
 
 ```json5
 {
   agents: {
     defaults: {
       sandbox: {
-        mode: "non-main", // groups/channels are non-main -> sandboxed
-        scope: "session", // strongest isolation (one container per group/channel)
+        mode: "non-main", // nhóm/kênh là không chính -> trong sandbox
+        scope: "session", // cách ly mạnh nhất (một container cho mỗi nhóm/kênh)
         workspaceAccess: "none",
       },
     },
@@ -83,7 +83,7 @@ Example (DMs on host, groups sandboxed + messaging-only tools):
   tools: {
     sandbox: {
       tools: {
-        // If allow is non-empty, everything else is blocked (deny still wins).
+        // Nếu allow không rỗng, mọi thứ khác bị chặn (deny vẫn thắng).
         allow: ["group:messaging", "group:sessions"],
         deny: ["group:runtime", "group:fs", "group:ui", "nodes", "cron", "gateway"],
       },
@@ -92,7 +92,7 @@ Example (DMs on host, groups sandboxed + messaging-only tools):
 }
 ```
 
-Want “groups can only see folder X” instead of “no host access”? Keep `workspaceAccess: "none"` and mount only allowlisted paths into the sandbox:
+Muốn "nhóm chỉ có thể thấy thư mục X" thay vì "không truy cập máy chủ"? Giữ `workspaceAccess: "none"` và chỉ gắn các đường dẫn trong danh sách cho phép vào sandbox:
 
 ```json5
 {
@@ -114,20 +114,20 @@ Want “groups can only see folder X” instead of “no host access”? Keep `w
 }
 ```
 
-Related:
+Liên quan:
 
-- Configuration keys and defaults: [Gateway configuration](/gateway/configuration-reference#agents-defaults-sandbox)
-- Debugging why a tool is blocked: [Sandbox vs Tool Policy vs Elevated](/gateway/sandbox-vs-tool-policy-vs-elevated)
-- Bind mounts details: [Sandboxing](/gateway/sandboxing#custom-bind-mounts)
+- Khóa cấu hình và mặc định: [Cấu hình Gateway](/gateway/configuration-reference#agents-defaults-sandbox)
+- Gỡ lỗi tại sao một công cụ bị chặn: [Sandbox vs Chính sách Công cụ vs Nâng cao](/gateway/sandbox-vs-tool-policy-vs-elevated)
+- Chi tiết gắn kết: [Sandboxing](/gateway/sandboxing#custom-bind-mounts)
 
-## Display labels
+## Nhãn hiển thị
 
-- UI labels use `displayName` when available, formatted as `<channel>:<token>`.
-- `#room` is reserved for rooms/channels; group chats use `g-<slug>` (lowercase, spaces -> `-`, keep `#@+._-`).
+- Nhãn UI sử dụng `displayName` khi có, định dạng là `<channel>:<token>`.
+- `#room` dành riêng cho phòng/kênh; trò chuyện nhóm sử dụng `g-<slug>` (chữ thường, khoảng trắng -> `-`, giữ `#@+._-`).
 
-## Group policy
+## Chính sách nhóm
 
-Control how group/room messages are handled per channel:
+Kiểm soát cách xử lý tin nhắn nhóm/phòng theo kênh:
 
 ```json5
 {
@@ -138,7 +138,7 @@ Control how group/room messages are handled per channel:
     },
     telegram: {
       groupPolicy: "disabled",
-      groupAllowFrom: ["123456789"], // numeric Telegram user id (wizard can resolve @username)
+      groupAllowFrom: ["123456789"], // id người dùng Telegram (wizard có thể giải quyết @username)
     },
     signal: {
       groupPolicy: "disabled",
@@ -174,36 +174,36 @@ Control how group/room messages are handled per channel:
 }
 ```
 
-| Policy        | Behavior                                                     |
-| ------------- | ------------------------------------------------------------ |
-| `"open"`      | Groups bypass allowlists; mention-gating still applies.      |
-| `"disabled"`  | Block all group messages entirely.                           |
-| `"allowlist"` | Only allow groups/rooms that match the configured allowlist. |
+| Chính sách    | Hành vi                                                        |
+| ------------- | ------------------------------------------------------------- |
+| `"open"`      | Nhóm bỏ qua danh sách cho phép; nhắc đến vẫn áp dụng.         |
+| `"disabled"`  | Chặn hoàn toàn tất cả tin nhắn nhóm.                          |
+| `"allowlist"` | Chỉ cho phép nhóm/phòng khớp với danh sách cho phép đã cấu hình. |
 
-Notes:
+Lưu ý:
 
-- `groupPolicy` is separate from mention-gating (which requires @mentions).
-- WhatsApp/Telegram/Signal/iMessage/Microsoft Teams/Zalo: use `groupAllowFrom` (fallback: explicit `allowFrom`).
-- DM pairing approvals (`*-allowFrom` store entries) apply to DM access only; group sender authorization stays explicit to group allowlists.
-- Discord: allowlist uses `channels.discord.guilds.<id>.channels`.
-- Slack: allowlist uses `channels.slack.channels`.
-- Matrix: allowlist uses `channels.matrix.groups` (room IDs, aliases, or names). Use `channels.matrix.groupAllowFrom` to restrict senders; per-room `users` allowlists are also supported.
-- Group DMs are controlled separately (`channels.discord.dm.*`, `channels.slack.dm.*`).
-- Telegram allowlist can match user IDs (`"123456789"`, `"telegram:123456789"`, `"tg:123456789"`) or usernames (`"@alice"` or `"alice"`); prefixes are case-insensitive.
-- Default is `groupPolicy: "allowlist"`; if your group allowlist is empty, group messages are blocked.
-- Runtime safety: when a provider block is completely missing (`channels.<provider>` absent), group policy falls back to a fail-closed mode (typically `allowlist`) instead of inheriting `channels.defaults.groupPolicy`.
+- `groupPolicy` tách biệt với nhắc đến (yêu cầu @mentions).
+- WhatsApp/Telegram/Signal/iMessage/Microsoft Teams/Zalo: sử dụng `groupAllowFrom` (dự phòng: `allowFrom` rõ ràng).
+- Phê duyệt ghép đôi DM (`*-allowFrom` lưu trữ mục) chỉ áp dụng cho truy cập DM; ủy quyền người gửi nhóm vẫn rõ ràng cho danh sách cho phép nhóm.
+- Discord: danh sách cho phép sử dụng `channels.discord.guilds.<id>.channels`.
+- Slack: danh sách cho phép sử dụng `channels.slack.channels`.
+- Matrix: danh sách cho phép sử dụng `channels.matrix.groups` (id phòng, bí danh hoặc tên). Sử dụng `channels.matrix.groupAllowFrom` để hạn chế người gửi; danh sách cho phép `users` theo phòng cũng được hỗ trợ.
+- DM nhóm được kiểm soát riêng (`channels.discord.dm.*`, `channels.slack.dm.*`).
+- Danh sách cho phép Telegram có thể khớp với id người dùng (`"123456789"`, `"telegram:123456789"`, `"tg:123456789"`) hoặc tên người dùng (`"@alice"` hoặc `"alice"`); tiền tố không phân biệt chữ hoa chữ thường.
+- Mặc định là `groupPolicy: "allowlist"`; nếu danh sách cho phép nhóm của bạn trống, tin nhắn nhóm bị chặn.
+- An toàn khi chạy: khi một khối nhà cung cấp hoàn toàn thiếu (`channels.<provider>` không có), chính sách nhóm sẽ quay lại chế độ đóng thất bại (thường là `allowlist`) thay vì kế thừa `channels.defaults.groupPolicy`.
 
-Quick mental model (evaluation order for group messages):
+Mô hình tinh thần nhanh (thứ tự đánh giá cho tin nhắn nhóm):
 
 1. `groupPolicy` (open/disabled/allowlist)
-2. group allowlists (`*.groups`, `*.groupAllowFrom`, channel-specific allowlist)
-3. mention gating (`requireMention`, `/activation`)
+2. danh sách cho phép nhóm (`*.groups`, `*.groupAllowFrom`, danh sách cho phép cụ thể theo kênh)
+3. nhắc đến (`requireMention`, `/activation`)
 
-## Mention gating (default)
+## Nhắc đến (mặc định)
 
-Group messages require a mention unless overridden per group. Defaults live per subsystem under `*.groups."*"`.
+Tin nhắn nhóm yêu cầu nhắc đến trừ khi bị ghi đè theo nhóm. Mặc định sống theo từng hệ thống con dưới `*.groups."*"`.
 
-Replying to a bot message counts as an implicit mention (when the channel supports reply metadata). This applies to Telegram, WhatsApp, Slack, Discord, and Microsoft Teams.
+Phản hồi tin nhắn bot được tính là nhắc đến ngầm (khi kênh hỗ trợ siêu dữ liệu phản hồi). Điều này áp dụng cho Telegram, WhatsApp, Slack, Discord và Microsoft Teams.
 
 ```json5
 {
@@ -241,33 +241,33 @@ Replying to a bot message counts as an implicit mention (when the channel suppor
 }
 ```
 
-Notes:
+Lưu ý:
 
-- `mentionPatterns` are case-insensitive safe regex patterns; invalid patterns and unsafe nested-repetition forms are ignored.
-- Surfaces that provide explicit mentions still pass; patterns are a fallback.
-- Per-agent override: `agents.list[].groupChat.mentionPatterns` (useful when multiple agents share a group).
-- Mention gating is only enforced when mention detection is possible (native mentions or `mentionPatterns` are configured).
-- Discord defaults live in `channels.discord.guilds."*"` (overridable per guild/channel).
-- Group history context is wrapped uniformly across channels and is **pending-only** (messages skipped due to mention gating); use `messages.groupChat.historyLimit` for the global default and `channels.<channel>.historyLimit` (or `channels.<channel>.accounts.*.historyLimit`) for overrides. Set `0` to disable.
+- `mentionPatterns` là các mẫu regex an toàn không phân biệt chữ hoa chữ thường; các mẫu không hợp lệ và các dạng lặp lồng không an toàn bị bỏ qua.
+- Các bề mặt cung cấp nhắc đến rõ ràng vẫn được thông qua; các mẫu là dự phòng.
+- Ghi đè theo agent: `agents.list[].groupChat.mentionPatterns` (hữu ích khi nhiều agent chia sẻ một nhóm).
+- Nhắc đến chỉ được thực thi khi phát hiện nhắc đến có thể (nhắc đến gốc hoặc `mentionPatterns` được cấu hình).
+- Mặc định Discord sống trong `channels.discord.guilds."*"` (có thể ghi đè theo guild/kênh).
+- Ngữ cảnh lịch sử nhóm được bao bọc đồng nhất trên các kênh và chỉ **đang chờ** (tin nhắn bị bỏ qua do nhắc đến); sử dụng `messages.groupChat.historyLimit` cho mặc định toàn cầu và `channels.<channel>.historyLimit` (hoặc `channels.<channel>.accounts.*.historyLimit`) cho ghi đè. Đặt `0` để tắt.
 
-## Group/channel tool restrictions (optional)
+## Hạn chế công cụ nhóm/kênh (tùy chọn)
 
-Some channel configs support restricting which tools are available **inside a specific group/room/channel**.
+Một số cấu hình kênh hỗ trợ hạn chế công cụ nào có sẵn **trong một nhóm/phòng/kênh cụ thể**.
 
-- `tools`: allow/deny tools for the whole group.
-- `toolsBySender`: per-sender overrides within the group.
-  Use explicit key prefixes:
-  `id:<senderId>`, `e164:<phone>`, `username:<handle>`, `name:<displayName>`, and `"*"` wildcard.
-  Legacy unprefixed keys are still accepted and matched as `id:` only.
+- `tools`: cho phép/chặn công cụ cho toàn bộ nhóm.
+- `toolsBySender`: ghi đè theo người gửi trong nhóm.
+  Sử dụng tiền tố khóa rõ ràng:
+  `id:<senderId>`, `e164:<phone>`, `username:<handle>`, `name:<displayName>`, và ký tự đại diện `"*"`.
+  Các khóa không có tiền tố cũ vẫn được chấp nhận và khớp như `id:` chỉ.
 
-Resolution order (most specific wins):
+Thứ tự giải quyết (cái cụ thể nhất thắng):
 
-1. group/channel `toolsBySender` match
-2. group/channel `tools`
-3. default (`"*"`) `toolsBySender` match
-4. default (`"*"`) `tools`
+1. khớp `toolsBySender` nhóm/kênh
+2. `tools` nhóm/kênh
+3. khớp `toolsBySender` mặc định (`"*"`)
+4. `tools` mặc định (`"*"`) 
 
-Example (Telegram):
+Ví dụ (Telegram):
 
 ```json5
 {
@@ -287,18 +287,18 @@ Example (Telegram):
 }
 ```
 
-Notes:
+Lưu ý:
 
-- Group/channel tool restrictions are applied in addition to global/agent tool policy (deny still wins).
-- Some channels use different nesting for rooms/channels (e.g., Discord `guilds.*.channels.*`, Slack `channels.*`, Microsoft Teams `teams.*.channels.*`).
+- Hạn chế công cụ nhóm/kênh được áp dụng ngoài chính sách công cụ toàn cầu/agent (deny vẫn thắng).
+- Một số kênh sử dụng cấu trúc lồng khác cho phòng/kênh (ví dụ: Discord `guilds.*.channels.*`, Slack `channels.*`, Microsoft Teams `teams.*.channels.*`).
 
-## Group allowlists
+## Danh sách cho phép nhóm
 
-When `channels.whatsapp.groups`, `channels.telegram.groups`, or `channels.imessage.groups` is configured, the keys act as a group allowlist. Use `"*"` to allow all groups while still setting default mention behavior.
+Khi `channels.whatsapp.groups`, `channels.telegram.groups`, hoặc `channels.imessage.groups` được cấu hình, các khóa hoạt động như danh sách cho phép nhóm. Sử dụng `"*"` để cho phép tất cả nhóm trong khi vẫn thiết lập hành vi nhắc đến mặc định.
 
-Common intents (copy/paste):
+Ý định phổ biến (sao chép/dán):
 
-1. Disable all group replies
+1. Tắt tất cả phản hồi nhóm
 
 ```json5
 {
@@ -306,7 +306,7 @@ Common intents (copy/paste):
 }
 ```
 
-2. Allow only specific groups (WhatsApp)
+2. Chỉ cho phép nhóm cụ thể (WhatsApp)
 
 ```json5
 {
@@ -321,7 +321,7 @@ Common intents (copy/paste):
 }
 ```
 
-3. Allow all groups but require mention (explicit)
+3. Cho phép tất cả nhóm nhưng yêu cầu nhắc đến (rõ ràng)
 
 ```json5
 {
@@ -333,7 +333,7 @@ Common intents (copy/paste):
 }
 ```
 
-4. Only the owner can trigger in groups (WhatsApp)
+4. Chỉ chủ sở hữu có thể kích hoạt trong nhóm (WhatsApp)
 
 ```json5
 {
@@ -347,33 +347,33 @@ Common intents (copy/paste):
 }
 ```
 
-## Activation (owner-only)
+## Kích hoạt (chỉ chủ sở hữu)
 
-Group owners can toggle per-group activation:
+Chủ sở hữu nhóm có thể bật/tắt kích hoạt theo nhóm:
 
 - `/activation mention`
 - `/activation always`
 
-Owner is determined by `channels.whatsapp.allowFrom` (or the bot’s self E.164 when unset). Send the command as a standalone message. Other surfaces currently ignore `/activation`.
+Chủ sở hữu được xác định bởi `channels.whatsapp.allowFrom` (hoặc E.164 của bot khi không được đặt). Gửi lệnh dưới dạng tin nhắn độc lập. Các bề mặt khác hiện không hỗ trợ `/activation`.
 
-## Context fields
+## Trường ngữ cảnh
 
-Group inbound payloads set:
+Payload đầu vào nhóm thiết lập:
 
 - `ChatType=group`
-- `GroupSubject` (if known)
-- `GroupMembers` (if known)
-- `WasMentioned` (mention gating result)
-- Telegram forum topics also include `MessageThreadId` and `IsForum`.
+- `GroupSubject` (nếu biết)
+- `GroupMembers` (nếu biết)
+- `WasMentioned` (kết quả nhắc đến)
+- Chủ đề diễn đàn Telegram cũng bao gồm `MessageThreadId` và `IsForum`.
 
-The agent system prompt includes a group intro on the first turn of a new group session. It reminds the model to respond like a human, avoid Markdown tables, and avoid typing literal `\n` sequences.
+Lời nhắc hệ thống agent bao gồm phần giới thiệu nhóm trong lượt đầu tiên của phiên nhóm mới. Nó nhắc mô hình phản hồi như con người, tránh bảng Markdown và tránh gõ chuỗi `\n` theo nghĩa đen.
 
-## iMessage specifics
+## Cụ thể iMessage
 
-- Prefer `chat_id:<id>` when routing or allowlisting.
-- List chats: `imsg chats --limit 20`.
-- Group replies always go back to the same `chat_id`.
+- Ưu tiên `chat_id:<id>` khi định tuyến hoặc danh sách cho phép.
+- Liệt kê trò chuyện: `imsg chats --limit 20`.
+- Phản hồi nhóm luôn quay lại cùng `chat_id`.
 
-## WhatsApp specifics
+## Cụ thể WhatsApp
 
-See [Group messages](/channels/group-messages) for WhatsApp-only behavior (history injection, mention handling details).
+Xem [Tin nhắn nhóm](/channels/group-messages) để biết hành vi chỉ dành cho WhatsApp (tiêm lịch sử, chi tiết xử lý nhắc đến).

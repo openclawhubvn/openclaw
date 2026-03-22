@@ -1,104 +1,104 @@
 ---
-summary: "Setup guide for developers working on the OpenClaw macOS app"
+summary: "Hướng dẫn thiết lập cho các nhà phát triển làm việc trên ứng dụng OpenClaw macOS"
 read_when:
-  - Setting up the macOS development environment
-title: "macOS Dev Setup"
+  - Thiết lập môi trường phát triển macOS
+title: "Thiết lập Dev trên macOS"
 ---
 
-# macOS Developer Setup
+# Thiết lập Dev trên macOS
 
-This guide covers the necessary steps to build and run the OpenClaw macOS application from source.
+Hướng dẫn này bao gồm các bước cần thiết để xây dựng và chạy ứng dụng OpenClaw macOS từ mã nguồn.
 
-## Prerequisites
+## Yêu cầu trước
 
-Before building the app, ensure you have the following installed:
+Trước khi xây dựng ứng dụng, hãy đảm bảo bạn đã cài đặt các phần mềm sau:
 
-1. **Xcode 26.2+**: Required for Swift development.
-2. **Node.js 24 & pnpm**: Recommended for the gateway, CLI, and packaging scripts. Node 22 LTS, currently `22.16+`, remains supported for compatibility.
+1. **Xcode 26.2+**: Cần thiết cho phát triển Swift.
+2. **Node.js 24 & pnpm**: Được khuyến nghị cho gateway, CLI và các script đóng gói. Node 22 LTS, hiện tại là `22.16+`, vẫn được hỗ trợ để tương thích.
 
-## 1. Install Dependencies
+## 1. Cài đặt các phụ thuộc
 
-Install the project-wide dependencies:
+Cài đặt các phụ thuộc cho toàn bộ dự án:
 
 ```bash
 pnpm install
 ```
 
-## 2. Build and Package the App
+## 2. Xây dựng và Đóng gói Ứng dụng
 
-To build the macOS app and package it into `dist/OpenClaw.app`, run:
+Để xây dựng ứng dụng macOS và đóng gói nó vào `dist/OpenClaw.app`, chạy lệnh sau:
 
 ```bash
 ./scripts/package-mac-app.sh
 ```
 
-If you don't have an Apple Developer ID certificate, the script will automatically use **ad-hoc signing** (`-`).
+Nếu bạn không có chứng chỉ Apple Developer ID, script sẽ tự động sử dụng **ký ad-hoc** (`-`).
 
-For dev run modes, signing flags, and Team ID troubleshooting, see the macOS app README:
+Để biết thêm về chế độ chạy dev, cờ ký và xử lý sự cố Team ID, xem README của ứng dụng macOS:
 [https://github.com/openclaw/openclaw/blob/main/apps/macos/README.md](https://github.com/openclaw/openclaw/blob/main/apps/macos/README.md)
 
-> **Note**: Ad-hoc signed apps may trigger security prompts. If the app crashes immediately with "Abort trap 6", see the [Troubleshooting](#troubleshooting) section.
+> **Lưu ý**: Các ứng dụng ký ad-hoc có thể kích hoạt các cảnh báo bảo mật. Nếu ứng dụng bị crash ngay lập tức với thông báo "Abort trap 6", xem phần [Xử lý sự cố](#troubleshooting).
 
-## 3. Install the CLI
+## 3. Cài đặt CLI
 
-The macOS app expects a global `openclaw` CLI install to manage background tasks.
+Ứng dụng macOS yêu cầu cài đặt `openclaw` CLI toàn cầu để quản lý các tác vụ nền.
 
-**To install it (recommended):**
+**Để cài đặt (khuyến nghị):**
 
-1. Open the OpenClaw app.
-2. Go to the **General** settings tab.
-3. Click **"Install CLI"**.
+1. Mở ứng dụng OpenClaw.
+2. Đi tới tab cài đặt **General**.
+3. Nhấp vào **"Install CLI"**.
 
-Alternatively, install it manually:
+Hoặc, cài đặt thủ công:
 
 ```bash
 npm install -g openclaw@<version>
 ```
 
-## Troubleshooting
+## Xử lý sự cố
 
-### Build Fails: Toolchain or SDK Mismatch
+### Xây dựng Thất bại: Không khớp Toolchain hoặc SDK
 
-The macOS app build expects the latest macOS SDK and Swift 6.2 toolchain.
+Xây dựng ứng dụng macOS yêu cầu SDK macOS mới nhất và toolchain Swift 6.2.
 
-**System dependencies (required):**
+**Phụ thuộc hệ thống (bắt buộc):**
 
-- **Latest macOS version available in Software Update** (required by Xcode 26.2 SDKs)
-- **Xcode 26.2** (Swift 6.2 toolchain)
+- **Phiên bản macOS mới nhất có sẵn trong Software Update** (yêu cầu bởi SDKs của Xcode 26.2)
+- **Xcode 26.2** (toolchain Swift 6.2)
 
-**Checks:**
+**Kiểm tra:**
 
 ```bash
 xcodebuild -version
 xcrun swift --version
 ```
 
-If versions don’t match, update macOS/Xcode and re-run the build.
+Nếu phiên bản không khớp, cập nhật macOS/Xcode và chạy lại quá trình xây dựng.
 
-### App Crashes on Permission Grant
+### Ứng dụng Bị Crash khi Cấp Quyền
 
-If the app crashes when you try to allow **Speech Recognition** or **Microphone** access, it may be due to a corrupted TCC cache or signature mismatch.
+Nếu ứng dụng bị crash khi bạn cố gắng cho phép truy cập **Speech Recognition** hoặc **Microphone**, có thể do cache TCC bị hỏng hoặc không khớp chữ ký.
 
-**Fix:**
+**Khắc phục:**
 
-1. Reset the TCC permissions:
+1. Đặt lại quyền TCC:
 
    ```bash
    tccutil reset All ai.openclaw.mac.debug
    ```
 
-2. If that fails, change the `BUNDLE_ID` temporarily in [`scripts/package-mac-app.sh`](https://github.com/openclaw/openclaw/blob/main/scripts/package-mac-app.sh) to force a "clean slate" from macOS.
+2. Nếu không thành công, thay đổi tạm thời `BUNDLE_ID` trong [`scripts/package-mac-app.sh`](https://github.com/openclaw/openclaw/blob/main/scripts/package-mac-app.sh) để buộc macOS tạo "trạng thái sạch".
 
-### Gateway "Starting..." indefinitely
+### Gateway "Starting..." mãi mãi
 
-If the gateway status stays on "Starting...", check if a zombie process is holding the port:
+Nếu trạng thái gateway vẫn ở "Starting...", kiểm tra xem có tiến trình zombie nào đang chiếm cổng không:
 
 ```bash
 openclaw gateway status
 openclaw gateway stop
 
-# If you're not using a LaunchAgent (dev mode / manual runs), find the listener:
+# Nếu bạn không sử dụng LaunchAgent (chế độ dev / chạy thủ công), tìm listener:
 lsof -nP -iTCP:18789 -sTCP:LISTEN
 ```
 
-If a manual run is holding the port, stop that process (Ctrl+C). As a last resort, kill the PID you found above.
+Nếu một lần chạy thủ công đang chiếm cổng, dừng tiến trình đó (Ctrl+C). Như là phương án cuối cùng, hãy giết PID bạn đã tìm thấy ở trên.

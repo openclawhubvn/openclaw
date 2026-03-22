@@ -1,159 +1,159 @@
 ---
-summary: "Run OpenClaw in a sandboxed macOS VM (local or hosted) when you need isolation or iMessage"
+summary: "Chạy OpenClaw trong một máy ảo macOS được cách ly (local hoặc hosted) khi cần sự cô lập hoặc tích hợp iMessage"
 read_when:
-  - You want OpenClaw isolated from your main macOS environment
-  - You want iMessage integration (BlueBubbles) in a sandbox
-  - You want a resettable macOS environment you can clone
-  - You want to compare local vs hosted macOS VM options
-title: "macOS VMs"
+  - Bạn muốn OpenClaw được cách ly khỏi môi trường macOS chính
+  - Bạn muốn tích hợp iMessage (BlueBubbles) trong một sandbox
+  - Bạn muốn một môi trường macOS có thể reset và clone
+  - Bạn muốn so sánh các tùy chọn máy ảo macOS local và hosted
+title: "Máy ảo macOS"
 ---
 
-# OpenClaw on macOS VMs (Sandboxing)
+# OpenClaw trên Máy Ảo macOS (Sandboxing)
 
-## Recommended default (most users)
+## Khuyến nghị mặc định (dành cho hầu hết người dùng)
 
-- **Small Linux VPS** for an always-on Gateway and low cost. See [VPS hosting](/vps).
-- **Dedicated hardware** (Mac mini or Linux box) if you want full control and a **residential IP** for browser automation. Many sites block data center IPs, so local browsing often works better.
-- **Hybrid:** keep the Gateway on a cheap VPS, and connect your Mac as a **node** when you need browser/UI automation. See [Nodes](/nodes) and [Gateway remote](/gateway/remote).
+- **VPS Linux nhỏ** để có một Gateway luôn hoạt động với chi phí thấp. Xem [VPS hosting](/vps).
+- **Phần cứng chuyên dụng** (Mac mini hoặc máy Linux) nếu bạn muốn kiểm soát hoàn toàn và có **IP dân cư** cho tự động hóa trình duyệt. Nhiều trang web chặn IP từ trung tâm dữ liệu, nên duyệt web local thường hiệu quả hơn.
+- **Kết hợp:** giữ Gateway trên một VPS giá rẻ, và kết nối Mac của bạn như một **node** khi cần tự động hóa trình duyệt/UI. Xem [Nodes](/nodes) và [Gateway remote](/gateway/remote).
 
-Use a macOS VM when you specifically need macOS-only capabilities (iMessage/BlueBubbles) or want strict isolation from your daily Mac.
+Sử dụng máy ảo macOS khi bạn cần các khả năng chỉ có trên macOS (iMessage/BlueBubbles) hoặc muốn cách ly hoàn toàn khỏi Mac hàng ngày.
 
-## macOS VM options
+## Các tùy chọn máy ảo macOS
 
-### Local VM on your Apple Silicon Mac (Lume)
+### Máy ảo local trên Apple Silicon Mac (Lume)
 
-Run OpenClaw in a sandboxed macOS VM on your existing Apple Silicon Mac using [Lume](https://cua.ai/docs/lume).
+Chạy OpenClaw trong một máy ảo macOS được cách ly trên Apple Silicon Mac hiện có của bạn bằng [Lume](https://cua.ai/docs/lume).
 
-This gives you:
+Điều này mang lại cho bạn:
 
-- Full macOS environment in isolation (your host stays clean)
-- iMessage support via BlueBubbles (impossible on Linux/Windows)
-- Instant reset by cloning VMs
-- No extra hardware or cloud costs
+- Môi trường macOS đầy đủ trong sự cách ly (máy chủ của bạn vẫn sạch)
+- Hỗ trợ iMessage qua BlueBubbles (không thể trên Linux/Windows)
+- Khả năng reset nhanh chóng bằng cách clone máy ảo
+- Không cần thêm phần cứng hoặc chi phí đám mây
 
-### Hosted Mac providers (cloud)
+### Nhà cung cấp Mac hosted (cloud)
 
-If you want macOS in the cloud, hosted Mac providers work too:
+Nếu bạn muốn macOS trên đám mây, các nhà cung cấp Mac hosted cũng hoạt động tốt:
 
-- [MacStadium](https://www.macstadium.com/) (hosted Macs)
-- Other hosted Mac vendors also work; follow their VM + SSH docs
+- [MacStadium](https://www.macstadium.com/) (Mac hosted)
+- Các nhà cung cấp Mac hosted khác cũng hoạt động; làm theo tài liệu VM + SSH của họ
 
-Once you have SSH access to a macOS VM, continue at step 6 below.
+Khi bạn có quyền truy cập SSH vào một máy ảo macOS, tiếp tục từ bước 6 dưới đây.
 
 ---
 
-## Quick path (Lume, experienced users)
+## Lộ trình nhanh (Lume, người dùng có kinh nghiệm)
 
-1. Install Lume
+1. Cài đặt Lume
 2. `lume create openclaw --os macos --ipsw latest`
-3. Complete Setup Assistant, enable Remote Login (SSH)
+3. Hoàn tất Setup Assistant, bật Remote Login (SSH)
 4. `lume run openclaw --no-display`
-5. SSH in, install OpenClaw, configure channels
-6. Done
+5. SSH vào, cài đặt OpenClaw, cấu hình các kênh
+6. Hoàn tất
 
 ---
 
-## What you need (Lume)
+## Những gì bạn cần (Lume)
 
 - Apple Silicon Mac (M1/M2/M3/M4)
-- macOS Sequoia or later on the host
-- ~60 GB free disk space per VM
-- ~20 minutes
+- macOS Sequoia hoặc mới hơn trên máy chủ
+- ~60 GB dung lượng đĩa trống cho mỗi máy ảo
+- ~20 phút
 
 ---
 
-## 1) Install Lume
+## 1) Cài đặt Lume
 
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/trycua/cua/main/libs/lume/scripts/install.sh)"
 ```
 
-If `~/.local/bin` isn't in your PATH:
+Nếu `~/.local/bin` chưa có trong PATH:
 
 ```bash
 echo 'export PATH="$PATH:$HOME/.local/bin"' >> ~/.zshrc && source ~/.zshrc
 ```
 
-Verify:
+Xác minh:
 
 ```bash
 lume --version
 ```
 
-Docs: [Lume Installation](https://cua.ai/docs/lume/guide/getting-started/installation)
+Tài liệu: [Lume Installation](https://cua.ai/docs/lume/guide/getting-started/installation)
 
 ---
 
-## 2) Create the macOS VM
+## 2) Tạo máy ảo macOS
 
 ```bash
 lume create openclaw --os macos --ipsw latest
 ```
 
-This downloads macOS and creates the VM. A VNC window opens automatically.
+Lệnh này tải xuống macOS và tạo máy ảo. Một cửa sổ VNC sẽ tự động mở.
 
-Note: The download can take a while depending on your connection.
-
----
-
-## 3) Complete Setup Assistant
-
-In the VNC window:
-
-1. Select language and region
-2. Skip Apple ID (or sign in if you want iMessage later)
-3. Create a user account (remember the username and password)
-4. Skip all optional features
-
-After setup completes, enable SSH:
-
-1. Open System Settings → General → Sharing
-2. Enable "Remote Login"
+Lưu ý: Quá trình tải xuống có thể mất thời gian tùy thuộc vào kết nối của bạn.
 
 ---
 
-## 4) Get the VM IP address
+## 3) Hoàn tất Setup Assistant
+
+Trong cửa sổ VNC:
+
+1. Chọn ngôn ngữ và khu vực
+2. Bỏ qua Apple ID (hoặc đăng nhập nếu bạn muốn iMessage sau này)
+3. Tạo tài khoản người dùng (nhớ tên người dùng và mật khẩu)
+4. Bỏ qua tất cả các tính năng tùy chọn
+
+Sau khi hoàn tất thiết lập, bật SSH:
+
+1. Mở System Settings → General → Sharing
+2. Bật "Remote Login"
+
+---
+
+## 4) Lấy địa chỉ IP của máy ảo
 
 ```bash
 lume get openclaw
 ```
 
-Look for the IP address (usually `192.168.64.x`).
+Tìm địa chỉ IP (thường là `192.168.64.x`).
 
 ---
 
-## 5) SSH into the VM
+## 5) SSH vào máy ảo
 
 ```bash
 ssh youruser@192.168.64.X
 ```
 
-Replace `youruser` with the account you created, and the IP with your VM's IP.
+Thay `youruser` bằng tài khoản bạn đã tạo, và IP bằng IP của máy ảo.
 
 ---
 
-## 6) Install OpenClaw
+## 6) Cài đặt OpenClaw
 
-Inside the VM:
+Bên trong máy ảo:
 
 ```bash
 npm install -g openclaw@latest
 openclaw onboard --install-daemon
 ```
 
-Follow the onboarding prompts to set up your model provider (Anthropic, OpenAI, etc.).
+Làm theo hướng dẫn để thiết lập nhà cung cấp mô hình của bạn (Anthropic, OpenAI, v.v.).
 
 ---
 
-## 7) Configure channels
+## 7) Cấu hình các kênh
 
-Edit the config file:
+Chỉnh sửa file cấu hình:
 
 ```bash
 nano ~/.openclaw/openclaw.json
 ```
 
-Add your channels:
+Thêm các kênh của bạn:
 
 ```json5
 {
@@ -169,7 +169,7 @@ Add your channels:
 }
 ```
 
-Then login to WhatsApp (scan QR):
+Sau đó đăng nhập vào WhatsApp (quét mã QR):
 
 ```bash
 openclaw channels login
@@ -177,18 +177,18 @@ openclaw channels login
 
 ---
 
-## 8) Run the VM headlessly
+## 8) Chạy máy ảo không hiển thị
 
-Stop the VM and restart without display:
+Dừng máy ảo và khởi động lại mà không cần hiển thị:
 
 ```bash
 lume stop openclaw
 lume run openclaw --no-display
 ```
 
-The VM runs in the background. OpenClaw's daemon keeps the gateway running.
+Máy ảo sẽ chạy ngầm. Daemon của OpenClaw giữ cho gateway hoạt động.
 
-To check status:
+Để kiểm tra trạng thái:
 
 ```bash
 ssh youruser@192.168.64.X "openclaw status"
@@ -196,18 +196,18 @@ ssh youruser@192.168.64.X "openclaw status"
 
 ---
 
-## Bonus: iMessage integration
+## Thêm: Tích hợp iMessage
 
-This is the killer feature of running on macOS. Use [BlueBubbles](https://bluebubbles.app) to add iMessage to OpenClaw.
+Đây là tính năng nổi bật khi chạy trên macOS. Sử dụng [BlueBubbles](https://bluebubbles.app) để thêm iMessage vào OpenClaw.
 
-Inside the VM:
+Bên trong máy ảo:
 
-1. Download BlueBubbles from bluebubbles.app
-2. Sign in with your Apple ID
-3. Enable the Web API and set a password
-4. Point BlueBubbles webhooks at your gateway (example: `https://your-gateway-host:3000/bluebubbles-webhook?password=<password>`)
+1. Tải BlueBubbles từ bluebubbles.app
+2. Đăng nhập bằng Apple ID của bạn
+3. Bật Web API và đặt mật khẩu
+4. Trỏ webhook của BlueBubbles vào gateway của bạn (ví dụ: `https://your-gateway-host:3000/bluebubbles-webhook?password=<password>`)
 
-Add to your OpenClaw config:
+Thêm vào cấu hình OpenClaw của bạn:
 
 ```json5
 {
@@ -221,22 +221,22 @@ Add to your OpenClaw config:
 }
 ```
 
-Restart the gateway. Now your agent can send and receive iMessages.
+Khởi động lại gateway. Bây giờ agent của bạn có thể gửi và nhận iMessages.
 
-Full setup details: [BlueBubbles channel](/channels/bluebubbles)
+Chi tiết thiết lập đầy đủ: [BlueBubbles channel](/channels/bluebubbles)
 
 ---
 
-## Save a golden image
+## Lưu một hình ảnh vàng
 
-Before customizing further, snapshot your clean state:
+Trước khi tùy chỉnh thêm, hãy chụp ảnh trạng thái sạch của bạn:
 
 ```bash
 lume stop openclaw
 lume clone openclaw openclaw-golden
 ```
 
-Reset anytime:
+Reset bất cứ lúc nào:
 
 ```bash
 lume stop openclaw && lume delete openclaw
@@ -246,30 +246,30 @@ lume run openclaw --no-display
 
 ---
 
-## Running 24/7
+## Chạy 24/7
 
-Keep the VM running by:
+Giữ máy ảo chạy bằng cách:
 
-- Keeping your Mac plugged in
-- Disabling sleep in System Settings → Energy Saver
-- Using `caffeinate` if needed
+- Giữ Mac của bạn cắm điện
+- Tắt chế độ ngủ trong System Settings → Energy Saver
+- Sử dụng `caffeinate` nếu cần
 
-For true always-on, consider a dedicated Mac mini or a small VPS. See [VPS hosting](/vps).
+Để luôn hoạt động thực sự, hãy cân nhắc một Mac mini chuyên dụng hoặc một VPS nhỏ. Xem [VPS hosting](/vps).
 
 ---
 
-## Troubleshooting
+## Khắc phục sự cố
 
-| Problem                  | Solution                                                                           |
+| Vấn đề                   | Giải pháp                                                                          |
 | ------------------------ | ---------------------------------------------------------------------------------- |
-| Can't SSH into VM        | Check "Remote Login" is enabled in VM's System Settings                            |
-| VM IP not showing        | Wait for VM to fully boot, run `lume get openclaw` again                           |
-| Lume command not found   | Add `~/.local/bin` to your PATH                                                    |
-| WhatsApp QR not scanning | Ensure you're logged into the VM (not host) when running `openclaw channels login` |
+| Không thể SSH vào máy ảo | Kiểm tra "Remote Login" đã được bật trong System Settings của máy ảo               |
+| IP máy ảo không hiển thị | Chờ máy ảo khởi động hoàn toàn, chạy lại `lume get openclaw`                       |
+| Lệnh Lume không tìm thấy | Thêm `~/.local/bin` vào PATH của bạn                                               |
+| QR WhatsApp không quét   | Đảm bảo bạn đang đăng nhập vào máy ảo (không phải máy chủ) khi chạy `openclaw channels login` |
 
 ---
 
-## Related docs
+## Tài liệu liên quan
 
 - [VPS hosting](/vps)
 - [Nodes](/nodes)
@@ -277,5 +277,5 @@ For true always-on, consider a dedicated Mac mini or a small VPS. See [VPS hosti
 - [BlueBubbles channel](/channels/bluebubbles)
 - [Lume Quickstart](https://cua.ai/docs/lume/guide/getting-started/quickstart)
 - [Lume CLI Reference](https://cua.ai/docs/lume/reference/cli-reference)
-- [Unattended VM Setup](https://cua.ai/docs/lume/guide/fundamentals/unattended-setup) (advanced)
-- [Docker Sandboxing](/install/docker) (alternative isolation approach)
+- [Unattended VM Setup](https://cua.ai/docs/lume/guide/fundamentals/unattended-setup) (nâng cao)
+- [Docker Sandboxing](/install/docker) (phương pháp cách ly thay thế)

@@ -1,43 +1,43 @@
 ---
-summary: "OpenProse: .prose workflows, slash commands, and state in OpenClaw"
+summary: "OpenProse: quy trình .prose, lệnh gạch chéo, và trạng thái trong OpenClaw"
 read_when:
-  - You want to run or write .prose workflows
-  - You want to enable the OpenProse plugin
-  - You need to understand state storage
+  - Bạn muốn chạy hoặc viết quy trình .prose
+  - Bạn muốn kích hoạt plugin OpenProse
+  - Bạn cần hiểu về lưu trữ trạng thái
 title: "OpenProse"
 ---
 
 # OpenProse
 
-OpenProse is a portable, markdown-first workflow format for orchestrating AI sessions. In OpenClaw it ships as a plugin that installs an OpenProse skill pack plus a `/prose` slash command. Programs live in `.prose` files and can spawn multiple sub-agents with explicit control flow.
+OpenProse là một định dạng quy trình làm việc di động, ưu tiên markdown để điều phối các phiên AI. Trong OpenClaw, nó được cung cấp dưới dạng một plugin cài đặt gói kỹ năng OpenProse cùng với lệnh gạch chéo `/prose`. Các chương trình tồn tại trong các tệp `.prose` và có thể tạo ra nhiều tác nhân phụ với luồng điều khiển rõ ràng.
 
-Official site: [https://www.prose.md](https://www.prose.md)
+Trang chính thức: [https://www.prose.md](https://www.prose.md)
 
-## What it can do
+## Khả năng
 
-- Multi-agent research + synthesis with explicit parallelism.
-- Repeatable approval-safe workflows (code review, incident triage, content pipelines).
-- Reusable `.prose` programs you can run across supported agent runtimes.
+- Nghiên cứu và tổng hợp đa tác nhân với tính song song rõ ràng.
+- Quy trình làm việc có thể lặp lại và an toàn cho phê duyệt (xem xét mã, phân loại sự cố, quy trình nội dung).
+- Các chương trình `.prose` có thể tái sử dụng và chạy trên các môi trường tác nhân được hỗ trợ.
 
-## Install + enable
+## Cài đặt và kích hoạt
 
-Bundled plugins are disabled by default. Enable OpenProse:
+Các plugin đi kèm bị vô hiệu hóa theo mặc định. Để kích hoạt OpenProse:
 
 ```bash
 openclaw plugins enable open-prose
 ```
 
-Restart the Gateway after enabling the plugin.
+Khởi động lại Gateway sau khi kích hoạt plugin.
 
-Dev/local checkout: `openclaw plugins install ./extensions/open-prose`
+Kiểm tra dev/cục bộ: `openclaw plugins install ./extensions/open-prose`
 
-Related docs: [Plugins](/tools/plugin), [Plugin manifest](/plugins/manifest), [Skills](/tools/skills).
+Tài liệu liên quan: [Plugins](/tools/plugin), [Plugin manifest](/plugins/manifest), [Skills](/tools/skills).
 
-## Slash command
+## Lệnh gạch chéo
 
-OpenProse registers `/prose` as a user-invocable skill command. It routes to the OpenProse VM instructions and uses OpenClaw tools under the hood.
+OpenProse đăng ký `/prose` như một lệnh kỹ năng mà người dùng có thể gọi. Nó điều hướng đến các hướng dẫn VM của OpenProse và sử dụng các công cụ của OpenClaw.
 
-Common commands:
+Các lệnh phổ biến:
 
 ```
 /prose help
@@ -49,34 +49,34 @@ Common commands:
 /prose update
 ```
 
-## Example: a simple `.prose` file
+## Ví dụ: một tệp `.prose` đơn giản
 
 ```prose
-# Research + synthesis with two agents running in parallel.
+# Nghiên cứu và tổng hợp với hai tác nhân chạy song song.
 
-input topic: "What should we research?"
+input topic: "Chúng ta nên nghiên cứu gì?"
 
 agent researcher:
   model: sonnet
-  prompt: "You research thoroughly and cite sources."
+  prompt: "Bạn nghiên cứu kỹ lưỡng và trích dẫn nguồn."
 
 agent writer:
   model: opus
-  prompt: "You write a concise summary."
+  prompt: "Bạn viết một bản tóm tắt ngắn gọn."
 
 parallel:
   findings = session: researcher
-    prompt: "Research {topic}."
+    prompt: "Nghiên cứu {topic}."
   draft = session: writer
-    prompt: "Summarize {topic}."
+    prompt: "Tóm tắt {topic}."
 
-session "Merge the findings + draft into a final answer."
+session "Kết hợp các phát hiện và bản nháp thành câu trả lời cuối cùng."
 context: { findings, draft }
 ```
 
-## File locations
+## Vị trí tệp
 
-OpenProse keeps state under `.prose/` in your workspace:
+OpenProse lưu trữ trạng thái dưới thư mục `.prose/` trong workspace của bạn:
 
 ```
 .prose/
@@ -90,45 +90,45 @@ OpenProse keeps state under `.prose/` in your workspace:
 └── agents/
 ```
 
-User-level persistent agents live at:
+Các tác nhân lưu trữ lâu dài ở cấp người dùng nằm tại:
 
 ```
 ~/.prose/agents/
 ```
 
-## State modes
+## Chế độ trạng thái
 
-OpenProse supports multiple state backends:
+OpenProse hỗ trợ nhiều backend trạng thái:
 
-- **filesystem** (default): `.prose/runs/...`
-- **in-context**: transient, for small programs
-- **sqlite** (experimental): requires `sqlite3` binary
-- **postgres** (experimental): requires `psql` and a connection string
+- **filesystem** (mặc định): `.prose/runs/...`
+- **in-context**: tạm thời, cho các chương trình nhỏ
+- **sqlite** (thử nghiệm): yêu cầu binary `sqlite3`
+- **postgres** (thử nghiệm): yêu cầu `psql` và chuỗi kết nối
 
-Notes:
+Lưu ý:
 
-- sqlite/postgres are opt-in and experimental.
-- postgres credentials flow into subagent logs; use a dedicated, least-privileged DB.
+- sqlite/postgres là tùy chọn và đang thử nghiệm.
+- Thông tin đăng nhập postgres sẽ xuất hiện trong nhật ký tác nhân phụ; sử dụng cơ sở dữ liệu chuyên dụng, ít quyền nhất.
 
-## Remote programs
+## Chương trình từ xa
 
-`/prose run <handle/slug>` resolves to `https://p.prose.md/<handle>/<slug>`.
-Direct URLs are fetched as-is. This uses the `web_fetch` tool (or `exec` for POST).
+`/prose run <handle/slug>` sẽ chuyển thành `https://p.prose.md/<handle>/<slug>`.
+Các URL trực tiếp được lấy nguyên trạng. Điều này sử dụng công cụ `web_fetch` (hoặc `exec` cho POST).
 
-## OpenClaw runtime mapping
+## Ánh xạ runtime OpenClaw
 
-OpenProse programs map to OpenClaw primitives:
+Các chương trình OpenProse ánh xạ đến các công cụ OpenClaw:
 
-| OpenProse concept         | OpenClaw tool    |
+| Khái niệm OpenProse       | Công cụ OpenClaw |
 | ------------------------- | ---------------- |
-| Spawn session / Task tool | `sessions_spawn` |
-| File read/write           | `read` / `write` |
-| Web fetch                 | `web_fetch`      |
+| Tạo phiên / Công cụ Task  | `sessions_spawn` |
+| Đọc/ghi tệp               | `read` / `write` |
+| Lấy dữ liệu web           | `web_fetch`      |
 
-If your tool allowlist blocks these tools, OpenProse programs will fail. See [Skills config](/tools/skills-config).
+Nếu danh sách cho phép công cụ của bạn chặn các công cụ này, các chương trình OpenProse sẽ thất bại. Xem [Cấu hình kỹ năng](/tools/skills-config).
 
-## Security + approvals
+## Bảo mật và phê duyệt
 
-Treat `.prose` files like code. Review before running. Use OpenClaw tool allowlists and approval gates to control side effects.
+Xem các tệp `.prose` như mã nguồn. Kiểm tra trước khi chạy. Sử dụng danh sách cho phép công cụ OpenClaw và cổng phê duyệt để kiểm soát các tác động phụ.
 
-For deterministic, approval-gated workflows, compare with [Lobster](/tools/lobster).
+Đối với các quy trình làm việc có thể dự đoán và được phê duyệt, hãy so sánh với [Lobster](/tools/lobster).

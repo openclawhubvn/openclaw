@@ -1,54 +1,52 @@
 ---
-summary: "Network hub: gateway surfaces, pairing, discovery, and security"
+summary: "Trung tâm mạng: bề mặt gateway, ghép nối, khám phá và bảo mật"
 read_when:
-  - You need the network architecture + security overview
-  - You are debugging local vs tailnet access or pairing
-  - You want the canonical list of networking docs
-title: "Network"
+  - Cần tổng quan về kiến trúc mạng và bảo mật
+  - Đang gỡ lỗi truy cập cục bộ so với tailnet hoặc ghép nối
+  - Muốn danh sách tài liệu mạng chuẩn
+title: "Mạng"
 ---
 
-# Network hub
+# Trung tâm mạng
 
-This hub links the core docs for how OpenClaw connects, pairs, and secures
-devices across localhost, LAN, and tailnet.
+Trung tâm này liên kết các tài liệu cốt lõi về cách OpenClaw kết nối, ghép nối và bảo mật thiết bị qua localhost, LAN và tailnet.
 
-## Core model
+## Mô hình cốt lõi
 
-- [Gateway architecture](/concepts/architecture)
-- [Gateway protocol](/gateway/protocol)
-- [Gateway runbook](/gateway)
-- [Web surfaces + bind modes](/web)
+- [Kiến trúc Gateway](/concepts/architecture)
+- [Giao thức Gateway](/gateway/protocol)
+- [Sổ tay vận hành Gateway](/gateway)
+- [Bề mặt web + chế độ bind](/web)
 
-## Pairing + identity
+## Ghép nối + danh tính
 
-- [Pairing overview (DM + nodes)](/channels/pairing)
-- [Gateway-owned node pairing](/gateway/pairing)
-- [Devices CLI (pairing + token rotation)](/cli/devices)
-- [Pairing CLI (DM approvals)](/cli/pairing)
+- [Tổng quan về ghép nối (DM + nodes)](/channels/pairing)
+- [Ghép nối node thuộc sở hữu Gateway](/gateway/pairing)
+- [CLI thiết bị (ghép nối + xoay vòng token)](/cli/devices)
+- [CLI ghép nối (phê duyệt DM)](/cli/pairing)
 
-Local trust:
+Tin cậy cục bộ:
 
-- Local connections (loopback or the gateway host’s own tailnet address) can be
-  auto‑approved for pairing to keep same‑host UX smooth.
-- Non‑local tailnet/LAN clients still require explicit pairing approval.
+- Kết nối cục bộ (loopback hoặc địa chỉ tailnet của chính máy chủ gateway) có thể được tự động phê duyệt để ghép nối, giúp trải nghiệm người dùng trên cùng máy chủ mượt mà.
+- Các client tailnet/LAN không cục bộ vẫn cần phê duyệt ghép nối rõ ràng.
 
-## Discovery + transports
+## Khám phá + truyền tải
 
-- [Discovery & transports](/gateway/discovery)
+- [Khám phá & truyền tải](/gateway/discovery)
 - [Bonjour / mDNS](/gateway/bonjour)
-- [Remote access (SSH)](/gateway/remote)
+- [Truy cập từ xa (SSH)](/gateway/remote)
 - [Tailscale](/gateway/tailscale)
 
-## Nodes + transports
+## Nodes + truyền tải
 
-- [Nodes overview](/nodes)
-- [Bridge protocol (legacy nodes)](/gateway/bridge-protocol)
-- [Node runbook: iOS](/platforms/ios)
-- [Node runbook: Android](/platforms/android)
+- [Tổng quan về Nodes](/nodes)
+- [Giao thức Bridge (nodes cũ)](/gateway/bridge-protocol)
+- [Sổ tay vận hành Node: iOS](/platforms/ios)
+- [Sổ tay vận hành Node: Android](/platforms/android)
 
-## Security
+## Bảo mật
 
-- [Security overview](/gateway/security)
-- [Gateway config reference](/gateway/configuration)
-- [Troubleshooting](/gateway/troubleshooting)
+- [Tổng quan về bảo mật](/gateway/security)
+- [Tham khảo cấu hình Gateway](/gateway/configuration)
+- [Khắc phục sự cố](/gateway/troubleshooting)
 - [Doctor](/gateway/doctor)

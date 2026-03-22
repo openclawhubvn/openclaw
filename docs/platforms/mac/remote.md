@@ -1,84 +1,84 @@
 ---
-summary: "macOS app flow for controlling a remote OpenClaw gateway over SSH"
+summary: "Quy trình điều khiển từ xa ứng dụng macOS cho OpenClaw gateway qua SSH"
 read_when:
-  - Setting up or debugging remote mac control
-title: "Remote Control"
+  - Cài đặt hoặc gỡ lỗi điều khiển mac từ xa
+title: "Điều Khiển Từ Xa"
 ---
 
-# Remote OpenClaw (macOS ⇄ remote host)
+# Điều Khiển Từ Xa OpenClaw (macOS ⇄ máy chủ từ xa)
 
-This flow lets the macOS app act as a full remote control for an OpenClaw gateway running on another host (desktop/server). It’s the app’s **Remote over SSH** (remote run) feature. All features—health checks, Voice Wake forwarding, and Web Chat—reuse the same remote SSH configuration from _Settings → General_.
+Quy trình này cho phép ứng dụng macOS hoạt động như một điều khiển từ xa hoàn chỉnh cho OpenClaw gateway chạy trên máy chủ khác (máy tính để bàn/máy chủ). Đây là tính năng **Remote over SSH** (chạy từ xa) của ứng dụng. Tất cả các tính năng—kiểm tra sức khỏe, chuyển tiếp Voice Wake, và Web Chat—sử dụng cùng cấu hình SSH từ xa từ _Settings → General_.
 
-## Modes
+## Chế độ
 
-- **Local (this Mac)**: Everything runs on the laptop. No SSH involved.
-- **Remote over SSH (default)**: OpenClaw commands are executed on the remote host. The mac app opens an SSH connection with `-o BatchMode` plus your chosen identity/key and a local port-forward.
-- **Remote direct (ws/wss)**: No SSH tunnel. The mac app connects to the gateway URL directly (for example, via Tailscale Serve or a public HTTPS reverse proxy).
+- **Local (Mac này)**: Mọi thứ chạy trên laptop. Không sử dụng SSH.
+- **Remote over SSH (mặc định)**: Các lệnh OpenClaw được thực thi trên máy chủ từ xa. Ứng dụng mac mở kết nối SSH với `-o BatchMode` cùng với danh tính/khóa bạn chọn và một cổng chuyển tiếp cục bộ.
+- **Remote direct (ws/wss)**: Không có đường hầm SSH. Ứng dụng mac kết nối trực tiếp đến URL gateway (ví dụ, qua Tailscale Serve hoặc một proxy ngược HTTPS công khai).
 
-## Remote transports
+## Phương thức truyền từ xa
 
-Remote mode supports two transports:
+Chế độ từ xa hỗ trợ hai phương thức truyền:
 
-- **SSH tunnel** (default): Uses `ssh -N -L ...` to forward the gateway port to localhost. The gateway will see the node’s IP as `127.0.0.1` because the tunnel is loopback.
-- **Direct (ws/wss)**: Connects straight to the gateway URL. The gateway sees the real client IP.
+- **SSH tunnel** (mặc định): Sử dụng `ssh -N -L ...` để chuyển tiếp cổng gateway đến localhost. Gateway sẽ thấy IP của node là `127.0.0.1` vì đường hầm là loopback.
+- **Direct (ws/wss)**: Kết nối trực tiếp đến URL gateway. Gateway sẽ thấy IP thực của client.
 
-## Prereqs on the remote host
+## Yêu cầu trên máy chủ từ xa
 
-1. Install Node + pnpm and build/install the OpenClaw CLI (`pnpm install && pnpm build && pnpm link --global`).
-2. Ensure `openclaw` is on PATH for non-interactive shells (symlink into `/usr/local/bin` or `/opt/homebrew/bin` if needed).
-3. Open SSH with key auth. We recommend **Tailscale** IPs for stable reachability off-LAN.
+1. Cài đặt Node + pnpm và xây dựng/cài đặt OpenClaw CLI (`pnpm install && pnpm build && pnpm link --global`).
+2. Đảm bảo `openclaw` có trong PATH cho các shell không tương tác (tạo symlink vào `/usr/local/bin` hoặc `/opt/homebrew/bin` nếu cần).
+3. Mở SSH với xác thực khóa. Khuyến nghị sử dụng IP **Tailscale** để đảm bảo kết nối ổn định ngoài LAN.
 
-## macOS app setup
+## Cài đặt ứng dụng macOS
 
-1. Open _Settings → General_.
-2. Under **OpenClaw runs**, pick **Remote over SSH** and set:
-   - **Transport**: **SSH tunnel** or **Direct (ws/wss)**.
-   - **SSH target**: `user@host` (optional `:port`).
-     - If the gateway is on the same LAN and advertises Bonjour, pick it from the discovered list to auto-fill this field.
-   - **Gateway URL** (Direct only): `wss://gateway.example.ts.net` (or `ws://...` for local/LAN).
-   - **Identity file** (advanced): path to your key.
-   - **Project root** (advanced): remote checkout path used for commands.
-   - **CLI path** (advanced): optional path to a runnable `openclaw` entrypoint/binary (auto-filled when advertised).
-3. Hit **Test remote**. Success indicates the remote `openclaw status --json` runs correctly. Failures usually mean PATH/CLI issues; exit 127 means the CLI isn’t found remotely.
-4. Health checks and Web Chat will now run through this SSH tunnel automatically.
+1. Mở _Settings → General_.
+2. Dưới **OpenClaw runs**, chọn **Remote over SSH** và thiết lập:
+   - **Transport**: **SSH tunnel** hoặc **Direct (ws/wss)**.
+   - **SSH target**: `user@host` (tùy chọn `:port`).
+     - Nếu gateway nằm trong cùng LAN và quảng bá Bonjour, chọn từ danh sách đã phát hiện để tự động điền trường này.
+   - **Gateway URL** (chỉ Direct): `wss://gateway.example.ts.net` (hoặc `ws://...` cho local/LAN).
+   - **Identity file** (nâng cao): đường dẫn đến khóa của bạn.
+   - **Project root** (nâng cao): đường dẫn checkout từ xa dùng cho các lệnh.
+   - **CLI path** (nâng cao): đường dẫn tùy chọn đến một entrypoint/binary `openclaw` có thể chạy (tự động điền khi được quảng bá).
+3. Nhấn **Test remote**. Thành công cho thấy `openclaw status --json` chạy đúng từ xa. Thất bại thường do vấn đề PATH/CLI; exit 127 nghĩa là CLI không tìm thấy từ xa.
+4. Kiểm tra sức khỏe và Web Chat sẽ tự động chạy qua đường hầm SSH này.
 
 ## Web Chat
 
-- **SSH tunnel**: Web Chat connects to the gateway over the forwarded WebSocket control port (default 18789).
-- **Direct (ws/wss)**: Web Chat connects straight to the configured gateway URL.
-- There is no separate WebChat HTTP server anymore.
+- **SSH tunnel**: Web Chat kết nối đến gateway qua cổng điều khiển WebSocket được chuyển tiếp (mặc định 18789).
+- **Direct (ws/wss)**: Web Chat kết nối trực tiếp đến URL gateway đã cấu hình.
+- Không còn máy chủ HTTP WebChat riêng biệt nữa.
 
-## Permissions
+## Quyền
 
-- The remote host needs the same TCC approvals as local (Automation, Accessibility, Screen Recording, Microphone, Speech Recognition, Notifications). Run onboarding on that machine to grant them once.
-- Nodes advertise their permission state via `node.list` / `node.describe` so agents know what’s available.
+- Máy chủ từ xa cần các phê duyệt TCC giống như máy cục bộ (Tự động hóa, Trợ năng, Ghi màn hình, Micro, Nhận diện giọng nói, Thông báo). Chạy onboarding trên máy đó để cấp quyền một lần.
+- Các node quảng bá trạng thái quyền của chúng qua `node.list` / `node.describe` để các agent biết những gì có sẵn.
 
-## Security notes
+## Ghi chú bảo mật
 
-- Prefer loopback binds on the remote host and connect via SSH or Tailscale.
-- SSH tunneling uses strict host-key checking; trust the host key first so it exists in `~/.ssh/known_hosts`.
-- If you bind the Gateway to a non-loopback interface, require token/password auth.
-- See [Security](/gateway/security) and [Tailscale](/gateway/tailscale).
+- Ưu tiên kết nối loopback trên máy chủ từ xa và kết nối qua SSH hoặc Tailscale.
+- Đường hầm SSH sử dụng kiểm tra khóa máy chủ nghiêm ngặt; tin tưởng khóa máy chủ trước để nó tồn tại trong `~/.ssh/known_hosts`.
+- Nếu bạn kết nối Gateway đến một giao diện không phải loopback, yêu cầu xác thực token/mật khẩu.
+- Xem [Bảo mật](/gateway/security) và [Tailscale](/gateway/tailscale).
 
-## WhatsApp login flow (remote)
+## Quy trình đăng nhập WhatsApp (từ xa)
 
-- Run `openclaw channels login --verbose` **on the remote host**. Scan the QR with WhatsApp on your phone.
-- Re-run login on that host if auth expires. Health check will surface link problems.
+- Chạy `openclaw channels login --verbose` **trên máy chủ từ xa**. Quét mã QR với WhatsApp trên điện thoại của bạn.
+- Chạy lại đăng nhập trên máy chủ đó nếu xác thực hết hạn. Kiểm tra sức khỏe sẽ hiển thị các vấn đề liên kết.
 
-## Troubleshooting
+## Khắc phục sự cố
 
-- **exit 127 / not found**: `openclaw` isn’t on PATH for non-login shells. Add it to `/etc/paths`, your shell rc, or symlink into `/usr/local/bin`/`/opt/homebrew/bin`.
-- **Health probe failed**: check SSH reachability, PATH, and that Baileys is logged in (`openclaw status --json`).
-- **Web Chat stuck**: confirm the gateway is running on the remote host and the forwarded port matches the gateway WS port; the UI requires a healthy WS connection.
-- **Node IP shows 127.0.0.1**: expected with the SSH tunnel. Switch **Transport** to **Direct (ws/wss)** if you want the gateway to see the real client IP.
-- **Voice Wake**: trigger phrases are forwarded automatically in remote mode; no separate forwarder is needed.
+- **exit 127 / không tìm thấy**: `openclaw` không có trong PATH cho các shell không đăng nhập. Thêm nó vào `/etc/paths`, rc shell của bạn, hoặc tạo symlink vào `/usr/local/bin`/`/opt/homebrew/bin`.
+- **Kiểm tra sức khỏe thất bại**: kiểm tra khả năng truy cập SSH, PATH, và rằng Baileys đã đăng nhập (`openclaw status --json`).
+- **Web Chat bị kẹt**: xác nhận gateway đang chạy trên máy chủ từ xa và cổng được chuyển tiếp khớp với cổng WS của gateway; UI yêu cầu kết nối WS khỏe mạnh.
+- **Node IP hiển thị 127.0.0.1**: điều này là bình thường với đường hầm SSH. Chuyển **Transport** sang **Direct (ws/wss)** nếu bạn muốn gateway thấy IP thực của client.
+- **Voice Wake**: các cụm từ kích hoạt được chuyển tiếp tự động trong chế độ từ xa; không cần bộ chuyển tiếp riêng biệt.
 
-## Notification sounds
+## Âm thanh thông báo
 
-Pick sounds per notification from scripts with `openclaw` and `node.invoke`, e.g.:
+Chọn âm thanh cho từng thông báo từ các script với `openclaw` và `node.invoke`, ví dụ:
 
 ```bash
 openclaw nodes notify --node <id> --title "Ping" --body "Remote gateway ready" --sound Glass
 ```
 
-There is no global “default sound” toggle in the app anymore; callers choose a sound (or none) per request.
+Không còn tùy chọn "âm thanh mặc định" toàn cầu trong ứng dụng nữa; người gọi chọn âm thanh (hoặc không) cho từng yêu cầu.

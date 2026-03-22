@@ -1,17 +1,16 @@
 ---
-summary: "Apply multi-file patches with the apply_patch tool"
+summary: "Sử dụng công cụ apply_patch để áp dụng các bản vá nhiều file"
 read_when:
-  - You need structured file edits across multiple files
-  - You want to document or debug patch-based edits
-title: "apply_patch Tool"
+  - Cần chỉnh sửa cấu trúc file trên nhiều file
+  - Muốn ghi lại hoặc gỡ lỗi các chỉnh sửa dựa trên bản vá
+title: "Công cụ apply_patch"
 ---
 
-# apply_patch tool
+# Công cụ apply_patch
 
-Apply file changes using a structured patch format. This is ideal for multi-file
-or multi-hunk edits where a single `edit` call would be brittle.
+Áp dụng thay đổi file bằng định dạng bản vá có cấu trúc. Điều này lý tưởng cho các chỉnh sửa nhiều file hoặc nhiều đoạn, nơi một lệnh `edit` đơn lẻ có thể không đủ linh hoạt.
 
-The tool accepts a single `input` string that wraps one or more file operations:
+Công cụ này chấp nhận một chuỗi `input` duy nhất bao gồm một hoặc nhiều thao tác trên file:
 
 ```
 *** Begin Patch
@@ -26,22 +25,21 @@ The tool accepts a single `input` string that wraps one or more file operations:
 *** End Patch
 ```
 
-## Parameters
+## Tham số
 
-- `input` (required): Full patch contents including `*** Begin Patch` and `*** End Patch`.
+- `input` (bắt buộc): Nội dung đầy đủ của bản vá bao gồm `*** Begin Patch` và `*** End Patch`.
 
-## Notes
+## Lưu ý
 
-- Patch paths support relative paths (from the workspace directory) and absolute paths.
-- `tools.exec.applyPatch.workspaceOnly` defaults to `true` (workspace-contained). Set it to `false` only if you intentionally want `apply_patch` to write/delete outside the workspace directory.
-- Use `*** Move to:` within an `*** Update File:` hunk to rename files.
-- `*** End of File` marks an EOF-only insert when needed.
-- Experimental and disabled by default. Enable with `tools.exec.applyPatch.enabled`.
-- OpenAI-only (including OpenAI Codex). Optionally gate by model via
-  `tools.exec.applyPatch.allowModels`.
-- Config is only under `tools.exec`.
+- Đường dẫn trong bản vá hỗ trợ cả đường dẫn tương đối (từ thư mục workspace) và đường dẫn tuyệt đối.
+- `tools.exec.applyPatch.workspaceOnly` mặc định là `true` (chỉ trong workspace). Chỉ đặt thành `false` nếu bạn thực sự muốn `apply_patch` ghi/xóa ngoài thư mục workspace.
+- Sử dụng `*** Move to:` trong một đoạn `*** Update File:` để đổi tên file.
+- `*** End of File` đánh dấu một chèn chỉ EOF khi cần thiết.
+- Tính năng thử nghiệm và bị vô hiệu hóa theo mặc định. Kích hoạt với `tools.exec.applyPatch.enabled`.
+- Chỉ dành cho OpenAI (bao gồm OpenAI Codex). Có thể giới hạn theo mô hình qua `tools.exec.applyPatch.allowModels`.
+- Cấu hình chỉ nằm dưới `tools.exec`.
 
-## Example
+## Ví dụ
 
 ```json
 {

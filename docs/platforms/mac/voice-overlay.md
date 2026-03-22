@@ -1,60 +1,60 @@
 ---
-summary: "Voice overlay lifecycle when wake-word and push-to-talk overlap"
+summary: "Vòng đời của voice overlay khi wake-word và push-to-talk trùng nhau"
 read_when:
-  - Adjusting voice overlay behavior
+  - Điều chỉnh hành vi của voice overlay
 title: "Voice Overlay"
 ---
 
-# Voice Overlay Lifecycle (macOS)
+# Vòng Đời Voice Overlay (macOS)
 
-Audience: macOS app contributors. Goal: keep the voice overlay predictable when wake-word and push-to-talk overlap.
+Đối tượng: Những người đóng góp cho ứng dụng macOS. Mục tiêu: giữ cho voice overlay hoạt động dự đoán được khi wake-word và push-to-talk trùng nhau.
 
-## Current intent
+## Ý định hiện tại
 
-- If the overlay is already visible from wake-word and the user presses the hotkey, the hotkey session _adopts_ the existing text instead of resetting it. The overlay stays up while the hotkey is held. When the user releases: send if there is trimmed text, otherwise dismiss.
-- Wake-word alone still auto-sends on silence; push-to-talk sends immediately on release.
+- Nếu overlay đã hiển thị từ wake-word và người dùng nhấn phím nóng, phiên làm việc của phím nóng sẽ _nhận_ văn bản hiện có thay vì đặt lại. Overlay sẽ duy trì khi phím nóng được giữ. Khi người dùng thả phím: gửi nếu có văn bản đã cắt, nếu không thì bỏ qua.
+- Wake-word tự động gửi khi im lặng; push-to-talk gửi ngay khi thả phím.
 
-## Implemented (Dec 9, 2025)
+## Đã triển khai (9 Tháng 12, 2025)
 
-- Overlay sessions now carry a token per capture (wake-word or push-to-talk). Partial/final/send/dismiss/level updates are dropped when the token doesn’t match, avoiding stale callbacks.
-- Push-to-talk adopts any visible overlay text as a prefix (so pressing the hotkey while the wake overlay is up keeps the text and appends new speech). It waits up to 1.5s for a final transcript before falling back to the current text.
-- Chime/overlay logging is emitted at `info` in categories `voicewake.overlay`, `voicewake.ptt`, and `voicewake.chime` (session start, partial, final, send, dismiss, chime reason).
+- Các phiên overlay hiện mang một token cho mỗi lần ghi (wake-word hoặc push-to-talk). Các cập nhật partial/final/send/dismiss/level bị loại bỏ khi token không khớp, tránh các callback cũ.
+- Push-to-talk nhận văn bản overlay hiện có làm tiền tố (vì vậy khi nhấn phím nóng trong khi overlay wake đang hoạt động sẽ giữ văn bản và thêm lời nói mới). Nó chờ tối đa 1,5 giây để có bản ghi cuối cùng trước khi quay lại văn bản hiện tại.
+- Ghi nhật ký chime/overlay được phát ra ở mức `info` trong các danh mục `voicewake.overlay`, `voicewake.ptt`, và `voicewake.chime` (bắt đầu phiên, partial, final, gửi, bỏ qua, lý do chime).
 
-## Next steps
+## Các bước tiếp theo
 
 1. **VoiceSessionCoordinator (actor)**
-   - Owns exactly one `VoiceSession` at a time.
-   - API (token-based): `beginWakeCapture`, `beginPushToTalk`, `updatePartial`, `endCapture`, `cancel`, `applyCooldown`.
-   - Drops callbacks that carry stale tokens (prevents old recognizers from reopening the overlay).
+   - Chỉ sở hữu một `VoiceSession` tại một thời điểm.
+   - API (dựa trên token): `beginWakeCapture`, `beginPushToTalk`, `updatePartial`, `endCapture`, `cancel`, `applyCooldown`.
+   - Loại bỏ các callback mang token cũ (ngăn các bộ nhận dạng cũ mở lại overlay).
 2. **VoiceSession (model)**
-   - Fields: `token`, `source` (wakeWord|pushToTalk), committed/volatile text, chime flags, timers (auto-send, idle), `overlayMode` (display|editing|sending), cooldown deadline.
-3. **Overlay binding**
-   - `VoiceSessionPublisher` (`ObservableObject`) mirrors the active session into SwiftUI.
-   - `VoiceWakeOverlayView` renders only via the publisher; it never mutates global singletons directly.
-   - Overlay user actions (`sendNow`, `dismiss`, `edit`) call back into the coordinator with the session token.
-4. **Unified send path**
-   - On `endCapture`: if trimmed text is empty → dismiss; else `performSend(session:)` (plays send chime once, forwards, dismisses).
-   - Push-to-talk: no delay; wake-word: optional delay for auto-send.
-   - Apply a short cooldown to the wake runtime after push-to-talk finishes so wake-word doesn’t immediately retrigger.
-5. **Logging**
-   - Coordinator emits `.info` logs in subsystem `ai.openclaw`, categories `voicewake.overlay` and `voicewake.chime`.
-   - Key events: `session_started`, `adopted_by_push_to_talk`, `partial`, `finalized`, `send`, `dismiss`, `cancel`, `cooldown`.
+   - Các trường: `token`, `source` (wakeWord|pushToTalk), văn bản đã cam kết/biến động, cờ chime, bộ đếm thời gian (tự động gửi, không hoạt động), `overlayMode` (hiển thị|chỉnh sửa|gửi), thời hạn cooldown.
+3. **Liên kết Overlay**
+   - `VoiceSessionPublisher` (`ObservableObject`) phản ánh phiên hoạt động vào SwiftUI.
+   - `VoiceWakeOverlayView` chỉ hiển thị qua publisher; không bao giờ thay đổi các singleton toàn cục trực tiếp.
+   - Các hành động của người dùng trên overlay (`sendNow`, `dismiss`, `edit`) gọi lại vào coordinator với token phiên.
+4. **Đường dẫn gửi hợp nhất**
+   - Khi `endCapture`: nếu văn bản đã cắt trống → bỏ qua; nếu không `performSend(session:)` (phát chime gửi một lần, chuyển tiếp, bỏ qua).
+   - Push-to-talk: không có độ trễ; wake-word: độ trễ tùy chọn cho tự động gửi.
+   - Áp dụng một thời gian cooldown ngắn cho runtime wake sau khi push-to-talk kết thúc để wake-word không kích hoạt lại ngay lập tức.
+5. **Ghi nhật ký**
+   - Coordinator phát ra nhật ký `.info` trong hệ thống con `ai.openclaw`, các danh mục `voicewake.overlay` và `voicewake.chime`.
+   - Các sự kiện chính: `session_started`, `adopted_by_push_to_talk`, `partial`, `finalized`, `send`, `dismiss`, `cancel`, `cooldown`.
 
-## Debugging checklist
+## Danh sách kiểm tra gỡ lỗi
 
-- Stream logs while reproducing a sticky overlay:
+- Stream nhật ký trong khi tái tạo overlay bị kẹt:
 
   ```bash
   sudo log stream --predicate 'subsystem == "ai.openclaw" AND category CONTAINS "voicewake"' --level info --style compact
   ```
 
-- Verify only one active session token; stale callbacks should be dropped by the coordinator.
-- Ensure push-to-talk release always calls `endCapture` with the active token; if text is empty, expect `dismiss` without chime or send.
+- Xác minh chỉ có một token phiên hoạt động; các callback cũ nên bị loại bỏ bởi coordinator.
+- Đảm bảo việc thả phím push-to-talk luôn gọi `endCapture` với token hoạt động; nếu văn bản trống, mong đợi `dismiss` mà không có chime hoặc gửi.
 
-## Migration steps (suggested)
+## Các bước di chuyển (đề xuất)
 
-1. Add `VoiceSessionCoordinator`, `VoiceSession`, and `VoiceSessionPublisher`.
-2. Refactor `VoiceWakeRuntime` to create/update/end sessions instead of touching `VoiceWakeOverlayController` directly.
-3. Refactor `VoicePushToTalk` to adopt existing sessions and call `endCapture` on release; apply runtime cooldown.
-4. Wire `VoiceWakeOverlayController` to the publisher; remove direct calls from runtime/PTT.
-5. Add integration tests for session adoption, cooldown, and empty-text dismissal.
+1. Thêm `VoiceSessionCoordinator`, `VoiceSession`, và `VoiceSessionPublisher`.
+2. Tái cấu trúc `VoiceWakeRuntime` để tạo/cập nhật/kết thúc các phiên thay vì can thiệp trực tiếp vào `VoiceWakeOverlayController`.
+3. Tái cấu trúc `VoicePushToTalk` để nhận các phiên hiện có và gọi `endCapture` khi thả phím; áp dụng cooldown cho runtime.
+4. Kết nối `VoiceWakeOverlayController` với publisher; loại bỏ các cuộc gọi trực tiếp từ runtime/PTT.
+5. Thêm các bài kiểm tra tích hợp cho việc nhận phiên, cooldown, và bỏ qua văn bản trống.

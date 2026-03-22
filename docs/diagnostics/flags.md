@@ -1,24 +1,24 @@
 ---
-summary: "Diagnostics flags for targeted debug logs"
+summary: "Cờ chẩn đoán cho nhật ký gỡ lỗi mục tiêu"
 read_when:
-  - You need targeted debug logs without raising global logging levels
-  - You need to capture subsystem-specific logs for support
-title: "Diagnostics Flags"
+  - Cần nhật ký gỡ lỗi mục tiêu mà không cần tăng mức độ ghi nhật ký toàn cầu
+  - Cần thu thập nhật ký cụ thể của từng hệ thống con để hỗ trợ
+title: "Cờ Chẩn Đoán"
 ---
 
-# Diagnostics Flags
+# Cờ Chẩn Đoán
 
-Diagnostics flags let you enable targeted debug logs without turning on verbose logging everywhere. Flags are opt-in and have no effect unless a subsystem checks them.
+Cờ chẩn đoán cho phép bật nhật ký gỡ lỗi mục tiêu mà không cần bật ghi nhật ký chi tiết ở mọi nơi. Cờ này là tùy chọn và không có tác dụng trừ khi một hệ thống con kiểm tra chúng.
 
-## How it works
+## Cách hoạt động
 
-- Flags are strings (case-insensitive).
-- You can enable flags in config or via an env override.
-- Wildcards are supported:
-  - `telegram.*` matches `telegram.http`
-  - `*` enables all flags
+- Cờ là chuỗi ký tự (không phân biệt chữ hoa chữ thường).
+- Có thể bật cờ trong cấu hình hoặc thông qua ghi đè môi trường.
+- Hỗ trợ ký tự đại diện:
+  - `telegram.*` khớp với `telegram.http`
+  - `*` bật tất cả các cờ
 
-## Enable via config
+## Bật qua cấu hình
 
 ```json
 {
@@ -28,7 +28,7 @@ Diagnostics flags let you enable targeted debug logs without turning on verbose 
 }
 ```
 
-Multiple flags:
+Nhiều cờ:
 
 ```json
 {
@@ -38,54 +38,54 @@ Multiple flags:
 }
 ```
 
-Restart the gateway after changing flags.
+Khởi động lại gateway sau khi thay đổi cờ.
 
-## Env override (one-off)
+## Ghi đè môi trường (một lần)
 
 ```bash
 OPENCLAW_DIAGNOSTICS=telegram.http,telegram.payload
 ```
 
-Disable all flags:
+Tắt tất cả cờ:
 
 ```bash
 OPENCLAW_DIAGNOSTICS=0
 ```
 
-## Where logs go
+## Nơi lưu nhật ký
 
-Flags emit logs into the standard diagnostics log file. By default:
+Cờ sẽ ghi nhật ký vào tệp nhật ký chẩn đoán tiêu chuẩn. Mặc định:
 
 ```
 /tmp/openclaw/openclaw-YYYY-MM-DD.log
 ```
 
-If you set `logging.file`, use that path instead. Logs are JSONL (one JSON object per line). Redaction still applies based on `logging.redactSensitive`.
+Nếu bạn đặt `logging.file`, hãy sử dụng đường dẫn đó. Nhật ký ở định dạng JSONL (mỗi đối tượng JSON trên một dòng). Việc che giấu vẫn áp dụng dựa trên `logging.redactSensitive`.
 
-## Extract logs
+## Trích xuất nhật ký
 
-Pick the latest log file:
+Chọn tệp nhật ký mới nhất:
 
 ```bash
 ls -t /tmp/openclaw/openclaw-*.log | head -n 1
 ```
 
-Filter for Telegram HTTP diagnostics:
+Lọc nhật ký chẩn đoán Telegram HTTP:
 
 ```bash
 rg "telegram http error" /tmp/openclaw/openclaw-*.log
 ```
 
-Or tail while reproducing:
+Hoặc theo dõi khi tái tạo:
 
 ```bash
 tail -f /tmp/openclaw/openclaw-$(date +%F).log | rg "telegram http error"
 ```
 
-For remote gateways, you can also use `openclaw logs --follow` (see [/cli/logs](/cli/logs)).
+Đối với các gateway từ xa, bạn cũng có thể sử dụng `openclaw logs --follow` (xem [/cli/logs](/cli/logs)).
 
-## Notes
+## Lưu ý
 
-- If `logging.level` is set higher than `warn`, these logs may be suppressed. Default `info` is fine.
-- Flags are safe to leave enabled; they only affect log volume for the specific subsystem.
-- Use [/logging](/logging) to change log destinations, levels, and redaction.
+- Nếu `logging.level` được đặt cao hơn `warn`, các nhật ký này có thể bị ẩn. Mặc định `info` là ổn.
+- Cờ an toàn để bật; chúng chỉ ảnh hưởng đến khối lượng nhật ký của hệ thống con cụ thể.
+- Sử dụng [/logging](/logging) để thay đổi đích đến, mức độ và việc che giấu nhật ký.

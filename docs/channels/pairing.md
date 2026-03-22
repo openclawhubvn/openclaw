@@ -1,82 +1,81 @@
 ---
-summary: "Pairing overview: approve who can DM you + which nodes can join"
+summary: "Tổng quan về Pairing: phê duyệt ai có thể nhắn tin cho bạn + thiết bị nào có thể tham gia"
 read_when:
-  - Setting up DM access control
-  - Pairing a new iOS/Android node
-  - Reviewing OpenClaw security posture
+  - Thiết lập kiểm soát truy cập DM
+  - Ghép nối một node iOS/Android mới
+  - Xem xét tư thế bảo mật của OpenClaw
 title: "Pairing"
 ---
 
 # Pairing
 
-“Pairing” is OpenClaw’s explicit **owner approval** step.
-It is used in two places:
+"Pairing" là bước **phê duyệt chủ sở hữu** rõ ràng của OpenClaw.
+Nó được sử dụng trong hai trường hợp:
 
-1. **DM pairing** (who is allowed to talk to the bot)
-2. **Node pairing** (which devices/nodes are allowed to join the gateway network)
+1. **Ghép nối DM** (ai được phép trò chuyện với bot)
+2. **Ghép nối node** (thiết bị/nodes nào được phép tham gia mạng gateway)
 
-Security context: [Security](/gateway/security)
+Ngữ cảnh bảo mật: [Bảo mật](/gateway/security)
 
-## 1) DM pairing (inbound chat access)
+## 1) Ghép nối DM (truy cập chat đến)
 
-When a channel is configured with DM policy `pairing`, unknown senders get a short code and their message is **not processed** until you approve.
+Khi một kênh được cấu hình với chính sách DM `pairing`, người gửi không xác định sẽ nhận được một mã ngắn và tin nhắn của họ **không được xử lý** cho đến khi bạn phê duyệt.
 
-Default DM policies are documented in: [Security](/gateway/security)
+Các chính sách DM mặc định được ghi lại tại: [Bảo mật](/gateway/security)
 
-Pairing codes:
+Mã ghép nối:
 
-- 8 characters, uppercase, no ambiguous chars (`0O1I`).
-- **Expire after 1 hour**. The bot only sends the pairing message when a new request is created (roughly once per hour per sender).
-- Pending DM pairing requests are capped at **3 per channel** by default; additional requests are ignored until one expires or is approved.
+- 8 ký tự, chữ hoa, không có ký tự dễ nhầm lẫn (`0O1I`).
+- **Hết hạn sau 1 giờ**. Bot chỉ gửi tin nhắn ghép nối khi có yêu cầu mới được tạo (khoảng một lần mỗi giờ cho mỗi người gửi).
+- Yêu cầu ghép nối DM đang chờ xử lý bị giới hạn ở **3 mỗi kênh** theo mặc định; các yêu cầu bổ sung sẽ bị bỏ qua cho đến khi một yêu cầu hết hạn hoặc được phê duyệt.
 
-### Approve a sender
+### Phê duyệt người gửi
 
 ```bash
 openclaw pairing list telegram
 openclaw pairing approve telegram <CODE>
 ```
 
-Supported channels: `telegram`, `whatsapp`, `signal`, `imessage`, `discord`, `slack`, `feishu`.
+Các kênh hỗ trợ: `telegram`, `whatsapp`, `signal`, `imessage`, `discord`, `slack`, `feishu`.
 
-### Where the state lives
+### Nơi lưu trữ trạng thái
 
-Stored under `~/.openclaw/credentials/`:
+Lưu trữ dưới `~/.openclaw/credentials/`:
 
-- Pending requests: `<channel>-pairing.json`
-- Approved allowlist store:
-  - Default account: `<channel>-allowFrom.json`
-  - Non-default account: `<channel>-<accountId>-allowFrom.json`
+- Yêu cầu đang chờ xử lý: `<channel>-pairing.json`
+- Lưu trữ danh sách cho phép đã phê duyệt:
+  - Tài khoản mặc định: `<channel>-allowFrom.json`
+  - Tài khoản không mặc định: `<channel>-<accountId>-allowFrom.json`
 
-Account scoping behavior:
+Hành vi phạm vi tài khoản:
 
-- Non-default accounts read/write only their scoped allowlist file.
-- Default account uses the channel-scoped unscoped allowlist file.
+- Tài khoản không mặc định chỉ đọc/ghi tệp danh sách cho phép theo phạm vi của chúng.
+- Tài khoản mặc định sử dụng tệp danh sách cho phép không theo phạm vi của kênh.
 
-Treat these as sensitive (they gate access to your assistant).
+Xem đây là thông tin nhạy cảm (chúng kiểm soát quyền truy cập vào trợ lý của bạn).
 
-## 2) Node device pairing (iOS/Android/macOS/headless nodes)
+## 2) Ghép nối thiết bị node (iOS/Android/macOS/nodes không giao diện)
 
-Nodes connect to the Gateway as **devices** with `role: node`. The Gateway
-creates a device pairing request that must be approved.
+Nodes kết nối với Gateway dưới dạng **thiết bị** với `role: node`. Gateway tạo một yêu cầu ghép nối thiết bị cần được phê duyệt.
 
-### Pair via Telegram (recommended for iOS)
+### Ghép nối qua Telegram (khuyến nghị cho iOS)
 
-If you use the `device-pair` plugin, you can do first-time device pairing entirely from Telegram:
+Nếu bạn sử dụng plugin `device-pair`, bạn có thể thực hiện ghép nối thiết bị lần đầu hoàn toàn từ Telegram:
 
-1. In Telegram, message your bot: `/pair`
-2. The bot replies with two messages: an instruction message and a separate **setup code** message (easy to copy/paste in Telegram).
-3. On your phone, open the OpenClaw iOS app → Settings → Gateway.
-4. Paste the setup code and connect.
-5. Back in Telegram: `/pair pending` (review request IDs, role, and scopes), then approve.
+1. Trong Telegram, nhắn tin cho bot của bạn: `/pair`
+2. Bot trả lời với hai tin nhắn: một tin nhắn hướng dẫn và một tin nhắn **mã thiết lập** riêng biệt (dễ sao chép/dán trong Telegram).
+3. Trên điện thoại của bạn, mở ứng dụng OpenClaw iOS → Cài đặt → Gateway.
+4. Dán mã thiết lập và kết nối.
+5. Quay lại Telegram: `/pair pending` (xem xét ID yêu cầu, vai trò và phạm vi), sau đó phê duyệt.
 
-The setup code is a base64-encoded JSON payload that contains:
+Mã thiết lập là một payload JSON được mã hóa base64 chứa:
 
-- `url`: the Gateway WebSocket URL (`ws://...` or `wss://...`)
-- `bootstrapToken`: a short-lived single-device bootstrap token used for the initial pairing handshake
+- `url`: URL WebSocket của Gateway (`ws://...` hoặc `wss://...`)
+- `bootstrapToken`: một token khởi động ngắn hạn cho một thiết bị duy nhất được sử dụng cho quá trình bắt tay ghép nối ban đầu
 
-Treat the setup code like a password while it is valid.
+Xem mã thiết lập như một mật khẩu trong khi nó còn hiệu lực.
 
-### Approve a node device
+### Phê duyệt thiết bị node
 
 ```bash
 openclaw devices list
@@ -84,31 +83,28 @@ openclaw devices approve <requestId>
 openclaw devices reject <requestId>
 ```
 
-If the same device retries with different auth details (for example different
-role/scopes/public key), the previous pending request is superseded and a new
-`requestId` is created.
+Nếu cùng một thiết bị thử lại với thông tin xác thực khác (ví dụ: vai trò/phạm vi/khóa công khai khác), yêu cầu đang chờ xử lý trước đó sẽ bị thay thế và một `requestId` mới được tạo.
 
-### Node pairing state storage
+### Lưu trữ trạng thái ghép nối node
 
-Stored under `~/.openclaw/devices/`:
+Lưu trữ dưới `~/.openclaw/devices/`:
 
-- `pending.json` (short-lived; pending requests expire)
-- `paired.json` (paired devices + tokens)
+- `pending.json` (ngắn hạn; yêu cầu đang chờ xử lý hết hạn)
+- `paired.json` (các thiết bị đã ghép nối + token)
 
-### Notes
+### Ghi chú
 
-- The legacy `node.pair.*` API (CLI: `openclaw nodes pending/approve`) is a
-  separate gateway-owned pairing store. WS nodes still require device pairing.
+- API `node.pair.*` cũ (CLI: `openclaw nodes pending/approve`) là một kho ghép nối riêng thuộc về gateway. Các node WS vẫn yêu cầu ghép nối thiết bị.
 
-## Related docs
+## Tài liệu liên quan
 
-- Security model + prompt injection: [Security](/gateway/security)
-- Updating safely (run doctor): [Updating](/install/updating)
-- Channel configs:
+- Mô hình bảo mật + tiêm lệnh nhắc: [Bảo mật](/gateway/security)
+- Cập nhật an toàn (chạy doctor): [Cập nhật](/install/updating)
+- Cấu hình kênh:
   - Telegram: [Telegram](/channels/telegram)
   - WhatsApp: [WhatsApp](/channels/whatsapp)
   - Signal: [Signal](/channels/signal)
   - BlueBubbles (iMessage): [BlueBubbles](/channels/bluebubbles)
-  - iMessage (legacy): [iMessage](/channels/imessage)
+  - iMessage (cũ): [iMessage](/channels/imessage)
   - Discord: [Discord](/channels/discord)
   - Slack: [Slack](/channels/slack)

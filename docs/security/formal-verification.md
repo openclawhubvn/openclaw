@@ -1,167 +1,165 @@
 ---
-title: Formal Verification (Security Models)
-summary: Machine-checked security models for OpenClaw’s highest-risk paths.
+title: Xác Minh Hình Thức (Mô Hình Bảo Mật)
+summary: Mô hình bảo mật được kiểm tra bằng máy cho các đường dẫn có rủi ro cao nhất của OpenClaw.
 read_when:
-  - Reviewing formal security model guarantees or limits
-  - Reproducing or updating TLA+/TLC security model checks
+  - Xem xét các đảm bảo hoặc giới hạn của mô hình bảo mật hình thức
+  - Tái tạo hoặc cập nhật các kiểm tra mô hình bảo mật TLA+/TLC
 permalink: /security/formal-verification/
 ---
 
-# Formal Verification (Security Models)
+# Xác Minh Hình Thức (Mô Hình Bảo Mật)
 
-This page tracks OpenClaw’s **formal security models** (TLA+/TLC today; more as needed).
+Trang này theo dõi các **mô hình bảo mật hình thức** của OpenClaw (hiện tại là TLA+/TLC; sẽ bổ sung thêm khi cần).
 
-> Note: some older links may refer to the previous project name.
+> Lưu ý: một số liên kết cũ có thể tham chiếu đến tên dự án trước đây.
 
-**Goal (north star):** provide a machine-checked argument that OpenClaw enforces its
-intended security policy (authorization, session isolation, tool gating, and
-misconfiguration safety), under explicit assumptions.
+**Mục tiêu (hướng đi chính):** cung cấp một lập luận được kiểm tra bằng máy rằng OpenClaw thực thi chính sách bảo mật dự kiến của mình (ủy quyền, cô lập phiên, kiểm soát công cụ và an toàn cấu hình sai), dưới các giả định rõ ràng.
 
-**What this is (today):** an executable, attacker-driven **security regression suite**:
+**Hiện tại là gì:** một bộ kiểm tra hồi quy bảo mật **có thể thực thi**, được điều khiển bởi kẻ tấn công:
 
-- Each claim has a runnable model-check over a finite state space.
-- Many claims have a paired **negative model** that produces a counterexample trace for a realistic bug class.
+- Mỗi tuyên bố có một mô hình kiểm tra có thể chạy trên không gian trạng thái hữu hạn.
+- Nhiều tuyên bố có một **mô hình tiêu cực** đi kèm tạo ra một dấu vết phản ví dụ cho một lớp lỗi thực tế.
 
-**What this is not (yet):** a proof that “OpenClaw is secure in all respects” or that the full TypeScript implementation is correct.
+**Chưa phải là gì:** một bằng chứng rằng "OpenClaw an toàn về mọi mặt" hoặc rằng toàn bộ triển khai TypeScript là chính xác.
 
-## Where the models live
+## Vị trí của các mô hình
 
-Models are maintained in a separate repo: [vignesh07/openclaw-formal-models](https://github.com/vignesh07/openclaw-formal-models).
+Các mô hình được duy trì trong một repo riêng: [vignesh07/openclaw-formal-models](https://github.com/vignesh07/openclaw-formal-models).
 
-## Important caveats
+## Lưu ý quan trọng
 
-- These are **models**, not the full TypeScript implementation. Drift between model and code is possible.
-- Results are bounded by the state space explored by TLC; “green” does not imply security beyond the modeled assumptions and bounds.
-- Some claims rely on explicit environmental assumptions (e.g., correct deployment, correct configuration inputs).
+- Đây là **mô hình**, không phải toàn bộ triển khai TypeScript. Có thể xảy ra sự khác biệt giữa mô hình và mã.
+- Kết quả bị giới hạn bởi không gian trạng thái mà TLC khám phá; "xanh" không ngụ ý an toàn ngoài các giả định và giới hạn đã mô hình hóa.
+- Một số tuyên bố dựa vào các giả định môi trường rõ ràng (ví dụ: triển khai đúng, đầu vào cấu hình đúng).
 
-## Reproducing results
+## Tái tạo kết quả
 
-Today, results are reproduced by cloning the models repo locally and running TLC (see below). A future iteration could offer:
+Hiện tại, kết quả được tái tạo bằng cách clone repo mô hình về máy cục bộ và chạy TLC (xem bên dưới). Phiên bản tương lai có thể cung cấp:
 
-- CI-run models with public artifacts (counterexample traces, run logs)
-- a hosted “run this model” workflow for small, bounded checks
+- Mô hình chạy CI với các hiện vật công khai (dấu vết phản ví dụ, nhật ký chạy)
+- Một quy trình "chạy mô hình này" được lưu trữ cho các kiểm tra nhỏ, có giới hạn
 
-Getting started:
+Bắt đầu:
 
 ```bash
 git clone https://github.com/vignesh07/openclaw-formal-models
 cd openclaw-formal-models
 
-# Java 11+ required (TLC runs on the JVM).
-# The repo vendors a pinned `tla2tools.jar` (TLA+ tools) and provides `bin/tlc` + Make targets.
+# Yêu cầu Java 11+ (TLC chạy trên JVM).
+# Repo cung cấp một `tla2tools.jar` cố định (công cụ TLA+) và cung cấp `bin/tlc` + các mục tiêu Make.
 
 make <target>
 ```
 
-### Gateway exposure and open gateway misconfiguration
+### Phơi bày Gateway và cấu hình sai gateway mở
 
-**Claim:** binding beyond loopback without auth can make remote compromise possible / increases exposure; token/password blocks unauth attackers (per the model assumptions).
+**Tuyên bố:** ràng buộc ngoài loopback mà không có xác thực có thể làm cho việc xâm nhập từ xa trở nên khả thi / tăng cường phơi bày; token/mật khẩu chặn kẻ tấn công không xác thực (theo các giả định mô hình).
 
-- Green runs:
+- Chạy xanh:
   - `make gateway-exposure-v2`
   - `make gateway-exposure-v2-protected`
-- Red (expected):
+- Đỏ (dự kiến):
   - `make gateway-exposure-v2-negative`
 
-See also: `docs/gateway-exposure-matrix.md` in the models repo.
+Xem thêm: `docs/gateway-exposure-matrix.md` trong repo mô hình.
 
-### Nodes.run pipeline (highest-risk capability)
+### Pipeline Nodes.run (khả năng rủi ro cao nhất)
 
-**Claim:** `nodes.run` requires (a) node command allowlist plus declared commands and (b) live approval when configured; approvals are tokenized to prevent replay (in the model).
+**Tuyên bố:** `nodes.run` yêu cầu (a) danh sách lệnh cho phép node cùng với các lệnh đã khai báo và (b) phê duyệt trực tiếp khi được cấu hình; phê duyệt được mã hóa để ngăn chặn phát lại (trong mô hình).
 
-- Green runs:
+- Chạy xanh:
   - `make nodes-pipeline`
   - `make approvals-token`
-- Red (expected):
+- Đỏ (dự kiến):
   - `make nodes-pipeline-negative`
   - `make approvals-token-negative`
 
-### Pairing store (DM gating)
+### Lưu trữ ghép đôi (kiểm soát DM)
 
-**Claim:** pairing requests respect TTL and pending-request caps.
+**Tuyên bố:** yêu cầu ghép đôi tuân thủ TTL và giới hạn yêu cầu đang chờ xử lý.
 
-- Green runs:
+- Chạy xanh:
   - `make pairing`
   - `make pairing-cap`
-- Red (expected):
+- Đỏ (dự kiến):
   - `make pairing-negative`
   - `make pairing-cap-negative`
 
-### Ingress gating (mentions + control-command bypass)
+### Kiểm soát truy cập (đề cập + bỏ qua lệnh điều khiển)
 
-**Claim:** in group contexts requiring mention, an unauthorized “control command” cannot bypass mention gating.
+**Tuyên bố:** trong các ngữ cảnh nhóm yêu cầu đề cập, một "lệnh điều khiển" không được phép không thể bỏ qua kiểm soát đề cập.
 
-- Green:
+- Xanh:
   - `make ingress-gating`
-- Red (expected):
+- Đỏ (dự kiến):
   - `make ingress-gating-negative`
 
-### Routing/session-key isolation
+### Cách ly định tuyến/khóa phiên
 
-**Claim:** DMs from distinct peers do not collapse into the same session unless explicitly linked/configured.
+**Tuyên bố:** DM từ các đối tác khác nhau không hợp nhất vào cùng một phiên trừ khi được liên kết/cấu hình rõ ràng.
 
-- Green:
+- Xanh:
   - `make routing-isolation`
-- Red (expected):
+- Đỏ (dự kiến):
   - `make routing-isolation-negative`
 
-## v1++: additional bounded models (concurrency, retries, trace correctness)
+## v1++: các mô hình có giới hạn bổ sung (đồng thời, thử lại, độ chính xác dấu vết)
 
-These are follow-on models that tighten fidelity around real-world failure modes (non-atomic updates, retries, and message fan-out).
+Đây là các mô hình tiếp theo nhằm thắt chặt độ trung thực xung quanh các chế độ lỗi thực tế (cập nhật không nguyên tử, thử lại và phân tán thông điệp).
 
-### Pairing store concurrency / idempotency
+### Đồng thời lưu trữ ghép đôi / tính chất idempotency
 
-**Claim:** a pairing store should enforce `MaxPending` and idempotency even under interleavings (i.e., “check-then-write” must be atomic / locked; refresh shouldn’t create duplicates).
+**Tuyên bố:** một lưu trữ ghép đôi nên thực thi `MaxPending` và tính chất idempotency ngay cả khi có sự xen kẽ (tức là "kiểm tra-rồi-ghi" phải là nguyên tử / khóa; làm mới không nên tạo ra các bản sao).
 
-What it means:
+Ý nghĩa:
 
-- Under concurrent requests, you can’t exceed `MaxPending` for a channel.
-- Repeated requests/refreshes for the same `(channel, sender)` should not create duplicate live pending rows.
+- Dưới các yêu cầu đồng thời, bạn không thể vượt quá `MaxPending` cho một kênh.
+- Các yêu cầu/làm mới lặp lại cho cùng một `(channel, sender)` không nên tạo ra các hàng đang chờ xử lý trùng lặp.
 
-- Green runs:
-  - `make pairing-race` (atomic/locked cap check)
+- Chạy xanh:
+  - `make pairing-race` (kiểm tra giới hạn nguyên tử/khóa)
   - `make pairing-idempotency`
   - `make pairing-refresh`
   - `make pairing-refresh-race`
-- Red (expected):
-  - `make pairing-race-negative` (non-atomic begin/commit cap race)
+- Đỏ (dự kiến):
+  - `make pairing-race-negative` (cuộc đua giới hạn bắt đầu/kết thúc không nguyên tử)
   - `make pairing-idempotency-negative`
   - `make pairing-refresh-negative`
   - `make pairing-refresh-race-negative`
 
-### Ingress trace correlation / idempotency
+### Tương quan dấu vết truy cập / tính chất idempotency
 
-**Claim:** ingestion should preserve trace correlation across fan-out and be idempotent under provider retries.
+**Tuyên bố:** việc truy cập nên bảo toàn tương quan dấu vết qua phân tán và là idempotent dưới các lần thử lại của nhà cung cấp.
 
-What it means:
+Ý nghĩa:
 
-- When one external event becomes multiple internal messages, every part keeps the same trace/event identity.
-- Retries do not result in double-processing.
-- If provider event IDs are missing, dedupe falls back to a safe key (e.g., trace ID) to avoid dropping distinct events.
+- Khi một sự kiện bên ngoài trở thành nhiều thông điệp nội bộ, mọi phần đều giữ nguyên danh tính dấu vết/sự kiện.
+- Các lần thử lại không dẫn đến xử lý kép.
+- Nếu ID sự kiện của nhà cung cấp bị thiếu, việc loại bỏ trùng lặp sẽ quay lại một khóa an toàn (ví dụ: ID dấu vết) để tránh bỏ qua các sự kiện khác biệt.
 
-- Green:
+- Xanh:
   - `make ingress-trace`
   - `make ingress-trace2`
   - `make ingress-idempotency`
   - `make ingress-dedupe-fallback`
-- Red (expected):
+- Đỏ (dự kiến):
   - `make ingress-trace-negative`
   - `make ingress-trace2-negative`
   - `make ingress-idempotency-negative`
   - `make ingress-dedupe-fallback-negative`
 
-### Routing dmScope precedence + identityLinks
+### Định tuyến ưu tiên dmScope + liên kết danh tính
 
-**Claim:** routing must keep DM sessions isolated by default, and only collapse sessions when explicitly configured (channel precedence + identity links).
+**Tuyên bố:** định tuyến phải giữ các phiên DM cách ly theo mặc định và chỉ hợp nhất các phiên khi được cấu hình rõ ràng (ưu tiên kênh + liên kết danh tính).
 
-What it means:
+Ý nghĩa:
 
-- Channel-specific dmScope overrides must win over global defaults.
-- identityLinks should collapse only within explicit linked groups, not across unrelated peers.
+- Các ghi đè dmScope cụ thể của kênh phải thắng các mặc định toàn cầu.
+- Liên kết danh tính chỉ nên hợp nhất trong các nhóm liên kết rõ ràng, không phải giữa các đối tác không liên quan.
 
-- Green:
+- Xanh:
   - `make routing-precedence`
   - `make routing-identitylinks`
-- Red (expected):
+- Đỏ (dự kiến):
   - `make routing-precedence-negative`
   - `make routing-identitylinks-negative`

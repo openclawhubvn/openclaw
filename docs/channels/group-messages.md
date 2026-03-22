@@ -1,29 +1,29 @@
 ---
-summary: "Behavior and config for WhatsApp group message handling (mentionPatterns are shared across surfaces)"
+summary: "Cách xử lý và cấu hình tin nhắn nhóm WhatsApp (mentionPatterns được chia sẻ trên nhiều nền tảng)"
 read_when:
-  - Changing group message rules or mentions
-title: "Group Messages"
+  - Thay đổi quy tắc tin nhắn nhóm hoặc đề cập
+title: "Tin nhắn nhóm"
 ---
 
-# Group messages (WhatsApp web channel)
+# Tin nhắn nhóm (kênh WhatsApp web)
 
-Goal: let Clawd sit in WhatsApp groups, wake up only when pinged, and keep that thread separate from the personal DM session.
+Mục tiêu: để Clawd tham gia vào các nhóm WhatsApp, chỉ thức dậy khi được nhắc đến, và giữ luồng đó tách biệt khỏi phiên DM cá nhân.
 
-Note: `agents.list[].groupChat.mentionPatterns` is now used by Telegram/Discord/Slack/iMessage as well; this doc focuses on WhatsApp-specific behavior. For multi-agent setups, set `agents.list[].groupChat.mentionPatterns` per agent (or use `messages.groupChat.mentionPatterns` as a global fallback).
+Lưu ý: `agents.list[].groupChat.mentionPatterns` hiện cũng được sử dụng bởi Telegram/Discord/Slack/iMessage; tài liệu này tập trung vào hành vi cụ thể của WhatsApp. Đối với các thiết lập nhiều agent, hãy đặt `agents.list[].groupChat.mentionPatterns` cho từng agent (hoặc sử dụng `messages.groupChat.mentionPatterns` như một phương án dự phòng toàn cầu).
 
-## Current implementation (2025-12-03)
+## Triển khai hiện tại (2025-12-03)
 
-- Activation modes: `mention` (default) or `always`. `mention` requires a ping (real WhatsApp @-mentions via `mentionedJids`, safe regex patterns, or the bot’s E.164 anywhere in the text). `always` wakes the agent on every message but it should reply only when it can add meaningful value; otherwise it returns the silent token `NO_REPLY`. Defaults can be set in config (`channels.whatsapp.groups`) and overridden per group via `/activation`. When `channels.whatsapp.groups` is set, it also acts as a group allowlist (include `"*"` to allow all).
-- Group policy: `channels.whatsapp.groupPolicy` controls whether group messages are accepted (`open|disabled|allowlist`). `allowlist` uses `channels.whatsapp.groupAllowFrom` (fallback: explicit `channels.whatsapp.allowFrom`). Default is `allowlist` (blocked until you add senders).
-- Per-group sessions: session keys look like `agent:<agentId>:whatsapp:group:<jid>` so commands such as `/verbose on` or `/think high` (sent as standalone messages) are scoped to that group; personal DM state is untouched. Heartbeats are skipped for group threads.
-- Context injection: **pending-only** group messages (default 50) that _did not_ trigger a run are prefixed under `[Chat messages since your last reply - for context]`, with the triggering line under `[Current message - respond to this]`. Messages already in the session are not re-injected.
-- Sender surfacing: every group batch now ends with `[from: Sender Name (+E164)]` so Pi knows who is speaking.
-- Ephemeral/view-once: we unwrap those before extracting text/mentions, so pings inside them still trigger.
-- Group system prompt: on the first turn of a group session (and whenever `/activation` changes the mode) we inject a short blurb into the system prompt like `You are replying inside the WhatsApp group "<subject>". Group members: Alice (+44...), Bob (+43...), … Activation: trigger-only … Address the specific sender noted in the message context.` If metadata isn’t available we still tell the agent it’s a group chat.
+- Chế độ kích hoạt: `mention` (mặc định) hoặc `always`. `mention` yêu cầu một ping (đề cập thực sự trên WhatsApp qua `mentionedJids`, mẫu regex an toàn, hoặc số E.164 của bot ở bất kỳ đâu trong văn bản). `always` đánh thức agent trên mọi tin nhắn nhưng chỉ nên trả lời khi có thể thêm giá trị ý nghĩa; nếu không, nó trả về token im lặng `NO_REPLY`. Mặc định có thể được đặt trong cấu hình (`channels.whatsapp.groups`) và ghi đè cho từng nhóm qua `/activation`. Khi `channels.whatsapp.groups` được đặt, nó cũng hoạt động như một danh sách cho phép nhóm (bao gồm `"*"` để cho phép tất cả).
+- Chính sách nhóm: `channels.whatsapp.groupPolicy` kiểm soát liệu tin nhắn nhóm có được chấp nhận hay không (`open|disabled|allowlist`). `allowlist` sử dụng `channels.whatsapp.groupAllowFrom` (dự phòng: `channels.whatsapp.allowFrom` rõ ràng). Mặc định là `allowlist` (bị chặn cho đến khi bạn thêm người gửi).
+- Phiên theo nhóm: khóa phiên có dạng `agent:<agentId>:whatsapp:group:<jid>` nên các lệnh như `/verbose on` hoặc `/think high` (gửi dưới dạng tin nhắn độc lập) được áp dụng cho nhóm đó; trạng thái DM cá nhân không bị ảnh hưởng. Heartbeats bị bỏ qua cho các luồng nhóm.
+- Tiêm ngữ cảnh: tin nhắn nhóm **chỉ chờ xử lý** (mặc định 50) mà _không_ kích hoạt một lần chạy được thêm vào dưới `[Chat messages since your last reply - for context]`, với dòng kích hoạt dưới `[Current message - respond to this]`. Các tin nhắn đã có trong phiên không được thêm lại.
+- Hiển thị người gửi: mỗi lô nhóm hiện kết thúc với `[from: Tên Người Gửi (+E164)]` để Pi biết ai đang nói.
+- Tin nhắn tạm thời/xem một lần: chúng tôi mở chúng trước khi trích xuất văn bản/đề cập, vì vậy các ping bên trong vẫn kích hoạt.
+- Lời nhắc hệ thống nhóm: trong lượt đầu tiên của phiên nhóm (và bất cứ khi nào `/activation` thay đổi chế độ) chúng tôi thêm một đoạn ngắn vào lời nhắc hệ thống như `Bạn đang trả lời trong nhóm WhatsApp "<subject>". Thành viên nhóm: Alice (+44...), Bob (+43...), … Kích hoạt: chỉ khi được nhắc đến … Địa chỉ người gửi cụ thể được ghi chú trong ngữ cảnh tin nhắn.` Nếu không có sẵn metadata, chúng tôi vẫn thông báo cho agent rằng đây là một cuộc trò chuyện nhóm.
 
-## Config example (WhatsApp)
+## Ví dụ cấu hình (WhatsApp)
 
-Add a `groupChat` block to `~/.openclaw/openclaw.json` so display-name pings work even when WhatsApp strips the visual `@` in the text body:
+Thêm một khối `groupChat` vào `~/.openclaw/openclaw.json` để các ping tên hiển thị hoạt động ngay cả khi WhatsApp loại bỏ `@` trong nội dung văn bản:
 
 ```json5
 {
@@ -48,37 +48,36 @@ Add a `groupChat` block to `~/.openclaw/openclaw.json` so display-name pings wor
 }
 ```
 
-Notes:
+Ghi chú:
 
-- The regexes are case-insensitive and use the same safe-regex guardrails as other config regex surfaces; invalid patterns and unsafe nested repetition are ignored.
-- WhatsApp still sends canonical mentions via `mentionedJids` when someone taps the contact, so the number fallback is rarely needed but is a useful safety net.
+- Các regex không phân biệt chữ hoa chữ thường và sử dụng cùng các biện pháp bảo vệ regex an toàn như các bề mặt cấu hình khác; các mẫu không hợp lệ và lặp lại không an toàn bị bỏ qua.
+- WhatsApp vẫn gửi các đề cập chính thức qua `mentionedJids` khi ai đó nhấn vào liên hệ, vì vậy số dự phòng hiếm khi cần thiết nhưng là một biện pháp an toàn hữu ích.
 
-### Activation command (owner-only)
+### Lệnh kích hoạt (chỉ dành cho chủ sở hữu)
 
-Use the group chat command:
+Sử dụng lệnh trò chuyện nhóm:
 
 - `/activation mention`
 - `/activation always`
 
-Only the owner number (from `channels.whatsapp.allowFrom`, or the bot’s own E.164 when unset) can change this. Send `/status` as a standalone message in the group to see the current activation mode.
+Chỉ số của chủ sở hữu (từ `channels.whatsapp.allowFrom`, hoặc số E.164 của bot khi không được đặt) có thể thay đổi điều này. Gửi `/status` dưới dạng tin nhắn độc lập trong nhóm để xem chế độ kích hoạt hiện tại.
 
-## How to use
+## Cách sử dụng
 
-1. Add your WhatsApp account (the one running OpenClaw) to the group.
-2. Say `@openclaw …` (or include the number). Only allowlisted senders can trigger it unless you set `groupPolicy: "open"`.
-3. The agent prompt will include recent group context plus the trailing `[from: …]` marker so it can address the right person.
-4. Session-level directives (`/verbose on`, `/think high`, `/new` or `/reset`, `/compact`) apply only to that group’s session; send them as standalone messages so they register. Your personal DM session remains independent.
+1. Thêm tài khoản WhatsApp của bạn (tài khoản đang chạy OpenClaw) vào nhóm.
+2. Nói `@openclaw …` (hoặc bao gồm số). Chỉ những người gửi trong danh sách cho phép mới có thể kích hoạt trừ khi bạn đặt `groupPolicy: "open"`.
+3. Lời nhắc agent sẽ bao gồm ngữ cảnh nhóm gần đây cùng với dấu `[from: …]` để có thể gửi đúng người.
+4. Các chỉ thị cấp phiên (`/verbose on`, `/think high`, `/new` hoặc `/reset`, `/compact`) chỉ áp dụng cho phiên của nhóm đó; gửi chúng dưới dạng tin nhắn độc lập để chúng được ghi nhận. Phiên DM cá nhân của bạn vẫn độc lập.
 
-## Testing / verification
+## Kiểm tra / xác minh
 
-- Manual smoke:
-  - Send an `@openclaw` ping in the group and confirm a reply that references the sender name.
-  - Send a second ping and verify the history block is included then cleared on the next turn.
-- Check gateway logs (run with `--verbose`) to see `inbound web message` entries showing `from: <groupJid>` and the `[from: …]` suffix.
+- Kiểm tra thủ công:
+  - Gửi một ping `@openclaw` trong nhóm và xác nhận một phản hồi tham chiếu tên người gửi.
+  - Gửi một ping thứ hai và xác minh khối lịch sử được bao gồm sau đó xóa trên lượt tiếp theo.
+- Kiểm tra nhật ký gateway (chạy với `--verbose`) để xem các mục `inbound web message` hiển thị `from: <groupJid>` và hậu tố `[from: …]`.
 
-## Known considerations
+## Các lưu ý đã biết
 
-- Heartbeats are intentionally skipped for groups to avoid noisy broadcasts.
-- Echo suppression uses the combined batch string; if you send identical text twice without mentions, only the first will get a response.
-- Session store entries will appear as `agent:<agentId>:whatsapp:group:<jid>` in the session store (`~/.openclaw/agents/<agentId>/sessions/sessions.json` by default); a missing entry just means the group hasn’t triggered a run yet.
-- Typing indicators in groups follow `agents.defaults.typingMode` (default: `message` when unmentioned).
+- Heartbeats cố ý bị bỏ qua cho các nhóm để tránh phát sóng ồn ào.
+- Ức chế tiếng vọng sử dụng chuỗi lô kết hợp; nếu bạn gửi văn bản giống hệt hai lần mà không có đề cập, chỉ lần đầu tiên sẽ nhận được phản hồi.
+- Các mục lưu trữ phiên sẽ xuất hiện dưới dạng `agent:<agentId>:whatsapp:group:<jid>` trong lưu trữ phiên (`~/.openclaw/agents/<agentId>/sessions/sessions.json` theo mặc định); một mục bị thiếu chỉ có nghĩa là nhóm chưa kích hoạt một lần chạy nào.

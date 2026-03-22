@@ -1,23 +1,23 @@
 ---
-summary: "How the installer scripts work (install.sh, install-cli.sh, install.ps1), flags, and automation"
+summary: "Cách hoạt động của các script cài đặt (install.sh, install-cli.sh, install.ps1), các flag và tự động hóa"
 read_when:
-  - You want to understand `openclaw.ai/install.sh`
-  - You want to automate installs (CI / headless)
-  - You want to install from a GitHub checkout
-title: "Installer Internals"
+  - Bạn muốn hiểu `openclaw.ai/install.sh`
+  - Bạn muốn tự động hóa cài đặt (CI / headless)
+  - Bạn muốn cài đặt từ một bản checkout GitHub
+title: "Chi tiết bên trong Installer"
 ---
 
-# Installer internals
+# Chi tiết bên trong Installer
 
-OpenClaw ships three installer scripts, served from `openclaw.ai`.
+OpenClaw cung cấp ba script cài đặt, được phục vụ từ `openclaw.ai`.
 
-| Script                             | Platform             | What it does                                                                                 |
-| ---------------------------------- | -------------------- | -------------------------------------------------------------------------------------------- |
-| [`install.sh`](#installsh)         | macOS / Linux / WSL  | Installs Node if needed, installs OpenClaw via npm (default) or git, and can run onboarding. |
-| [`install-cli.sh`](#install-clish) | macOS / Linux / WSL  | Installs Node + OpenClaw into a local prefix (`~/.openclaw`). No root required.              |
-| [`install.ps1`](#installps1)       | Windows (PowerShell) | Installs Node if needed, installs OpenClaw via npm (default) or git, and can run onboarding. |
+| Script                             | Nền tảng            | Chức năng                                                                                     |
+| ---------------------------------- | ------------------- | --------------------------------------------------------------------------------------------- |
+| [`install.sh`](#installsh)         | macOS / Linux / WSL | Cài đặt Node nếu cần, cài đặt OpenClaw qua npm (mặc định) hoặc git, và có thể chạy onboarding. |
+| [`install-cli.sh`](#install-clish) | macOS / Linux / WSL | Cài đặt Node + OpenClaw vào một prefix cục bộ (`~/.openclaw`). Không cần quyền root.          |
+| [`install.ps1`](#installps1)       | Windows (PowerShell)| Cài đặt Node nếu cần, cài đặt OpenClaw qua npm (mặc định) hoặc git, và có thể chạy onboarding. |
 
-## Quick commands
+## Lệnh nhanh
 
 <Tabs>
   <Tab title="install.sh">
@@ -53,7 +53,7 @@ OpenClaw ships three installer scripts, served from `openclaw.ai`.
 </Tabs>
 
 <Note>
-If install succeeds but `openclaw` is not found in a new terminal, see [Node.js troubleshooting](/install/node#troubleshooting).
+Nếu cài đặt thành công nhưng không tìm thấy `openclaw` trong terminal mới, hãy xem [khắc phục sự cố Node.js](/install/node#troubleshooting).
 </Note>
 
 ---
@@ -61,67 +61,67 @@ If install succeeds but `openclaw` is not found in a new terminal, see [Node.js 
 ## install.sh
 
 <Tip>
-Recommended for most interactive installs on macOS/Linux/WSL.
+Khuyến nghị cho hầu hết các cài đặt tương tác trên macOS/Linux/WSL.
 </Tip>
 
-### Flow (install.sh)
+### Quy trình (install.sh)
 
 <Steps>
-  <Step title="Detect OS">
-    Supports macOS and Linux (including WSL). If macOS is detected, installs Homebrew if missing.
+  <Step title="Phát hiện hệ điều hành">
+    Hỗ trợ macOS và Linux (bao gồm WSL). Nếu phát hiện macOS, cài đặt Homebrew nếu chưa có.
   </Step>
-  <Step title="Ensure Node.js 24 by default">
-    Checks Node version and installs Node 24 if needed (Homebrew on macOS, NodeSource setup scripts on Linux apt/dnf/yum). OpenClaw still supports Node 22 LTS, currently `22.16+`, for compatibility.
+  <Step title="Đảm bảo Node.js 24 mặc định">
+    Kiểm tra phiên bản Node và cài đặt Node 24 nếu cần (Homebrew trên macOS, script thiết lập NodeSource trên Linux apt/dnf/yum). OpenClaw vẫn hỗ trợ Node 22 LTS, hiện tại là `22.16+`, để tương thích.
   </Step>
-  <Step title="Ensure Git">
-    Installs Git if missing.
+  <Step title="Đảm bảo Git">
+    Cài đặt Git nếu chưa có.
   </Step>
-  <Step title="Install OpenClaw">
-    - `npm` method (default): global npm install
-    - `git` method: clone/update repo, install deps with pnpm, build, then install wrapper at `~/.local/bin/openclaw`
+  <Step title="Cài đặt OpenClaw">
+    - Phương pháp `npm` (mặc định): cài đặt npm toàn cầu
+    - Phương pháp `git`: clone/cập nhật repo, cài đặt phụ thuộc với pnpm, build, sau đó cài đặt wrapper tại `~/.local/bin/openclaw`
   </Step>
-  <Step title="Post-install tasks">
-    - Runs `openclaw doctor --non-interactive` on upgrades and git installs (best effort)
-    - Attempts onboarding when appropriate (TTY available, onboarding not disabled, and bootstrap/config checks pass)
-    - Defaults `SHARP_IGNORE_GLOBAL_LIBVIPS=1`
+  <Step title="Nhiệm vụ sau cài đặt">
+    - Chạy `openclaw doctor --non-interactive` khi nâng cấp và cài đặt git (nỗ lực tốt nhất)
+    - Thực hiện onboarding khi thích hợp (TTY có sẵn, onboarding không bị vô hiệu hóa, và kiểm tra bootstrap/cấu hình thành công)
+    - Mặc định `SHARP_IGNORE_GLOBAL_LIBVIPS=1`
   </Step>
 </Steps>
 
-### Source checkout detection
+### Phát hiện checkout nguồn
 
-If run inside an OpenClaw checkout (`package.json` + `pnpm-workspace.yaml`), the script offers:
+Nếu chạy bên trong một checkout OpenClaw (`package.json` + `pnpm-workspace.yaml`), script cung cấp:
 
-- use checkout (`git`), or
-- use global install (`npm`)
+- sử dụng checkout (`git`), hoặc
+- sử dụng cài đặt toàn cầu (`npm`)
 
-If no TTY is available and no install method is set, it defaults to `npm` and warns.
+Nếu không có TTY và không có phương pháp cài đặt nào được thiết lập, nó mặc định là `npm` và cảnh báo.
 
-The script exits with code `2` for invalid method selection or invalid `--install-method` values.
+Script thoát với mã `2` cho lựa chọn phương pháp không hợp lệ hoặc giá trị `--install-method` không hợp lệ.
 
-### Examples (install.sh)
+### Ví dụ (install.sh)
 
 <Tabs>
-  <Tab title="Default">
+  <Tab title="Mặc định">
     ```bash
     curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash
     ```
   </Tab>
-  <Tab title="Skip onboarding">
+  <Tab title="Bỏ qua onboarding">
     ```bash
     curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --no-onboard
     ```
   </Tab>
-  <Tab title="Git install">
+  <Tab title="Cài đặt Git">
     ```bash
     curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --install-method git
     ```
   </Tab>
-  <Tab title="GitHub main via npm">
+  <Tab title="GitHub main qua npm">
     ```bash
     curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --version main
     ```
   </Tab>
-  <Tab title="Dry run">
+  <Tab title="Chạy thử">
     ```bash
     curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --dry-run
     ```
@@ -129,41 +129,41 @@ The script exits with code `2` for invalid method selection or invalid `--instal
 </Tabs>
 
 <AccordionGroup>
-  <Accordion title="Flags reference">
+  <Accordion title="Tham khảo các flag">
 
-| Flag                                  | Description                                                |
+| Flag                                  | Mô tả                                                      |
 | ------------------------------------- | ---------------------------------------------------------- |
-| `--install-method npm\|git`           | Choose install method (default: `npm`). Alias: `--method`  |
-| `--npm`                               | Shortcut for npm method                                    |
-| `--git`                               | Shortcut for git method. Alias: `--github`                 |
-| `--version <version\|dist-tag\|spec>` | npm version, dist-tag, or package spec (default: `latest`) |
-| `--beta`                              | Use beta dist-tag if available, else fallback to `latest`  |
-| `--git-dir <path>`                    | Checkout directory (default: `~/openclaw`). Alias: `--dir` |
-| `--no-git-update`                     | Skip `git pull` for existing checkout                      |
-| `--no-prompt`                         | Disable prompts                                            |
-| `--no-onboard`                        | Skip onboarding                                            |
-| `--onboard`                           | Enable onboarding                                          |
-| `--dry-run`                           | Print actions without applying changes                     |
-| `--verbose`                           | Enable debug output (`set -x`, npm notice-level logs)      |
-| `--help`                              | Show usage (`-h`)                                          |
+| `--install-method npm\|git`           | Chọn phương pháp cài đặt (mặc định: `npm`). Alias: `--method`  |
+| `--npm`                               | Phím tắt cho phương pháp npm                               |
+| `--git`                               | Phím tắt cho phương pháp git. Alias: `--github`            |
+| `--version <version\|dist-tag\|spec>` | Phiên bản npm, dist-tag, hoặc spec package (mặc định: `latest`) |
+| `--beta`                              | Sử dụng beta dist-tag nếu có, nếu không thì dùng `latest`  |
+| `--git-dir <path>`                    | Thư mục checkout (mặc định: `~/openclaw`). Alias: `--dir`  |
+| `--no-git-update`                     | Bỏ qua `git pull` cho checkout hiện có                      |
+| `--no-prompt`                         | Vô hiệu hóa nhắc nhở                                        |
+| `--no-onboard`                        | Bỏ qua onboarding                                           |
+| `--onboard`                           | Kích hoạt onboarding                                        |
+| `--dry-run`                           | In ra các hành động mà không áp dụng thay đổi               |
+| `--verbose`                           | Kích hoạt đầu ra debug (`set -x`, nhật ký cấp độ thông báo npm) |
+| `--help`                              | Hiển thị cách sử dụng (`-h`)                                |
 
   </Accordion>
 
-  <Accordion title="Environment variables reference">
+  <Accordion title="Tham khảo các biến môi trường">
 
-| Variable                                                | Description                                   |
-| ------------------------------------------------------- | --------------------------------------------- |
-| `OPENCLAW_INSTALL_METHOD=git\|npm`                      | Install method                                |
-| `OPENCLAW_VERSION=latest\|next\|main\|<semver>\|<spec>` | npm version, dist-tag, or package spec        |
-| `OPENCLAW_BETA=0\|1`                                    | Use beta if available                         |
-| `OPENCLAW_GIT_DIR=<path>`                               | Checkout directory                            |
-| `OPENCLAW_GIT_UPDATE=0\|1`                              | Toggle git updates                            |
-| `OPENCLAW_NO_PROMPT=1`                                  | Disable prompts                               |
-| `OPENCLAW_NO_ONBOARD=1`                                 | Skip onboarding                               |
-| `OPENCLAW_DRY_RUN=1`                                    | Dry run mode                                  |
-| `OPENCLAW_VERBOSE=1`                                    | Debug mode                                    |
-| `OPENCLAW_NPM_LOGLEVEL=error\|warn\|notice`             | npm log level                                 |
-| `SHARP_IGNORE_GLOBAL_LIBVIPS=0\|1`                      | Control sharp/libvips behavior (default: `1`) |
+| Biến                                                   | Mô tả                                           |
+| ------------------------------------------------------ | ----------------------------------------------- |
+| `OPENCLAW_INSTALL_METHOD=git\|npm`                     | Phương pháp cài đặt                             |
+| `OPENCLAW_VERSION=latest\|next\|main\|<semver>\|<spec>`| Phiên bản npm, dist-tag, hoặc spec package      |
+| `OPENCLAW_BETA=0\|1`                                   | Sử dụng beta nếu có                             |
+| `OPENCLAW_GIT_DIR=<path>`                              | Thư mục checkout                                |
+| `OPENCLAW_GIT_UPDATE=0\|1`                             | Bật/tắt cập nhật git                            |
+| `OPENCLAW_NO_PROMPT=1`                                 | Vô hiệu hóa nhắc nhở                            |
+| `OPENCLAW_NO_ONBOARD=1`                                | Bỏ qua onboarding                               |
+| `OPENCLAW_DRY_RUN=1`                                   | Chế độ chạy thử                                 |
+| `OPENCLAW_VERBOSE=1`                                   | Chế độ debug                                    |
+| `OPENCLAW_NPM_LOGLEVEL=error\|warn\|notice`            | Mức độ nhật ký npm                              |
+| `SHARP_IGNORE_GLOBAL_LIBVIPS=0\|1`                     | Kiểm soát hành vi sharp/libvips (mặc định: `1`) |
 
   </Accordion>
 </AccordionGroup>
@@ -173,42 +173,42 @@ The script exits with code `2` for invalid method selection or invalid `--instal
 ## install-cli.sh
 
 <Info>
-Designed for environments where you want everything under a local prefix (default `~/.openclaw`) and no system Node dependency.
+Thiết kế cho các môi trường mà bạn muốn mọi thứ nằm dưới một prefix cục bộ (mặc định `~/.openclaw`) và không phụ thuộc vào Node hệ thống.
 </Info>
 
-### Flow (install-cli.sh)
+### Quy trình (install-cli.sh)
 
 <Steps>
-  <Step title="Install local Node runtime">
-    Downloads a pinned supported Node LTS tarball (the version is embedded in the script and updated independently) to `<prefix>/tools/node-v<version>` and verifies SHA-256.
+  <Step title="Cài đặt runtime Node cục bộ">
+    Tải xuống một tarball Node LTS được hỗ trợ đã được ghim (phiên bản được nhúng trong script và cập nhật độc lập) vào `<prefix>/tools/node-v<version>` và xác minh SHA-256.
   </Step>
-  <Step title="Ensure Git">
-    If Git is missing, attempts install via apt/dnf/yum on Linux or Homebrew on macOS.
+  <Step title="Đảm bảo Git">
+    Nếu Git thiếu, cố gắng cài đặt qua apt/dnf/yum trên Linux hoặc Homebrew trên macOS.
   </Step>
-  <Step title="Install OpenClaw under prefix">
-    Installs with npm using `--prefix <prefix>`, then writes wrapper to `<prefix>/bin/openclaw`.
+  <Step title="Cài đặt OpenClaw dưới prefix">
+    Cài đặt với npm sử dụng `--prefix <prefix>`, sau đó ghi wrapper vào `<prefix>/bin/openclaw`.
   </Step>
 </Steps>
 
-### Examples (install-cli.sh)
+### Ví dụ (install-cli.sh)
 
 <Tabs>
-  <Tab title="Default">
+  <Tab title="Mặc định">
     ```bash
     curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install-cli.sh | bash
     ```
   </Tab>
-  <Tab title="Custom prefix + version">
+  <Tab title="Prefix tùy chỉnh + phiên bản">
     ```bash
     curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install-cli.sh | bash -s -- --prefix /opt/openclaw --version latest
     ```
   </Tab>
-  <Tab title="Automation JSON output">
+  <Tab title="Đầu ra JSON tự động">
     ```bash
     curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install-cli.sh | bash -s -- --json --prefix /opt/openclaw
     ```
   </Tab>
-  <Tab title="Run onboarding">
+  <Tab title="Chạy onboarding">
     ```bash
     curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install-cli.sh | bash -s -- --onboard
     ```
@@ -216,32 +216,32 @@ Designed for environments where you want everything under a local prefix (defaul
 </Tabs>
 
 <AccordionGroup>
-  <Accordion title="Flags reference">
+  <Accordion title="Tham khảo các flag">
 
-| Flag                   | Description                                                                     |
-| ---------------------- | ------------------------------------------------------------------------------- |
-| `--prefix <path>`      | Install prefix (default: `~/.openclaw`)                                         |
-| `--version <ver>`      | OpenClaw version or dist-tag (default: `latest`)                                |
-| `--node-version <ver>` | Node version (default: `22.22.0`)                                               |
-| `--json`               | Emit NDJSON events                                                              |
-| `--onboard`            | Run `openclaw onboard` after install                                            |
-| `--no-onboard`         | Skip onboarding (default)                                                       |
-| `--set-npm-prefix`     | On Linux, force npm prefix to `~/.npm-global` if current prefix is not writable |
-| `--help`               | Show usage (`-h`)                                                               |
+| Flag                   | Mô tả                                                                           |
+| ---------------------- | -------------------------------------------------------------------------------- |
+| `--prefix <path>`      | Prefix cài đặt (mặc định: `~/.openclaw`)                                         |
+| `--version <ver>`      | Phiên bản OpenClaw hoặc dist-tag (mặc định: `latest`)                            |
+| `--node-version <ver>` | Phiên bản Node (mặc định: `22.22.0`)                                             |
+| `--json`               | Xuất sự kiện NDJSON                                                              |
+| `--onboard`            | Chạy `openclaw onboard` sau khi cài đặt                                          |
+| `--no-onboard`         | Bỏ qua onboarding (mặc định)                                                     |
+| `--set-npm-prefix`     | Trên Linux, buộc npm prefix thành `~/.npm-global` nếu prefix hiện tại không ghi được |
+| `--help`               | Hiển thị cách sử dụng (`-h`)                                                     |
 
   </Accordion>
 
-  <Accordion title="Environment variables reference">
+  <Accordion title="Tham khảo các biến môi trường">
 
-| Variable                                    | Description                                                                       |
-| ------------------------------------------- | --------------------------------------------------------------------------------- |
-| `OPENCLAW_PREFIX=<path>`                    | Install prefix                                                                    |
-| `OPENCLAW_VERSION=<ver>`                    | OpenClaw version or dist-tag                                                      |
-| `OPENCLAW_NODE_VERSION=<ver>`               | Node version                                                                      |
-| `OPENCLAW_NO_ONBOARD=1`                     | Skip onboarding                                                                   |
-| `OPENCLAW_NPM_LOGLEVEL=error\|warn\|notice` | npm log level                                                                     |
-| `OPENCLAW_GIT_DIR=<path>`                   | Legacy cleanup lookup path (used when removing old `Peekaboo` submodule checkout) |
-| `SHARP_IGNORE_GLOBAL_LIBVIPS=0\|1`          | Control sharp/libvips behavior (default: `1`)                                     |
+| Biến                                       | Mô tả                                                                           |
+| ------------------------------------------ | -------------------------------------------------------------------------------- |
+| `OPENCLAW_PREFIX=<path>`                   | Prefix cài đặt                                                                  |
+| `OPENCLAW_VERSION=<ver>`                   | Phiên bản OpenClaw hoặc dist-tag                                                |
+| `OPENCLAW_NODE_VERSION=<ver>`              | Phiên bản Node                                                                  |
+| `OPENCLAW_NO_ONBOARD=1`                    | Bỏ qua onboarding                                                               |
+| `OPENCLAW_NPM_LOGLEVEL=error\|warn\|notice`| Mức độ nhật ký npm                                                              |
+| `OPENCLAW_GIT_DIR=<path>`                  | Đường dẫn tìm kiếm dọn dẹp cũ (sử dụng khi loại bỏ checkout submodule `Peekaboo` cũ) |
+| `SHARP_IGNORE_GLOBAL_LIBVIPS=0\|1`         | Kiểm soát hành vi sharp/libvips (mặc định: `1`)                                 |
 
   </Accordion>
 </AccordionGroup>
@@ -250,55 +250,55 @@ Designed for environments where you want everything under a local prefix (defaul
 
 ## install.ps1
 
-### Flow (install.ps1)
+### Quy trình (install.ps1)
 
 <Steps>
-  <Step title="Ensure PowerShell + Windows environment">
-    Requires PowerShell 5+.
+  <Step title="Đảm bảo môi trường PowerShell + Windows">
+    Yêu cầu PowerShell 5+.
   </Step>
-  <Step title="Ensure Node.js 24 by default">
-    If missing, attempts install via winget, then Chocolatey, then Scoop. Node 22 LTS, currently `22.16+`, remains supported for compatibility.
+  <Step title="Đảm bảo Node.js 24 mặc định">
+    Nếu thiếu, cố gắng cài đặt qua winget, sau đó Chocolatey, rồi Scoop. Node 22 LTS, hiện tại là `22.16+`, vẫn được hỗ trợ để tương thích.
   </Step>
-  <Step title="Install OpenClaw">
-    - `npm` method (default): global npm install using selected `-Tag`
-    - `git` method: clone/update repo, install/build with pnpm, and install wrapper at `%USERPROFILE%\.local\bin\openclaw.cmd`
+  <Step title="Cài đặt OpenClaw">
+    - Phương pháp `npm` (mặc định): cài đặt npm toàn cầu sử dụng `-Tag` đã chọn
+    - Phương pháp `git`: clone/cập nhật repo, cài đặt/xây dựng với pnpm, và cài đặt wrapper tại `%USERPROFILE%\.local\bin\openclaw.cmd`
   </Step>
-  <Step title="Post-install tasks">
-    Adds needed bin directory to user PATH when possible, then runs `openclaw doctor --non-interactive` on upgrades and git installs (best effort).
+  <Step title="Nhiệm vụ sau cài đặt">
+    Thêm thư mục bin cần thiết vào PATH người dùng khi có thể, sau đó chạy `openclaw doctor --non-interactive` khi nâng cấp và cài đặt git (nỗ lực tốt nhất).
   </Step>
 </Steps>
 
-### Examples (install.ps1)
+### Ví dụ (install.ps1)
 
 <Tabs>
-  <Tab title="Default">
+  <Tab title="Mặc định">
     ```powershell
     iwr -useb https://openclaw.ai/install.ps1 | iex
     ```
   </Tab>
-  <Tab title="Git install">
+  <Tab title="Cài đặt Git">
     ```powershell
     & ([scriptblock]::Create((iwr -useb https://openclaw.ai/install.ps1))) -InstallMethod git
     ```
   </Tab>
-  <Tab title="GitHub main via npm">
+  <Tab title="GitHub main qua npm">
     ```powershell
     & ([scriptblock]::Create((iwr -useb https://openclaw.ai/install.ps1))) -Tag main
     ```
   </Tab>
-  <Tab title="Custom git directory">
+  <Tab title="Thư mục git tùy chỉnh">
     ```powershell
     & ([scriptblock]::Create((iwr -useb https://openclaw.ai/install.ps1))) -InstallMethod git -GitDir "C:\openclaw"
     ```
   </Tab>
-  <Tab title="Dry run">
+  <Tab title="Chạy thử">
     ```powershell
     & ([scriptblock]::Create((iwr -useb https://openclaw.ai/install.ps1))) -DryRun
     ```
   </Tab>
-  <Tab title="Debug trace">
+  <Tab title="Dấu vết debug">
     ```powershell
-    # install.ps1 has no dedicated -Verbose flag yet.
+    # install.ps1 chưa có flag -Verbose riêng.
     Set-PSDebug -Trace 1
     & ([scriptblock]::Create((iwr -useb https://openclaw.ai/install.ps1))) -NoOnboard
     Set-PSDebug -Trace 0
@@ -307,49 +307,49 @@ Designed for environments where you want everything under a local prefix (defaul
 </Tabs>
 
 <AccordionGroup>
-  <Accordion title="Flags reference">
+  <Accordion title="Tham khảo các flag">
 
-| Flag                        | Description                                                |
+| Flag                        | Mô tả                                                      |
 | --------------------------- | ---------------------------------------------------------- |
-| `-InstallMethod npm\|git`   | Install method (default: `npm`)                            |
-| `-Tag <tag\|version\|spec>` | npm dist-tag, version, or package spec (default: `latest`) |
-| `-GitDir <path>`            | Checkout directory (default: `%USERPROFILE%\openclaw`)     |
-| `-NoOnboard`                | Skip onboarding                                            |
-| `-NoGitUpdate`              | Skip `git pull`                                            |
-| `-DryRun`                   | Print actions only                                         |
+| `-InstallMethod npm\|git`   | Phương pháp cài đặt (mặc định: `npm`)                      |
+| `-Tag <tag\|version\|spec>` | npm dist-tag, phiên bản, hoặc spec package (mặc định: `latest`) |
+| `-GitDir <path>`            | Thư mục checkout (mặc định: `%USERPROFILE%\openclaw`)      |
+| `-NoOnboard`                | Bỏ qua onboarding                                          |
+| `-NoGitUpdate`              | Bỏ qua `git pull`                                          |
+| `-DryRun`                   | Chỉ in ra các hành động                                    |
 
   </Accordion>
 
-  <Accordion title="Environment variables reference">
+  <Accordion title="Tham khảo các biến môi trường">
 
-| Variable                           | Description        |
-| ---------------------------------- | ------------------ |
-| `OPENCLAW_INSTALL_METHOD=git\|npm` | Install method     |
-| `OPENCLAW_GIT_DIR=<path>`          | Checkout directory |
-| `OPENCLAW_NO_ONBOARD=1`            | Skip onboarding    |
-| `OPENCLAW_GIT_UPDATE=0`            | Disable git pull   |
-| `OPENCLAW_DRY_RUN=1`               | Dry run mode       |
+| Biến                              | Mô tả                  |
+| --------------------------------- | ---------------------- |
+| `OPENCLAW_INSTALL_METHOD=git\|npm`| Phương pháp cài đặt    |
+| `OPENCLAW_GIT_DIR=<path>`         | Thư mục checkout       |
+| `OPENCLAW_NO_ONBOARD=1`           | Bỏ qua onboarding      |
+| `OPENCLAW_GIT_UPDATE=0`           | Vô hiệu hóa git pull   |
+| `OPENCLAW_DRY_RUN=1`              | Chế độ chạy thử        |
 
   </Accordion>
 </AccordionGroup>
 
 <Note>
-If `-InstallMethod git` is used and Git is missing, the script exits and prints the Git for Windows link.
+Nếu sử dụng `-InstallMethod git` và Git thiếu, script sẽ thoát và in ra liên kết Git for Windows.
 </Note>
 
 ---
 
-## CI and automation
+## CI và tự động hóa
 
-Use non-interactive flags/env vars for predictable runs.
+Sử dụng các flag/biến môi trường không tương tác để chạy ổn định.
 
 <Tabs>
-  <Tab title="install.sh (non-interactive npm)">
+  <Tab title="install.sh (npm không tương tác)">
     ```bash
     curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --no-prompt --no-onboard
     ```
   </Tab>
-  <Tab title="install.sh (non-interactive git)">
+  <Tab title="install.sh (git không tương tác)">
     ```bash
     OPENCLAW_INSTALL_METHOD=git OPENCLAW_NO_PROMPT=1 \
       curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash
@@ -360,7 +360,7 @@ Use non-interactive flags/env vars for predictable runs.
     curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install-cli.sh | bash -s -- --json --prefix /opt/openclaw
     ```
   </Tab>
-  <Tab title="install.ps1 (skip onboarding)">
+  <Tab title="install.ps1 (bỏ qua onboarding)">
     ```powershell
     & ([scriptblock]::Create((iwr -useb https://openclaw.ai/install.ps1))) -NoOnboard
     ```
@@ -369,19 +369,19 @@ Use non-interactive flags/env vars for predictable runs.
 
 ---
 
-## Troubleshooting
+## Khắc phục sự cố
 
 <AccordionGroup>
-  <Accordion title="Why is Git required?">
-    Git is required for `git` install method. For `npm` installs, Git is still checked/installed to avoid `spawn git ENOENT` failures when dependencies use git URLs.
+  <Accordion title="Tại sao cần Git?">
+    Git cần thiết cho phương pháp cài đặt `git`. Đối với cài đặt `npm`, Git vẫn được kiểm tra/cài đặt để tránh lỗi `spawn git ENOENT` khi các phụ thuộc sử dụng URL git.
   </Accordion>
 
-  <Accordion title="Why does npm hit EACCES on Linux?">
-    Some Linux setups point npm global prefix to root-owned paths. `install.sh` can switch prefix to `~/.npm-global` and append PATH exports to shell rc files (when those files exist).
+  <Accordion title="Tại sao npm gặp lỗi EACCES trên Linux?">
+    Một số thiết lập Linux chỉ định npm global prefix đến các đường dẫn thuộc quyền root. `install.sh` có thể chuyển prefix thành `~/.npm-global` và thêm các xuất PATH vào các file rc shell (khi các file đó tồn tại).
   </Accordion>
 
-  <Accordion title="sharp/libvips issues">
-    The scripts default `SHARP_IGNORE_GLOBAL_LIBVIPS=1` to avoid sharp building against system libvips. To override:
+  <Accordion title="Vấn đề sharp/libvips">
+    Các script mặc định `SHARP_IGNORE_GLOBAL_LIBVIPS=1` để tránh sharp xây dựng dựa trên libvips hệ thống. Để ghi đè:
 
     ```bash
     SHARP_IGNORE_GLOBAL_LIBVIPS=0 curl -fsSL --proto '=https' --tlsv1.2 https://openclaw.ai/install.sh | bash
@@ -390,16 +390,16 @@ Use non-interactive flags/env vars for predictable runs.
   </Accordion>
 
   <Accordion title='Windows: "npm error spawn git / ENOENT"'>
-    Install Git for Windows, reopen PowerShell, rerun installer.
+    Cài đặt Git for Windows, mở lại PowerShell, chạy lại installer.
   </Accordion>
 
-  <Accordion title='Windows: "openclaw is not recognized"'>
-    Run `npm config get prefix` and add that directory to your user PATH (no `\bin` suffix needed on Windows), then reopen PowerShell.
+  <Accordion title='Windows: "openclaw không được nhận diện"'>
+    Chạy `npm config get prefix` và thêm thư mục đó vào PATH người dùng của bạn (không cần hậu tố `\bin` trên Windows), sau đó mở lại PowerShell.
   </Accordion>
 
-  <Accordion title="Windows: how to get verbose installer output">
-    `install.ps1` does not currently expose a `-Verbose` switch.
-    Use PowerShell tracing for script-level diagnostics:
+  <Accordion title="Windows: làm thế nào để có đầu ra installer chi tiết">
+    `install.ps1` hiện không cung cấp switch `-Verbose`.
+    Sử dụng theo dõi PowerShell để chẩn đoán cấp độ script:
 
     ```powershell
     Set-PSDebug -Trace 1
@@ -409,7 +409,7 @@ Use non-interactive flags/env vars for predictable runs.
 
   </Accordion>
 
-  <Accordion title="openclaw not found after install">
-    Usually a PATH issue. See [Node.js troubleshooting](/install/node#troubleshooting).
+  <Accordion title="openclaw không tìm thấy sau khi cài đặt">
+    Thường là vấn đề PATH. Xem [khắc phục sự cố Node.js](/install/node#troubleshooting).
   </Accordion>
 </AccordionGroup>

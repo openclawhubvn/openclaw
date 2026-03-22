@@ -1,79 +1,79 @@
 ---
-summary: "Broadcast a WhatsApp message to multiple agents"
+summary: "Gửi tin nhắn WhatsApp đến nhiều agent"
 read_when:
-  - Configuring broadcast groups
-  - Debugging multi-agent replies in WhatsApp
+  - Cấu hình nhóm phát sóng
+  - Khắc phục sự cố phản hồi đa agent trên WhatsApp
 status: experimental
-title: "Broadcast Groups"
+title: "Nhóm Phát Sóng"
 ---
 
-# Broadcast Groups
+# Nhóm Phát Sóng
 
-**Status:** Experimental  
-**Version:** Added in 2026.1.9
+**Trạng thái:** Thử nghiệm  
+**Phiên bản:** Thêm vào 2026.1.9
 
-## Overview
+## Tổng Quan
 
-Broadcast Groups enable multiple agents to process and respond to the same message simultaneously. This allows you to create specialized agent teams that work together in a single WhatsApp group or DM — all using one phone number.
+Nhóm Phát Sóng cho phép nhiều agent xử lý và phản hồi cùng một tin nhắn đồng thời. Điều này giúp tạo ra các nhóm agent chuyên biệt làm việc cùng nhau trong một nhóm WhatsApp hoặc tin nhắn trực tiếp — tất cả sử dụng một số điện thoại duy nhất.
 
-Current scope: **WhatsApp only** (web channel).
+Phạm vi hiện tại: **Chỉ WhatsApp** (kênh web).
 
-Broadcast groups are evaluated after channel allowlists and group activation rules. In WhatsApp groups, this means broadcasts happen when OpenClaw would normally reply (for example: on mention, depending on your group settings).
+Nhóm phát sóng được đánh giá sau khi danh sách cho phép kênh và quy tắc kích hoạt nhóm được áp dụng. Trong các nhóm WhatsApp, điều này có nghĩa là phát sóng xảy ra khi OpenClaw thường trả lời (ví dụ: khi được nhắc đến, tùy thuộc vào cài đặt nhóm của bạn).
 
-## Use Cases
+## Trường Hợp Sử Dụng
 
-### 1. Specialized Agent Teams
+### 1. Nhóm Agent Chuyên Biệt
 
-Deploy multiple agents with atomic, focused responsibilities:
+Triển khai nhiều agent với trách nhiệm cụ thể, tập trung:
 
 ```
-Group: "Development Team"
+Nhóm: "Nhóm Phát Triển"
 Agents:
-  - CodeReviewer (reviews code snippets)
-  - DocumentationBot (generates docs)
-  - SecurityAuditor (checks for vulnerabilities)
-  - TestGenerator (suggests test cases)
+  - CodeReviewer (kiểm tra đoạn mã)
+  - DocumentationBot (tạo tài liệu)
+  - SecurityAuditor (kiểm tra lỗ hổng bảo mật)
+  - TestGenerator (đề xuất trường hợp kiểm thử)
 ```
 
-Each agent processes the same message and provides its specialized perspective.
+Mỗi agent xử lý cùng một tin nhắn và cung cấp góc nhìn chuyên môn của mình.
 
-### 2. Multi-Language Support
+### 2. Hỗ Trợ Đa Ngôn Ngữ
 
 ```
-Group: "International Support"
+Nhóm: "Hỗ Trợ Quốc Tế"
 Agents:
-  - Agent_EN (responds in English)
-  - Agent_DE (responds in German)
-  - Agent_ES (responds in Spanish)
+  - Agent_EN (phản hồi bằng tiếng Anh)
+  - Agent_DE (phản hồi bằng tiếng Đức)
+  - Agent_ES (phản hồi bằng tiếng Tây Ban Nha)
 ```
 
-### 3. Quality Assurance Workflows
+### 3. Quy Trình Đảm Bảo Chất Lượng
 
 ```
-Group: "Customer Support"
+Nhóm: "Hỗ Trợ Khách Hàng"
 Agents:
-  - SupportAgent (provides answer)
-  - QAAgent (reviews quality, only responds if issues found)
+  - SupportAgent (cung cấp câu trả lời)
+  - QAAgent (kiểm tra chất lượng, chỉ phản hồi nếu phát hiện vấn đề)
 ```
 
-### 4. Task Automation
+### 4. Tự Động Hóa Nhiệm Vụ
 
 ```
-Group: "Project Management"
+Nhóm: "Quản Lý Dự Án"
 Agents:
-  - TaskTracker (updates task database)
-  - TimeLogger (logs time spent)
-  - ReportGenerator (creates summaries)
+  - TaskTracker (cập nhật cơ sở dữ liệu nhiệm vụ)
+  - TimeLogger (ghi lại thời gian sử dụng)
+  - ReportGenerator (tạo báo cáo tóm tắt)
 ```
 
-## Configuration
+## Cấu Hình
 
-### Basic Setup
+### Thiết Lập Cơ Bản
 
-Add a top-level `broadcast` section (next to `bindings`). Keys are WhatsApp peer ids:
+Thêm một phần `broadcast` ở cấp cao nhất (bên cạnh `bindings`). Các khóa là ID peer WhatsApp:
 
-- group chats: group JID (e.g. `120363403215116621@g.us`)
-- DMs: E.164 phone number (e.g. `+15551234567`)
+- nhóm chat: JID nhóm (ví dụ: `120363403215116621@g.us`)
+- tin nhắn trực tiếp: số điện thoại E.164 (ví dụ: `+15551234567`)
 
 ```json
 {
@@ -83,15 +83,15 @@ Add a top-level `broadcast` section (next to `bindings`). Keys are WhatsApp peer
 }
 ```
 
-**Result:** When OpenClaw would reply in this chat, it will run all three agents.
+**Kết quả:** Khi OpenClaw sẽ trả lời trong cuộc trò chuyện này, nó sẽ chạy cả ba agent.
 
-### Processing Strategy
+### Chiến Lược Xử Lý
 
-Control how agents process messages:
+Kiểm soát cách các agent xử lý tin nhắn:
 
-#### Parallel (Default)
+#### Song Song (Mặc Định)
 
-All agents process simultaneously:
+Tất cả các agent xử lý đồng thời:
 
 ```json
 {
@@ -102,9 +102,9 @@ All agents process simultaneously:
 }
 ```
 
-#### Sequential
+#### Tuần Tự
 
-Agents process in order (one waits for previous to finish):
+Các agent xử lý theo thứ tự (một agent chờ agent trước hoàn thành):
 
 ```json
 {
@@ -115,7 +115,7 @@ Agents process in order (one waits for previous to finish):
 }
 ```
 
-### Complete Example
+### Ví Dụ Hoàn Chỉnh
 
 ```json
 {
@@ -123,19 +123,19 @@ Agents process in order (one waits for previous to finish):
     "list": [
       {
         "id": "code-reviewer",
-        "name": "Code Reviewer",
+        "name": "Người Kiểm Tra Mã",
         "workspace": "/path/to/code-reviewer",
         "sandbox": { "mode": "all" }
       },
       {
         "id": "security-auditor",
-        "name": "Security Auditor",
+        "name": "Kiểm Toán Bảo Mật",
         "workspace": "/path/to/security-auditor",
         "sandbox": { "mode": "all" }
       },
       {
         "id": "docs-generator",
-        "name": "Documentation Generator",
+        "name": "Trình Tạo Tài Liệu",
         "workspace": "/path/to/docs-generator",
         "sandbox": { "mode": "all" }
       }
@@ -150,66 +150,66 @@ Agents process in order (one waits for previous to finish):
 }
 ```
 
-## How It Works
+## Cách Hoạt Động
 
-### Message Flow
+### Luồng Tin Nhắn
 
-1. **Incoming message** arrives in a WhatsApp group
-2. **Broadcast check**: System checks if peer ID is in `broadcast`
-3. **If in broadcast list**:
-   - All listed agents process the message
-   - Each agent has its own session key and isolated context
-   - Agents process in parallel (default) or sequentially
-4. **If not in broadcast list**:
-   - Normal routing applies (first matching binding)
+1. **Tin nhắn đến** trong một nhóm WhatsApp
+2. **Kiểm tra phát sóng**: Hệ thống kiểm tra xem ID peer có trong `broadcast` không
+3. **Nếu có trong danh sách phát sóng**:
+   - Tất cả các agent được liệt kê xử lý tin nhắn
+   - Mỗi agent có khóa phiên riêng và ngữ cảnh cách ly
+   - Các agent xử lý song song (mặc định) hoặc tuần tự
+4. **Nếu không có trong danh sách phát sóng**:
+   - Áp dụng định tuyến thông thường (ràng buộc đầu tiên phù hợp)
 
-Note: broadcast groups do not bypass channel allowlists or group activation rules (mentions/commands/etc). They only change _which agents run_ when a message is eligible for processing.
+Lưu ý: nhóm phát sóng không bỏ qua danh sách cho phép kênh hoặc quy tắc kích hoạt nhóm (nhắc đến/lệnh/etc). Chúng chỉ thay đổi _những agent nào chạy_ khi một tin nhắn đủ điều kiện để xử lý.
 
-### Session Isolation
+### Cách Ly Phiên
 
-Each agent in a broadcast group maintains completely separate:
+Mỗi agent trong một nhóm phát sóng duy trì hoàn toàn riêng biệt:
 
-- **Session keys** (`agent:alfred:whatsapp:group:120363...` vs `agent:baerbel:whatsapp:group:120363...`)
-- **Conversation history** (agent doesn't see other agents' messages)
-- **Workspace** (separate sandboxes if configured)
-- **Tool access** (different allow/deny lists)
-- **Memory/context** (separate IDENTITY.md, SOUL.md, etc.)
-- **Group context buffer** (recent group messages used for context) is shared per peer, so all broadcast agents see the same context when triggered
+- **Khóa phiên** (`agent:alfred:whatsapp:group:120363...` so với `agent:baerbel:whatsapp:group:120363...`)
+- **Lịch sử hội thoại** (agent không thấy tin nhắn của các agent khác)
+- **Workspace** (các sandbox riêng biệt nếu được cấu hình)
+- **Truy cập công cụ** (danh sách cho phép/chặn khác nhau)
+- **Bộ nhớ/ngữ cảnh** (IDENTITY.md, SOUL.md, v.v. riêng biệt)
+- **Bộ đệm ngữ cảnh nhóm** (tin nhắn nhóm gần đây được sử dụng cho ngữ cảnh) được chia sẻ cho mỗi peer, vì vậy tất cả các agent phát sóng thấy cùng một ngữ cảnh khi được kích hoạt
 
-This allows each agent to have:
+Điều này cho phép mỗi agent có:
 
-- Different personalities
-- Different tool access (e.g., read-only vs. read-write)
-- Different models (e.g., opus vs. sonnet)
-- Different skills installed
+- Tính cách khác nhau
+- Truy cập công cụ khác nhau (ví dụ: chỉ đọc so với đọc-ghi)
+- Mô hình khác nhau (ví dụ: opus so với sonnet)
+- Kỹ năng cài đặt khác nhau
 
-### Example: Isolated Sessions
+### Ví Dụ: Phiên Cách Ly
 
-In group `120363403215116621@g.us` with agents `["alfred", "baerbel"]`:
+Trong nhóm `120363403215116621@g.us` với các agent `["alfred", "baerbel"]`:
 
-**Alfred's context:**
+**Ngữ cảnh của Alfred:**
 
 ```
-Session: agent:alfred:whatsapp:group:120363403215116621@g.us
-History: [user message, alfred's previous responses]
+Phiên: agent:alfred:whatsapp:group:120363403215116621@g.us
+Lịch sử: [tin nhắn người dùng, phản hồi trước của alfred]
 Workspace: /Users/pascal/openclaw-alfred/
-Tools: read, write, exec
+Công cụ: đọc, ghi, thực thi
 ```
 
-**Bärbel's context:**
+**Ngữ cảnh của Bärbel:**
 
 ```
-Session: agent:baerbel:whatsapp:group:120363403215116621@g.us
-History: [user message, baerbel's previous responses]
+Phiên: agent:baerbel:whatsapp:group:120363403215116621@g.us
+Lịch sử: [tin nhắn người dùng, phản hồi trước của baerbel]
 Workspace: /Users/pascal/openclaw-baerbel/
-Tools: read only
+Công cụ: chỉ đọc
 ```
 
-## Best Practices
+## Thực Hành Tốt Nhất
 
-### 1. Keep Agents Focused
+### 1. Giữ Cho Agent Tập Trung
 
-Design each agent with a single, clear responsibility:
+Thiết kế mỗi agent với một trách nhiệm rõ ràng, duy nhất:
 
 ```json
 {
@@ -219,71 +219,71 @@ Design each agent with a single, clear responsibility:
 }
 ```
 
-✅ **Good:** Each agent has one job  
-❌ **Bad:** One generic "dev-helper" agent
+✅ **Tốt:** Mỗi agent có một công việc  
+❌ **Xấu:** Một agent "dev-helper" chung chung
 
-### 2. Use Descriptive Names
+### 2. Sử Dụng Tên Mô Tả
 
-Make it clear what each agent does:
+Làm rõ mỗi agent thực hiện công việc gì:
 
 ```json
 {
   "agents": {
-    "security-scanner": { "name": "Security Scanner" },
-    "code-formatter": { "name": "Code Formatter" },
-    "test-generator": { "name": "Test Generator" }
+    "security-scanner": { "name": "Máy Quét Bảo Mật" },
+    "code-formatter": { "name": "Trình Định Dạng Mã" },
+    "test-generator": { "name": "Trình Tạo Kiểm Thử" }
   }
 }
 ```
 
-### 3. Configure Different Tool Access
+### 3. Cấu Hình Truy Cập Công Cụ Khác Nhau
 
-Give agents only the tools they need:
+Chỉ cung cấp cho agent các công cụ cần thiết:
 
 ```json
 {
   "agents": {
     "reviewer": {
-      "tools": { "allow": ["read", "exec"] } // Read-only
+      "tools": { "allow": ["read", "exec"] } // Chỉ đọc
     },
     "fixer": {
-      "tools": { "allow": ["read", "write", "edit", "exec"] } // Read-write
+      "tools": { "allow": ["read", "write", "edit", "exec"] } // Đọc-ghi
     }
   }
 }
 ```
 
-### 4. Monitor Performance
+### 4. Giám Sát Hiệu Suất
 
-With many agents, consider:
+Với nhiều agent, hãy cân nhắc:
 
-- Using `"strategy": "parallel"` (default) for speed
-- Limiting broadcast groups to 5-10 agents
-- Using faster models for simpler agents
+- Sử dụng `"strategy": "parallel"` (mặc định) để tăng tốc độ
+- Giới hạn nhóm phát sóng từ 5-10 agent
+- Sử dụng mô hình nhanh hơn cho các agent đơn giản
 
-### 5. Handle Failures Gracefully
+### 5. Xử Lý Lỗi Một Cách Linh Hoạt
 
-Agents fail independently. One agent's error doesn't block others:
+Các agent thất bại độc lập. Lỗi của một agent không chặn các agent khác:
 
 ```
-Message → [Agent A ✓, Agent B ✗ error, Agent C ✓]
-Result: Agent A and C respond, Agent B logs error
+Tin nhắn → [Agent A ✓, Agent B ✗ lỗi, Agent C ✓]
+Kết quả: Agent A và C phản hồi, Agent B ghi lại lỗi
 ```
 
-## Compatibility
+## Tương Thích
 
-### Providers
+### Nhà Cung Cấp
 
-Broadcast groups currently work with:
+Nhóm phát sóng hiện hoạt động với:
 
-- ✅ WhatsApp (implemented)
-- 🚧 Telegram (planned)
-- 🚧 Discord (planned)
-- 🚧 Slack (planned)
+- ✅ WhatsApp (đã triển khai)
+- 🚧 Telegram (dự kiến)
+- 🚧 Discord (dự kiến)
+- 🚧 Slack (dự kiến)
 
-### Routing
+### Định Tuyến
 
-Broadcast groups work alongside existing routing:
+Nhóm phát sóng hoạt động song song với định tuyến hiện có:
 
 ```json
 {
@@ -299,44 +299,44 @@ Broadcast groups work alongside existing routing:
 }
 ```
 
-- `GROUP_A`: Only alfred responds (normal routing)
-- `GROUP_B`: agent1 AND agent2 respond (broadcast)
+- `GROUP_A`: Chỉ alfred phản hồi (định tuyến thông thường)
+- `GROUP_B`: agent1 VÀ agent2 phản hồi (phát sóng)
 
-**Precedence:** `broadcast` takes priority over `bindings`.
+**Ưu tiên:** `broadcast` có ưu tiên hơn `bindings`.
 
-## Troubleshooting
+## Khắc Phục Sự Cố
 
-### Agents Not Responding
+### Agent Không Phản Hồi
 
-**Check:**
+**Kiểm tra:**
 
-1. Agent IDs exist in `agents.list`
-2. Peer ID format is correct (e.g., `120363403215116621@g.us`)
-3. Agents are not in deny lists
+1. ID agent tồn tại trong `agents.list`
+2. Định dạng ID peer đúng (ví dụ: `120363403215116621@g.us`)
+3. Agent không nằm trong danh sách chặn
 
-**Debug:**
+**Gỡ lỗi:**
 
 ```bash
 tail -f ~/.openclaw/logs/gateway.log | grep broadcast
 ```
 
-### Only One Agent Responding
+### Chỉ Một Agent Phản Hồi
 
-**Cause:** Peer ID might be in `bindings` but not `broadcast`.
+**Nguyên nhân:** ID peer có thể nằm trong `bindings` nhưng không trong `broadcast`.
 
-**Fix:** Add to broadcast config or remove from bindings.
+**Khắc phục:** Thêm vào cấu hình phát sóng hoặc xóa khỏi bindings.
 
-### Performance Issues
+### Vấn Đề Hiệu Suất
 
-**If slow with many agents:**
+**Nếu chậm với nhiều agent:**
 
-- Reduce number of agents per group
-- Use lighter models (sonnet instead of opus)
-- Check sandbox startup time
+- Giảm số lượng agent mỗi nhóm
+- Sử dụng mô hình nhẹ hơn (sonnet thay vì opus)
+- Kiểm tra thời gian khởi động sandbox
 
-## Examples
+## Ví Dụ
 
-### Example 1: Code Review Team
+### Ví Dụ 1: Nhóm Kiểm Tra Mã
 
 ```json
 {
@@ -372,15 +372,15 @@ tail -f ~/.openclaw/logs/gateway.log | grep broadcast
 }
 ```
 
-**User sends:** Code snippet  
-**Responses:**
+**Người dùng gửi:** Đoạn mã  
+**Phản hồi:**
 
-- code-formatter: "Fixed indentation and added type hints"
-- security-scanner: "⚠️ SQL injection vulnerability in line 12"
-- test-coverage: "Coverage is 45%, missing tests for error cases"
-- docs-checker: "Missing docstring for function `process_data`"
+- code-formatter: "Đã sửa lỗi thụt lề và thêm gợi ý kiểu"
+- security-scanner: "⚠️ Lỗ hổng SQL injection ở dòng 12"
+- test-coverage: "Độ phủ là 45%, thiếu kiểm thử cho các trường hợp lỗi"
+- docs-checker: "Thiếu docstring cho hàm `process_data`"
 
-### Example 2: Multi-Language Support
+### Ví Dụ 2: Hỗ Trợ Đa Ngôn Ngữ
 
 ```json
 {
@@ -398,9 +398,9 @@ tail -f ~/.openclaw/logs/gateway.log | grep broadcast
 }
 ```
 
-## API Reference
+## Tham Khảo API
 
-### Config Schema
+### Cấu Trúc Cấu Hình
 
 ```typescript
 interface OpenClawConfig {
@@ -411,32 +411,32 @@ interface OpenClawConfig {
 }
 ```
 
-### Fields
+### Các Trường
 
-- `strategy` (optional): How to process agents
-  - `"parallel"` (default): All agents process simultaneously
-  - `"sequential"`: Agents process in array order
-- `[peerId]`: WhatsApp group JID, E.164 number, or other peer ID
-  - Value: Array of agent IDs that should process messages
+- `strategy` (tùy chọn): Cách xử lý agent
+  - `"parallel"` (mặc định): Tất cả các agent xử lý đồng thời
+  - `"sequential"`: Các agent xử lý theo thứ tự trong mảng
+- `[peerId]`: JID nhóm WhatsApp, số E.164, hoặc ID peer khác
+  - Giá trị: Mảng ID agent nên xử lý tin nhắn
 
-## Limitations
+## Giới Hạn
 
-1. **Max agents:** No hard limit, but 10+ agents may be slow
-2. **Shared context:** Agents don't see each other's responses (by design)
-3. **Message ordering:** Parallel responses may arrive in any order
-4. **Rate limits:** All agents count toward WhatsApp rate limits
+1. **Số lượng agent tối đa:** Không có giới hạn cứng, nhưng 10+ agent có thể chậm
+2. **Ngữ cảnh chia sẻ:** Các agent không thấy phản hồi của nhau (theo thiết kế)
+3. **Thứ tự tin nhắn:** Phản hồi song song có thể đến theo bất kỳ thứ tự nào
+4. **Giới hạn tốc độ:** Tất cả các agent đều tính vào giới hạn tốc độ của WhatsApp
 
-## Future Enhancements
+## Cải Tiến Tương Lai
 
-Planned features:
+Các tính năng dự kiến:
 
-- [ ] Shared context mode (agents see each other's responses)
-- [ ] Agent coordination (agents can signal each other)
-- [ ] Dynamic agent selection (choose agents based on message content)
-- [ ] Agent priorities (some agents respond before others)
+- [ ] Chế độ ngữ cảnh chia sẻ (các agent thấy phản hồi của nhau)
+- [ ] Phối hợp agent (các agent có thể báo hiệu cho nhau)
+- [ ] Lựa chọn agent động (chọn agent dựa trên nội dung tin nhắn)
+- [ ] Ưu tiên agent (một số agent phản hồi trước các agent khác)
 
-## See Also
+## Xem Thêm
 
-- [Multi-Agent Configuration](/tools/multi-agent-sandbox-tools)
-- [Routing Configuration](/channels/channel-routing)
-- [Session Management](/concepts/session)
+- [Cấu Hình Đa Agent](/tools/multi-agent-sandbox-tools)
+- [Cấu Hình Định Tuyến](/channels/channel-routing)
+- [Quản Lý Phiên](/concepts/session)

@@ -1,36 +1,36 @@
 ---
-summary: "How OpenClaw vendors Apple device model identifiers for friendly names in the macOS app."
+summary: "Cách OpenClaw chuyển đổi mã định danh thiết bị Apple thành tên thân thiện trong ứng dụng macOS."
 read_when:
-  - Updating device model identifier mappings or NOTICE/license files
-  - Changing how Instances UI displays device names
-title: "Device Model Database"
+  - Cập nhật ánh xạ mã định danh thiết bị hoặc tệp NOTICE/license
+  - Thay đổi cách giao diện Instances hiển thị tên thiết bị
+title: "Cơ sở dữ liệu mô hình thiết bị"
 ---
 
-# Device model database (friendly names)
+# Cơ sở dữ liệu mô hình thiết bị (tên thân thiện)
 
-The macOS companion app shows friendly Apple device model names in the **Instances** UI by mapping Apple model identifiers (e.g. `iPad16,6`, `Mac16,6`) to human-readable names.
+Ứng dụng đi kèm trên macOS hiển thị tên thiết bị Apple thân thiện trong giao diện **Instances** bằng cách ánh xạ mã định danh mô hình Apple (ví dụ: `iPad16,6`, `Mac16,6`) sang tên dễ đọc.
 
-The mapping is vendored as JSON under:
+Ánh xạ này được lưu trữ dưới dạng JSON tại:
 
 - `apps/macos/Sources/OpenClaw/Resources/DeviceModels/`
 
-## Data source
+## Nguồn dữ liệu
 
-We currently vendor the mapping from the MIT-licensed repository:
+Hiện tại, chúng tôi sử dụng ánh xạ từ kho MIT-licensed:
 
 - `kyle-seongwoo-jun/apple-device-identifiers`
 
-To keep builds deterministic, the JSON files are pinned to specific upstream commits (recorded in `apps/macos/Sources/OpenClaw/Resources/DeviceModels/NOTICE.md`).
+Để đảm bảo các bản build ổn định, các tệp JSON được gắn với các commit cụ thể từ upstream (được ghi lại trong `apps/macos/Sources/OpenClaw/Resources/DeviceModels/NOTICE.md`).
 
-## Updating the database
+## Cập nhật cơ sở dữ liệu
 
-1. Pick the upstream commits you want to pin to (one for iOS, one for macOS).
-2. Update the commit hashes in `apps/macos/Sources/OpenClaw/Resources/DeviceModels/NOTICE.md`.
-3. Re-download the JSON files, pinned to those commits:
+1. Chọn các commit từ upstream mà bạn muốn gắn (một cho iOS, một cho macOS).
+2. Cập nhật các hash commit trong `apps/macos/Sources/OpenClaw/Resources/DeviceModels/NOTICE.md`.
+3. Tải lại các tệp JSON, gắn với các commit đó:
 
 ```bash
-IOS_COMMIT="<commit sha for ios-device-identifiers.json>"
-MAC_COMMIT="<commit sha for mac-device-identifiers.json>"
+IOS_COMMIT="<commit sha cho ios-device-identifiers.json>"
+MAC_COMMIT="<commit sha cho mac-device-identifiers.json>"
 
 curl -fsSL "https://raw.githubusercontent.com/kyle-seongwoo-jun/apple-device-identifiers/${IOS_COMMIT}/ios-device-identifiers.json" \
   -o apps/macos/Sources/OpenClaw/Resources/DeviceModels/ios-device-identifiers.json
@@ -39,8 +39,8 @@ curl -fsSL "https://raw.githubusercontent.com/kyle-seongwoo-jun/apple-device-ide
   -o apps/macos/Sources/OpenClaw/Resources/DeviceModels/mac-device-identifiers.json
 ```
 
-4. Ensure `apps/macos/Sources/OpenClaw/Resources/DeviceModels/LICENSE.apple-device-identifiers.txt` still matches upstream (replace it if the upstream license changes).
-5. Verify the macOS app builds cleanly (no warnings):
+4. Đảm bảo `apps/macos/Sources/OpenClaw/Resources/DeviceModels/LICENSE.apple-device-identifiers.txt` vẫn khớp với upstream (thay thế nếu giấy phép upstream thay đổi).
+5. Kiểm tra ứng dụng macOS build sạch sẽ (không có cảnh báo):
 
 ```bash
 swift build --package-path apps/macos

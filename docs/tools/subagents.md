@@ -1,19 +1,19 @@
 ---
-summary: "Sub-agents: spawning isolated agent runs that announce results back to the requester chat"
+summary: "Sub-agents: tạo các phiên agent độc lập chạy nền và thông báo kết quả về kênh chat yêu cầu"
 read_when:
-  - You want background/parallel work via the agent
-  - You are changing sessions_spawn or sub-agent tool policy
-  - You are implementing or troubleshooting thread-bound subagent sessions
+  - Bạn muốn thực hiện công việc nền hoặc song song qua agent
+  - Bạn đang thay đổi chính sách sessions_spawn hoặc công cụ sub-agent
+  - Bạn đang triển khai hoặc xử lý sự cố các phiên sub-agent gắn với luồng
 title: "Sub-Agents"
 ---
 
 # Sub-agents
 
-Sub-agents are background agent runs spawned from an existing agent run. They run in their own session (`agent:<agentId>:subagent:<uuid>`) and, when finished, **announce** their result back to the requester chat channel.
+Sub-agents là các phiên agent chạy nền được tạo từ một phiên agent hiện có. Chúng hoạt động trong phiên riêng của mình (`agent:<agentId>:subagent:<uuid>`) và khi hoàn thành, sẽ **thông báo** kết quả về kênh chat yêu cầu.
 
-## Slash command
+## Lệnh Slash
 
-Use `/subagents` to inspect or control sub-agent runs for the **current session**:
+Sử dụng `/subagents` để kiểm tra hoặc điều khiển các phiên sub-agent cho **phiên hiện tại**:
 
 - `/subagents list`
 - `/subagents kill <id|#|all>`
@@ -23,9 +23,9 @@ Use `/subagents` to inspect or control sub-agent runs for the **current session*
 - `/subagents steer <id|#> <message>`
 - `/subagents spawn <agentId> <task> [--model <model>] [--thinking <level>]`
 
-Thread binding controls:
+Điều khiển gắn luồng:
 
-These commands work on channels that support persistent thread bindings. See **Thread supporting channels** below.
+Các lệnh này hoạt động trên các kênh hỗ trợ gắn luồng liên tục. Xem **Kênh hỗ trợ luồng** bên dưới.
 
 - `/focus <subagent-label|session-key|session-id|session-label>`
 - `/unfocus`
@@ -33,223 +33,221 @@ These commands work on channels that support persistent thread bindings. See **T
 - `/session idle <duration|off>`
 - `/session max-age <duration|off>`
 
-`/subagents info` shows run metadata (status, timestamps, session id, transcript path, cleanup).
+`/subagents info` hiển thị metadata chạy (trạng thái, dấu thời gian, id phiên, đường dẫn transcript, dọn dẹp).
 
-### Spawn behavior
+### Hành vi Spawn
 
-`/subagents spawn` starts a background sub-agent as a user command, not an internal relay, and it sends one final completion update back to the requester chat when the run finishes.
+`/subagents spawn` khởi động một sub-agent nền như một lệnh người dùng, không phải là một chuyển tiếp nội bộ, và gửi một cập nhật hoàn thành cuối cùng về kênh chat yêu cầu khi chạy xong.
 
-- The spawn command is non-blocking; it returns a run id immediately.
-- On completion, the sub-agent announces a summary/result message back to the requester chat channel.
-- For manual spawns, delivery is resilient:
-  - OpenClaw tries direct `agent` delivery first with a stable idempotency key.
-  - If direct delivery fails, it falls back to queue routing.
-  - If queue routing is still not available, the announce is retried with a short exponential backoff before final give-up.
-- The completion handoff to the requester session is runtime-generated internal context (not user-authored text) and includes:
-  - `Result` (`assistant` reply text, or latest `toolResult` if the assistant reply is empty)
-  - `Status` (`completed successfully` / `failed` / `timed out` / `unknown`)
-  - compact runtime/token stats
-  - a delivery instruction telling the requester agent to rewrite in normal assistant voice (not forward raw internal metadata)
-- `--model` and `--thinking` override defaults for that specific run.
-- Use `info`/`log` to inspect details and output after completion.
-- `/subagents spawn` is one-shot mode (`mode: "run"`). For persistent thread-bound sessions, use `sessions_spawn` with `thread: true` and `mode: "session"`.
-- For ACP harness sessions (Codex, Claude Code, Gemini CLI), use `sessions_spawn` with `runtime: "acp"` and see [ACP Agents](/tools/acp-agents).
+- Lệnh spawn không chặn; nó trả về một id chạy ngay lập tức.
+- Khi hoàn thành, sub-agent thông báo một tin nhắn tóm tắt/kết quả về kênh chat yêu cầu.
+- Đối với các spawn thủ công, việc giao hàng có độ bền:
+  - OpenClaw thử giao hàng trực tiếp `agent` trước với một khóa idempotency ổn định.
+  - Nếu giao hàng trực tiếp thất bại, nó chuyển sang định tuyến hàng đợi.
+  - Nếu định tuyến hàng đợi vẫn không khả dụng, thông báo được thử lại với một backoff lũy thừa ngắn trước khi từ bỏ cuối cùng.
+- Việc chuyển giao hoàn thành cho phiên yêu cầu là ngữ cảnh nội bộ được tạo ra trong thời gian chạy (không phải văn bản do người dùng tạo) và bao gồm:
+  - `Result` (văn bản trả lời `assistant`, hoặc `toolResult` mới nhất nếu trả lời của assistant trống)
+  - `Status` (`hoàn thành thành công` / `thất bại` / `hết thời gian` / `không xác định`)
+  - thống kê runtime/token gọn
+  - một hướng dẫn giao hàng yêu cầu agent yêu cầu viết lại bằng giọng assistant bình thường (không chuyển tiếp metadata nội bộ thô)
+- `--model` và `--thinking` ghi đè mặc định cho lần chạy cụ thể đó.
+- Sử dụng `info`/`log` để kiểm tra chi tiết và đầu ra sau khi hoàn thành.
+- `/subagents spawn` là chế độ một lần (`mode: "run"`). Đối với các phiên gắn luồng liên tục, sử dụng `sessions_spawn` với `thread: true` và `mode: "session"`.
+- Đối với các phiên harness ACP (Codex, Claude Code, Gemini CLI), sử dụng `sessions_spawn` với `runtime: "acp"` và xem [ACP Agents](/tools/acp-agents).
 
-Primary goals:
+Mục tiêu chính:
 
-- Parallelize "research / long task / slow tool" work without blocking the main run.
-- Keep sub-agents isolated by default (session separation + optional sandboxing).
-- Keep the tool surface hard to misuse: sub-agents do **not** get session tools by default.
-- Support configurable nesting depth for orchestrator patterns.
+- Song song hóa công việc "nghiên cứu / nhiệm vụ dài / công cụ chậm" mà không chặn phiên chính.
+- Giữ sub-agents tách biệt theo mặc định (tách phiên + tùy chọn sandboxing).
+- Giữ bề mặt công cụ khó bị lạm dụng: sub-agents **không** nhận công cụ phiên theo mặc định.
+- Hỗ trợ độ sâu lồng ghép có thể cấu hình cho các mẫu điều phối.
 
-Cost note: each sub-agent has its **own** context and token usage. For heavy or repetitive
-tasks, set a cheaper model for sub-agents and keep your main agent on a higher-quality model.
-You can configure this via `agents.defaults.subagents.model` or per-agent overrides.
+Lưu ý về chi phí: mỗi sub-agent có ngữ cảnh và sử dụng token **riêng**. Đối với các nhiệm vụ nặng hoặc lặp đi lặp lại, hãy đặt một mô hình rẻ hơn cho sub-agents và giữ agent chính của bạn trên một mô hình chất lượng cao hơn. Bạn có thể cấu hình điều này qua `agents.defaults.subagents.model` hoặc ghi đè theo từng agent.
 
-## Tool
+## Công cụ
 
-Use `sessions_spawn`:
+Sử dụng `sessions_spawn`:
 
-- Starts a sub-agent run (`deliver: false`, global lane: `subagent`)
-- Then runs an announce step and posts the announce reply to the requester chat channel
-- Default model: inherits the caller unless you set `agents.defaults.subagents.model` (or per-agent `agents.list[].subagents.model`); an explicit `sessions_spawn.model` still wins.
-- Default thinking: inherits the caller unless you set `agents.defaults.subagents.thinking` (or per-agent `agents.list[].subagents.thinking`); an explicit `sessions_spawn.thinking` still wins.
-- Default run timeout: if `sessions_spawn.runTimeoutSeconds` is omitted, OpenClaw uses `agents.defaults.subagents.runTimeoutSeconds` when set; otherwise it falls back to `0` (no timeout).
+- Bắt đầu một phiên sub-agent (`deliver: false`, làn toàn cầu: `subagent`)
+- Sau đó chạy một bước thông báo và đăng câu trả lời thông báo lên kênh chat yêu cầu
+- Mô hình mặc định: thừa hưởng từ người gọi trừ khi bạn đặt `agents.defaults.subagents.model` (hoặc theo từng agent `agents.list[].subagents.model`); một `sessions_spawn.model` rõ ràng vẫn thắng.
+- Suy nghĩ mặc định: thừa hưởng từ người gọi trừ khi bạn đặt `agents.defaults.subagents.thinking` (hoặc theo từng agent `agents.list[].subagents.thinking`); một `sessions_spawn.thinking` rõ ràng vẫn thắng.
+- Thời gian chạy mặc định: nếu `sessions_spawn.runTimeoutSeconds` bị bỏ qua, OpenClaw sử dụng `agents.defaults.subagents.runTimeoutSeconds` khi được đặt; nếu không, nó quay lại `0` (không có thời gian chờ).
 
-Tool params:
+Tham số công cụ:
 
-- `task` (required)
-- `label?` (optional)
-- `agentId?` (optional; spawn under another agent id if allowed)
-- `model?` (optional; overrides the sub-agent model; invalid values are skipped and the sub-agent runs on the default model with a warning in the tool result)
-- `thinking?` (optional; overrides thinking level for the sub-agent run)
-- `runTimeoutSeconds?` (defaults to `agents.defaults.subagents.runTimeoutSeconds` when set, otherwise `0`; when set, the sub-agent run is aborted after N seconds)
-- `thread?` (default `false`; when `true`, requests channel thread binding for this sub-agent session)
+- `task` (bắt buộc)
+- `label?` (tùy chọn)
+- `agentId?` (tùy chọn; spawn dưới một id agent khác nếu được phép)
+- `model?` (tùy chọn; ghi đè mô hình sub-agent; các giá trị không hợp lệ bị bỏ qua và sub-agent chạy trên mô hình mặc định với cảnh báo trong kết quả công cụ)
+- `thinking?` (tùy chọn; ghi đè mức độ suy nghĩ cho lần chạy sub-agent)
+- `runTimeoutSeconds?` (mặc định là `agents.defaults.subagents.runTimeoutSeconds` khi được đặt, nếu không là `0`; khi được đặt, lần chạy sub-agent bị hủy sau N giây)
+- `thread?` (mặc định `false`; khi `true`, yêu cầu gắn luồng kênh cho phiên sub-agent này)
 - `mode?` (`run|session`)
-  - default is `run`
-  - if `thread: true` and `mode` omitted, default becomes `session`
-  - `mode: "session"` requires `thread: true`
-- `cleanup?` (`delete|keep`, default `keep`)
-- `sandbox?` (`inherit|require`, default `inherit`; `require` rejects spawn unless target child runtime is sandboxed)
-- `sessions_spawn` does **not** accept channel-delivery params (`target`, `channel`, `to`, `threadId`, `replyTo`, `transport`). For delivery, use `message`/`sessions_send` from the spawned run.
+  - mặc định là `run`
+  - nếu `thread: true` và `mode` bị bỏ qua, mặc định trở thành `session`
+  - `mode: "session"` yêu cầu `thread: true`
+- `cleanup?` (`delete|keep`, mặc định `keep`)
+- `sandbox?` (`inherit|require`, mặc định `inherit`; `require` từ chối spawn trừ khi runtime con mục tiêu được sandboxed)
+- `sessions_spawn` **không** chấp nhận các tham số giao hàng kênh (`target`, `channel`, `to`, `threadId`, `replyTo`, `transport`). Để giao hàng, sử dụng `message`/`sessions_send` từ lần chạy được spawn.
 
-## Thread-bound sessions
+## Phiên gắn luồng
 
-When thread bindings are enabled for a channel, a sub-agent can stay bound to a thread so follow-up user messages in that thread keep routing to the same sub-agent session.
+Khi gắn luồng được bật cho một kênh, một sub-agent có thể giữ gắn với một luồng để các tin nhắn người dùng tiếp theo trong luồng đó tiếp tục định tuyến đến cùng một phiên sub-agent.
 
-### Thread supporting channels
+### Kênh hỗ trợ luồng
 
-- Discord (currently the only supported channel): supports persistent thread-bound subagent sessions (`sessions_spawn` with `thread: true`), manual thread controls (`/focus`, `/unfocus`, `/agents`, `/session idle`, `/session max-age`), and adapter keys `channels.discord.threadBindings.enabled`, `channels.discord.threadBindings.idleHours`, `channels.discord.threadBindings.maxAgeHours`, and `channels.discord.threadBindings.spawnSubagentSessions`.
+- Discord (hiện là kênh duy nhất được hỗ trợ): hỗ trợ các phiên sub-agent gắn luồng liên tục (`sessions_spawn` với `thread: true`), điều khiển luồng thủ công (`/focus`, `/unfocus`, `/agents`, `/session idle`, `/session max-age`), và các khóa adapter `channels.discord.threadBindings.enabled`, `channels.discord.threadBindings.idleHours`, `channels.discord.threadBindings.maxAgeHours`, và `channels.discord.threadBindings.spawnSubagentSessions`.
 
-Quick flow:
+Luồng nhanh:
 
-1. Spawn with `sessions_spawn` using `thread: true` (and optionally `mode: "session"`).
-2. OpenClaw creates or binds a thread to that session target in the active channel.
-3. Replies and follow-up messages in that thread route to the bound session.
-4. Use `/session idle` to inspect/update inactivity auto-unfocus and `/session max-age` to control the hard cap.
-5. Use `/unfocus` to detach manually.
+1. Spawn với `sessions_spawn` sử dụng `thread: true` (và tùy chọn `mode: "session"`).
+2. OpenClaw tạo hoặc gắn một luồng vào mục tiêu phiên đó trong kênh hoạt động.
+3. Các câu trả lời và tin nhắn tiếp theo trong luồng đó định tuyến đến phiên được gắn.
+4. Sử dụng `/session idle` để kiểm tra/cập nhật tự động bỏ gắn khi không hoạt động và `/session max-age` để kiểm soát giới hạn cứng.
+5. Sử dụng `/unfocus` để tách thủ công.
 
-Manual controls:
+Điều khiển thủ công:
 
-- `/focus <target>` binds the current thread (or creates one) to a sub-agent/session target.
-- `/unfocus` removes the binding for the current bound thread.
-- `/agents` lists active runs and binding state (`thread:<id>` or `unbound`).
-- `/session idle` and `/session max-age` only work for focused bound threads.
+- `/focus <target>` gắn luồng hiện tại (hoặc tạo một luồng) vào một mục tiêu sub-agent/phiên.
+- `/unfocus` loại bỏ gắn cho luồng hiện tại được gắn.
+- `/agents` liệt kê các phiên chạy và trạng thái gắn (`thread:<id>` hoặc `unbound`).
+- `/session idle` và `/session max-age` chỉ hoạt động cho các luồng được gắn tập trung.
 
-Config switches:
+Công tắc cấu hình:
 
-- Global default: `session.threadBindings.enabled`, `session.threadBindings.idleHours`, `session.threadBindings.maxAgeHours`
-- Channel override and spawn auto-bind keys are adapter-specific. See **Thread supporting channels** above.
+- Mặc định toàn cầu: `session.threadBindings.enabled`, `session.threadBindings.idleHours`, `session.threadBindings.maxAgeHours`
+- Ghi đè kênh và các khóa tự động gắn spawn là cụ thể cho adapter. Xem **Kênh hỗ trợ luồng** ở trên.
 
-See [Configuration Reference](/gateway/configuration-reference) and [Slash commands](/tools/slash-commands) for current adapter details.
+Xem [Tham chiếu cấu hình](/gateway/configuration-reference) và [Lệnh Slash](/tools/slash-commands) để biết chi tiết adapter hiện tại.
 
-Allowlist:
+Danh sách cho phép:
 
-- `agents.list[].subagents.allowAgents`: list of agent ids that can be targeted via `agentId` (`["*"]` to allow any). Default: only the requester agent.
-- Sandbox inheritance guard: if the requester session is sandboxed, `sessions_spawn` rejects targets that would run unsandboxed.
+- `agents.list[].subagents.allowAgents`: danh sách các id agent có thể được nhắm mục tiêu qua `agentId` (`["*"]` để cho phép bất kỳ). Mặc định: chỉ agent yêu cầu.
+- Bảo vệ thừa kế sandbox: nếu phiên yêu cầu được sandboxed, `sessions_spawn` từ chối các mục tiêu sẽ chạy không được sandboxed.
 
-Discovery:
+Khám phá:
 
-- Use `agents_list` to see which agent ids are currently allowed for `sessions_spawn`.
+- Sử dụng `agents_list` để xem id agent nào hiện được phép cho `sessions_spawn`.
 
-Auto-archive:
+Tự động lưu trữ:
 
-- Sub-agent sessions are automatically archived after `agents.defaults.subagents.archiveAfterMinutes` (default: 60).
-- Archive uses `sessions.delete` and renames the transcript to `*.deleted.<timestamp>` (same folder).
-- `cleanup: "delete"` archives immediately after announce (still keeps the transcript via rename).
-- Auto-archive is best-effort; pending timers are lost if the gateway restarts.
-- `runTimeoutSeconds` does **not** auto-archive; it only stops the run. The session remains until auto-archive.
-- Auto-archive applies equally to depth-1 and depth-2 sessions.
+- Các phiên sub-agent được tự động lưu trữ sau `agents.defaults.subagents.archiveAfterMinutes` (mặc định: 60).
+- Lưu trữ sử dụng `sessions.delete` và đổi tên transcript thành `*.deleted.<timestamp>` (cùng thư mục).
+- `cleanup: "delete"` lưu trữ ngay sau thông báo (vẫn giữ transcript qua đổi tên).
+- Tự động lưu trữ là nỗ lực tốt nhất; các bộ đếm thời gian đang chờ bị mất nếu gateway khởi động lại.
+- `runTimeoutSeconds` **không** tự động lưu trữ; nó chỉ dừng chạy. Phiên vẫn còn cho đến khi tự động lưu trữ.
+- Tự động lưu trữ áp dụng đồng đều cho các phiên độ sâu-1 và độ sâu-2.
 
-## Nested Sub-Agents
+## Sub-Agents Lồng Ghép
 
-By default, sub-agents cannot spawn their own sub-agents (`maxSpawnDepth: 1`). You can enable one level of nesting by setting `maxSpawnDepth: 2`, which allows the **orchestrator pattern**: main → orchestrator sub-agent → worker sub-sub-agents.
+Theo mặc định, sub-agents không thể tạo sub-agents của riêng mình (`maxSpawnDepth: 1`). Bạn có thể cho phép một mức độ lồng ghép bằng cách đặt `maxSpawnDepth: 2`, cho phép **mẫu điều phối**: chính → sub-agent điều phối → sub-sub-agents công nhân.
 
-### How to enable
+### Cách kích hoạt
 
 ```json5
 {
   agents: {
     defaults: {
       subagents: {
-        maxSpawnDepth: 2, // allow sub-agents to spawn children (default: 1)
-        maxChildrenPerAgent: 5, // max active children per agent session (default: 5)
-        maxConcurrent: 8, // global concurrency lane cap (default: 8)
-        runTimeoutSeconds: 900, // default timeout for sessions_spawn when omitted (0 = no timeout)
+        maxSpawnDepth: 2, // cho phép sub-agents tạo con (mặc định: 1)
+        maxChildrenPerAgent: 5, // tối đa con hoạt động mỗi phiên agent (mặc định: 5)
+        maxConcurrent: 8, // giới hạn làn đồng thời toàn cầu (mặc định: 8)
+        runTimeoutSeconds: 900, // thời gian chờ mặc định cho sessions_spawn khi bị bỏ qua (0 = không có thời gian chờ)
       },
     },
   },
 }
 ```
 
-### Depth levels
+### Mức độ sâu
 
-| Depth | Session key shape                            | Role                                          | Can spawn?                   |
+| Độ sâu | Hình dạng khóa phiên                            | Vai trò                                          | Có thể tạo?                   |
 | ----- | -------------------------------------------- | --------------------------------------------- | ---------------------------- |
-| 0     | `agent:<id>:main`                            | Main agent                                    | Always                       |
-| 1     | `agent:<id>:subagent:<uuid>`                 | Sub-agent (orchestrator when depth 2 allowed) | Only if `maxSpawnDepth >= 2` |
-| 2     | `agent:<id>:subagent:<uuid>:subagent:<uuid>` | Sub-sub-agent (leaf worker)                   | Never                        |
+| 0     | `agent:<id>:main`                            | Agent chính                                    | Luôn luôn                       |
+| 1     | `agent:<id>:subagent:<uuid>`                 | Sub-agent (hoặc điều phối khi cho phép độ sâu 2) | Chỉ khi `maxSpawnDepth >= 2` |
+| 2     | `agent:<id>:subagent:<uuid>:subagent:<uuid>` | Sub-sub-agent (công nhân lá)                   | Không bao giờ                        |
 
-### Announce chain
+### Chuỗi thông báo
 
-Results flow back up the chain:
+Kết quả chảy ngược lên chuỗi:
 
-1. Depth-2 worker finishes → announces to its parent (depth-1 orchestrator)
-2. Depth-1 orchestrator receives the announce, synthesizes results, finishes → announces to main
-3. Main agent receives the announce and delivers to the user
+1. Công nhân độ sâu-2 hoàn thành → thông báo cho cha mẹ của nó (điều phối độ sâu-1)
+2. Điều phối độ sâu-1 nhận thông báo, tổng hợp kết quả, hoàn thành → thông báo cho chính
+3. Agent chính nhận thông báo và giao cho người dùng
 
-Each level only sees announces from its direct children.
+Mỗi cấp chỉ thấy thông báo từ con trực tiếp của nó.
 
-### Tool policy by depth
+### Chính sách công cụ theo độ sâu
 
-- Role and control scope are written into session metadata at spawn time. That keeps flat or restored session keys from accidentally regaining orchestrator privileges.
-- **Depth 1 (orchestrator, when `maxSpawnDepth >= 2`)**: Gets `sessions_spawn`, `subagents`, `sessions_list`, `sessions_history` so it can manage its children. Other session/system tools remain denied.
-- **Depth 1 (leaf, when `maxSpawnDepth == 1`)**: No session tools (current default behavior).
-- **Depth 2 (leaf worker)**: No session tools — `sessions_spawn` is always denied at depth 2. Cannot spawn further children.
+- Vai trò và phạm vi điều khiển được viết vào metadata phiên khi spawn. Điều đó giữ cho các khóa phiên phẳng hoặc khôi phục không vô tình lấy lại đặc quyền điều phối.
+- **Độ sâu 1 (điều phối, khi `maxSpawnDepth >= 2`)**: Nhận `sessions_spawn`, `subagents`, `sessions_list`, `sessions_history` để có thể quản lý con của mình. Các công cụ phiên/hệ thống khác vẫn bị từ chối.
+- **Độ sâu 1 (lá, khi `maxSpawnDepth == 1`)**: Không có công cụ phiên (hành vi mặc định hiện tại).
+- **Độ sâu 2 (công nhân lá)**: Không có công cụ phiên — `sessions_spawn` luôn bị từ chối ở độ sâu 2. Không thể tạo thêm con.
 
-### Per-agent spawn limit
+### Giới hạn spawn theo agent
 
-Each agent session (at any depth) can have at most `maxChildrenPerAgent` (default: 5) active children at a time. This prevents runaway fan-out from a single orchestrator.
+Mỗi phiên agent (ở bất kỳ độ sâu nào) có thể có tối đa `maxChildrenPerAgent` (mặc định: 5) con hoạt động cùng một lúc. Điều này ngăn chặn sự mở rộng không kiểm soát từ một điều phối viên duy nhất.
 
-### Cascade stop
+### Dừng theo tầng
 
-Stopping a depth-1 orchestrator automatically stops all its depth-2 children:
+Dừng một điều phối viên độ sâu-1 tự động dừng tất cả các con độ sâu-2 của nó:
 
-- `/stop` in the main chat stops all depth-1 agents and cascades to their depth-2 children.
-- `/subagents kill <id>` stops a specific sub-agent and cascades to its children.
-- `/subagents kill all` stops all sub-agents for the requester and cascades.
+- `/stop` trong chat chính dừng tất cả các agent độ sâu-1 và dừng theo tầng đến các con độ sâu-2 của chúng.
+- `/subagents kill <id>` dừng một sub-agent cụ thể và dừng theo tầng đến các con của nó.
+- `/subagents kill all` dừng tất cả các sub-agent cho người yêu cầu và dừng theo tầng.
 
-## Authentication
+## Xác thực
 
-Sub-agent auth is resolved by **agent id**, not by session type:
+Xác thực sub-agent được giải quyết theo **id agent**, không phải theo loại phiên:
 
-- The sub-agent session key is `agent:<agentId>:subagent:<uuid>`.
-- The auth store is loaded from that agent's `agentDir`.
-- The main agent's auth profiles are merged in as a **fallback**; agent profiles override main profiles on conflicts.
+- Khóa phiên sub-agent là `agent:<agentId>:subagent:<uuid>`.
+- Kho lưu trữ xác thực được tải từ `agentDir` của agent đó.
+- Hồ sơ xác thực của agent chính được hợp nhất làm **dự phòng**; hồ sơ agent ghi đè hồ sơ chính khi có xung đột.
 
-Note: the merge is additive, so main profiles are always available as fallbacks. Fully isolated auth per agent is not supported yet.
+Lưu ý: việc hợp nhất là bổ sung, vì vậy hồ sơ chính luôn có sẵn làm dự phòng. Xác thực hoàn toàn cách ly theo agent chưa được hỗ trợ.
 
-## Announce
+## Thông báo
 
-Sub-agents report back via an announce step:
+Sub-agents báo cáo lại qua một bước thông báo:
 
-- The announce step runs inside the sub-agent session (not the requester session).
-- If the sub-agent replies exactly `ANNOUNCE_SKIP`, nothing is posted.
-- Otherwise delivery depends on requester depth:
-  - top-level requester sessions use a follow-up `agent` call with external delivery (`deliver=true`)
-  - nested requester subagent sessions receive an internal follow-up injection (`deliver=false`) so the orchestrator can synthesize child results in-session
-  - if a nested requester subagent session is gone, OpenClaw falls back to that session's requester when available
-- Child completion aggregation is scoped to the current requester run when building nested completion findings, preventing stale prior-run child outputs from leaking into the current announce.
-- Announce replies preserve thread/topic routing when available on channel adapters.
-- Announce context is normalized to a stable internal event block:
-  - source (`subagent` or `cron`)
-  - child session key/id
-  - announce type + task label
-  - status line derived from runtime outcome (`success`, `error`, `timeout`, or `unknown`)
-  - result content from the announce step (or `(no output)` if missing)
-  - a follow-up instruction describing when to reply vs. stay silent
-- `Status` is not inferred from model output; it comes from runtime outcome signals.
+- Bước thông báo chạy bên trong phiên sub-agent (không phải phiên yêu cầu).
+- Nếu sub-agent trả lời chính xác `ANNOUNCE_SKIP`, không có gì được đăng.
+- Nếu không, việc giao hàng phụ thuộc vào độ sâu của người yêu cầu:
+  - các phiên yêu cầu cấp cao nhất sử dụng một cuộc gọi `agent` tiếp theo với giao hàng bên ngoài (`deliver=true`)
+  - các phiên subagent yêu cầu lồng ghép nhận một tiêm nội bộ tiếp theo (`deliver=false`) để điều phối viên có thể tổng hợp kết quả con trong phiên
+  - nếu một phiên subagent yêu cầu lồng ghép đã biến mất, OpenClaw quay lại người yêu cầu của phiên đó khi có sẵn
+- Tổng hợp hoàn thành con được giới hạn trong lần chạy yêu cầu hiện tại khi xây dựng các phát hiện hoàn thành lồng ghép, ngăn chặn các đầu ra con từ lần chạy trước bị rò rỉ vào thông báo hiện tại.
+- Các câu trả lời thông báo giữ nguyên định tuyến luồng/chủ đề khi có sẵn trên các adapter kênh.
+- Ngữ cảnh thông báo được chuẩn hóa thành một khối sự kiện nội bộ ổn định:
+  - nguồn (`subagent` hoặc `cron`)
+  - khóa/id phiên con
+  - loại thông báo + nhãn nhiệm vụ
+  - dòng trạng thái được suy ra từ kết quả runtime (`thành công`, `lỗi`, `hết thời gian`, hoặc `không xác định`)
+  - nội dung kết quả từ bước thông báo (hoặc `(không có đầu ra)` nếu thiếu)
+  - một hướng dẫn tiếp theo mô tả khi nào nên trả lời so với giữ im lặng
+- `Status` không được suy ra từ đầu ra mô hình; nó đến từ các tín hiệu kết quả runtime.
 
-Announce payloads include a stats line at the end (even when wrapped):
+Payload thông báo bao gồm một dòng thống kê ở cuối (ngay cả khi được bao bọc):
 
-- Runtime (e.g., `runtime 5m12s`)
-- Token usage (input/output/total)
-- Estimated cost when model pricing is configured (`models.providers.*.models[].cost`)
-- `sessionKey`, `sessionId`, and transcript path (so the main agent can fetch history via `sessions_history` or inspect the file on disk)
-- Internal metadata is meant for orchestration only; user-facing replies should be rewritten in normal assistant voice.
+- Runtime (ví dụ: `runtime 5m12s`)
+- Sử dụng token (đầu vào/đầu ra/tổng)
+- Chi phí ước tính khi định giá mô hình được cấu hình (`models.providers.*.models[].cost`)
+- `sessionKey`, `sessionId`, và đường dẫn transcript (để agent chính có thể lấy lịch sử qua `sessions_history` hoặc kiểm tra tệp trên đĩa)
+- Metadata nội bộ chỉ dành cho điều phối; các câu trả lời hướng đến người dùng nên được viết lại bằng giọng assistant bình thường.
 
-## Tool Policy (sub-agent tools)
+## Chính sách Công cụ (công cụ sub-agent)
 
-By default, sub-agents get **all tools except session tools** and system tools:
+Theo mặc định, sub-agents nhận **tất cả các công cụ ngoại trừ công cụ phiên** và công cụ hệ thống:
 
 - `sessions_list`
 - `sessions_history`
 - `sessions_send`
 - `sessions_spawn`
 
-When `maxSpawnDepth >= 2`, depth-1 orchestrator sub-agents additionally receive `sessions_spawn`, `subagents`, `sessions_list`, and `sessions_history` so they can manage their children.
+Khi `maxSpawnDepth >= 2`, sub-agents điều phối độ sâu-1 nhận thêm `sessions_spawn`, `subagents`, `sessions_list`, và `sessions_history` để có thể quản lý con của mình.
 
-Override via config:
+Ghi đè qua cấu hình:
 
 ```json5
 {
@@ -263,9 +261,9 @@ Override via config:
   tools: {
     subagents: {
       tools: {
-        // deny wins
+        // từ chối thắng
         deny: ["gateway", "cron"],
-        // if allow is set, it becomes allow-only (deny still wins)
+        // nếu cho phép được đặt, nó trở thành chỉ cho phép (từ chối vẫn thắng)
         // allow: ["read", "exec", "process"]
       },
     },
@@ -273,23 +271,23 @@ Override via config:
 }
 ```
 
-## Concurrency
+## Đồng thời
 
-Sub-agents use a dedicated in-process queue lane:
+Sub-agents sử dụng một làn hàng đợi trong quá trình chuyên dụng:
 
-- Lane name: `subagent`
-- Concurrency: `agents.defaults.subagents.maxConcurrent` (default `8`)
+- Tên làn: `subagent`
+- Đồng thời: `agents.defaults.subagents.maxConcurrent` (mặc định `8`)
 
-## Stopping
+## Dừng
 
-- Sending `/stop` in the requester chat aborts the requester session and stops any active sub-agent runs spawned from it, cascading to nested children.
-- `/subagents kill <id>` stops a specific sub-agent and cascades to its children.
+- Gửi `/stop` trong chat yêu cầu hủy phiên yêu cầu và dừng bất kỳ phiên sub-agent nào đang hoạt động được tạo từ đó, dừng theo tầng đến các con lồng ghép.
+- `/subagents kill <id>` dừng một sub-agent cụ thể và dừng theo tầng đến các con của nó.
 
-## Limitations
+## Hạn chế
 
-- Sub-agent announce is **best-effort**. If the gateway restarts, pending "announce back" work is lost.
-- Sub-agents still share the same gateway process resources; treat `maxConcurrent` as a safety valve.
-- `sessions_spawn` is always non-blocking: it returns `{ status: "accepted", runId, childSessionKey }` immediately.
-- Sub-agent context only injects `AGENTS.md` + `TOOLS.md` (no `SOUL.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`, or `BOOTSTRAP.md`).
-- Maximum nesting depth is 5 (`maxSpawnDepth` range: 1–5). Depth 2 is recommended for most use cases.
-- `maxChildrenPerAgent` caps active children per session (default: 5, range: 1–20).
+- Thông báo sub-agent là **nỗ lực tốt nhất**. Nếu gateway khởi động lại, công việc "thông báo lại" đang chờ bị mất.
+- Sub-agents vẫn chia sẻ cùng tài nguyên quy trình gateway; coi `maxConcurrent` như một van an toàn.
+- `sessions_spawn` luôn không chặn: nó trả về `{ status: "accepted", runId, childSessionKey }` ngay lập tức.
+- Ngữ cảnh sub-agent chỉ tiêm `AGENTS.md` + `TOOLS.md` (không có `SOUL.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`, hoặc `BOOTSTRAP.md`).
+- Độ sâu lồng ghép tối đa là 5 (`maxSpawnDepth` phạm vi: 1–5). Độ sâu 2 được khuyến nghị cho hầu hết các trường hợp sử dụng.
+- `maxChildrenPerAgent` giới hạn con hoạt động mỗi phiên (mặc định: 5, phạm vi: 1–20).

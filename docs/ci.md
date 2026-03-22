@@ -1,55 +1,55 @@
 ---
 title: CI Pipeline
-summary: "CI job graph, scope gates, and local command equivalents"
+summary: "Biểu đồ công việc CI, cổng phạm vi, và các lệnh tương đương cục bộ"
 read_when:
-  - You need to understand why a CI job did or did not run
-  - You are debugging failing GitHub Actions checks
+  - Cần hiểu tại sao một công việc CI đã hoặc không được chạy
+  - Đang gỡ lỗi các kiểm tra GitHub Actions thất bại
 ---
 
 # CI Pipeline
 
-The CI runs on every push to `main` and every pull request. It uses smart scoping to skip expensive jobs when only unrelated areas changed.
+CI chạy trên mọi lần đẩy (push) vào `main` và mọi yêu cầu kéo (pull request). Nó sử dụng phạm vi thông minh để bỏ qua các công việc tốn kém khi chỉ có những khu vực không liên quan bị thay đổi.
 
-## Job Overview
+## Tổng quan công việc
 
-| Job               | Purpose                                                 | When it runs                       |
+| Công việc         | Mục đích                                                | Khi nào chạy                        |
 | ----------------- | ------------------------------------------------------- | ---------------------------------- |
-| `docs-scope`      | Detect docs-only changes                                | Always                             |
-| `changed-scope`   | Detect which areas changed (node/macos/android/windows) | Non-doc changes                    |
-| `check`           | TypeScript types, lint, format                          | Non-docs, node changes             |
-| `check-docs`      | Markdown lint + broken link check                       | Docs changed                       |
-| `secrets`         | Detect leaked secrets                                   | Always                             |
-| `build-artifacts` | Build dist once, share with `release-check`             | Pushes to `main`, node changes     |
-| `release-check`   | Validate npm pack contents                              | Pushes to `main` after build       |
-| `checks`          | Node tests + protocol check on PRs; Bun compat on push  | Non-docs, node changes             |
-| `compat-node22`   | Minimum supported Node runtime compatibility            | Pushes to `main`, node changes     |
-| `checks-windows`  | Windows-specific tests                                  | Non-docs, windows-relevant changes |
-| `macos`           | Swift lint/build/test + TS tests                        | PRs with macos changes             |
-| `android`         | Gradle build + tests                                    | Non-docs, android changes          |
+| `docs-scope`      | Phát hiện thay đổi chỉ trong tài liệu                   | Luôn luôn                           |
+| `changed-scope`   | Phát hiện khu vực nào đã thay đổi (node/macos/android/windows) | Thay đổi không liên quan đến tài liệu |
+| `check`           | Kiểm tra kiểu TypeScript, lint, định dạng               | Thay đổi không liên quan đến tài liệu, node |
+| `check-docs`      | Kiểm tra lint Markdown + liên kết hỏng                  | Thay đổi tài liệu                   |
+| `secrets`         | Phát hiện rò rỉ bí mật                                  | Luôn luôn                           |
+| `build-artifacts` | Xây dựng dist một lần, chia sẻ với `release-check`      | Đẩy vào `main`, thay đổi node       |
+| `release-check`   | Xác thực nội dung npm pack                              | Đẩy vào `main` sau khi xây dựng     |
+| `checks`          | Kiểm tra Node + kiểm tra giao thức trên PRs; Bun tương thích khi đẩy | Thay đổi không liên quan đến tài liệu, node |
+| `compat-node22`   | Tương thích với runtime Node tối thiểu được hỗ trợ      | Đẩy vào `main`, thay đổi node       |
+| `checks-windows`  | Kiểm tra đặc thù cho Windows                            | Thay đổi không liên quan đến tài liệu, liên quan đến Windows |
+| `macos`           | Lint/Xây dựng/kiểm tra Swift + kiểm tra TS              | PRs với thay đổi macos              |
+| `android`         | Xây dựng Gradle + kiểm tra                              | Thay đổi không liên quan đến tài liệu, android |
 
-## Fail-Fast Order
+## Thứ tự thất bại nhanh
 
-Jobs are ordered so cheap checks fail before expensive ones run:
+Các công việc được sắp xếp để các kiểm tra rẻ tiền thất bại trước khi các công việc đắt tiền chạy:
 
-1. `docs-scope` + `changed-scope` + `check` + `secrets` (parallel, cheap gates first)
-2. PRs: `checks` (Linux Node test split into 2 shards), `checks-windows`, `macos`, `android`
-3. Pushes to `main`: `build-artifacts` + `release-check` + Bun compat + `compat-node22`
+1. `docs-scope` + `changed-scope` + `check` + `secrets` (chạy song song, cổng rẻ tiền trước)
+2. PRs: `checks` (Kiểm tra Node trên Linux chia thành 2 phần), `checks-windows`, `macos`, `android`
+3. Đẩy vào `main`: `build-artifacts` + `release-check` + Bun tương thích + `compat-node22`
 
-Scope logic lives in `scripts/ci-changed-scope.mjs` and is covered by unit tests in `src/scripts/ci-changed-scope.test.ts`.
+Logic phạm vi nằm trong `scripts/ci-changed-scope.mjs` và được kiểm tra bằng unit test trong `src/scripts/ci-changed-scope.test.ts`.
 
 ## Runners
 
-| Runner                           | Jobs                                       |
+| Runner                           | Công việc                                  |
 | -------------------------------- | ------------------------------------------ |
-| `blacksmith-16vcpu-ubuntu-2404`  | Most Linux jobs, including scope detection |
+| `blacksmith-16vcpu-ubuntu-2404`  | Hầu hết các công việc trên Linux, bao gồm phát hiện phạm vi |
 | `blacksmith-32vcpu-windows-2025` | `checks-windows`                           |
 | `macos-latest`                   | `macos`, `ios`                             |
 
-## Local Equivalents
+## Lệnh tương đương cục bộ
 
 ```bash
-pnpm check          # types + lint + format
-pnpm test           # vitest tests
-pnpm check:docs     # docs format + lint + broken links
-pnpm release:check  # validate npm pack
+pnpm check          # kiểm tra kiểu + lint + định dạng
+pnpm test           # kiểm tra bằng vitest
+pnpm check:docs     # định dạng tài liệu + lint + liên kết hỏng
+pnpm release:check  # xác thực npm pack
 ```

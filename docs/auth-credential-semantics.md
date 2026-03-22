@@ -1,23 +1,23 @@
 ---
-title: "Auth Credential Semantics"
-summary: "Canonical credential eligibility and resolution semantics for auth profiles"
+title: "Ngữ Nghĩa Chứng Thực Credential"
+summary: "Ngữ nghĩa chuẩn về điều kiện và cách giải quyết credential cho các hồ sơ chứng thực"
 read_when:
-  - Working on auth profile resolution or credential routing
-  - Debugging model auth failures or profile order
+  - Làm việc với việc giải quyết hồ sơ chứng thực hoặc định tuyến credential
+  - Gỡ lỗi các lỗi chứng thực mô hình hoặc thứ tự hồ sơ
 ---
 
-# Auth Credential Semantics
+# Ngữ Nghĩa Chứng Thực Credential
 
-This document defines the canonical credential eligibility and resolution semantics used across:
+Tài liệu này định nghĩa ngữ nghĩa chuẩn về điều kiện và cách giải quyết credential được sử dụng trong:
 
 - `resolveAuthProfileOrder`
 - `resolveApiKeyForProfile`
 - `models status --probe`
 - `doctor-auth`
 
-The goal is to keep selection-time and runtime behavior aligned.
+Mục tiêu là giữ cho hành vi khi chọn và khi chạy đồng nhất.
 
-## Stable Reason Codes
+## Mã Lý Do Ổn Định
 
 - `ok`
 - `missing_credential`
@@ -25,29 +25,29 @@ The goal is to keep selection-time and runtime behavior aligned.
 - `expired`
 - `unresolved_ref`
 
-## Token Credentials
+## Credential Token
 
-Token credentials (`type: "token"`) support inline `token` and/or `tokenRef`.
+Credential token (`type: "token"`) hỗ trợ `token` và/hoặc `tokenRef` trực tiếp.
 
-### Eligibility rules
+### Quy tắc điều kiện
 
-1. A token profile is ineligible when both `token` and `tokenRef` are absent.
-2. `expires` is optional.
-3. If `expires` is present, it must be a finite number greater than `0`.
-4. If `expires` is invalid (`NaN`, `0`, negative, non-finite, or wrong type), the profile is ineligible with `invalid_expires`.
-5. If `expires` is in the past, the profile is ineligible with `expired`.
-6. `tokenRef` does not bypass `expires` validation.
+1. Hồ sơ token không đủ điều kiện khi cả `token` và `tokenRef` đều không có.
+2. `expires` là tùy chọn.
+3. Nếu có `expires`, nó phải là một số hữu hạn lớn hơn `0`.
+4. Nếu `expires` không hợp lệ (`NaN`, `0`, âm, không hữu hạn, hoặc sai kiểu), hồ sơ không đủ điều kiện với `invalid_expires`.
+5. Nếu `expires` đã qua, hồ sơ không đủ điều kiện với `expired`.
+6. `tokenRef` không bỏ qua việc kiểm tra `expires`.
 
-### Resolution rules
+### Quy tắc giải quyết
 
-1. Resolver semantics match eligibility semantics for `expires`.
-2. For eligible profiles, token material may be resolved from inline value or `tokenRef`.
-3. Unresolvable refs produce `unresolved_ref` in `models status --probe` output.
+1. Ngữ nghĩa của bộ giải quyết khớp với ngữ nghĩa điều kiện cho `expires`.
+2. Đối với các hồ sơ đủ điều kiện, token có thể được giải quyết từ giá trị trực tiếp hoặc `tokenRef`.
+3. Các tham chiếu không thể giải quyết sẽ tạo ra `unresolved_ref` trong kết quả `models status --probe`.
 
-## Legacy-Compatible Messaging
+## Thông Điệp Tương Thích Với Legacy
 
-For script compatibility, probe errors keep this first line unchanged:
+Để tương thích với script, các lỗi probe giữ nguyên dòng đầu tiên này:
 
 `Auth profile credentials are missing or expired.`
 
-Human-friendly detail and stable reason codes may be added on subsequent lines.
+Chi tiết thân thiện với người dùng và mã lý do ổn định có thể được thêm vào các dòng tiếp theo.

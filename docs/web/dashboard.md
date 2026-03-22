@@ -1,54 +1,49 @@
 ---
-summary: "Gateway dashboard (Control UI) access and auth"
+summary: "Truy cập và xác thực dashboard Gateway (Control UI)"
 read_when:
-  - Changing dashboard authentication or exposure modes
+  - Thay đổi chế độ xác thực hoặc phơi bày dashboard
 title: "Dashboard"
 ---
 
 # Dashboard (Control UI)
 
-The Gateway dashboard is the browser Control UI served at `/` by default
-(override with `gateway.controlUi.basePath`).
+Dashboard Gateway là giao diện điều khiển trên trình duyệt, mặc định được phục vụ tại `/` (có thể thay đổi với `gateway.controlUi.basePath`).
 
-Quick open (local Gateway):
+Mở nhanh (Gateway cục bộ):
 
-- [http://127.0.0.1:18789/](http://127.0.0.1:18789/) (or [http://localhost:18789/](http://localhost:18789/))
+- [http://127.0.0.1:18789/](http://127.0.0.1:18789/) (hoặc [http://localhost:18789/](http://localhost:18789/))
 
-Key references:
+Tham khảo chính:
 
-- [Control UI](/web/control-ui) for usage and UI capabilities.
-- [Tailscale](/gateway/tailscale) for Serve/Funnel automation.
-- [Web surfaces](/web) for bind modes and security notes.
+- [Control UI](/web/control-ui) để biết cách sử dụng và khả năng của giao diện.
+- [Tailscale](/gateway/tailscale) để tự động hóa Serve/Funnel.
+- [Web surfaces](/web) cho các chế độ kết nối và ghi chú bảo mật.
 
-Authentication is enforced at the WebSocket handshake via `connect.params.auth`
-(token or password). See `gateway.auth` in [Gateway configuration](/gateway/configuration).
+Xác thực được thực hiện tại bước bắt tay WebSocket qua `connect.params.auth` (token hoặc mật khẩu). Xem `gateway.auth` trong [Cấu hình Gateway](/gateway/configuration).
 
-Security note: the Control UI is an **admin surface** (chat, config, exec approvals).
-Do not expose it publicly. The UI keeps dashboard URL tokens in sessionStorage
-for the current browser tab session and selected gateway URL, and strips them from the URL after load.
-Prefer localhost, Tailscale Serve, or an SSH tunnel.
+Lưu ý bảo mật: Control UI là một **bề mặt quản trị** (chat, cấu hình, phê duyệt thực thi). Không nên phơi bày công khai. Giao diện giữ token URL dashboard trong sessionStorage cho phiên tab trình duyệt hiện tại và URL gateway đã chọn, và loại bỏ chúng khỏi URL sau khi tải. Nên sử dụng localhost, Tailscale Serve, hoặc một SSH tunnel.
 
-## Fast path (recommended)
+## Đường dẫn nhanh (khuyến nghị)
 
-- After onboarding, the CLI auto-opens the dashboard and prints a clean (non-tokenized) link.
-- Re-open anytime: `openclaw dashboard` (copies link, opens browser if possible, shows SSH hint if headless).
-- If the UI prompts for auth, paste the token from `gateway.auth.token` (or `OPENCLAW_GATEWAY_TOKEN`) into Control UI settings.
+- Sau khi onboard, CLI tự động mở dashboard và in ra một liên kết sạch (không chứa token).
+- Mở lại bất kỳ lúc nào: `openclaw dashboard` (sao chép liên kết, mở trình duyệt nếu có thể, hiển thị gợi ý SSH nếu không có giao diện).
+- Nếu giao diện yêu cầu xác thực, dán token từ `gateway.auth.token` (hoặc `OPENCLAW_GATEWAY_TOKEN`) vào cài đặt Control UI.
 
-## Token basics (local vs remote)
+## Cơ bản về token (cục bộ vs từ xa)
 
-- **Localhost**: open `http://127.0.0.1:18789/`.
-- **Token source**: `gateway.auth.token` (or `OPENCLAW_GATEWAY_TOKEN`); `openclaw dashboard` can pass it via URL fragment for one-time bootstrap, and the Control UI keeps it in sessionStorage for the current browser tab session and selected gateway URL instead of localStorage.
-- If `gateway.auth.token` is SecretRef-managed, `openclaw dashboard` prints/copies/opens a non-tokenized URL by design. This avoids exposing externally managed tokens in shell logs, clipboard history, or browser-launch arguments.
-- If `gateway.auth.token` is configured as a SecretRef and is unresolved in your current shell, `openclaw dashboard` still prints a non-tokenized URL plus actionable auth setup guidance.
-- **Not localhost**: use Tailscale Serve (tokenless for Control UI/WebSocket if `gateway.auth.allowTailscale: true`, assumes trusted gateway host; HTTP APIs still need token/password), tailnet bind with a token, or an SSH tunnel. See [Web surfaces](/web).
+- **Localhost**: mở `http://127.0.0.1:18789/`.
+- **Nguồn token**: `gateway.auth.token` (hoặc `OPENCLAW_GATEWAY_TOKEN`); `openclaw dashboard` có thể truyền nó qua URL fragment cho khởi động một lần, và Control UI giữ nó trong sessionStorage cho phiên tab trình duyệt hiện tại và URL gateway đã chọn thay vì localStorage.
+- Nếu `gateway.auth.token` được quản lý bởi SecretRef, `openclaw dashboard` sẽ in/sao chép/mở một URL không chứa token theo thiết kế. Điều này tránh phơi bày token được quản lý bên ngoài trong nhật ký shell, lịch sử clipboard, hoặc các tham số khởi động trình duyệt.
+- Nếu `gateway.auth.token` được cấu hình như một SecretRef và chưa được giải quyết trong shell hiện tại, `openclaw dashboard` vẫn in ra một URL không chứa token cùng với hướng dẫn thiết lập xác thực có thể thực hiện.
+- **Không phải localhost**: sử dụng Tailscale Serve (không cần token cho Control UI/WebSocket nếu `gateway.auth.allowTailscale: true`, giả định máy chủ gateway đáng tin cậy; các API HTTP vẫn cần token/mật khẩu), kết nối tailnet với token, hoặc một SSH tunnel. Xem [Web surfaces](/web).
 
-## If you see "unauthorized" / 1008
+## Nếu thấy "unauthorized" / 1008
 
-- Ensure the gateway is reachable (local: `openclaw status`; remote: SSH tunnel `ssh -N -L 18789:127.0.0.1:18789 user@host` then open `http://127.0.0.1:18789/`).
-- For `AUTH_TOKEN_MISMATCH`, clients may do one trusted retry with a cached device token when the gateway returns retry hints. If auth still fails after that retry, resolve token drift manually.
-- For token drift repair steps, follow [Token drift recovery checklist](/cli/devices#token-drift-recovery-checklist).
-- Retrieve or supply the token from the gateway host:
-  - Plaintext config: `openclaw config get gateway.auth.token`
-  - SecretRef-managed config: resolve the external secret provider or export `OPENCLAW_GATEWAY_TOKEN` in this shell, then rerun `openclaw dashboard`
-  - No token configured: `openclaw doctor --generate-gateway-token`
-- In the dashboard settings, paste the token into the auth field, then connect.
+- Đảm bảo gateway có thể truy cập được (cục bộ: `openclaw status`; từ xa: SSH tunnel `ssh -N -L 18789:127.0.0.1:18789 user@host` sau đó mở `http://127.0.0.1:18789/`).
+- Với `AUTH_TOKEN_MISMATCH`, các client có thể thực hiện một lần thử lại đáng tin cậy với token thiết bị đã lưu khi gateway trả về gợi ý thử lại. Nếu xác thực vẫn thất bại sau lần thử lại đó, cần tự giải quyết sự lệch token.
+- Để biết các bước sửa chữa sự lệch token, hãy làm theo [Danh sách kiểm tra khôi phục lệch token](/cli/devices#token-drift-recovery-checklist).
+- Lấy hoặc cung cấp token từ máy chủ gateway:
+  - Cấu hình văn bản thuần: `openclaw config get gateway.auth.token`
+  - Cấu hình được quản lý bởi SecretRef: giải quyết nhà cung cấp bí mật bên ngoài hoặc xuất `OPENCLAW_GATEWAY_TOKEN` trong shell này, sau đó chạy lại `openclaw dashboard`
+  - Không có token được cấu hình: `openclaw doctor --generate-gateway-token`
+- Trong cài đặt dashboard, dán token vào trường xác thực, sau đó kết nối.
