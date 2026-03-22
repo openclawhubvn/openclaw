@@ -1568,7 +1568,8 @@
               {
                 "group": "核心概念",
                 "pages": [
-                  "zh-CN/concepts/features"
+                  "zh-CN/concepts/features",
+                  "zh-CN/start/abccc"
                 ]
               },
               {
@@ -2178,7 +2179,8 @@
               {
                 "group": "概要",
                 "pages": [
-                  "ja-JP/index"
+                  "ja-JP/index",
+                  "ja-JP/start/abccc"
                 ]
               },
               {
