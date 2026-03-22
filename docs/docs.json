@@ -2191,7 +2191,694 @@
         ]
       },
       {
-        "language": "vi"
+        "language": "vi",
+        "tabs": [
+          {
+            "tab": "Get started",
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": [
+                  "vi/index",
+                  "vi/start/showcase",
+                  "vi/concepts/features"
+                ]
+              },
+              {
+                "group": "First steps",
+                "pages": [
+                  "vi/start/getting-started",
+                  "vi/start/onboarding-overview",
+                  "vi/start/wizard",
+                  "vi/start/onboarding"
+                ]
+              },
+              {
+                "group": "Guides",
+                "pages": [
+                  "vi/start/openclaw",
+                  "vi/start/wizard-cli-reference",
+                  "vi/start/wizard-cli-automation"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Install",
+            "groups": [
+              {
+                "group": "Install overview",
+                "pages": [
+                  "vi/install/index",
+                  "vi/install/installer",
+                  "vi/install/node"
+                ]
+              },
+              {
+                "group": "Containers",
+                "pages": [
+                  "vi/install/ansible",
+                  "vi/install/bun",
+                  "vi/install/docker",
+                  "vi/install/nix",
+                  "vi/install/podman"
+                ]
+              },
+              {
+                "group": "Hosting",
+                "pages": [
+                  "vi/install/azure",
+                  "vi/install/digitalocean",
+                  "vi/install/docker-vm-runtime",
+                  "vi/install/exe-dev",
+                  "vi/install/fly",
+                  "vi/install/gcp",
+                  "vi/install/hetzner",
+                  "vi/install/kubernetes",
+                  "vi/vps",
+                  "vi/install/macos-vm",
+                  "vi/install/northflank",
+                  "vi/install/oracle",
+                  "vi/install/railway",
+                  "vi/install/raspberry-pi",
+                  "vi/install/render"
+                ]
+              },
+              {
+                "group": "Maintenance",
+                "pages": [
+                  "vi/install/updating",
+                  "vi/install/migrating",
+                  "vi/install/uninstall",
+                  "vi/install/development-channels"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Channels",
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": [
+                  "vi/channels/index"
+                ]
+              },
+              {
+                "group": "Messaging platforms",
+                "pages": [
+                  "vi/channels/bluebubbles",
+                  "vi/channels/discord",
+                  "vi/channels/feishu",
+                  "vi/channels/googlechat",
+                  "vi/channels/imessage",
+                  "vi/channels/irc",
+                  "vi/channels/line",
+                  "vi/channels/matrix",
+                  "vi/channels/mattermost",
+                  "vi/channels/msteams",
+                  "vi/channels/nextcloud-talk",
+                  "vi/channels/nostr",
+                  "vi/channels/signal",
+                  "vi/channels/synology-chat",
+                  "vi/channels/slack",
+                  "vi/channels/telegram",
+                  "vi/channels/tlon",
+                  "vi/channels/twitch",
+                  "vi/plugins/voice-call",
+                  "vi/channels/whatsapp",
+                  "vi/channels/zalo",
+                  "vi/channels/zalouser"
+                ]
+              },
+              {
+                "group": "Configuration",
+                "pages": [
+                  "vi/channels/pairing",
+                  "vi/channels/group-messages",
+                  "vi/channels/groups",
+                  "vi/channels/broadcast-groups",
+                  "vi/channels/channel-routing",
+                  "vi/channels/location",
+                  "vi/channels/troubleshooting"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Agents",
+            "groups": [
+              {
+                "group": "Fundamentals",
+                "pages": [
+                  "vi/concepts/architecture",
+                  "vi/concepts/agent",
+                  "vi/concepts/agent-loop",
+                  "vi/concepts/system-prompt",
+                  "vi/concepts/context",
+                  "vi/concepts/context-engine",
+                  "vi/concepts/agent-workspace",
+                  "vi/concepts/oauth",
+                  "vi/start/bootstrapping"
+                ]
+              },
+              {
+                "group": "Sessions and memory",
+                "pages": [
+                  "vi/concepts/session",
+                  "vi/concepts/session-pruning",
+                  "vi/concepts/session-tool",
+                  "vi/concepts/memory",
+                  "vi/concepts/compaction"
+                ]
+              },
+              {
+                "group": "Multi-agent",
+                "pages": [
+                  "vi/concepts/multi-agent",
+                  "vi/concepts/presence",
+                  "vi/concepts/delegate-architecture"
+                ]
+              },
+              {
+                "group": "Messages and delivery",
+                "pages": [
+                  "vi/concepts/messages",
+                  "vi/concepts/streaming",
+                  "vi/concepts/retry",
+                  "vi/concepts/queue"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Tools & Plugins",
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": [
+                  "vi/tools/index"
+                ]
+              },
+              {
+                "group": "Plugins",
+                "pages": [
+                  "vi/tools/plugin",
+                  "vi/plugins/building-plugins",
+                  "vi/plugins/community",
+                  "vi/plugins/bundles",
+                  "vi/plugins/manifest",
+                  "vi/plugins/sdk-migration",
+                  "vi/plugins/architecture"
+                ]
+              },
+              {
+                "group": "Skills",
+                "pages": [
+                  "vi/tools/skills",
+                  "vi/tools/creating-skills",
+                  "vi/tools/skills-config",
+                  "vi/tools/slash-commands",
+                  "vi/tools/clawhub",
+                  "vi/prose"
+                ]
+              },
+              {
+                "group": "Automation",
+                "pages": [
+                  "vi/automation/hooks",
+                  "vi/automation/standing-orders",
+                  "vi/automation/cron-jobs",
+                  "vi/automation/cron-vs-heartbeat",
+                  "vi/automation/troubleshooting",
+                  "vi/automation/webhook",
+                  "vi/automation/gmail-pubsub",
+                  "vi/automation/poll",
+                  "vi/automation/auth-monitoring"
+                ]
+              },
+              {
+                "group": "Tools",
+                "pages": [
+                  "vi/tools/apply-patch",
+                  {
+                    "group": "Browser",
+                    "pages": [
+                      "vi/tools/browser",
+                      "vi/tools/browser-login",
+                      "vi/tools/browser-linux-troubleshooting",
+                      "vi/tools/browser-wsl2-windows-remote-cdp-troubleshooting"
+                    ]
+                  },
+                  "vi/tools/btw",
+                  "vi/tools/diffs",
+                  "vi/tools/elevated",
+                  "vi/tools/exec",
+                  "vi/tools/exec-approvals",
+                  "vi/tools/llm-task",
+                  "vi/tools/lobster",
+                  "vi/tools/loop-detection",
+                  "vi/tools/pdf",
+                  "vi/tools/reactions",
+                  "vi/tools/thinking",
+                  {
+                    "group": "Web and search",
+                    "pages": [
+                      "vi/tools/web",
+                      "vi/tools/brave-search",
+                      "vi/tools/firecrawl",
+                      "vi/tools/perplexity-search",
+                      "vi/tools/tavily"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Agent coordination",
+                "pages": [
+                  "vi/tools/agent-send",
+                  "vi/tools/subagents",
+                  "vi/tools/acp-agents",
+                  "vi/tools/multi-agent-sandbox-tools"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Models",
+            "groups": [
+              {
+                "group": "Overview",
+                "pages": [
+                  "vi/providers/index",
+                  "vi/providers/models"
+                ]
+              },
+              {
+                "group": "Concepts and configuration",
+                "pages": [
+                  "vi/concepts/models",
+                  "vi/concepts/model-providers",
+                  "vi/concepts/model-failover"
+                ]
+              },
+              {
+                "group": "Providers",
+                "pages": [
+                  "vi/providers/anthropic",
+                  "vi/providers/bedrock",
+                  "vi/providers/cloudflare-ai-gateway",
+                  "vi/providers/claude-max-api-proxy",
+                  "vi/providers/deepgram",
+                  "vi/providers/github-copilot",
+                  "vi/providers/google",
+                  "vi/providers/groq",
+                  "vi/providers/huggingface",
+                  "vi/providers/kilocode",
+                  "vi/providers/litellm",
+                  "vi/providers/glm",
+                  "vi/providers/minimax",
+                  "vi/providers/modelstudio",
+                  "vi/providers/moonshot",
+                  "vi/providers/mistral",
+                  "vi/providers/nvidia",
+                  "vi/providers/ollama",
+                  "vi/providers/openai",
+                  "vi/providers/opencode-go",
+                  "vi/providers/opencode",
+                  "vi/providers/openrouter",
+                  "vi/providers/perplexity-provider",
+                  "vi/providers/qianfan",
+                  "vi/providers/qwen",
+                  "vi/providers/sglang",
+                  "vi/providers/synthetic",
+                  "vi/providers/together",
+                  "vi/providers/vercel-ai-gateway",
+                  "vi/providers/venice",
+                  "vi/providers/vllm",
+                  "vi/providers/volcengine",
+                  "vi/providers/xai",
+                  "vi/providers/xiaomi",
+                  "vi/providers/zai"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Platforms",
+            "groups": [
+              {
+                "group": "Platforms overview",
+                "pages": [
+                  "vi/platforms/index",
+                  "vi/platforms/macos",
+                  "vi/platforms/linux",
+                  "vi/platforms/windows",
+                  "vi/platforms/android",
+                  "vi/platforms/ios"
+                ]
+              },
+              {
+                "group": "macOS companion app",
+                "pages": [
+                  "vi/platforms/mac/dev-setup",
+                  "vi/platforms/mac/menu-bar",
+                  "vi/platforms/mac/voicewake",
+                  "vi/platforms/mac/voice-overlay",
+                  "vi/platforms/mac/webchat",
+                  "vi/platforms/mac/canvas",
+                  "vi/platforms/mac/child-process",
+                  "vi/platforms/mac/health",
+                  "vi/platforms/mac/icon",
+                  "vi/platforms/mac/logging",
+                  "vi/platforms/mac/permissions",
+                  "vi/platforms/mac/remote",
+                  "vi/platforms/mac/signing",
+                  "vi/platforms/mac/bundled-gateway",
+                  "vi/platforms/mac/xpc",
+                  "vi/platforms/mac/skills",
+                  "vi/platforms/mac/peekaboo"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Gateway & Ops",
+            "groups": [
+              {
+                "group": "Gateway",
+                "pages": [
+                  "vi/gateway/index",
+                  {
+                    "group": "Configuration and operations",
+                    "pages": [
+                      "vi/gateway/configuration",
+                      "vi/gateway/configuration-reference",
+                      "vi/gateway/configuration-examples",
+                      "vi/gateway/authentication",
+                      "vi/auth-credential-semantics",
+                      "vi/gateway/secrets",
+                      "vi/gateway/secrets-plan-contract",
+                      "vi/gateway/trusted-proxy-auth",
+                      "vi/gateway/health",
+                      "vi/gateway/heartbeat",
+                      "vi/gateway/doctor",
+                      "vi/gateway/logging",
+                      "vi/logging",
+                      "vi/gateway/gateway-lock",
+                      "vi/gateway/background-process",
+                      "vi/gateway/multiple-gateways",
+                      "vi/gateway/troubleshooting"
+                    ]
+                  },
+                  {
+                    "group": "Security and sandboxing",
+                    "pages": [
+                      "vi/gateway/security/index",
+                      "vi/gateway/sandboxing",
+                      "vi/gateway/openshell",
+                      "vi/gateway/sandbox-vs-tool-policy-vs-elevated"
+                    ]
+                  },
+                  {
+                    "group": "Protocols and APIs",
+                    "pages": [
+                      "vi/gateway/protocol",
+                      "vi/gateway/bridge-protocol",
+                      "vi/gateway/openai-http-api",
+                      "vi/gateway/openresponses-http-api",
+                      "vi/gateway/tools-invoke-http-api",
+                      "vi/gateway/cli-backends",
+                      "vi/gateway/local-models"
+                    ]
+                  },
+                  {
+                    "group": "Networking and discovery",
+                    "pages": [
+                      "vi/network",
+                      "vi/gateway/network-model",
+                      "vi/gateway/pairing",
+                      "vi/gateway/discovery",
+                      "vi/gateway/bonjour"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "Remote access",
+                "pages": [
+                  "vi/gateway/remote",
+                  "vi/gateway/remote-gateway-readme",
+                  "vi/gateway/tailscale"
+                ]
+              },
+              {
+                "group": "Security",
+                "pages": [
+                  "vi/security/formal-verification",
+                  "vi/security/THREAT-MODEL-ATLAS",
+                  "vi/security/CONTRIBUTING-THREAT-MODEL"
+                ]
+              },
+              {
+                "group": "Nodes and devices",
+                "pages": [
+                  "vi/nodes/index",
+                  "vi/nodes/troubleshooting",
+                  "vi/nodes/media-understanding",
+                  "vi/nodes/images",
+                  "vi/nodes/audio",
+                  "vi/nodes/camera",
+                  "vi/nodes/talk",
+                  "vi/nodes/voicewake",
+                  "vi/nodes/location-command",
+                  "vi/tools/tts"
+                ]
+              },
+              {
+                "group": "Web interfaces",
+                "pages": [
+                  "vi/web/index",
+                  "vi/web/control-ui",
+                  "vi/web/dashboard",
+                  "vi/web/webchat",
+                  "vi/web/tui"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Reference",
+            "groups": [
+              {
+                "group": "CLI commands",
+                "pages": [
+                  "vi/cli/index",
+                  {
+                    "group": "Gateway and service",
+                    "pages": [
+                      "vi/cli/backup",
+                      "vi/cli/daemon",
+                      "vi/cli/doctor",
+                      "vi/cli/gateway",
+                      "vi/cli/health",
+                      "vi/cli/logs",
+                      "vi/cli/onboard",
+                      "vi/cli/reset",
+                      "vi/cli/secrets",
+                      "vi/cli/security",
+                      "vi/cli/setup",
+                      "vi/cli/status",
+                      "vi/cli/uninstall",
+                      "vi/cli/update"
+                    ]
+                  },
+                  {
+                    "group": "Agents and sessions",
+                    "pages": [
+                      "vi/cli/agent",
+                      "vi/cli/agents",
+                      "vi/cli/hooks",
+                      "vi/cli/memory",
+                      "vi/cli/message",
+                      "vi/cli/models",
+                      "vi/cli/sessions",
+                      "vi/cli/system"
+                    ]
+                  },
+                  {
+                    "group": "Channels and messaging",
+                    "pages": [
+                      "vi/cli/channels",
+                      "vi/cli/devices",
+                      "vi/cli/directory",
+                      "vi/cli/pairing",
+                      "vi/cli/qr",
+                      "vi/cli/voicecall"
+                    ]
+                  },
+                  {
+                    "group": "Tools and execution",
+                    "pages": [
+                      "vi/cli/approvals",
+                      "vi/cli/browser",
+                      "vi/cli/cron",
+                      "vi/cli/node",
+                      "vi/cli/nodes",
+                      "vi/cli/sandbox"
+                    ]
+                  },
+                  {
+                    "group": "Configuration",
+                    "pages": [
+                      "vi/cli/config",
+                      "vi/cli/configure",
+                      "vi/cli/webhooks"
+                    ]
+                  },
+                  {
+                    "group": "Plugins and skills",
+                    "pages": [
+                      "vi/cli/plugins",
+                      "vi/cli/skills"
+                    ]
+                  },
+                  {
+                    "group": "Interfaces",
+                    "pages": [
+                      "vi/cli/dashboard",
+                      "vi/cli/tui"
+                    ]
+                  },
+                  {
+                    "group": "Utility",
+                    "pages": [
+                      "vi/cli/acp",
+                      "vi/cli/clawbot",
+                      "vi/cli/completion",
+                      "vi/cli/dns",
+                      "vi/cli/docs"
+                    ]
+                  }
+                ]
+              },
+              {
+                "group": "RPC and API",
+                "pages": [
+                  "vi/reference/rpc",
+                  "vi/reference/device-models"
+                ]
+              },
+              {
+                "group": "Templates",
+                "pages": [
+                  "vi/reference/AGENTS.default",
+                  "vi/reference/templates/AGENTS",
+                  "vi/reference/templates/BOOT",
+                  "vi/reference/templates/BOOTSTRAP",
+                  "vi/reference/templates/HEARTBEAT",
+                  "vi/reference/templates/IDENTITY",
+                  "vi/reference/templates/SOUL",
+                  "vi/reference/templates/TOOLS",
+                  "vi/reference/templates/USER"
+                ]
+              },
+              {
+                "group": "Technical reference",
+                "pages": [
+                  "vi/pi",
+                  "vi/reference/wizard",
+                  "vi/reference/token-use",
+                  "vi/reference/secretref-credential-surface",
+                  "vi/reference/prompt-caching",
+                  "vi/reference/api-usage-costs",
+                  "vi/reference/transcript-hygiene",
+                  "vi/reference/memory-config",
+                  "vi/date-time"
+                ]
+              },
+              {
+                "group": "Concept internals",
+                "pages": [
+                  "vi/concepts/typebox",
+                  "vi/concepts/markdown-formatting",
+                  "vi/concepts/typing-indicators",
+                  "vi/concepts/usage-tracking",
+                  "vi/concepts/timezone"
+                ]
+              },
+              {
+                "group": "Project",
+                "pages": [
+                  "vi/reference/credits"
+                ]
+              },
+              {
+                "group": "Release policy",
+                "pages": [
+                  "vi/reference/RELEASING",
+                  "vi/reference/test"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Help",
+            "groups": [
+              {
+                "group": "Help",
+                "pages": [
+                  "vi/help/index",
+                  "vi/help/troubleshooting",
+                  "vi/help/faq"
+                ]
+              },
+              {
+                "group": "Community",
+                "pages": [
+                  "vi/start/lore"
+                ]
+              },
+              {
+                "group": "Environment and debugging",
+                "pages": [
+                  "vi/help/environment",
+                  "vi/help/debugging",
+                  "vi/help/testing",
+                  "vi/help/scripts",
+                  "vi/debug/node-issue",
+                  "vi/diagnostics/flags"
+                ]
+              },
+              {
+                "group": "Compaction internals",
+                "pages": [
+                  "vi/reference/session-management-compaction"
+                ]
+              },
+              {
+                "group": "Developer setup",
+                "pages": [
+                  "vi/start/setup",
+                  "vi/pi-dev"
+                ]
+              },
+              {
+                "group": "Contributing",
+                "pages": [
+                  "vi/ci"
+                ]
+              },
+              {
+                "group": "Docs meta",
+                "pages": [
+                  "vi/start/hubs",
+                  "vi/start/docs-directory"
+                ]
+              }
+            ]
+          }
+        ]
       }
     ]
   }
