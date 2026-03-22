@@ -855,14 +855,14 @@
   ],
   "navigation": {
     "languages": [
-      {
-        "language": "en",
+            {
+        "language": "vi",
         "tabs": [
           {
-            "tab": "Get started",
+            "tab": "Bắt đầu",
             "groups": [
               {
-                "group": "Overview",
+                "group": "Tổng quan",
                 "pages": [
                   "index",
                   "start/showcase",
@@ -870,7 +870,7 @@
                 ]
               },
               {
-                "group": "First steps",
+                "group": "Những bước đầu tiên",
                 "pages": [
                   "start/getting-started",
                   "start/onboarding-overview",
@@ -879,7 +879,7 @@
                 ]
               },
               {
-                "group": "Guides",
+                "group": "Hướng dẫn chi tiết",
                 "pages": [
                   "start/openclaw",
                   "start/wizard-cli-reference",
@@ -889,10 +889,10 @@
             ]
           },
           {
-            "tab": "Install",
+            "tab": "Cài đặt",
             "groups": [
               {
-                "group": "Install overview",
+                "group": "Tổng quan cài đặt",
                 "pages": [
                   "install/index",
                   "install/installer",
@@ -900,7 +900,7 @@
                 ]
               },
               {
-                "group": "Containers",
+                "group": "Chạy qua Container",
                 "pages": [
                   "install/ansible",
                   "install/bun",
@@ -910,7 +910,7 @@
                 ]
               },
               {
-                "group": "Hosting",
+                "group": "Triển khai (Hosting)",
                 "pages": [
                   "install/azure",
                   "install/digitalocean",
@@ -930,7 +930,7 @@
                 ]
               },
               {
-                "group": "Maintenance",
+                "group": "Bảo trì & Nâng cấp",
                 "pages": [
                   "install/updating",
                   "install/migrating",
@@ -941,16 +941,16 @@
             ]
           },
           {
-            "tab": "Channels",
+            "tab": "Kênh kết nối",
             "groups": [
               {
-                "group": "Overview",
+                "group": "Tổng quan",
                 "pages": [
                   "channels/index"
                 ]
               },
               {
-                "group": "Messaging platforms",
+                "group": "Các nền tảng nhắn tin",
                 "pages": [
                   "channels/bluebubbles",
                   "channels/discord",
@@ -977,7 +977,7 @@
                 ]
               },
               {
-                "group": "Configuration",
+                "group": "Cấu hình",
                 "pages": [
                   "channels/pairing",
                   "channels/group-messages",
@@ -991,10 +991,10 @@
             ]
           },
           {
-            "tab": "Agents",
+            "tab": "Tác nhân (Agents)",
             "groups": [
               {
-                "group": "Fundamentals",
+                "group": "Các khái niệm cơ bản",
                 "pages": [
                   "concepts/architecture",
                   "concepts/agent",
@@ -1008,7 +1008,7 @@
                 ]
               },
               {
-                "group": "Sessions and memory",
+                "group": "Phiên làm việc & Bộ nhớ",
                 "pages": [
                   "concepts/session",
                   "concepts/session-pruning",
@@ -1018,7 +1018,7 @@
                 ]
               },
               {
-                "group": "Multi-agent",
+                "group": "Đa tác nhân",
                 "pages": [
                   "concepts/multi-agent",
                   "concepts/presence",
@@ -1026,7 +1026,7 @@
                 ]
               },
               {
-                "group": "Messages and delivery",
+                "group": "Tin nhắn & Phân phối",
                 "pages": [
                   "concepts/messages",
                   "concepts/streaming",
@@ -1037,10 +1037,10 @@
             ]
           },
           {
-            "tab": "Tools & Plugins",
+            "tab": "Công cụ & Plugin",
             "groups": [
               {
-                "group": "Overview",
+                "group": "Tổng quan",
                 "pages": [
                   "tools/index"
                 ]
@@ -1058,7 +1058,7 @@
                 ]
               },
               {
-                "group": "Skills",
+                "group": "Kỹ năng (Skills)",
                 "pages": [
                   "tools/skills",
                   "tools/creating-skills",
@@ -1069,7 +1069,7 @@
                 ]
               },
               {
-                "group": "Automation",
+                "group": "Tự động hóa",
                 "pages": [
                   "automation/hooks",
                   "automation/standing-orders",
@@ -1083,11 +1083,11 @@
                 ]
               },
               {
-                "group": "Tools",
+                "group": "Công cụ",
                 "pages": [
                   "tools/apply-patch",
                   {
-                    "group": "Browser",
+                    "group": "Trình duyệt",
                     "pages": [
                       "tools/browser",
                       "tools/browser-login",
@@ -1107,7 +1107,7 @@
                   "tools/reactions",
                   "tools/thinking",
                   {
-                    "group": "Web and search",
+                    "group": "Web & Tìm kiếm",
                     "pages": [
                       "tools/web",
                       "tools/brave-search",
@@ -1119,7 +1119,7 @@
                 ]
               },
               {
-                "group": "Agent coordination",
+                "group": "Điều phối tác nhân",
                 "pages": [
                   "tools/agent-send",
                   "tools/subagents",
@@ -1130,17 +1130,17 @@
             ]
           },
           {
-            "tab": "Models",
+            "tab": "Mô hình AI",
             "groups": [
               {
-                "group": "Overview",
+                "group": "Tổng quan",
                 "pages": [
                   "providers/index",
                   "providers/models"
                 ]
               },
               {
-                "group": "Concepts and configuration",
+                "group": "Khái niệm & Cấu hình",
                 "pages": [
                   "concepts/models",
                   "concepts/model-providers",
@@ -1148,7 +1148,7 @@
                 ]
               },
               {
-                "group": "Providers",
+                "group": "Nhà cung cấp (Providers)",
                 "pages": [
                   "providers/anthropic",
                   "providers/bedrock",
@@ -1190,10 +1190,10 @@
             ]
           },
           {
-            "tab": "Platforms",
+            "tab": "Nền tảng",
             "groups": [
               {
-                "group": "Platforms overview",
+                "group": "Tổng quan nền tảng",
                 "pages": [
                   "platforms/index",
                   "platforms/macos",
@@ -1204,7 +1204,7 @@
                 ]
               },
               {
-                "group": "macOS companion app",
+                "group": "Ứng dụng macOS",
                 "pages": [
                   "platforms/mac/dev-setup",
                   "platforms/mac/menu-bar",
@@ -1228,14 +1228,14 @@
             ]
           },
           {
-            "tab": "Gateway & Ops",
+            "tab": "Gateway & Vận hành",
             "groups": [
               {
                 "group": "Gateway",
                 "pages": [
                   "gateway/index",
                   {
-                    "group": "Configuration and operations",
+                    "group": "Cấu hình & Vận hành",
                     "pages": [
                       "gateway/configuration",
                       "gateway/configuration-reference",
@@ -1257,7 +1257,7 @@
                     ]
                   },
                   {
-                    "group": "Security and sandboxing",
+                    "group": "Bảo mật & Sandbox",
                     "pages": [
                       "gateway/security/index",
                       "gateway/sandboxing",
@@ -1266,7 +1266,7 @@
                     ]
                   },
                   {
-                    "group": "Protocols and APIs",
+                    "group": "Giao thức & API",
                     "pages": [
                       "gateway/protocol",
                       "gateway/bridge-protocol",
@@ -1278,7 +1278,7 @@
                     ]
                   },
                   {
-                    "group": "Networking and discovery",
+                    "group": "Mạng & Khám phá",
                     "pages": [
                       "network",
                       "gateway/network-model",
@@ -1290,7 +1290,7 @@
                 ]
               },
               {
-                "group": "Remote access",
+                "group": "Truy cập từ xa",
                 "pages": [
                   "gateway/remote",
                   "gateway/remote-gateway-readme",
@@ -1298,7 +1298,7 @@
                 ]
               },
               {
-                "group": "Security",
+                "group": "Bảo mật",
                 "pages": [
                   "security/formal-verification",
                   "security/THREAT-MODEL-ATLAS",
@@ -1306,7 +1306,7 @@
                 ]
               },
               {
-                "group": "Nodes and devices",
+                "group": "Node & Thiết bị",
                 "pages": [
                   "nodes/index",
                   "nodes/troubleshooting",
@@ -1321,7 +1321,7 @@
                 ]
               },
               {
-                "group": "Web interfaces",
+                "group": "Giao diện Web",
                 "pages": [
                   "web/index",
                   "web/control-ui",
@@ -1333,14 +1333,14 @@
             ]
           },
           {
-            "tab": "Reference",
+            "tab": "Tài liệu tham khảo",
             "groups": [
               {
-                "group": "CLI commands",
+                "group": "Lệnh CLI",
                 "pages": [
                   "cli/index",
                   {
-                    "group": "Gateway and service",
+                    "group": "Gateway & Dịch vụ",
                     "pages": [
                       "cli/backup",
                       "cli/daemon",
@@ -1359,7 +1359,7 @@
                     ]
                   },
                   {
-                    "group": "Agents and sessions",
+                    "group": "Tác nhân & Phiên",
                     "pages": [
                       "cli/agent",
                       "cli/agents",
@@ -1372,7 +1372,7 @@
                     ]
                   },
                   {
-                    "group": "Channels and messaging",
+                    "group": "Kênh & Tin nhắn",
                     "pages": [
                       "cli/channels",
                       "cli/devices",
@@ -1383,7 +1383,7 @@
                     ]
                   },
                   {
-                    "group": "Tools and execution",
+                    "group": "Công cụ & Thực thi",
                     "pages": [
                       "cli/approvals",
                       "cli/browser",
@@ -1394,7 +1394,7 @@
                     ]
                   },
                   {
-                    "group": "Configuration",
+                    "group": "Cấu hình",
                     "pages": [
                       "cli/config",
                       "cli/configure",
@@ -1402,21 +1402,21 @@
                     ]
                   },
                   {
-                    "group": "Plugins and skills",
+                    "group": "Plugin & Kỹ năng",
                     "pages": [
                       "cli/plugins",
                       "cli/skills"
                     ]
                   },
                   {
-                    "group": "Interfaces",
+                    "group": "Giao diện",
                     "pages": [
                       "cli/dashboard",
                       "cli/tui"
                     ]
                   },
                   {
-                    "group": "Utility",
+                    "group": "Tiện ích",
                     "pages": [
                       "cli/acp",
                       "cli/clawbot",
@@ -1428,7 +1428,7 @@
                 ]
               },
               {
-                "group": "RPC and API",
+                "group": "RPC & API",
                 "pages": [
                   "reference/rpc",
                   "reference/device-models"
@@ -1449,7 +1449,7 @@
                 ]
               },
               {
-                "group": "Technical reference",
+                "group": "Tham khảo kỹ thuật",
                 "pages": [
                   "pi",
                   "reference/wizard",
@@ -1463,7 +1463,7 @@
                 ]
               },
               {
-                "group": "Concept internals",
+                "group": "Cơ chế hoạt động",
                 "pages": [
                   "concepts/typebox",
                   "concepts/markdown-formatting",
@@ -1473,13 +1473,13 @@
                 ]
               },
               {
-                "group": "Project",
+                "group": "Dự án",
                 "pages": [
                   "reference/credits"
                 ]
               },
               {
-                "group": "Release policy",
+                "group": "Chính sách phát hành",
                 "pages": [
                   "reference/RELEASING",
                   "reference/test"
@@ -1488,10 +1488,10 @@
             ]
           },
           {
-            "tab": "Help",
+            "tab": "Trợ giúp & Cộng đồng",
             "groups": [
               {
-                "group": "Help",
+                "group": "Trợ giúp",
                 "pages": [
                   "help/index",
                   "help/troubleshooting",
@@ -1499,13 +1499,13 @@
                 ]
               },
               {
-                "group": "Community",
+                "group": "Cộng đồng",
                 "pages": [
                   "start/lore"
                 ]
               },
               {
-                "group": "Environment and debugging",
+                "group": "Môi trường & Debug",
                 "pages": [
                   "help/environment",
                   "help/debugging",
@@ -1516,26 +1516,26 @@
                 ]
               },
               {
-                "group": "Compaction internals",
+                "group": "Cơ chế Compaction",
                 "pages": [
                   "reference/session-management-compaction"
                 ]
               },
               {
-                "group": "Developer setup",
+                "group": "Thiết lập cho Developer",
                 "pages": [
                   "start/setup",
                   "pi-dev"
                 ]
               },
               {
-                "group": "Contributing",
+                "group": "Đóng góp mã nguồn",
                 "pages": [
                   "ci"
                 ]
               },
               {
-                "group": "Docs meta",
+                "group": "Tài liệu Meta",
                 "pages": [
                   "start/hubs",
                   "start/docs-directory"
