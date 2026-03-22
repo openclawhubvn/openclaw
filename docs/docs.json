@@ -11,11 +11,11 @@
     "dark": "/assets/pixel-lobster.svg"
   },
   "fonts": {
-    "body": {
-      "family": "Fragment Mono"
-    },
     "heading": {
       "family": "DM Sans"
+    },
+    "body": {
+      "family": "Lato"
     }
   },
   "favicon": "/assets/pixel-lobster.svg",
