@@ -1547,6 +1547,7 @@
       },
       {
         "language": "zh-Hans",
+        "default": true,
         "tabs": [
           {
             "tab": "快速开始",
