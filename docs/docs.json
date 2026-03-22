@@ -857,6 +857,7 @@
     "languages": [
       {
         "language": "vi",
+        "default": true,
         "tabs": [
           {
             "tab": "Bắt đầu",
