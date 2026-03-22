@@ -2,7 +2,7 @@
 summary: "OpenClaw 是一个多渠道 AI 代理网关，可在任何操作系统上运行。"
 read_when:
   - Introducing OpenClaw to newcomers
-title: "test"
+title: "ducpanda test"
 ---
 
 # OpenClaw 🦞
