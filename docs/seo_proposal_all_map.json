@@ -107,8 +107,8 @@
     "filepath": "install\\docker.md",
     "current_title": "Docker",
     "current_summary": "Thiết lập và hướng dẫn sử dụng Docker tùy chọn cho OpenClaw",
-    "suggested_title": "Hướng Dẫn Cài Đặt Docker Cho OpenClaw",
-    "suggested_summary": "Thiết lập Docker cho OpenClaw dễ dàng với hướng dẫn chi tiết từng bước. Tối ưu hóa hệ thống của bạn ngay hôm nay.",
+    "suggested_title": "Hướng Dẫn Cài Đặt OpenClaw Bằng Docker",
+    "suggested_summary": "Khám phá cách cài đặt OpenClaw qua Docker dễ dàng với hướng dẫn chi tiết từng bước. Tối ưu hóa hệ thống của bạn ngay hôm nay.",
     "reasoning": "Từ khóa 'Cài đặt Docker' và 'OpenClaw' được đưa vào tiêu đề để tối ưu SEO. Summary nhấn mạnh sự dễ dàng và lợi ích của việc cài đặt."
   },
   "install/bun": {
