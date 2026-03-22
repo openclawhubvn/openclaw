@@ -186,4 +186,6 @@ Ví dụ:
   <Card title="Giới thiệu và đội ngũ" href="/reference/credits" icon="info">
     Nguồn gốc dự án, những người đóng góp và thông tin giấy phép.
   </Card>
-</Columns>\n
+</Columns>
+
+\n

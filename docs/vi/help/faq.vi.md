@@ -1216,4 +1216,18 @@ Câu trả lời nhanh cùng với hướng dẫn xử lý sự cố cho các th
 
     Workspace mặc định là `~/.openclaw/workspace`, có thể cấu hình qua:
 
-    ```json5\n
+    ```json5
+    {
+      agents: { defaults: { workspace: "~/.openclaw/workspace" } },
+    }
+    ```
+
+    Nếu bot "quên" sau khi khởi động lại, hãy xác nhận Gateway đang sử dụng cùng
+    workspace trên mỗi lần khởi chạy.
+
+  </Accordion>
+
+  <Accordion title="Chiến lược sao lưu được đề xuất">
+    Đặt **workspace agent** của bạn trong một repo git riêng tư và sao lưu nơi nào đó an toàn. Điều này ghi lại bộ nhớ + các tệp AGENTS/SOUL/USER.
+  </Accordion>
+</AccordionGroup>\n

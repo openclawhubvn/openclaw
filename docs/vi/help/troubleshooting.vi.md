@@ -293,4 +293,7 @@ flowchart TD
     - [/tools/browser-wsl2-windows-remote-cdp-troubleshooting](/tools/browser-wsl2-windows-remote-cdp-troubleshooting)
 
   </Accordion>
-</AccordionGroup>\n
+
+</AccordionGroup>
+
+\n

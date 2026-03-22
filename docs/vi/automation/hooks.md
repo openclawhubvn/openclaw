@@ -1,116 +1,104 @@
 ---
-summary: "Hooks: event-driven automation for commands and lifecycle events"
+summary: "Hooks: tự động hóa dựa trên sự kiện cho các lệnh và sự kiện vòng đời"
 read_when:
-  - You want event-driven automation for /new, /reset, /stop, and agent lifecycle events
-  - You want to build, install, or debug hooks
+  - Bạn muốn tự động hóa dựa trên sự kiện cho /new, /reset, /stop và các sự kiện vòng đời của agent
+  - Bạn muốn xây dựng, cài đặt hoặc gỡ lỗi hooks
 title: "Hooks"
 ---
 
 # Hooks
 
-Hooks provide an extensible event-driven system for automating actions in response to agent commands and events. Hooks are automatically discovered from directories and can be managed via CLI commands, similar to how skills work in OpenClaw.
+Hooks cung cấp một hệ thống mở rộng dựa trên sự kiện để tự động hóa các hành động phản hồi lại các lệnh và sự kiện của agent. Hooks được tự động phát hiện từ các thư mục và có thể được quản lý qua các lệnh CLI, tương tự như cách hoạt động của skills trong OpenClaw.
 
-## Getting Oriented
+## Tổng quan
 
-Hooks are small scripts that run when something happens. There are two kinds:
+Hooks là các script nhỏ chạy khi có sự kiện xảy ra. Có hai loại:
 
-- **Hooks** (this page): run inside the Gateway when agent events fire, like `/new`, `/reset`, `/stop`, or lifecycle events.
-- **Webhooks**: external HTTP webhooks that let other systems trigger work in OpenClaw. See [Webhook Hooks](/automation/webhook) or use `openclaw webhooks` for Gmail helper commands.
+- **Hooks** (trang này): chạy bên trong Gateway khi các sự kiện của agent được kích hoạt, như `/new`, `/reset`, `/stop`, hoặc các sự kiện vòng đời.
+- **Webhooks**: các webhook HTTP bên ngoài cho phép các hệ thống khác kích hoạt công việc trong OpenClaw. Xem [Webhook Hooks](/automation/webhook) hoặc sử dụng `openclaw webhooks` cho các lệnh trợ giúp Gmail.
 
-Hooks can also be bundled inside plugins; see [Plugin hooks](/plugins/architecture#provider-runtime-hooks).
+Hooks cũng có thể được đóng gói bên trong plugins; xem [Plugin hooks](/plugins/architecture#provider-runtime-hooks).
 
-Common uses:
+Các ứng dụng phổ biến:
 
-- Save a memory snapshot when you reset a session
-- Keep an audit trail of commands for troubleshooting or compliance
-- Trigger follow-up automation when a session starts or ends
-- Write files into the agent workspace or call external APIs when events fire
+- Lưu ảnh chụp bộ nhớ khi bạn reset một phiên
+- Giữ lại nhật ký các lệnh để khắc phục sự cố hoặc tuân thủ
+- Kích hoạt tự động hóa tiếp theo khi một phiên bắt đầu hoặc kết thúc
+- Ghi file vào workspace của agent hoặc gọi các API bên ngoài khi sự kiện xảy ra
 
-If you can write a small TypeScript function, you can write a hook. Hooks are discovered automatically, and you enable or disable them via the CLI.
+Nếu bạn có thể viết một hàm TypeScript nhỏ, bạn có thể viết một hook. Hooks được phát hiện tự động và bạn có thể bật hoặc tắt chúng qua CLI.
 
-## Overview
+## Bắt đầu
 
-The hooks system allows you to:
+### Hooks đi kèm
 
-- Save session context to memory when `/new` is issued
-- Log all commands for auditing
-- Trigger custom automations on agent lifecycle events
-- Extend OpenClaw's behavior without modifying core code
+OpenClaw đi kèm với bốn hooks được phát hiện tự động:
 
-## Getting Started
+- **💾 session-memory**: Lưu trữ ngữ cảnh phiên vào workspace của agent (mặc định `~/.openclaw/workspace/memory/`) khi bạn thực hiện `/new`
+- **📎 bootstrap-extra-files**: Chèn thêm các file bootstrap vào workspace từ các mẫu glob/path được cấu hình trong `agent:bootstrap`
+- **📝 command-logger**: Ghi lại tất cả các sự kiện lệnh vào `~/.openclaw/logs/commands.log`
+- **🚀 boot-md**: Chạy `BOOT.md` khi gateway khởi động (yêu cầu bật hooks nội bộ)
 
-### Bundled Hooks
-
-OpenClaw ships with four bundled hooks that are automatically discovered:
-
-- **💾 session-memory**: Saves session context to your agent workspace (default `~/.openclaw/workspace/memory/`) when you issue `/new`
-- **📎 bootstrap-extra-files**: Injects additional workspace bootstrap files from configured glob/path patterns during `agent:bootstrap`
-- **📝 command-logger**: Logs all command events to `~/.openclaw/logs/commands.log`
-- **🚀 boot-md**: Runs `BOOT.md` when the gateway starts (requires internal hooks enabled)
-
-List available hooks:
+Liệt kê các hooks có sẵn:
 
 ```bash
 openclaw hooks list
 ```
 
-Enable a hook:
+Bật một hook:
 
 ```bash
 openclaw hooks enable session-memory
 ```
 
-Check hook status:
+Kiểm tra trạng thái hook:
 
 ```bash
 openclaw hooks check
 ```
 
-Get detailed information:
+Lấy thông tin chi tiết:
 
 ```bash
 openclaw hooks info session-memory
 ```
 
-### Onboarding
+### Hướng dẫn sử dụng
 
-During onboarding (`openclaw onboard`), you'll be prompted to enable recommended hooks. The wizard automatically discovers eligible hooks and presents them for selection.
+Trong quá trình onboarding (`openclaw onboard`), bạn sẽ được nhắc bật các hooks được đề xuất. Trình hướng dẫn tự động phát hiện các hooks đủ điều kiện và trình bày chúng để lựa chọn.
 
-## Hook Discovery
+## Phát hiện Hook
 
-Hooks are automatically discovered from three directories (in order of precedence):
+Hooks được tự động phát hiện từ ba thư mục (theo thứ tự ưu tiên):
 
-1. **Workspace hooks**: `<workspace>/hooks/` (per-agent, highest precedence)
-2. **Managed hooks**: `~/.openclaw/hooks/` (user-installed, shared across workspaces)
-3. **Bundled hooks**: `<openclaw>/dist/hooks/bundled/` (shipped with OpenClaw)
+1. **Workspace hooks**: `<workspace>/hooks/` (mỗi agent, ưu tiên cao nhất)
+2. **Managed hooks**: `~/.openclaw/hooks/` (người dùng cài đặt, chia sẻ giữa các workspace)
+3. **Bundled hooks**: `<openclaw>/dist/hooks/bundled/` (đi kèm với OpenClaw)
 
-Managed hook directories can be either a **single hook** or a **hook pack** (package directory).
+Các thư mục hook quản lý có thể là một **hook đơn** hoặc một **gói hook** (thư mục package).
 
-Each hook is a directory containing:
+Mỗi hook là một thư mục chứa:
 
 ```
 my-hook/
-├── HOOK.md          # Metadata + documentation
-└── handler.ts       # Handler implementation
+├── HOOK.md          # Metadata + tài liệu
+└── handler.ts       # Triển khai handler
 ```
 
-## Hook Packs (npm/archives)
+## Gói Hook (npm/archives)
 
-Hook packs are standard npm packages that export one or more hooks via `openclaw.hooks` in
-`package.json`. Install them with:
+Gói hook là các package npm tiêu chuẩn xuất một hoặc nhiều hooks qua `openclaw.hooks` trong `package.json`. Cài đặt chúng với:
 
 ```bash
 openclaw hooks install <path-or-spec>
 ```
 
-Npm specs are registry-only (package name + optional exact version or dist-tag).
-Git/URL/file specs and semver ranges are rejected.
+Các spec npm chỉ có trong registry (tên package + phiên bản chính xác tùy chọn hoặc dist-tag).
+Các spec Git/URL/file và các phạm vi semver bị từ chối.
 
-Bare specs and `@latest` stay on the stable track. If npm resolves either of
-those to a prerelease, OpenClaw stops and asks you to opt in explicitly with a
-prerelease tag such as `@beta`/`@rc` or an exact prerelease version.
+Các spec trần và `@latest` giữ nguyên trên track ổn định. Nếu npm giải quyết một trong số đó thành một bản phát hành trước, OpenClaw sẽ dừng lại và yêu cầu bạn chọn rõ ràng với một tag phát hành trước như `@beta`/`@rc` hoặc một phiên bản phát hành trước chính xác.
 
-Example `package.json`:
+Ví dụ `package.json`:
 
 ```json
 {
@@ -122,25 +110,22 @@ Example `package.json`:
 }
 ```
 
-Each entry points to a hook directory containing `HOOK.md` and `handler.ts` (or `index.ts`).
-Hook packs can ship dependencies; they will be installed under `~/.openclaw/hooks/<id>`.
-Each `openclaw.hooks` entry must stay inside the package directory after symlink
-resolution; entries that escape are rejected.
+Mỗi mục trỏ đến một thư mục hook chứa `HOOK.md` và `handler.ts` (hoặc `index.ts`).
+Gói hook có thể đi kèm với các phụ thuộc; chúng sẽ được cài đặt dưới `~/.openclaw/hooks/<id>`.
+Mỗi mục `openclaw.hooks` phải nằm trong thư mục package sau khi giải quyết symlink; các mục thoát ra ngoài sẽ bị từ chối.
 
-Security note: `openclaw hooks install` installs dependencies with `npm install --ignore-scripts`
-(no lifecycle scripts). Keep hook pack dependency trees "pure JS/TS" and avoid packages that rely
-on `postinstall` builds.
+Lưu ý bảo mật: `openclaw hooks install` cài đặt các phụ thuộc với `npm install --ignore-scripts` (không có script vòng đời). Giữ cây phụ thuộc của gói hook "thuần JS/TS" và tránh các package phụ thuộc vào các bản dựng `postinstall`.
 
-## Hook Structure
+## Cấu trúc Hook
 
-### HOOK.md Format
+### Định dạng HOOK.md
 
-The `HOOK.md` file contains metadata in YAML frontmatter plus Markdown documentation:
+File `HOOK.md` chứa metadata trong YAML frontmatter cùng với tài liệu Markdown:
 
 ```markdown
 ---
 name: my-hook
-description: "Short description of what this hook does"
+description: "Mô tả ngắn gọn về chức năng của hook này"
 homepage: https://docs.openclaw.ai/automation/hooks#my-hook
 metadata:
   { "openclaw": { "emoji": "🔗", "events": ["command:new"], "requires": { "bins": ["node"] } } }
@@ -148,86 +133,86 @@ metadata:
 
 # My Hook
 
-Detailed documentation goes here...
+Tài liệu chi tiết ở đây...
 
-## What It Does
+## Chức năng
 
-- Listens for `/new` commands
-- Performs some action
-- Logs the result
+- Lắng nghe các lệnh `/new`
+- Thực hiện một số hành động
+- Ghi lại kết quả
 
-## Requirements
+## Yêu cầu
 
-- Node.js must be installed
+- Cần cài đặt Node.js
 
-## Configuration
+## Cấu hình
 
-No configuration needed.
+Không cần cấu hình.
 ```
 
-### Metadata Fields
+### Trường Metadata
 
-The `metadata.openclaw` object supports:
+Đối tượng `metadata.openclaw` hỗ trợ:
 
-- **`emoji`**: Display emoji for CLI (e.g., `"💾"`)
-- **`events`**: Array of events to listen for (e.g., `["command:new", "command:reset"]`)
-- **`export`**: Named export to use (defaults to `"default"`)
-- **`homepage`**: Documentation URL
-- **`requires`**: Optional requirements
-  - **`bins`**: Required binaries on PATH (e.g., `["git", "node"]`)
-  - **`anyBins`**: At least one of these binaries must be present
-  - **`env`**: Required environment variables
-  - **`config`**: Required config paths (e.g., `["workspace.dir"]`)
-  - **`os`**: Required platforms (e.g., `["darwin", "linux"]`)
-- **`always`**: Bypass eligibility checks (boolean)
-- **`install`**: Installation methods (for bundled hooks: `[{"id":"bundled","kind":"bundled"}]`)
+- **`emoji`**: Biểu tượng emoji hiển thị cho CLI (ví dụ: `"💾"`)
+- **`events`**: Mảng các sự kiện cần lắng nghe (ví dụ: `["command:new", "command:reset"]`)
+- **`export`**: Xuất danh định để sử dụng (mặc định là `"default"`)
+- **`homepage`**: URL tài liệu
+- **`requires`**: Yêu cầu tùy chọn
+  - **`bins`**: Các binary cần thiết trên PATH (ví dụ: `["git", "node"]`)
+  - **`anyBins`**: Ít nhất một trong các binary này phải có mặt
+  - **`env`**: Các biến môi trường cần thiết
+  - **`config`**: Các đường dẫn cấu hình cần thiết (ví dụ: `["workspace.dir"]`)
+  - **`os`**: Các nền tảng cần thiết (ví dụ: `["darwin", "linux"]`)
+- **`always`**: Bỏ qua kiểm tra đủ điều kiện (boolean)
+- **`install`**: Phương pháp cài đặt (đối với hooks đi kèm: `[{"id":"bundled","kind":"bundled"}]`)
 
-### Handler Implementation
+### Triển khai Handler
 
-The `handler.ts` file exports a `HookHandler` function:
+File `handler.ts` xuất một hàm `HookHandler`:
 
 ```typescript
 const myHandler = async (event) => {
-  // Only trigger on 'new' command
+  // Chỉ kích hoạt khi có lệnh 'new'
   if (event.type !== "command" || event.action !== "new") {
     return;
   }
 
-  console.log(`[my-hook] New command triggered`);
-  console.log(`  Session: ${event.sessionKey}`);
-  console.log(`  Timestamp: ${event.timestamp.toISOString()}`);
+  console.log(`[my-hook] Lệnh mới được kích hoạt`);
+  console.log(`  Phiên: ${event.sessionKey}`);
+  console.log(`  Thời gian: ${event.timestamp.toISOString()}`);
 
-  // Your custom logic here
+  // Logic tùy chỉnh của bạn ở đây
 
-  // Optionally send message to user
-  event.messages.push("✨ My hook executed!");
+  // Tùy chọn gửi tin nhắn đến người dùng
+  event.messages.push("✨ Hook của tôi đã thực thi!");
 };
 
 export default myHandler;
 ```
 
-#### Event Context
+#### Ngữ cảnh Sự kiện
 
-Each event includes:
+Mỗi sự kiện bao gồm:
 
 ```typescript
 {
   type: 'command' | 'session' | 'agent' | 'gateway' | 'message',
-  action: string,              // e.g., 'new', 'reset', 'stop', 'received', 'sent'
-  sessionKey: string,          // Session identifier
-  timestamp: Date,             // When the event occurred
-  messages: string[],          // Push messages here to send to user
+  action: string,              // ví dụ: 'new', 'reset', 'stop', 'received', 'sent'
+  sessionKey: string,          // Định danh phiên
+  timestamp: Date,             // Khi sự kiện xảy ra
+  messages: string[],          // Đẩy tin nhắn vào đây để gửi đến người dùng
   context: {
-    // Command events:
+    // Sự kiện lệnh:
     sessionEntry?: SessionEntry,
     sessionId?: string,
     sessionFile?: string,
-    commandSource?: string,    // e.g., 'whatsapp', 'telegram'
+    commandSource?: string,    // ví dụ: 'whatsapp', 'telegram'
     senderId?: string,
     workspaceDir?: string,
     bootstrapFiles?: WorkspaceBootstrapFile[],
     cfg?: OpenClawConfig,
-    // Message events (see Message Events section for full details):
+    // Sự kiện tin nhắn (xem phần Sự kiện Tin nhắn để biết chi tiết đầy đủ):
     from?: string,             // message:received
     to?: string,               // message:sent
     content?: string,
@@ -237,60 +222,60 @@ Each event includes:
 }
 ```
 
-## Event Types
+## Các loại sự kiện
 
-### Command Events
+### Sự kiện Lệnh
 
-Triggered when agent commands are issued:
+Kích hoạt khi các lệnh của agent được thực hiện:
 
-- **`command`**: All command events (general listener)
-- **`command:new`**: When `/new` command is issued
-- **`command:reset`**: When `/reset` command is issued
-- **`command:stop`**: When `/stop` command is issued
+- **`command`**: Tất cả các sự kiện lệnh (người nghe chung)
+- **`command:new`**: Khi lệnh `/new` được thực hiện
+- **`command:reset`**: Khi lệnh `/reset` được thực hiện
+- **`command:stop`**: Khi lệnh `/stop` được thực hiện
 
-### Session Events
+### Sự kiện Phiên
 
-- **`session:compact:before`**: Right before compaction summarizes history
-- **`session:compact:after`**: After compaction completes with summary metadata
+- **`session:compact:before`**: Ngay trước khi tóm tắt lịch sử
+- **`session:compact:after`**: Sau khi tóm tắt hoàn tất với metadata tóm tắt
 
-Internal hook payloads emit these as `type: "session"` with `action: "compact:before"` / `action: "compact:after"`; listeners subscribe with the combined keys above.
-Specific handler registration uses the literal key format `${type}:${action}`. For these events, register `session:compact:before` and `session:compact:after`.
+Payload hook nội bộ phát ra các sự kiện này dưới dạng `type: "session"` với `action: "compact:before"` / `action: "compact:after"`; người nghe đăng ký với các khóa kết hợp ở trên.
+Đăng ký handler cụ thể sử dụng định dạng khóa literal `${type}:${action}`. Đối với các sự kiện này, đăng ký `session:compact:before` và `session:compact:after`.
 
-### Agent Events
+### Sự kiện Agent
 
-- **`agent:bootstrap`**: Before workspace bootstrap files are injected (hooks may mutate `context.bootstrapFiles`)
+- **`agent:bootstrap`**: Trước khi các file bootstrap của workspace được chèn (hooks có thể thay đổi `context.bootstrapFiles`)
 
-### Gateway Events
+### Sự kiện Gateway
 
-Triggered when the gateway starts:
+Kích hoạt khi gateway khởi động:
 
-- **`gateway:startup`**: After channels start and hooks are loaded
+- **`gateway:startup`**: Sau khi các kênh bắt đầu và hooks được tải
 
-### Message Events
+### Sự kiện Tin nhắn
 
-Triggered when messages are received or sent:
+Kích hoạt khi tin nhắn được nhận hoặc gửi:
 
-- **`message`**: All message events (general listener)
-- **`message:received`**: When an inbound message is received from any channel. Fires early in processing before media understanding. Content may contain raw placeholders like `<media:audio>` for media attachments that haven't been processed yet.
-- **`message:transcribed`**: When a message has been fully processed, including audio transcription and link understanding. At this point, `transcript` contains the full transcript text for audio messages. Use this hook when you need access to transcribed audio content.
-- **`message:preprocessed`**: Fires for every message after all media + link understanding completes, giving hooks access to the fully enriched body (transcripts, image descriptions, link summaries) before the agent sees it.
-- **`message:sent`**: When an outbound message is successfully sent
+- **`message`**: Tất cả các sự kiện tin nhắn (người nghe chung)
+- **`message:received`**: Khi một tin nhắn đến được nhận từ bất kỳ kênh nào. Kích hoạt sớm trong quá trình xử lý trước khi hiểu phương tiện. Nội dung có thể chứa các placeholder thô như `<media:audio>` cho các tệp đính kèm phương tiện chưa được xử lý.
+- **`message:transcribed`**: Khi một tin nhắn đã được xử lý hoàn toàn, bao gồm cả phiên âm âm thanh và hiểu liên kết. Tại thời điểm này, `transcript` chứa văn bản phiên âm đầy đủ cho các tin nhắn âm thanh. Sử dụng hook này khi bạn cần truy cập vào nội dung âm thanh đã phiên âm.
+- **`message:preprocessed`**: Kích hoạt cho mỗi tin nhắn sau khi tất cả các phương tiện + hiểu liên kết hoàn tất, cho phép hooks truy cập vào nội dung đã được làm giàu đầy đủ (phiên âm, mô tả hình ảnh, tóm tắt liên kết) trước khi agent nhìn thấy nó.
+- **`message:sent`**: Khi một tin nhắn gửi đi được gửi thành công
 
-#### Message Event Context
+#### Ngữ cảnh Sự kiện Tin nhắn
 
-Message events include rich context about the message:
+Các sự kiện tin nhắn bao gồm ngữ cảnh phong phú về tin nhắn:
 
 ```typescript
-// message:received context
+// ngữ cảnh message:received
 {
-  from: string,           // Sender identifier (phone number, user ID, etc.)
-  content: string,        // Message content
-  timestamp?: number,     // Unix timestamp when received
-  channelId: string,      // Channel (e.g., "whatsapp", "telegram", "discord")
-  accountId?: string,     // Provider account ID for multi-account setups
-  conversationId?: string, // Chat/conversation ID
-  messageId?: string,     // Message ID from the provider
-  metadata?: {            // Additional provider-specific data
+  from: string,           // Định danh người gửi (số điện thoại, ID người dùng, v.v.)
+  content: string,        // Nội dung tin nhắn
+  timestamp?: number,     // Dấu thời gian Unix khi nhận
+  channelId: string,      // Kênh (ví dụ: "whatsapp", "telegram", "discord")
+  accountId?: string,     // ID tài khoản nhà cung cấp cho các thiết lập nhiều tài khoản
+  conversationId?: string, // ID cuộc trò chuyện
+  messageId?: string,     // ID tin nhắn từ nhà cung cấp
+  metadata?: {            // Dữ liệu bổ sung cụ thể của nhà cung cấp
     to?: string,
     provider?: string,
     surface?: string,
@@ -302,36 +287,36 @@ Message events include rich context about the message:
   }
 }
 
-// message:sent context
+// ngữ cảnh message:sent
 {
-  to: string,             // Recipient identifier
-  content: string,        // Message content that was sent
-  success: boolean,       // Whether the send succeeded
-  error?: string,         // Error message if sending failed
-  channelId: string,      // Channel (e.g., "whatsapp", "telegram", "discord")
-  accountId?: string,     // Provider account ID
-  conversationId?: string, // Chat/conversation ID
-  messageId?: string,     // Message ID returned by the provider
-  isGroup?: boolean,      // Whether this outbound message belongs to a group/channel context
-  groupId?: string,       // Group/channel identifier for correlation with message:received
+  to: string,             // Định danh người nhận
+  content: string,        // Nội dung tin nhắn đã gửi
+  success: boolean,       // Gửi thành công hay không
+  error?: string,         // Thông báo lỗi nếu gửi thất bại
+  channelId: string,      // Kênh (ví dụ: "whatsapp", "telegram", "discord")
+  accountId?: string,     // ID tài khoản nhà cung cấp
+  conversationId?: string, // ID cuộc trò chuyện
+  messageId?: string,     // ID tin nhắn trả về bởi nhà cung cấp
+  isGroup?: boolean,      // Tin nhắn gửi đi có thuộc về ngữ cảnh nhóm/kênh không
+  groupId?: string,       // Định danh nhóm/kênh để tương quan với message:received
 }
 
-// message:transcribed context
+// ngữ cảnh message:transcribed
 {
-  body?: string,          // Raw inbound body before enrichment
-  bodyForAgent?: string,  // Enriched body visible to the agent
-  transcript: string,     // Audio transcript text
-  channelId: string,      // Channel (e.g., "telegram", "whatsapp")
+  body?: string,          // Nội dung thô trước khi làm giàu
+  bodyForAgent?: string,  // Nội dung đã làm giàu cuối cùng mà agent thấy
+  transcript: string,     // Văn bản phiên âm âm thanh
+  channelId: string,      // Kênh (ví dụ: "telegram", "whatsapp")
   conversationId?: string,
   messageId?: string,
 }
 
-// message:preprocessed context
+// ngữ cảnh message:preprocessed
 {
-  body?: string,          // Raw inbound body
-  bodyForAgent?: string,  // Final enriched body after media/link understanding
-  transcript?: string,    // Transcript when audio was present
-  channelId: string,      // Channel (e.g., "telegram", "whatsapp")
+  body?: string,          // Nội dung thô
+  bodyForAgent?: string,  // Nội dung đã làm giàu cuối cùng sau khi hiểu phương tiện/liên kết
+  transcript?: string,    // Phiên âm khi có âm thanh
+  channelId: string,      // Kênh (ví dụ: "telegram", "whatsapp")
   conversationId?: string,
   messageId?: string,
   isGroup?: boolean,
@@ -339,7 +324,7 @@ Message events include rich context about the message:
 }
 ```
 
-#### Example: Message Logger Hook
+#### Ví dụ: Hook Ghi Nhật Ký Tin Nhắn
 
 ```typescript
 const isMessageReceivedEvent = (event: { type: string; action: string }) =>
@@ -349,9 +334,9 @@ const isMessageSentEvent = (event: { type: string; action: string }) =>
 
 const handler = async (event) => {
   if (isMessageReceivedEvent(event as { type: string; action: string })) {
-    console.log(`[message-logger] Received from ${event.context.from}: ${event.context.content}`);
+    console.log(`[message-logger] Nhận từ ${event.context.from}: ${event.context.content}`);
   } else if (isMessageSentEvent(event as { type: string; action: string })) {
-    console.log(`[message-logger] Sent to ${event.context.to}: ${event.context.content}`);
+    console.log(`[message-logger] Gửi đến ${event.context.to}: ${event.context.content}`);
   }
 };
 
@@ -360,54 +345,54 @@ export default handler;
 
 ### Tool Result Hooks (Plugin API)
 
-These hooks are not event-stream listeners; they let plugins synchronously adjust tool results before OpenClaw persists them.
+Các hooks này không phải là người nghe luồng sự kiện; chúng cho phép plugins điều chỉnh kết quả công cụ đồng bộ trước khi OpenClaw lưu trữ chúng.
 
-- **`tool_result_persist`**: transform tool results before they are written to the session transcript. Must be synchronous; return the updated tool result payload or `undefined` to keep it as-is. See [Agent Loop](/concepts/agent-loop).
+- **`tool_result_persist`**: biến đổi kết quả công cụ trước khi chúng được ghi vào bản ghi phiên. Phải đồng bộ; trả về payload kết quả công cụ đã cập nhật hoặc `undefined` để giữ nguyên. Xem [Agent Loop](/concepts/agent-loop).
 
-### Plugin Hook Events
+### Sự kiện Hook Plugin
 
-Compaction lifecycle hooks exposed through the plugin hook runner:
+Các hooks vòng đời nén được phơi bày qua trình chạy hook plugin:
 
-- **`before_compaction`**: Runs before compaction with count/token metadata
-- **`after_compaction`**: Runs after compaction with compaction summary metadata
+- **`before_compaction`**: Chạy trước khi nén với metadata đếm/token
+- **`after_compaction`**: Chạy sau khi nén với metadata tóm tắt nén
 
-### Future Events
+### Sự kiện Tương lai
 
-Planned event types:
+Các loại sự kiện dự kiến:
 
-- **`session:start`**: When a new session begins
-- **`session:end`**: When a session ends
-- **`agent:error`**: When an agent encounters an error
+- **`session:start`**: Khi một phiên mới bắt đầu
+- **`session:end`**: Khi một phiên kết thúc
+- **`agent:error`**: Khi một agent gặp lỗi
 
-## Creating Custom Hooks
+## Tạo Hooks Tùy chỉnh
 
-### 1. Choose Location
+### 1. Chọn Vị trí
 
-- **Workspace hooks** (`<workspace>/hooks/`): Per-agent, highest precedence
-- **Managed hooks** (`~/.openclaw/hooks/`): Shared across workspaces
+- **Workspace hooks** (`<workspace>/hooks/`): Mỗi agent, ưu tiên cao nhất
+- **Managed hooks** (`~/.openclaw/hooks/`): Chia sẻ giữa các workspace
 
-### 2. Create Directory Structure
+### 2. Tạo Cấu trúc Thư mục
 
 ```bash
 mkdir -p ~/.openclaw/hooks/my-hook
 cd ~/.openclaw/hooks/my-hook
 ```
 
-### 3. Create HOOK.md
+### 3. Tạo HOOK.md
 
 ```markdown
 ---
 name: my-hook
-description: "Does something useful"
+description: "Thực hiện một điều gì đó hữu ích"
 metadata: { "openclaw": { "emoji": "🎯", "events": ["command:new"] } }
 ---
 
 # My Custom Hook
 
-This hook does something useful when you issue `/new`.
+Hook này thực hiện một điều gì đó hữu ích khi bạn thực hiện `/new`.
 ```
 
-### 4. Create handler.ts
+### 4. Tạo handler.ts
 
 ```typescript
 const handler = async (event) => {
@@ -415,31 +400,31 @@ const handler = async (event) => {
     return;
   }
 
-  console.log("[my-hook] Running!");
-  // Your logic here
+  console.log("[my-hook] Đang chạy!");
+  // Logic của bạn ở đây
 };
 
 export default handler;
 ```
 
-### 5. Enable and Test
+### 5. Bật và Kiểm tra
 
 ```bash
-# Verify hook is discovered
+# Xác minh hook được phát hiện
 openclaw hooks list
 
-# Enable it
+# Bật nó
 openclaw hooks enable my-hook
 
-# Restart your gateway process (menu bar app restart on macOS, or restart your dev process)
+# Khởi động lại quá trình gateway của bạn (khởi động lại ứng dụng thanh menu trên macOS, hoặc khởi động lại quá trình phát triển của bạn)
 
-# Trigger the event
-# Send /new via your messaging channel
+# Kích hoạt sự kiện
+# Gửi /new qua kênh nhắn tin của bạn
 ```
 
-## Configuration
+## Cấu hình
 
-### New Config Format (Recommended)
+### Định dạng Cấu hình Mới (Khuyến nghị)
 
 ```json
 {
@@ -455,9 +440,9 @@ openclaw hooks enable my-hook
 }
 ```
 
-### Per-Hook Configuration
+### Cấu hình Từng Hook
 
-Hooks can have custom configuration:
+Hooks có thể có cấu hình tùy chỉnh:
 
 ```json
 {
@@ -477,9 +462,9 @@ Hooks can have custom configuration:
 }
 ```
 
-### Extra Directories
+### Thư mục Bổ sung
 
-Load hooks from additional directories:
+Tải hooks từ các thư mục bổ sung:
 
 ```json
 {
@@ -494,9 +479,9 @@ Load hooks from additional directories:
 }
 ```
 
-### Legacy Config Format (Still Supported)
+### Định dạng Cấu hình Cũ (Vẫn được hỗ trợ)
 
-The old config format still works for backwards compatibility:
+Định dạng cấu hình cũ vẫn hoạt động để tương thích ngược:
 
 ```json
 {
@@ -515,94 +500,94 @@ The old config format still works for backwards compatibility:
 }
 ```
 
-Note: `module` must be a workspace-relative path. Absolute paths and traversal outside the workspace are rejected.
+Lưu ý: `module` phải là đường dẫn tương đối đến workspace. Các đường dẫn tuyệt đối và vượt ra ngoài workspace sẽ bị từ chối.
 
-**Migration**: Use the new discovery-based system for new hooks. Legacy handlers are loaded after directory-based hooks.
+**Di chuyển**: Sử dụng hệ thống dựa trên phát hiện mới cho các hooks mới. Các handlers cũ được tải sau các hooks dựa trên thư mục.
 
-## CLI Commands
+## Lệnh CLI
 
-### List Hooks
+### Liệt kê Hooks
 
 ```bash
-# List all hooks
+# Liệt kê tất cả các hooks
 openclaw hooks list
 
-# Show only eligible hooks
+# Chỉ hiển thị các hooks đủ điều kiện
 openclaw hooks list --eligible
 
-# Verbose output (show missing requirements)
+# Đầu ra chi tiết (hiển thị các yêu cầu thiếu)
 openclaw hooks list --verbose
 
-# JSON output
+# Đầu ra JSON
 openclaw hooks list --json
 ```
 
-### Hook Information
+### Thông tin Hook
 
 ```bash
-# Show detailed info about a hook
+# Hiển thị thông tin chi tiết về một hook
 openclaw hooks info session-memory
 
-# JSON output
+# Đầu ra JSON
 openclaw hooks info session-memory --json
 ```
 
-### Check Eligibility
+### Kiểm tra Đủ điều kiện
 
 ```bash
-# Show eligibility summary
+# Hiển thị tóm tắt đủ điều kiện
 openclaw hooks check
 
-# JSON output
+# Đầu ra JSON
 openclaw hooks check --json
 ```
 
-### Enable/Disable
+### Bật/Tắt
 
 ```bash
-# Enable a hook
+# Bật một hook
 openclaw hooks enable session-memory
 
-# Disable a hook
+# Tắt một hook
 openclaw hooks disable command-logger
 ```
 
-## Bundled hook reference
+## Tham khảo hook đi kèm
 
 ### session-memory
 
-Saves session context to memory when you issue `/new`.
+Lưu trữ ngữ cảnh phiên vào bộ nhớ khi bạn thực hiện `/new`.
 
-**Events**: `command:new`
+**Sự kiện**: `command:new`
 
-**Requirements**: `workspace.dir` must be configured
+**Yêu cầu**: `workspace.dir` phải được cấu hình
 
-**Output**: `<workspace>/memory/YYYY-MM-DD-slug.md` (defaults to `~/.openclaw/workspace`)
+**Đầu ra**: `<workspace>/memory/YYYY-MM-DD-slug.md` (mặc định là `~/.openclaw/workspace`)
 
-**What it does**:
+**Chức năng**:
 
-1. Uses the pre-reset session entry to locate the correct transcript
-2. Extracts the last 15 lines of conversation
-3. Uses LLM to generate a descriptive filename slug
-4. Saves session metadata to a dated memory file
+1. Sử dụng mục nhập phiên trước khi reset để xác định bản ghi chính xác
+2. Trích xuất 15 dòng cuối cùng của cuộc trò chuyện
+3. Sử dụng LLM để tạo tên file mô tả
+4. Lưu metadata phiên vào file bộ nhớ có ngày
 
-**Example output**:
+**Ví dụ đầu ra**:
 
 ```markdown
-# Session: 2026-01-16 14:30:00 UTC
+# Phiên: 2026-01-16 14:30:00 UTC
 
-- **Session Key**: agent:main:main
-- **Session ID**: abc123def456
-- **Source**: telegram
+- **Khóa Phiên**: agent:main:main
+- **ID Phiên**: abc123def456
+- **Nguồn**: telegram
 ```
 
-**Filename examples**:
+**Ví dụ tên file**:
 
 - `2026-01-16-vendor-pitch.md`
 - `2026-01-16-api-design.md`
-- `2026-01-16-1430.md` (fallback timestamp if slug generation fails)
+- `2026-01-16-1430.md` (dấu thời gian dự phòng nếu tạo tên thất bại)
 
-**Enable**:
+**Bật**:
 
 ```bash
 openclaw hooks enable session-memory
@@ -610,15 +595,15 @@ openclaw hooks enable session-memory
 
 ### bootstrap-extra-files
 
-Injects additional bootstrap files (for example monorepo-local `AGENTS.md` / `TOOLS.md`) during `agent:bootstrap`.
+Chèn thêm các file bootstrap (ví dụ: `AGENTS.md` / `TOOLS.md` cục bộ monorepo) trong `agent:bootstrap`.
 
-**Events**: `agent:bootstrap`
+**Sự kiện**: `agent:bootstrap`
 
-**Requirements**: `workspace.dir` must be configured
+**Yêu cầu**: `workspace.dir` phải được cấu hình
 
-**Output**: No files written; bootstrap context is modified in-memory only.
+**Đầu ra**: Không có file nào được ghi; ngữ cảnh bootstrap chỉ được thay đổi trong bộ nhớ.
 
-**Config**:
+**Cấu hình**:
 
 ```json
 {
@@ -636,14 +621,14 @@ Injects additional bootstrap files (for example monorepo-local `AGENTS.md` / `TO
 }
 ```
 
-**Notes**:
+**Lưu ý**:
 
-- Paths are resolved relative to workspace.
-- Files must stay inside workspace (realpath-checked).
-- Only recognized bootstrap basenames are loaded.
-- Subagent allowlist is preserved (`AGENTS.md` and `TOOLS.md` only).
+- Các đường dẫn được giải quyết tương đối với workspace.
+- Các file phải nằm trong workspace (được kiểm tra realpath).
+- Chỉ các tên file bootstrap được công nhận mới được tải.
+- Danh sách cho phép subagent được bảo toàn (`AGENTS.md` và `TOOLS.md` chỉ).
 
-**Enable**:
+**Bật**:
 
 ```bash
 openclaw hooks enable bootstrap-extra-files
@@ -651,41 +636,41 @@ openclaw hooks enable bootstrap-extra-files
 
 ### command-logger
 
-Logs all command events to a centralized audit file.
+Ghi lại tất cả các sự kiện lệnh vào một file nhật ký tập trung.
 
-**Events**: `command`
+**Sự kiện**: `command`
 
-**Requirements**: None
+**Yêu cầu**: Không có
 
-**Output**: `~/.openclaw/logs/commands.log`
+**Đầu ra**: `~/.openclaw/logs/commands.log`
 
-**What it does**:
+**Chức năng**:
 
-1. Captures event details (command action, timestamp, session key, sender ID, source)
-2. Appends to log file in JSONL format
-3. Runs silently in the background
+1. Ghi lại chi tiết sự kiện (hành động lệnh, dấu thời gian, khóa phiên, ID người gửi, nguồn)
+2. Thêm vào file nhật ký ở định dạng JSONL
+3. Chạy âm thầm trong nền
 
-**Example log entries**:
+**Ví dụ mục nhật ký**:
 
 ```jsonl
 {"timestamp":"2026-01-16T14:30:00.000Z","action":"new","sessionKey":"agent:main:main","senderId":"+1234567890","source":"telegram"}
 {"timestamp":"2026-01-16T15:45:22.000Z","action":"stop","sessionKey":"agent:main:main","senderId":"user@example.com","source":"whatsapp"}
 ```
 
-**View logs**:
+**Xem nhật ký**:
 
 ```bash
-# View recent commands
+# Xem các lệnh gần đây
 tail -n 20 ~/.openclaw/logs/commands.log
 
-# Pretty-print with jq
+# In đẹp với jq
 cat ~/.openclaw/logs/commands.log | jq .
 
-# Filter by action
+# Lọc theo hành động
 grep '"action":"new"' ~/.openclaw/logs/commands.log | jq .
 ```
 
-**Enable**:
+**Bật**:
 
 ```bash
 openclaw hooks enable command-logger
@@ -693,147 +678,147 @@ openclaw hooks enable command-logger
 
 ### boot-md
 
-Runs `BOOT.md` when the gateway starts (after channels start).
-Internal hooks must be enabled for this to run.
+Chạy `BOOT.md` khi gateway khởi động (sau khi các kênh bắt đầu).
+Hooks nội bộ phải được bật để điều này chạy.
 
-**Events**: `gateway:startup`
+**Sự kiện**: `gateway:startup`
 
-**Requirements**: `workspace.dir` must be configured
+**Yêu cầu**: `workspace.dir` phải được cấu hình
 
-**What it does**:
+**Chức năng**:
 
-1. Reads `BOOT.md` from your workspace
-2. Runs the instructions via the agent runner
-3. Sends any requested outbound messages via the message tool
+1. Đọc `BOOT.md` từ workspace của bạn
+2. Chạy các hướng dẫn qua trình chạy agent
+3. Gửi bất kỳ tin nhắn gửi đi nào được yêu cầu qua công cụ tin nhắn
 
-**Enable**:
+**Bật**:
 
 ```bash
 openclaw hooks enable boot-md
 ```
 
-## Best Practices
+## Thực hành tốt nhất
 
-### Keep Handlers Fast
+### Giữ cho Handlers Nhanh
 
-Hooks run during command processing. Keep them lightweight:
+Hooks chạy trong quá trình xử lý lệnh. Giữ chúng nhẹ:
 
 ```typescript
-// ✓ Good - async work, returns immediately
+// ✓ Tốt - công việc async, trả về ngay lập tức
 const handler: HookHandler = async (event) => {
-  void processInBackground(event); // Fire and forget
+  void processInBackground(event); // Kích hoạt và quên
 };
 
-// ✗ Bad - blocks command processing
+// ✗ Xấu - chặn xử lý lệnh
 const handler: HookHandler = async (event) => {
   await slowDatabaseQuery(event);
   await evenSlowerAPICall(event);
 };
 ```
 
-### Handle Errors Gracefully
+### Xử lý Lỗi Một Cách Khéo Léo
 
-Always wrap risky operations:
+Luôn bao bọc các hoạt động có rủi ro:
 
 ```typescript
 const handler: HookHandler = async (event) => {
   try {
     await riskyOperation(event);
   } catch (err) {
-    console.error("[my-handler] Failed:", err instanceof Error ? err.message : String(err));
-    // Don't throw - let other handlers run
+    console.error("[my-handler] Thất bại:", err instanceof Error ? err.message : String(err));
+    // Không ném lỗi - để các handler khác chạy
   }
 };
 ```
 
-### Filter Events Early
+### Lọc Sự kiện Sớm
 
-Return early if the event isn't relevant:
+Trả về sớm nếu sự kiện không liên quan:
 
 ```typescript
 const handler: HookHandler = async (event) => {
-  // Only handle 'new' commands
+  // Chỉ xử lý các lệnh 'new'
   if (event.type !== "command" || event.action !== "new") {
     return;
   }
 
-  // Your logic here
+  // Logic của bạn ở đây
 };
 ```
 
-### Use Specific Event Keys
+### Sử dụng Khóa Sự kiện Cụ thể
 
-Specify exact events in metadata when possible:
-
-```yaml
-metadata: { "openclaw": { "events": ["command:new"] } } # Specific
-```
-
-Rather than:
+Chỉ định các sự kiện chính xác trong metadata khi có thể:
 
 ```yaml
-metadata: { "openclaw": { "events": ["command"] } } # General - more overhead
+metadata: { "openclaw": { "events": ["command:new"] } } # Cụ thể
 ```
 
-## Debugging
+Thay vì:
 
-### Enable Hook Logging
-
-The gateway logs hook loading at startup:
-
-```
-Registered hook: session-memory -> command:new
-Registered hook: bootstrap-extra-files -> agent:bootstrap
-Registered hook: command-logger -> command
-Registered hook: boot-md -> gateway:startup
+```yaml
+metadata: { "openclaw": { "events": ["command"] } } # Chung - nhiều overhead hơn
 ```
 
-### Check Discovery
+## Gỡ lỗi
 
-List all discovered hooks:
+### Bật Nhật ký Hook
+
+Gateway ghi lại việc tải hook khi khởi động:
+
+```
+Đã đăng ký hook: session-memory -> command:new
+Đã đăng ký hook: bootstrap-extra-files -> agent:bootstrap
+Đã đăng ký hook: command-logger -> command
+Đã đăng ký hook: boot-md -> gateway:startup
+```
+
+### Kiểm tra Phát hiện
+
+Liệt kê tất cả các hooks đã phát hiện:
 
 ```bash
 openclaw hooks list --verbose
 ```
 
-### Check Registration
+### Kiểm tra Đăng ký
 
-In your handler, log when it's called:
+Trong handler của bạn, ghi lại khi nó được gọi:
 
 ```typescript
 const handler: HookHandler = async (event) => {
-  console.log("[my-handler] Triggered:", event.type, event.action);
-  // Your logic
+  console.log("[my-handler] Đã kích hoạt:", event.type, event.action);
+  // Logic của bạn
 };
 ```
 
-### Verify Eligibility
+### Xác minh Đủ điều kiện
 
-Check why a hook isn't eligible:
+Kiểm tra lý do tại sao một hook không đủ điều kiện:
 
 ```bash
 openclaw hooks info my-hook
 ```
 
-Look for missing requirements in the output.
+Tìm các yêu cầu thiếu trong đầu ra.
 
-## Testing
+## Kiểm tra
 
-### Gateway Logs
+### Nhật ký Gateway
 
-Monitor gateway logs to see hook execution:
+Giám sát nhật ký gateway để xem thực thi hook:
 
 ```bash
 # macOS
 ./scripts/clawlog.sh -f
 
-# Other platforms
+# Các nền tảng khác
 tail -f ~/.openclaw/gateway.log
 ```
 
-### Test Hooks Directly
+### Kiểm tra Hooks Trực tiếp
 
-Test your handlers in isolation:
+Kiểm tra handlers của bạn một cách độc lập:
 
 ```typescript
 import { test } from "vitest";
@@ -851,126 +836,126 @@ test("my handler works", async () => {
 
   await myHandler(event);
 
-  // Assert side effects
+  // Khẳng định các tác động phụ
 });
 ```
 
-## Architecture
+## Kiến trúc
 
-### Core Components
+### Các thành phần cốt lõi
 
-- **`src/hooks/types.ts`**: Type definitions
-- **`src/hooks/workspace.ts`**: Directory scanning and loading
-- **`src/hooks/frontmatter.ts`**: HOOK.md metadata parsing
-- **`src/hooks/config.ts`**: Eligibility checking
-- **`src/hooks/hooks-status.ts`**: Status reporting
-- **`src/hooks/loader.ts`**: Dynamic module loader
-- **`src/cli/hooks-cli.ts`**: CLI commands
-- **`src/gateway/server-startup.ts`**: Loads hooks at gateway start
-- **`src/auto-reply/reply/commands-core.ts`**: Triggers command events
+- **`src/hooks/types.ts`**: Định nghĩa kiểu
+- **`src/hooks/workspace.ts`**: Quét và tải thư mục
+- **`src/hooks/frontmatter.ts`**: Phân tích metadata HOOK.md
+- **`src/hooks/config.ts`**: Kiểm tra đủ điều kiện
+- **`src/hooks/hooks-status.ts`**: Báo cáo trạng thái
+- **`src/hooks/loader.ts`**: Trình tải module động
+- **`src/cli/hooks-cli.ts`**: Lệnh CLI
+- **`src/gateway/server-startup.ts`**: Tải hooks khi gateway khởi động
+- **`src/auto-reply/reply/commands-core.ts`**: Kích hoạt sự kiện lệnh
 
-### Discovery Flow
-
-```
-Gateway startup
-    ↓
-Scan directories (workspace → managed → bundled)
-    ↓
-Parse HOOK.md files
-    ↓
-Check eligibility (bins, env, config, os)
-    ↓
-Load handlers from eligible hooks
-    ↓
-Register handlers for events
-```
-
-### Event Flow
+### Luồng Phát hiện
 
 ```
-User sends /new
+Khởi động Gateway
     ↓
-Command validation
+Quét thư mục (workspace → managed → bundled)
     ↓
-Create hook event
+Phân tích các file HOOK.md
     ↓
-Trigger hook (all registered handlers)
+Kiểm tra đủ điều kiện (bins, env, config, os)
     ↓
-Command processing continues
+Tải handlers từ các hooks đủ điều kiện
     ↓
-Session reset
+Đăng ký handlers cho các sự kiện
 ```
 
-## Troubleshooting
+### Luồng Sự kiện
 
-### Hook Not Discovered
+```
+Người dùng gửi /new
+    ↓
+Xác thực lệnh
+    ↓
+Tạo sự kiện hook
+    ↓
+Kích hoạt hook (tất cả các handlers đã đăng ký)
+    ↓
+Quá trình xử lý lệnh tiếp tục
+    ↓
+Reset phiên
+```
 
-1. Check directory structure:
+## Khắc phục sự cố
+
+### Hook Không Được Phát hiện
+
+1. Kiểm tra cấu trúc thư mục:
 
    ```bash
    ls -la ~/.openclaw/hooks/my-hook/
-   # Should show: HOOK.md, handler.ts
+   # Nên hiển thị: HOOK.md, handler.ts
    ```
 
-2. Verify HOOK.md format:
+2. Xác minh định dạng HOOK.md:
 
    ```bash
    cat ~/.openclaw/hooks/my-hook/HOOK.md
-   # Should have YAML frontmatter with name and metadata
+   # Nên có YAML frontmatter với tên và metadata
    ```
 
-3. List all discovered hooks:
+3. Liệt kê tất cả các hooks đã phát hiện:
 
    ```bash
    openclaw hooks list
    ```
 
-### Hook Not Eligible
+### Hook Không Đủ điều kiện
 
-Check requirements:
+Kiểm tra yêu cầu:
 
 ```bash
 openclaw hooks info my-hook
 ```
 
-Look for missing:
+Tìm các yêu cầu thiếu:
 
-- Binaries (check PATH)
-- Environment variables
-- Config values
-- OS compatibility
+- Binaries (kiểm tra PATH)
+- Biến môi trường
+- Giá trị cấu hình
+- Tương thích hệ điều hành
 
-### Hook Not Executing
+### Hook Không Thực thi
 
-1. Verify hook is enabled:
+1. Xác minh hook đã được bật:
 
    ```bash
    openclaw hooks list
-   # Should show ✓ next to enabled hooks
+   # Nên hiển thị ✓ bên cạnh các hooks đã bật
    ```
 
-2. Restart your gateway process so hooks reload.
+2. Khởi động lại quá trình gateway của bạn để hooks tải lại.
 
-3. Check gateway logs for errors:
+3. Kiểm tra nhật ký gateway để tìm lỗi:
 
    ```bash
    ./scripts/clawlog.sh | grep hook
    ```
 
-### Handler Errors
+### Lỗi Handler
 
-Check for TypeScript/import errors:
+Kiểm tra lỗi TypeScript/import:
 
 ```bash
-# Test import directly
+# Kiểm tra import trực tiếp
 node -e "import('./path/to/handler.ts').then(console.log)"
 ```
 
-## Migration Guide
+## Hướng dẫn Di chuyển
 
-### From Legacy Config to Discovery
+### Từ Cấu hình Cũ sang Phát hiện
 
-**Before**:
+**Trước**:
 
 ```json
 {
@@ -988,30 +973,30 @@ node -e "import('./path/to/handler.ts').then(console.log)"
 }
 ```
 
-**After**:
+**Sau**:
 
-1. Create hook directory:
+1. Tạo thư mục hook:
 
    ```bash
    mkdir -p ~/.openclaw/hooks/my-hook
    mv ./hooks/handlers/my-handler.ts ~/.openclaw/hooks/my-hook/handler.ts
    ```
 
-2. Create HOOK.md:
+2. Tạo HOOK.md:
 
    ```markdown
    ---
    name: my-hook
-   description: "My custom hook"
+   description: "Hook tùy chỉnh của tôi"
    metadata: { "openclaw": { "emoji": "🎯", "events": ["command:new"] } }
    ---
 
    # My Hook
 
-   Does something useful.
+   Thực hiện một điều gì đó hữu ích.
    ```
 
-3. Update config:
+3. Cập nhật cấu hình:
 
    ```json
    {
@@ -1026,24 +1011,24 @@ node -e "import('./path/to/handler.ts').then(console.log)"
    }
    ```
 
-4. Verify and restart your gateway process:
+4. Xác minh và khởi động lại quá trình gateway của bạn:
 
    ```bash
    openclaw hooks list
-   # Should show: 🎯 my-hook ✓
+   # Nên hiển thị: 🎯 my-hook ✓
    ```
 
-**Benefits of migration**:
+**Lợi ích của việc di chuyển**:
 
-- Automatic discovery
-- CLI management
-- Eligibility checking
-- Better documentation
-- Consistent structure
+- Phát hiện tự động
+- Quản lý CLI
+- Kiểm tra đủ điều kiện
+- Tài liệu tốt hơn
+- Cấu trúc nhất quán
 
-## See Also
+## Xem thêm
 
-- [CLI Reference: hooks](/cli/hooks)
-- [Bundled Hooks README](https://github.com/openclaw/openclaw/tree/main/src/hooks/bundled)
+- [Tham khảo CLI: hooks](/cli/hooks)
+- [README Hooks đi kèm](https://github.com/openclaw/openclaw/tree/main/src/hooks/bundled)
 - [Webhook Hooks](/automation/webhook)
-- [Configuration](/gateway/configuration-reference#hooks)
+- [Cấu hình](/gateway/configuration-reference#hooks)

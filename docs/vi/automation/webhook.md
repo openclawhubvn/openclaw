@@ -1,16 +1,16 @@
 ---
-summary: "Webhook ingress for wake and isolated agent runs"
+summary: "Webhook ingress cho việc đánh thức và chạy agent cô lập"
 read_when:
-  - Adding or changing webhook endpoints
-  - Wiring external systems into OpenClaw
+  - Thêm hoặc thay đổi endpoint webhook
+  - Kết nối hệ thống bên ngoài vào OpenClaw
 title: "Webhooks"
 ---
 
 # Webhooks
 
-Gateway can expose a small HTTP webhook endpoint for external triggers.
+Gateway có thể mở một endpoint HTTP webhook nhỏ để kích hoạt từ bên ngoài.
 
-## Enable
+## Kích hoạt
 
 ```json5
 {
@@ -18,27 +18,27 @@ Gateway can expose a small HTTP webhook endpoint for external triggers.
     enabled: true,
     token: "shared-secret",
     path: "/hooks",
-    // Optional: restrict explicit `agentId` routing to this allowlist.
-    // Omit or include "*" to allow any agent.
-    // Set [] to deny all explicit `agentId` routing.
+    // Tùy chọn: giới hạn routing `agentId` rõ ràng vào danh sách cho phép này.
+    // Bỏ qua hoặc bao gồm "*" để cho phép bất kỳ agent nào.
+    // Đặt [] để từ chối tất cả routing `agentId` rõ ràng.
     allowedAgentIds: ["hooks", "main"],
   },
 }
 ```
 
-Notes:
+Ghi chú:
 
-- `hooks.token` is required when `hooks.enabled=true`.
-- `hooks.path` defaults to `/hooks`.
+- `hooks.token` là bắt buộc khi `hooks.enabled=true`.
+- `hooks.path` mặc định là `/hooks`.
 
-## Auth
+## Xác thực
 
-Every request must include the hook token. Prefer headers:
+Mỗi yêu cầu phải bao gồm token hook. Nên dùng headers:
 
-- `Authorization: Bearer <token>` (recommended)
+- `Authorization: Bearer <token>` (khuyến nghị)
 - `x-openclaw-token: <token>`
-- Query-string tokens are rejected (`?token=...` returns `400`).
-- Treat `hooks.token` holders as full-trust callers for the hook ingress surface on that gateway. Hook payload content is still untrusted, but this is not a separate non-owner auth boundary.
+- Token trong query-string sẽ bị từ chối (`?token=...` trả về `400`).
+- Xem `hooks.token` như là người gọi có toàn quyền tin cậy cho bề mặt hook ingress trên gateway đó. Nội dung payload hook vẫn không được tin cậy, nhưng đây không phải là ranh giới xác thực riêng biệt cho người không sở hữu.
 
 ## Endpoints
 
@@ -50,13 +50,13 @@ Payload:
 { "text": "System line", "mode": "now" }
 ```
 
-- `text` **required** (string): The description of the event (e.g., "New email received").
-- `mode` optional (`now` | `next-heartbeat`): Whether to trigger an immediate heartbeat (default `now`) or wait for the next periodic check.
+- `text` **bắt buộc** (chuỗi): Mô tả sự kiện (ví dụ: "Nhận được email mới").
+- `mode` tùy chọn (`now` | `next-heartbeat`): Kích hoạt ngay lập tức (mặc định `now`) hoặc chờ lần kiểm tra định kỳ tiếp theo.
 
-Effect:
+Hiệu ứng:
 
-- Enqueues a system event for the **main** session
-- If `mode=now`, triggers an immediate heartbeat
+- Đưa sự kiện hệ thống vào hàng đợi cho phiên **main**
+- Nếu `mode=now`, kích hoạt ngay lập tức
 
 ### `POST /hooks/agent`
 
@@ -78,32 +78,32 @@ Payload:
 }
 ```
 
-- `message` **required** (string): The prompt or message for the agent to process.
-- `name` optional (string): Human-readable name for the hook (e.g., "GitHub"), used as a prefix in session summaries.
-- `agentId` optional (string): Route this hook to a specific agent. Unknown IDs fall back to the default agent. When set, the hook runs using the resolved agent's workspace and configuration.
-- `sessionKey` optional (string): The key used to identify the agent's session. By default this field is rejected unless `hooks.allowRequestSessionKey=true`.
-- `wakeMode` optional (`now` | `next-heartbeat`): Whether to trigger an immediate heartbeat (default `now`) or wait for the next periodic check.
-- `deliver` optional (boolean): If `true`, the agent's response will be sent to the messaging channel. Defaults to `true`. Responses that are only heartbeat acknowledgments are automatically skipped.
-- `channel` optional (string): The messaging channel for delivery. One of: `last`, `whatsapp`, `telegram`, `discord`, `slack`, `mattermost` (plugin), `signal`, `imessage`, `msteams`. Defaults to `last`.
-- `to` optional (string): The recipient identifier for the channel (e.g., phone number for WhatsApp/Signal, chat ID for Telegram, channel ID for Discord/Slack/Mattermost (plugin), conversation ID for Microsoft Teams). Defaults to the last recipient in the main session.
-- `model` optional (string): Model override (e.g., `anthropic/claude-3-5-sonnet` or an alias). Must be in the allowed model list if restricted.
-- `thinking` optional (string): Thinking level override (e.g., `low`, `medium`, `high`).
-- `timeoutSeconds` optional (number): Maximum duration for the agent run in seconds.
+- `message` **bắt buộc** (chuỗi): Lời nhắc hoặc thông điệp để agent xử lý.
+- `name` tùy chọn (chuỗi): Tên dễ đọc cho hook (ví dụ: "GitHub"), dùng làm tiền tố trong tóm tắt phiên.
+- `agentId` tùy chọn (chuỗi): Định tuyến hook này đến một agent cụ thể. ID không xác định sẽ quay về agent mặc định. Khi được đặt, hook sẽ chạy sử dụng workspace và cấu hình của agent đã được giải quyết.
+- `sessionKey` tùy chọn (chuỗi): Khóa dùng để xác định phiên của agent. Mặc định trường này bị từ chối trừ khi `hooks.allowRequestSessionKey=true`.
+- `wakeMode` tùy chọn (`now` | `next-heartbeat`): Kích hoạt ngay lập tức (mặc định `now`) hoặc chờ lần kiểm tra định kỳ tiếp theo.
+- `deliver` tùy chọn (boolean): Nếu `true`, phản hồi của agent sẽ được gửi đến kênh nhắn tin. Mặc định là `true`. Các phản hồi chỉ là xác nhận heartbeat sẽ tự động bị bỏ qua.
+- `channel` tùy chọn (chuỗi): Kênh nhắn tin để gửi. Một trong các giá trị: `last`, `whatsapp`, `telegram`, `discord`, `slack`, `mattermost` (plugin), `signal`, `imessage`, `msteams`. Mặc định là `last`.
+- `to` tùy chọn (chuỗi): Định danh người nhận cho kênh (ví dụ: số điện thoại cho WhatsApp/Signal, ID chat cho Telegram, ID kênh cho Discord/Slack/Mattermost (plugin), ID cuộc trò chuyện cho Microsoft Teams). Mặc định là người nhận cuối cùng trong phiên chính.
+- `model` tùy chọn (chuỗi): Ghi đè mô hình (ví dụ: `anthropic/claude-3-5-sonnet` hoặc một bí danh). Phải nằm trong danh sách mô hình được phép nếu bị giới hạn.
+- `thinking` tùy chọn (chuỗi): Ghi đè mức độ suy nghĩ (ví dụ: `low`, `medium`, `high`).
+- `timeoutSeconds` tùy chọn (số): Thời gian tối đa cho lần chạy agent tính bằng giây.
 
-Effect:
+Hiệu ứng:
 
-- Runs an **isolated** agent turn (own session key)
-- Always posts a summary into the **main** session
-- If `wakeMode=now`, triggers an immediate heartbeat
+- Chạy một lượt agent **cô lập** (khóa phiên riêng)
+- Luôn đăng tóm tắt vào phiên **main**
+- Nếu `wakeMode=now`, kích hoạt ngay lập tức
 
-## Session key policy (breaking change)
+## Chính sách khóa phiên (thay đổi phá vỡ)
 
-`/hooks/agent` payload `sessionKey` overrides are disabled by default.
+Ghi đè `sessionKey` trong payload `/hooks/agent` bị vô hiệu hóa theo mặc định.
 
-- Recommended: set a fixed `hooks.defaultSessionKey` and keep request overrides off.
-- Optional: allow request overrides only when needed, and restrict prefixes.
+- Khuyến nghị: đặt một `hooks.defaultSessionKey` cố định và giữ tắt ghi đè yêu cầu.
+- Tùy chọn: cho phép ghi đè yêu cầu chỉ khi cần thiết, và giới hạn tiền tố.
 
-Recommended config:
+Cấu hình khuyến nghị:
 
 ```json5
 {
@@ -117,7 +117,7 @@ Recommended config:
 }
 ```
 
-Compatibility config (legacy behavior):
+Cấu hình tương thích (hành vi cũ):
 
 ```json5
 {
@@ -125,75 +125,73 @@ Compatibility config (legacy behavior):
     enabled: true,
     token: "${OPENCLAW_HOOKS_TOKEN}",
     allowRequestSessionKey: true,
-    allowedSessionKeyPrefixes: ["hook:"], // strongly recommended
+    allowedSessionKeyPrefixes: ["hook:"], // rất khuyến nghị
   },
 }
 ```
 
-### `POST /hooks/<name>` (mapped)
+### `POST /hooks/<name>` (được ánh xạ)
 
-Custom hook names are resolved via `hooks.mappings` (see configuration). A mapping can
-turn arbitrary payloads into `wake` or `agent` actions, with optional templates or
-code transforms.
+Tên hook tùy chỉnh được giải quyết thông qua `hooks.mappings` (xem cấu hình). Một ánh xạ có thể biến đổi payload tùy ý thành hành động `wake` hoặc `agent`, với các mẫu hoặc chuyển đổi mã tùy chọn.
 
-Mapping options (summary):
+Tùy chọn ánh xạ (tóm tắt):
 
-- `hooks.presets: ["gmail"]` enables the built-in Gmail mapping.
-- `hooks.mappings` lets you define `match`, `action`, and templates in config.
-- `hooks.transformsDir` + `transform.module` loads a JS/TS module for custom logic.
-  - `hooks.transformsDir` (if set) must stay within the transforms root under your OpenClaw config directory (typically `~/.openclaw/hooks/transforms`).
-  - `transform.module` must resolve within the effective transforms directory (traversal/escape paths are rejected).
-- Use `match.source` to keep a generic ingest endpoint (payload-driven routing).
-- TS transforms require a TS loader (e.g. `bun` or `tsx`) or precompiled `.js` at runtime.
-- Set `deliver: true` + `channel`/`to` on mappings to route replies to a chat surface
-  (`channel` defaults to `last` and falls back to WhatsApp).
-- `agentId` routes the hook to a specific agent; unknown IDs fall back to the default agent.
-- `hooks.allowedAgentIds` restricts explicit `agentId` routing. Omit it (or include `*`) to allow any agent. Set `[]` to deny explicit `agentId` routing.
-- `hooks.defaultSessionKey` sets the default session for hook agent runs when no explicit key is provided.
-- `hooks.allowRequestSessionKey` controls whether `/hooks/agent` payloads may set `sessionKey` (default: `false`).
-- `hooks.allowedSessionKeyPrefixes` optionally restricts explicit `sessionKey` values from request payloads and mappings.
-- `allowUnsafeExternalContent: true` disables the external content safety wrapper for that hook
-  (dangerous; only for trusted internal sources).
-- `openclaw webhooks gmail setup` writes `hooks.gmail` config for `openclaw webhooks gmail run`.
-  See [Gmail Pub/Sub](/automation/gmail-pubsub) for the full Gmail watch flow.
+- `hooks.presets: ["gmail"]` kích hoạt ánh xạ Gmail tích hợp sẵn.
+- `hooks.mappings` cho phép bạn định nghĩa `match`, `action`, và các mẫu trong cấu hình.
+- `hooks.transformsDir` + `transform.module` tải một module JS/TS cho logic tùy chỉnh.
+  - `hooks.transformsDir` (nếu được đặt) phải nằm trong thư mục gốc transforms dưới thư mục cấu hình OpenClaw của bạn (thường là `~/.openclaw/hooks/transforms`).
+  - `transform.module` phải được giải quyết trong thư mục transforms hiệu quả (các đường dẫn traversal/escape bị từ chối).
+- Sử dụng `match.source` để giữ một endpoint ingest chung (định tuyến dựa trên payload).
+- Các chuyển đổi TS yêu cầu một loader TS (ví dụ `bun` hoặc `tsx`) hoặc `.js` đã biên dịch trước khi chạy.
+- Đặt `deliver: true` + `channel`/`to` trên ánh xạ để định tuyến phản hồi đến bề mặt chat
+  (`channel` mặc định là `last` và quay về WhatsApp).
+- `agentId` định tuyến hook đến một agent cụ thể; ID không xác định sẽ quay về agent mặc định.
+- `hooks.allowedAgentIds` giới hạn routing `agentId` rõ ràng. Bỏ qua nó (hoặc bao gồm `*`) để cho phép bất kỳ agent nào. Đặt `[]` để từ chối routing `agentId` rõ ràng.
+- `hooks.defaultSessionKey` đặt phiên mặc định cho các lần chạy agent hook khi không có khóa rõ ràng nào được cung cấp.
+- `hooks.allowRequestSessionKey` kiểm soát liệu payload `/hooks/agent` có thể đặt `sessionKey` hay không (mặc định: `false`).
+- `hooks.allowedSessionKeyPrefixes` tùy chọn giới hạn các giá trị `sessionKey` rõ ràng từ payload yêu cầu và ánh xạ.
+- `allowUnsafeExternalContent: true` vô hiệu hóa lớp bảo vệ nội dung bên ngoài cho hook đó
+  (nguy hiểm; chỉ dành cho các nguồn nội bộ đáng tin cậy).
+- `openclaw webhooks gmail setup` ghi cấu hình `hooks.gmail` cho `openclaw webhooks gmail run`.
+  Xem [Gmail Pub/Sub](/automation/gmail-pubsub) để biết toàn bộ quy trình theo dõi Gmail.
 
-## Responses
+## Phản hồi
 
-- `200` for `/hooks/wake`
-- `200` for `/hooks/agent` (async run accepted)
-- `401` on auth failure
-- `429` after repeated auth failures from the same client (check `Retry-After`)
-- `400` on invalid payload
-- `413` on oversized payloads
+- `200` cho `/hooks/wake`
+- `200` cho `/hooks/agent` (chấp nhận chạy không đồng bộ)
+- `401` khi xác thực thất bại
+- `429` sau khi xác thực thất bại nhiều lần từ cùng một client (kiểm tra `Retry-After`)
+- `400` khi payload không hợp lệ
+- `413` khi payload quá lớn
 
-## Examples
+## Ví dụ
 
 ```bash
 curl -X POST http://127.0.0.1:18789/hooks/wake \
   -H 'Authorization: Bearer SECRET' \
   -H 'Content-Type: application/json' \
-  -d '{"text":"New email received","mode":"now"}'
+  -d '{"text":"Nhận được email mới","mode":"now"}'
 ```
 
 ```bash
 curl -X POST http://127.0.0.1:18789/hooks/agent \
   -H 'x-openclaw-token: SECRET' \
   -H 'Content-Type: application/json' \
-  -d '{"message":"Summarize inbox","name":"Email","wakeMode":"next-heartbeat"}'
+  -d '{"message":"Tóm tắt hộp thư","name":"Email","wakeMode":"next-heartbeat"}'
 ```
 
-### Use a different model
+### Sử dụng mô hình khác
 
-Add `model` to the agent payload (or mapping) to override the model for that run:
+Thêm `model` vào payload agent (hoặc ánh xạ) để ghi đè mô hình cho lần chạy đó:
 
 ```bash
 curl -X POST http://127.0.0.1:18789/hooks/agent \
   -H 'x-openclaw-token: SECRET' \
   -H 'Content-Type: application/json' \
-  -d '{"message":"Summarize inbox","name":"Email","model":"openai/gpt-5.2-mini"}'
+  -d '{"message":"Tóm tắt hộp thư","name":"Email","model":"openai/gpt-5.2-mini"}'
 ```
 
-If you enforce `agents.defaults.models`, make sure the override model is included there.
+Nếu bạn thực thi `agents.defaults.models`, hãy đảm bảo mô hình ghi đè được bao gồm ở đó.
 
 ```bash
 curl -X POST http://127.0.0.1:18789/hooks/gmail \
@@ -202,16 +200,16 @@ curl -X POST http://127.0.0.1:18789/hooks/gmail \
   -d '{"source":"gmail","messages":[{"from":"Ada","subject":"Hello","snippet":"Hi"}]}'
 ```
 
-## Security
+## Bảo mật
 
-- Keep hook endpoints behind loopback, tailnet, or trusted reverse proxy.
-- Use a dedicated hook token; do not reuse gateway auth tokens.
-- Prefer a dedicated hook agent with strict `tools.profile` and sandboxing so hook ingress has a narrower blast radius.
-- Repeated auth failures are rate-limited per client address to slow brute-force attempts.
-- If you use multi-agent routing, set `hooks.allowedAgentIds` to limit explicit `agentId` selection.
-- Keep `hooks.allowRequestSessionKey=false` unless you require caller-selected sessions.
-- If you enable request `sessionKey`, restrict `hooks.allowedSessionKeyPrefixes` (for example, `["hook:"]`).
-- Avoid including sensitive raw payloads in webhook logs.
-- Hook payloads are treated as untrusted and wrapped with safety boundaries by default.
-  If you must disable this for a specific hook, set `allowUnsafeExternalContent: true`
-  in that hook's mapping (dangerous).
+- Giữ các endpoint hook phía sau loopback, tailnet, hoặc proxy ngược đáng tin cậy.
+- Sử dụng token hook riêng biệt; không tái sử dụng token xác thực gateway.
+- Ưu tiên một agent hook riêng biệt với `tools.profile` nghiêm ngặt và sandboxing để hook ingress có phạm vi ảnh hưởng hẹp hơn.
+- Các lần xác thực thất bại lặp lại bị giới hạn tốc độ theo địa chỉ client để làm chậm các nỗ lực brute-force.
+- Nếu bạn sử dụng định tuyến multi-agent, đặt `hooks.allowedAgentIds` để giới hạn lựa chọn `agentId` rõ ràng.
+- Giữ `hooks.allowRequestSessionKey=false` trừ khi bạn yêu cầu các phiên do người gọi chọn.
+- Nếu bạn kích hoạt yêu cầu `sessionKey`, giới hạn `hooks.allowedSessionKeyPrefixes` (ví dụ: `["hook:"]`).
+- Tránh bao gồm các payload thô nhạy cảm trong nhật ký webhook.
+- Payload hook được xem như không đáng tin cậy và được bao bọc với các ranh giới an toàn theo mặc định.
+  Nếu bạn phải vô hiệu hóa điều này cho một hook cụ thể, đặt `allowUnsafeExternalContent: true`
+  trong ánh xạ của hook đó (nguy hiểm).

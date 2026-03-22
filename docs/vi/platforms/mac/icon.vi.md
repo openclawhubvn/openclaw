@@ -21,4 +21,4 @@ Hình dạng & kích thước
 Lưu ý hành vi
 
 - Không có toggle CLI/broker bên ngoài cho ears/working; giữ nội bộ trong tín hiệu của app để tránh nhấp nháy không mong muốn.
-- Giữ TTL ngắn (<10s) để icon nhanh chóng trở về trạng thái ban đầu nếu công việc bị treo.\n
+- Giữ TTL ngắn (&lt;10s) để icon nhanh chóng trở về trạng thái ban đầu nếu công việc bị treo.\n

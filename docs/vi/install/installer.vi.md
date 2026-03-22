@@ -412,4 +412,6 @@ Sử dụng các flag/biến môi trường không tương tác để chạy ổ
   <Accordion title="openclaw không tìm thấy sau khi cài đặt">
     Thường là vấn đề PATH. Xem [Node.js troubleshooting](/install/node#troubleshooting).
   </Accordion>
-</AccordionGroup>\n
+</AccordionGroup>
+
+\n

@@ -864,26 +864,26 @@
               {
                 "group": "Tổng quan",
                 "pages": [
-                  "vi/index.vi",
-                  "vi/start/showcase.vi",
-                  "vi/concepts/features.vi"
+                  "vi/index",
+                  "vi/start/showcase",
+                  "vi/concepts/features"
                 ]
               },
               {
                 "group": "Những bước đầu tiên",
                 "pages": [
-                  "vi/start/getting-started.vi",
-                  "vi/start/onboarding-overview.vi",
-                  "vi/start/wizard.vi",
-                  "vi/start/onboarding.vi"
+                  "vi/start/getting-started",
+                  "vi/start/onboarding-overview",
+                  "vi/start/wizard",
+                  "vi/start/onboarding"
                 ]
               },
               {
                 "group": "Hướng dẫn chi tiết",
                 "pages": [
-                  "vi/start/openclaw.vi",
-                  "vi/start/wizard-cli-reference.vi",
-                  "vi/start/wizard-cli-automation.vi"
+                  "vi/start/openclaw",
+                  "vi/start/wizard-cli-reference",
+                  "vi/start/wizard-cli-automation"
                 ]
               }
             ]
@@ -894,48 +894,48 @@
               {
                 "group": "Tổng quan cài đặt",
                 "pages": [
-                  "vi/install/index.vi",
-                  "vi/install/installer.vi",
-                  "vi/install/node.vi"
+                  "vi/install/index",
+                  "vi/install/installer",
+                  "vi/install/node"
                 ]
               },
               {
                 "group": "Chạy qua Container",
                 "pages": [
-                  "vi/install/ansible.vi",
-                  "vi/install/bun.vi",
-                  "vi/install/docker.vi",
-                  "vi/install/nix.vi",
-                  "vi/install/podman.vi"
+                  "vi/install/ansible",
+                  "vi/install/bun",
+                  "vi/install/docker",
+                  "vi/install/nix",
+                  "vi/install/podman"
                 ]
               },
               {
                 "group": "Triển khai (Hosting)",
                 "pages": [
-                  "vi/install/azure.vi",
-                  "vi/install/digitalocean.vi",
-                  "vi/install/docker-vm-runtime.vi",
-                  "vi/install/exe-dev.vi",
-                  "vi/install/fly.vi",
-                  "vi/install/gcp.vi",
-                  "vi/install/hetzner.vi",
-                  "vi/install/kubernetes.vi",
-                  "vi/vps.vi",
-                  "vi/install/macos-vm.vi",
-                  "vi/install/northflank.vi",
-                  "vi/install/oracle.vi",
-                  "vi/install/railway.vi",
-                  "vi/install/raspberry-pi.vi",
-                  "vi/install/render.vi"
+                  "vi/install/azure",
+                  "vi/install/digitalocean",
+                  "vi/install/docker-vm-runtime",
+                  "vi/install/exe-dev",
+                  "vi/install/fly",
+                  "vi/install/gcp",
+                  "vi/install/hetzner",
+                  "vi/install/kubernetes",
+                  "vi/vps",
+                  "vi/install/macos-vm",
+                  "vi/install/northflank",
+                  "vi/install/oracle",
+                  "vi/install/railway",
+                  "vi/install/raspberry-pi",
+                  "vi/install/render"
                 ]
               },
               {
                 "group": "Bảo trì & Nâng cấp",
                 "pages": [
-                  "vi/install/updating.vi",
-                  "vi/install/migrating.vi",
-                  "vi/install/uninstall.vi",
-                  "vi/install/development-channels.vi"
+                  "vi/install/updating",
+                  "vi/install/migrating",
+                  "vi/install/uninstall",
+                  "vi/install/development-channels"
                 ]
               }
             ]
@@ -946,46 +946,46 @@
               {
                 "group": "Tổng quan",
                 "pages": [
-                  "vi/channels/index.vi"
+                  "vi/channels/index"
                 ]
               },
               {
                 "group": "Các nền tảng nhắn tin",
                 "pages": [
-                  "vi/channels/bluebubbles.vi",
-                  "vi/channels/discord.vi",
-                  "vi/channels/feishu.vi",
-                  "vi/channels/googlechat.vi",
-                  "vi/channels/imessage.vi",
-                  "vi/channels/irc.vi",
-                  "vi/channels/line.vi",
-                  "vi/channels/matrix.vi",
-                  "vi/channels/mattermost.vi",
-                  "vi/channels/msteams.vi",
-                  "vi/channels/nextcloud-talk.vi",
-                  "vi/channels/nostr.vi",
-                  "vi/channels/signal.vi",
-                  "vi/channels/synology-chat.vi",
-                  "vi/channels/slack.vi",
-                  "vi/channels/telegram.vi",
-                  "vi/channels/tlon.vi",
-                  "vi/channels/twitch.vi",
-                  "vi/plugins/voice-call.vi",
-                  "vi/channels/whatsapp.vi",
-                  "vi/channels/zalo.vi",
-                  "vi/channels/zalouser.vi"
+                  "vi/channels/bluebubbles",
+                  "vi/channels/discord",
+                  "vi/channels/feishu",
+                  "vi/channels/googlechat",
+                  "vi/channels/imessage",
+                  "vi/channels/irc",
+                  "vi/channels/line",
+                  "vi/channels/matrix",
+                  "vi/channels/mattermost",
+                  "vi/channels/msteams",
+                  "vi/channels/nextcloud-talk",
+                  "vi/channels/nostr",
+                  "vi/channels/signal",
+                  "vi/channels/synology-chat",
+                  "vi/channels/slack",
+                  "vi/channels/telegram",
+                  "vi/channels/tlon",
+                  "vi/channels/twitch",
+                  "vi/plugins/voice-call",
+                  "vi/channels/whatsapp",
+                  "vi/channels/zalo",
+                  "vi/channels/zalouser"
                 ]
               },
               {
                 "group": "Cấu hình",
                 "pages": [
-                  "vi/channels/pairing.vi",
-                  "vi/channels/group-messages.vi",
-                  "vi/channels/groups.vi",
-                  "vi/channels/broadcast-groups.vi",
-                  "vi/channels/channel-routing.vi",
-                  "vi/channels/location.vi",
-                  "vi/channels/troubleshooting.vi"
+                  "vi/channels/pairing",
+                  "vi/channels/group-messages",
+                  "vi/channels/groups",
+                  "vi/channels/broadcast-groups",
+                  "vi/channels/channel-routing",
+                  "vi/channels/location",
+                  "vi/channels/troubleshooting"
                 ]
               }
             ]
@@ -996,42 +996,42 @@
               {
                 "group": "Các khái niệm cơ bản",
                 "pages": [
-                  "vi/concepts/architecture.vi",
-                  "vi/concepts/agent.vi",
-                  "vi/concepts/agent-loop.vi",
-                  "vi/concepts/system-prompt.vi",
-                  "vi/concepts/context.vi",
-                  "vi/concepts/context-engine.vi",
-                  "vi/concepts/agent-workspace.vi",
-                  "vi/concepts/oauth.vi",
-                  "vi/start/bootstrapping.vi"
+                  "vi/concepts/architecture",
+                  "vi/concepts/agent",
+                  "vi/concepts/agent-loop",
+                  "vi/concepts/system-prompt",
+                  "vi/concepts/context",
+                  "vi/concepts/context-engine",
+                  "vi/concepts/agent-workspace",
+                  "vi/concepts/oauth",
+                  "vi/start/bootstrapping"
                 ]
               },
               {
                 "group": "Phiên làm việc & Bộ nhớ",
                 "pages": [
-                  "vi/concepts/session.vi",
-                  "vi/concepts/session-pruning.vi",
-                  "vi/concepts/session-tool.vi",
-                  "vi/concepts/memory.vi",
-                  "vi/concepts/compaction.vi"
+                  "vi/concepts/session",
+                  "vi/concepts/session-pruning",
+                  "vi/concepts/session-tool",
+                  "vi/concepts/memory",
+                  "vi/concepts/compaction"
                 ]
               },
               {
                 "group": "Đa tác nhân",
                 "pages": [
-                  "vi/concepts/multi-agent.vi",
-                  "vi/concepts/presence.vi",
-                  "vi/concepts/delegate-architecture.vi"
+                  "vi/concepts/multi-agent",
+                  "vi/concepts/presence",
+                  "vi/concepts/delegate-architecture"
                 ]
               },
               {
                 "group": "Tin nhắn & Phân phối",
                 "pages": [
-                  "vi/concepts/messages.vi",
-                  "vi/concepts/streaming.vi",
-                  "vi/concepts/retry.vi",
-                  "vi/concepts/queue.vi"
+                  "vi/concepts/messages",
+                  "vi/concepts/streaming",
+                  "vi/concepts/retry",
+                  "vi/concepts/queue"
                 ]
               }
             ]
@@ -1042,78 +1042,78 @@
               {
                 "group": "Tổng quan",
                 "pages": [
-                  "vi/tools/index.vi"
+                  "vi/tools/index"
                 ]
               },
               {
                 "group": "Plugins",
                 "pages": [
-                  "vi/tools/plugin.vi",
-                  "vi/plugins/building-plugins.vi",
-                  "vi/plugins/community.vi",
-                  "vi/plugins/bundles.vi",
-                  "vi/plugins/manifest.vi",
-                  "vi/plugins/sdk-migration.vi",
-                  "vi/plugins/architecture.vi"
+                  "vi/tools/plugin",
+                  "vi/plugins/building-plugins",
+                  "vi/plugins/community",
+                  "vi/plugins/bundles",
+                  "vi/plugins/manifest",
+                  "vi/plugins/sdk-migration",
+                  "vi/plugins/architecture"
                 ]
               },
               {
                 "group": "Kỹ năng (Skills)",
                 "pages": [
-                  "vi/tools/skills.vi",
-                  "vi/tools/creating-skills.vi",
-                  "vi/tools/skills-config.vi",
-                  "vi/tools/slash-commands.vi",
-                  "vi/tools/clawhub.vi",
-                  "vi/prose.vi"
+                  "vi/tools/skills",
+                  "vi/tools/creating-skills",
+                  "vi/tools/skills-config",
+                  "vi/tools/slash-commands",
+                  "vi/tools/clawhub",
+                  "vi/prose"
                 ]
               },
               {
                 "group": "Tự động hóa",
                 "pages": [
-                  "vi/automation/hooks.vi",
-                  "vi/automation/standing-orders.vi",
-                  "vi/automation/cron-jobs.vi",
-                  "vi/automation/cron-vs-heartbeat.vi",
-                  "vi/automation/troubleshooting.vi",
-                  "vi/automation/webhook.vi",
-                  "vi/automation/gmail-pubsub.vi",
-                  "vi/automation/poll.vi",
-                  "vi/automation/auth-monitoring.vi"
+                  "vi/automation/hooks",
+                  "vi/automation/standing-orders",
+                  "vi/automation/cron-jobs",
+                  "vi/automation/cron-vs-heartbeat",
+                  "vi/automation/troubleshooting",
+                  "vi/automation/webhook",
+                  "vi/automation/gmail-pubsub",
+                  "vi/automation/poll",
+                  "vi/automation/auth-monitoring"
                 ]
               },
               {
                 "group": "Công cụ",
                 "pages": [
-                  "vi/tools/apply-patch.vi",
+                  "vi/tools/apply-patch",
                   {
                     "group": "Trình duyệt",
                     "pages": [
-                      "vi/tools/browser.vi",
-                      "vi/tools/browser-login.vi",
-                      "vi/tools/browser-linux-troubleshooting.vi",
-                      "vi/tools/browser-wsl2-windows-remote-cdp-troubleshooting.vi"
+                      "vi/tools/browser",
+                      "vi/tools/browser-login",
+                      "vi/tools/browser-linux-troubleshooting",
+                      "vi/tools/browser-wsl2-windows-remote-cdp-troubleshooting"
                     ]
                   },
-                  "vi/tools/btw.vi",
-                  "vi/tools/diffs.vi",
-                  "vi/tools/elevated.vi",
-                  "vi/tools/exec.vi",
-                  "vi/tools/exec-approvals.vi",
-                  "vi/tools/llm-task.vi",
-                  "vi/tools/lobster.vi",
-                  "vi/tools/loop-detection.vi",
-                  "vi/tools/pdf.vi",
-                  "vi/tools/reactions.vi",
-                  "vi/tools/thinking.vi",
+                  "vi/tools/btw",
+                  "vi/tools/diffs",
+                  "vi/tools/elevated",
+                  "vi/tools/exec",
+                  "vi/tools/exec-approvals",
+                  "vi/tools/llm-task",
+                  "vi/tools/lobster",
+                  "vi/tools/loop-detection",
+                  "vi/tools/pdf",
+                  "vi/tools/reactions",
+                  "vi/tools/thinking",
                   {
                     "group": "Web & Tìm kiếm",
                     "pages": [
-                      "vi/tools/web.vi",
-                      "vi/tools/brave-search.vi",
-                      "vi/tools/firecrawl.vi",
-                      "vi/tools/perplexity-search.vi",
-                      "vi/tools/tavily.vi"
+                      "vi/tools/web",
+                      "vi/tools/brave-search",
+                      "vi/tools/firecrawl",
+                      "vi/tools/perplexity-search",
+                      "vi/tools/tavily"
                     ]
                   }
                 ]
@@ -1121,10 +1121,10 @@
               {
                 "group": "Điều phối tác nhân",
                 "pages": [
-                  "vi/tools/agent-send.vi",
-                  "vi/tools/subagents.vi",
-                  "vi/tools/acp-agents.vi",
-                  "vi/tools/multi-agent-sandbox-tools.vi"
+                  "vi/tools/agent-send",
+                  "vi/tools/subagents",
+                  "vi/tools/acp-agents",
+                  "vi/tools/multi-agent-sandbox-tools"
                 ]
               }
             ]
@@ -1135,56 +1135,56 @@
               {
                 "group": "Tổng quan",
                 "pages": [
-                  "vi/providers/index.vi",
-                  "vi/providers/models.vi"
+                  "vi/providers/index",
+                  "vi/providers/models"
                 ]
               },
               {
                 "group": "Khái niệm & Cấu hình",
                 "pages": [
-                  "vi/concepts/models.vi",
-                  "vi/concepts/model-providers.vi",
-                  "vi/concepts/model-failover.vi"
+                  "vi/concepts/models",
+                  "vi/concepts/model-providers",
+                  "vi/concepts/model-failover"
                 ]
               },
               {
                 "group": "Nhà cung cấp (Providers)",
                 "pages": [
-                  "vi/providers/anthropic.vi",
-                  "vi/providers/bedrock.vi",
-                  "vi/providers/cloudflare-ai-gateway.vi",
-                  "vi/providers/claude-max-api-proxy.vi",
-                  "vi/providers/deepgram.vi",
-                  "vi/providers/github-copilot.vi",
-                  "vi/providers/google.vi",
-                  "vi/providers/groq.vi",
-                  "vi/providers/huggingface.vi",
-                  "vi/providers/kilocode.vi",
-                  "vi/providers/litellm.vi",
-                  "vi/providers/glm.vi",
-                  "vi/providers/minimax.vi",
-                  "vi/providers/modelstudio.vi",
-                  "vi/providers/moonshot.vi",
-                  "vi/providers/mistral.vi",
-                  "vi/providers/nvidia.vi",
-                  "vi/providers/ollama.vi",
-                  "vi/providers/openai.vi",
-                  "vi/providers/opencode-go.vi",
-                  "vi/providers/opencode.vi",
-                  "vi/providers/openrouter.vi",
-                  "vi/providers/perplexity-provider.vi",
-                  "vi/providers/qianfan.vi",
-                  "vi/providers/qwen.vi",
-                  "vi/providers/sglang.vi",
-                  "vi/providers/synthetic.vi",
-                  "vi/providers/together.vi",
-                  "vi/providers/vercel-ai-gateway.vi",
-                  "vi/providers/venice.vi",
-                  "vi/providers/vllm.vi",
-                  "vi/providers/volcengine.vi",
-                  "vi/providers/xai.vi",
-                  "vi/providers/xiaomi.vi",
-                  "vi/providers/zai.vi"
+                  "vi/providers/anthropic",
+                  "vi/providers/bedrock",
+                  "vi/providers/cloudflare-ai-gateway",
+                  "vi/providers/claude-max-api-proxy",
+                  "vi/providers/deepgram",
+                  "vi/providers/github-copilot",
+                  "vi/providers/google",
+                  "vi/providers/groq",
+                  "vi/providers/huggingface",
+                  "vi/providers/kilocode",
+                  "vi/providers/litellm",
+                  "vi/providers/glm",
+                  "vi/providers/minimax",
+                  "vi/providers/modelstudio",
+                  "vi/providers/moonshot",
+                  "vi/providers/mistral",
+                  "vi/providers/nvidia",
+                  "vi/providers/ollama",
+                  "vi/providers/openai",
+                  "vi/providers/opencode-go",
+                  "vi/providers/opencode",
+                  "vi/providers/openrouter",
+                  "vi/providers/perplexity-provider",
+                  "vi/providers/qianfan",
+                  "vi/providers/qwen",
+                  "vi/providers/sglang",
+                  "vi/providers/synthetic",
+                  "vi/providers/together",
+                  "vi/providers/vercel-ai-gateway",
+                  "vi/providers/venice",
+                  "vi/providers/vllm",
+                  "vi/providers/volcengine",
+                  "vi/providers/xai",
+                  "vi/providers/xiaomi",
+                  "vi/providers/zai"
                 ]
               }
             ]
@@ -1195,34 +1195,34 @@
               {
                 "group": "Tổng quan nền tảng",
                 "pages": [
-                  "vi/platforms/index.vi",
-                  "vi/platforms/macos.vi",
-                  "vi/platforms/linux.vi",
-                  "vi/platforms/windows.vi",
-                  "vi/platforms/android.vi",
-                  "vi/platforms/ios.vi"
+                  "vi/platforms/index",
+                  "vi/platforms/macos",
+                  "vi/platforms/linux",
+                  "vi/platforms/windows",
+                  "vi/platforms/android",
+                  "vi/platforms/ios"
                 ]
               },
               {
                 "group": "Ứng dụng macOS",
                 "pages": [
-                  "vi/platforms/mac/dev-setup.vi",
-                  "vi/platforms/mac/menu-bar.vi",
-                  "vi/platforms/mac/voicewake.vi",
-                  "vi/platforms/mac/voice-overlay.vi",
-                  "vi/platforms/mac/webchat.vi",
-                  "vi/platforms/mac/canvas.vi",
-                  "vi/platforms/mac/child-process.vi",
-                  "vi/platforms/mac/health.vi",
-                  "vi/platforms/mac/icon.vi",
-                  "vi/platforms/mac/logging.vi",
-                  "vi/platforms/mac/permissions.vi",
-                  "vi/platforms/mac/remote.vi",
-                  "vi/platforms/mac/signing.vi",
-                  "vi/platforms/mac/bundled-gateway.vi",
-                  "vi/platforms/mac/xpc.vi",
-                  "vi/platforms/mac/skills.vi",
-                  "vi/platforms/mac/peekaboo.vi"
+                  "vi/platforms/mac/dev-setup",
+                  "vi/platforms/mac/menu-bar",
+                  "vi/platforms/mac/voicewake",
+                  "vi/platforms/mac/voice-overlay",
+                  "vi/platforms/mac/webchat",
+                  "vi/platforms/mac/canvas",
+                  "vi/platforms/mac/child-process",
+                  "vi/platforms/mac/health",
+                  "vi/platforms/mac/icon",
+                  "vi/platforms/mac/logging",
+                  "vi/platforms/mac/permissions",
+                  "vi/platforms/mac/remote",
+                  "vi/platforms/mac/signing",
+                  "vi/platforms/mac/bundled-gateway",
+                  "vi/platforms/mac/xpc",
+                  "vi/platforms/mac/skills",
+                  "vi/platforms/mac/peekaboo"
                 ]
               }
             ]
@@ -1233,58 +1233,58 @@
               {
                 "group": "Gateway",
                 "pages": [
-                  "vi/gateway/index.vi",
+                  "vi/gateway/index",
                   {
                     "group": "Cấu hình & Vận hành",
                     "pages": [
-                      "vi/gateway/configuration.vi",
-                      "vi/gateway/configuration-reference.vi",
-                      "vi/gateway/configuration-examples.vi",
-                      "vi/gateway/authentication.vi",
-                      "vi/auth-credential-semantics.vi",
-                      "vi/gateway/secrets.vi",
-                      "vi/gateway/secrets-plan-contract.vi",
-                      "vi/gateway/trusted-proxy-auth.vi",
-                      "vi/gateway/health.vi",
-                      "vi/gateway/heartbeat.vi",
-                      "vi/gateway/doctor.vi",
-                      "vi/gateway/logging.vi",
-                      "vi/logging.vi",
-                      "vi/gateway/gateway-lock.vi",
-                      "vi/gateway/background-process.vi",
-                      "vi/gateway/multiple-gateways.vi",
-                      "vi/gateway/troubleshooting.vi"
+                      "vi/gateway/configuration",
+                      "vi/gateway/configuration-reference",
+                      "vi/gateway/configuration-examples",
+                      "vi/gateway/authentication",
+                      "vi/auth-credential-semantics",
+                      "vi/gateway/secrets",
+                      "vi/gateway/secrets-plan-contract",
+                      "vi/gateway/trusted-proxy-auth",
+                      "vi/gateway/health",
+                      "vi/gateway/heartbeat",
+                      "vi/gateway/doctor",
+                      "vi/gateway/logging",
+                      "vi/logging",
+                      "vi/gateway/gateway-lock",
+                      "vi/gateway/background-process",
+                      "vi/gateway/multiple-gateways",
+                      "vi/gateway/troubleshooting"
                     ]
                   },
                   {
                     "group": "Bảo mật & Sandbox",
                     "pages": [
-                      "vi/gateway/security/index.vi",
-                      "vi/gateway/sandboxing.vi",
-                      "vi/gateway/openshell.vi",
-                      "vi/gateway/sandbox-vs-tool-policy-vs-elevated.vi"
+                      "vi/gateway/security/index",
+                      "vi/gateway/sandboxing",
+                      "vi/gateway/openshell",
+                      "vi/gateway/sandbox-vs-tool-policy-vs-elevated"
                     ]
                   },
                   {
                     "group": "Giao thức & API",
                     "pages": [
-                      "vi/gateway/protocol.vi",
-                      "vi/gateway/bridge-protocol.vi",
-                      "vi/gateway/openai-http-api.vi",
-                      "vi/gateway/openresponses-http-api.vi",
-                      "vi/gateway/tools-invoke-http-api.vi",
-                      "vi/gateway/cli-backends.vi",
-                      "vi/gateway/local-models.vi"
+                      "vi/gateway/protocol",
+                      "vi/gateway/bridge-protocol",
+                      "vi/gateway/openai-http-api",
+                      "vi/gateway/openresponses-http-api",
+                      "vi/gateway/tools-invoke-http-api",
+                      "vi/gateway/cli-backends",
+                      "vi/gateway/local-models"
                     ]
                   },
                   {
                     "group": "Mạng & Khám phá",
                     "pages": [
-                      "vi/network.vi",
-                      "vi/gateway/network-model.vi",
-                      "vi/gateway/pairing.vi",
-                      "vi/gateway/discovery.vi",
-                      "vi/gateway/bonjour.vi"
+                      "vi/network",
+                      "vi/gateway/network-model",
+                      "vi/gateway/pairing",
+                      "vi/gateway/discovery",
+                      "vi/gateway/bonjour"
                     ]
                   }
                 ]
@@ -1292,42 +1292,42 @@
               {
                 "group": "Truy cập từ xa",
                 "pages": [
-                  "vi/gateway/remote.vi",
-                  "vi/gateway/remote-gateway-readme.vi",
-                  "vi/gateway/tailscale.vi"
+                  "vi/gateway/remote",
+                  "vi/gateway/remote-gateway-readme",
+                  "vi/gateway/tailscale"
                 ]
               },
               {
                 "group": "Bảo mật",
                 "pages": [
-                  "vi/security/formal-verification.vi",
-                  "vi/security/THREAT-MODEL-ATLAS.vi",
-                  "vi/security/CONTRIBUTING-THREAT-MODEL.vi"
+                  "vi/security/formal-verification",
+                  "vi/security/THREAT-MODEL-ATLAS",
+                  "vi/security/CONTRIBUTING-THREAT-MODEL"
                 ]
               },
               {
                 "group": "Node & Thiết bị",
                 "pages": [
-                  "vi/nodes/index.vi",
-                  "vi/nodes/troubleshooting.vi",
-                  "vi/nodes/media-understanding.vi",
-                  "vi/nodes/images.vi",
-                  "vi/nodes/audio.vi",
-                  "vi/nodes/camera.vi",
-                  "vi/nodes/talk.vi",
-                  "vi/nodes/voicewake.vi",
-                  "vi/nodes/location-command.vi",
-                  "vi/tools/tts.vi"
+                  "vi/nodes/index",
+                  "vi/nodes/troubleshooting",
+                  "vi/nodes/media-understanding",
+                  "vi/nodes/images",
+                  "vi/nodes/audio",
+                  "vi/nodes/camera",
+                  "vi/nodes/talk",
+                  "vi/nodes/voicewake",
+                  "vi/nodes/location-command",
+                  "vi/tools/tts"
                 ]
               },
               {
                 "group": "Giao diện Web",
                 "pages": [
-                  "vi/web/index.vi",
-                  "vi/web/control-ui.vi",
-                  "vi/web/dashboard.vi",
-                  "vi/web/webchat.vi",
-                  "vi/web/tui.vi"
+                  "vi/web/index",
+                  "vi/web/control-ui",
+                  "vi/web/dashboard",
+                  "vi/web/webchat",
+                  "vi/web/tui"
                 ]
               }
             ]
@@ -1338,91 +1338,91 @@
               {
                 "group": "Lệnh CLI",
                 "pages": [
-                  "vi/cli/index.vi",
+                  "vi/cli/index",
                   {
                     "group": "Gateway & Dịch vụ",
                     "pages": [
-                      "vi/cli/backup.vi",
-                      "vi/cli/daemon.vi",
-                      "vi/cli/doctor.vi",
-                      "vi/cli/gateway.vi",
-                      "vi/cli/health.vi",
-                      "vi/cli/logs.vi",
-                      "vi/cli/onboard.vi",
-                      "vi/cli/reset.vi",
-                      "vi/cli/secrets.vi",
-                      "vi/cli/security.vi",
-                      "vi/cli/setup.vi",
-                      "vi/cli/status.vi",
-                      "vi/cli/uninstall.vi",
-                      "vi/cli/update.vi"
+                      "vi/cli/backup",
+                      "vi/cli/daemon",
+                      "vi/cli/doctor",
+                      "vi/cli/gateway",
+                      "vi/cli/health",
+                      "vi/cli/logs",
+                      "vi/cli/onboard",
+                      "vi/cli/reset",
+                      "vi/cli/secrets",
+                      "vi/cli/security",
+                      "vi/cli/setup",
+                      "vi/cli/status",
+                      "vi/cli/uninstall",
+                      "vi/cli/update"
                     ]
                   },
                   {
                     "group": "Tác nhân & Phiên",
                     "pages": [
-                      "vi/cli/agent.vi",
-                      "vi/cli/agents.vi",
-                      "vi/cli/hooks.vi",
-                      "vi/cli/memory.vi",
-                      "vi/cli/message.vi",
-                      "vi/cli/models.vi",
-                      "vi/cli/sessions.vi",
-                      "vi/cli/system.vi"
+                      "vi/cli/agent",
+                      "vi/cli/agents",
+                      "vi/cli/hooks",
+                      "vi/cli/memory",
+                      "vi/cli/message",
+                      "vi/cli/models",
+                      "vi/cli/sessions",
+                      "vi/cli/system"
                     ]
                   },
                   {
                     "group": "Kênh & Tin nhắn",
                     "pages": [
-                      "vi/cli/channels.vi",
-                      "vi/cli/devices.vi",
-                      "vi/cli/directory.vi",
-                      "vi/cli/pairing.vi",
-                      "vi/cli/qr.vi",
-                      "vi/cli/voicecall.vi"
+                      "vi/cli/channels",
+                      "vi/cli/devices",
+                      "vi/cli/directory",
+                      "vi/cli/pairing",
+                      "vi/cli/qr",
+                      "vi/cli/voicecall"
                     ]
                   },
                   {
                     "group": "Công cụ & Thực thi",
                     "pages": [
-                      "vi/cli/approvals.vi",
-                      "vi/cli/browser.vi",
-                      "vi/cli/cron.vi",
-                      "vi/cli/node.vi",
-                      "vi/cli/nodes.vi",
-                      "vi/cli/sandbox.vi"
+                      "vi/cli/approvals",
+                      "vi/cli/browser",
+                      "vi/cli/cron",
+                      "vi/cli/node",
+                      "vi/cli/nodes",
+                      "vi/cli/sandbox"
                     ]
                   },
                   {
                     "group": "Cấu hình",
                     "pages": [
-                      "vi/cli/config.vi",
-                      "vi/cli/configure.vi",
-                      "vi/cli/webhooks.vi"
+                      "vi/cli/config",
+                      "vi/cli/configure",
+                      "vi/cli/webhooks"
                     ]
                   },
                   {
                     "group": "Plugin & Kỹ năng",
                     "pages": [
-                      "vi/cli/plugins.vi",
-                      "vi/cli/skills.vi"
+                      "vi/cli/plugins",
+                      "vi/cli/skills"
                     ]
                   },
                   {
                     "group": "Giao diện",
                     "pages": [
-                      "vi/cli/dashboard.vi",
-                      "vi/cli/tui.vi"
+                      "vi/cli/dashboard",
+                      "vi/cli/tui"
                     ]
                   },
                   {
                     "group": "Tiện ích",
                     "pages": [
-                      "vi/cli/acp.vi",
-                      "vi/cli/clawbot.vi",
-                      "vi/cli/completion.vi",
-                      "vi/cli/dns.vi",
-                      "vi/cli/docs.vi"
+                      "vi/cli/acp",
+                      "vi/cli/clawbot",
+                      "vi/cli/completion",
+                      "vi/cli/dns",
+                      "vi/cli/docs"
                     ]
                   }
                 ]
@@ -1430,59 +1430,59 @@
               {
                 "group": "RPC & API",
                 "pages": [
-                  "vi/reference/rpc.vi",
-                  "vi/reference/device-models.vi"
+                  "vi/reference/rpc",
+                  "vi/reference/device-models"
                 ]
               },
               {
                 "group": "Templates",
                 "pages": [
-                  "vi/reference/AGENTS.default.vi",
-                  "vi/reference/templates/AGENTS.vi",
-                  "vi/reference/templates/BOOT.vi",
-                  "vi/reference/templates/BOOTSTRAP.vi",
-                  "vi/reference/templates/HEARTBEAT.vi",
-                  "vi/reference/templates/IDENTITY.vi",
-                  "vi/reference/templates/SOUL.vi",
-                  "vi/reference/templates/TOOLS.vi",
-                  "vi/reference/templates/USER.vi"
+                  "vi/reference/AGENTS.default",
+                  "vi/reference/templates/AGENTS",
+                  "vi/reference/templates/BOOT",
+                  "vi/reference/templates/BOOTSTRAP",
+                  "vi/reference/templates/HEARTBEAT",
+                  "vi/reference/templates/IDENTITY",
+                  "vi/reference/templates/SOUL",
+                  "vi/reference/templates/TOOLS",
+                  "vi/reference/templates/USER"
                 ]
               },
               {
                 "group": "Tham khảo kỹ thuật",
                 "pages": [
-                  "vi/pi.vi",
-                  "vi/reference/wizard.vi",
-                  "vi/reference/token-use.vi",
-                  "vi/reference/secretref-credential-surface.vi",
-                  "vi/reference/prompt-caching.vi",
-                  "vi/reference/api-usage-costs.vi",
-                  "vi/reference/transcript-hygiene.vi",
-                  "vi/reference/memory-config.vi",
-                  "vi/date-time.vi"
+                  "vi/pi",
+                  "vi/reference/wizard",
+                  "vi/reference/token-use",
+                  "vi/reference/secretref-credential-surface",
+                  "vi/reference/prompt-caching",
+                  "vi/reference/api-usage-costs",
+                  "vi/reference/transcript-hygiene",
+                  "vi/reference/memory-config",
+                  "vi/date-time"
                 ]
               },
               {
                 "group": "Cơ chế hoạt động",
                 "pages": [
-                  "vi/concepts/typebox.vi",
-                  "vi/concepts/markdown-formatting.vi",
-                  "vi/concepts/typing-indicators.vi",
-                  "vi/concepts/usage-tracking.vi",
-                  "vi/concepts/timezone.vi"
+                  "vi/concepts/typebox",
+                  "vi/concepts/markdown-formatting",
+                  "vi/concepts/typing-indicators",
+                  "vi/concepts/usage-tracking",
+                  "vi/concepts/timezone"
                 ]
               },
               {
                 "group": "Dự án",
                 "pages": [
-                  "vi/reference/credits.vi"
+                  "vi/reference/credits"
                 ]
               },
               {
                 "group": "Chính sách phát hành",
                 "pages": [
-                  "vi/reference/RELEASING.vi",
-                  "vi/reference/test.vi"
+                  "vi/reference/RELEASING",
+                  "vi/reference/test"
                 ]
               }
             ]
@@ -1493,52 +1493,52 @@
               {
                 "group": "Trợ giúp",
                 "pages": [
-                  "vi/help/index.vi",
-                  "vi/help/troubleshooting.vi",
-                  "vi/help/faq.vi"
+                  "vi/help/index",
+                  "vi/help/troubleshooting",
+                  "vi/help/faq"
                 ]
               },
               {
                 "group": "Cộng đồng",
                 "pages": [
-                  "vi/start/lore.vi"
+                  "vi/start/lore"
                 ]
               },
               {
                 "group": "Môi trường & Debug",
                 "pages": [
-                  "vi/help/environment.vi",
-                  "vi/help/debugging.vi",
-                  "vi/help/testing.vi",
-                  "vi/help/scripts.vi",
-                  "vi/debug/node-issue.vi",
-                  "vi/diagnostics/flags.vi"
+                  "vi/help/environment",
+                  "vi/help/debugging",
+                  "vi/help/testing",
+                  "vi/help/scripts",
+                  "vi/debug/node-issue",
+                  "vi/diagnostics/flags"
                 ]
               },
               {
                 "group": "Cơ chế Compaction",
                 "pages": [
-                  "vi/reference/session-management-compaction.vi"
+                  "vi/reference/session-management-compaction"
                 ]
               },
               {
                 "group": "Thiết lập cho Developer",
                 "pages": [
-                  "vi/start/setup.vi",
-                  "vi/pi-dev.vi"
+                  "vi/start/setup",
+                  "vi/pi-dev"
                 ]
               },
               {
                 "group": "Đóng góp mã nguồn",
                 "pages": [
-                  "vi/ci.vi"
+                  "vi/ci"
                 ]
               },
               {
                 "group": "Tài liệu Meta",
                 "pages": [
-                  "vi/start/hubs.vi",
-                  "vi/start/docs-directory.vi"
+                  "vi/start/hubs",
+                  "vi/start/docs-directory"
                 ]
               }
             ]

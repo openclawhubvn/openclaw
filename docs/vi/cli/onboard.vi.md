@@ -143,5 +143,7 @@ openclaw agents add <name>
 ```
 
 <Note>
+
 `--json` không có nghĩa là chế độ không tương tác. Dùng `--non-interactive` cho script.
+
 </Note>\n

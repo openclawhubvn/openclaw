@@ -1,89 +1,89 @@
 ---
-summary: "Define permanent operating authority for autonomous agent programs"
+summary: "Xác định quyền hoạt động lâu dài cho các chương trình tác nhân tự động"
 read_when:
-  - Setting up autonomous agent workflows that run without per-task prompting
-  - Defining what the agent can do independently vs. what needs human approval
-  - Structuring multi-program agents with clear boundaries and escalation rules
-title: "Standing Orders"
+  - Thiết lập quy trình làm việc cho tác nhân tự động chạy mà không cần nhắc nhở từng nhiệm vụ
+  - Xác định những gì tác nhân có thể làm độc lập và những gì cần sự phê duyệt của con người
+  - Cấu trúc các tác nhân đa chương trình với ranh giới và quy tắc leo thang rõ ràng
+title: "Lệnh Thường Trực"
 ---
 
-# Standing Orders
+# Lệnh Thường Trực
 
-Standing orders grant your agent **permanent operating authority** for defined programs. Instead of giving individual task instructions each time, you define programs with clear scope, triggers, and escalation rules — and the agent executes autonomously within those boundaries.
+Lệnh thường trực cung cấp cho tác nhân quyền hoạt động **lâu dài** cho các chương trình đã được xác định. Thay vì đưa ra hướng dẫn cho từng nhiệm vụ, bạn xác định các chương trình với phạm vi, kích hoạt và quy tắc leo thang rõ ràng — và tác nhân sẽ tự động thực hiện trong các giới hạn đó.
 
-This is the difference between telling your assistant "send the weekly report" every Friday vs. granting standing authority: "You own the weekly report. Compile it every Friday, send it, and only escalate if something looks wrong."
+Điều này khác với việc bảo trợ lý của bạn "gửi báo cáo hàng tuần" mỗi thứ Sáu so với việc cấp quyền thường trực: "Bạn phụ trách báo cáo hàng tuần. Tổng hợp nó mỗi thứ Sáu, gửi đi, và chỉ leo thang nếu có điều gì đó không ổn."
 
-## Why Standing Orders?
+## Tại Sao Cần Lệnh Thường Trực?
 
-**Without standing orders:**
+**Không có lệnh thường trực:**
 
-- You must prompt the agent for every task
-- The agent sits idle between requests
-- Routine work gets forgotten or delayed
-- You become the bottleneck
+- Bạn phải nhắc nhở tác nhân cho mỗi nhiệm vụ
+- Tác nhân không hoạt động giữa các yêu cầu
+- Công việc thường xuyên bị quên hoặc trì hoãn
+- Bạn trở thành nút thắt cổ chai
 
-**With standing orders:**
+**Có lệnh thường trực:**
 
-- The agent executes autonomously within defined boundaries
-- Routine work happens on schedule without prompting
-- You only get involved for exceptions and approvals
-- The agent fills idle time productively
+- Tác nhân tự động thực hiện trong các giới hạn đã xác định
+- Công việc thường xuyên diễn ra đúng lịch mà không cần nhắc nhở
+- Bạn chỉ tham gia khi có ngoại lệ và cần phê duyệt
+- Tác nhân sử dụng thời gian rảnh một cách hiệu quả
 
-## How They Work
+## Cách Hoạt Động
 
-Standing orders are defined in your [agent workspace](/concepts/agent-workspace) files. The recommended approach is to include them directly in `AGENTS.md` (which is auto-injected every session) so the agent always has them in context. For larger configurations, you can also place them in a dedicated file like `standing-orders.md` and reference it from `AGENTS.md`.
+Lệnh thường trực được xác định trong các file [agent workspace](/concepts/agent-workspace) của bạn. Cách tiếp cận được khuyến nghị là đưa chúng trực tiếp vào `AGENTS.md` (được tự động chèn vào mỗi phiên) để tác nhân luôn có chúng trong ngữ cảnh. Đối với các cấu hình lớn hơn, bạn cũng có thể đặt chúng trong một file riêng như `standing-orders.md` và tham chiếu từ `AGENTS.md`.
 
-Each program specifies:
+Mỗi chương trình xác định:
 
-1. **Scope** — what the agent is authorized to do
-2. **Triggers** — when to execute (schedule, event, or condition)
-3. **Approval gates** — what requires human sign-off before acting
-4. **Escalation rules** — when to stop and ask for help
+1. **Phạm vi** — những gì tác nhân được phép làm
+2. **Kích hoạt** — khi nào thực hiện (lịch trình, sự kiện hoặc điều kiện)
+3. **Cổng phê duyệt** — những gì cần sự phê duyệt của con người trước khi hành động
+4. **Quy tắc leo thang** — khi nào dừng lại và yêu cầu trợ giúp
 
-The agent loads these instructions every session via the workspace bootstrap files (see [Agent Workspace](/concepts/agent-workspace) for the full list of auto-injected files) and executes against them, combined with [cron jobs](/automation/cron-jobs) for time-based enforcement.
+Tác nhân tải các hướng dẫn này mỗi phiên thông qua các file bootstrap của workspace (xem [Agent Workspace](/concepts/agent-workspace) để biết danh sách đầy đủ các file được tự động chèn) và thực hiện theo chúng, kết hợp với [cron jobs](/automation/cron-jobs) để thực thi theo thời gian.
 
 <Tip>
-Put standing orders in `AGENTS.md` to guarantee they're loaded every session. The workspace bootstrap automatically injects `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`, and `MEMORY.md` — but not arbitrary files in subdirectories.
+Đặt lệnh thường trực trong `AGENTS.md` để đảm bảo chúng được tải mỗi phiên. Workspace bootstrap tự động chèn `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, `USER.md`, `HEARTBEAT.md`, và `MEMORY.md` — nhưng không phải các file tùy ý trong các thư mục con.
 </Tip>
 
-## Anatomy of a Standing Order
+## Cấu Trúc Của Một Lệnh Thường Trực
 
 ```markdown
-## Program: Weekly Status Report
+## Chương Trình: Báo Cáo Trạng Thái Hàng Tuần
 
-**Authority:** Compile data, generate report, deliver to stakeholders
-**Trigger:** Every Friday at 4 PM (enforced via cron job)
-**Approval gate:** None for standard reports. Flag anomalies for human review.
-**Escalation:** If data source is unavailable or metrics look unusual (>2σ from norm)
+**Quyền hạn:** Tổng hợp dữ liệu, tạo báo cáo, gửi đến các bên liên quan
+**Kích hoạt:** Mỗi thứ Sáu lúc 4 PM (thực thi qua cron job)
+**Cổng phê duyệt:** Không có cho báo cáo tiêu chuẩn. Đánh dấu bất thường để con người xem xét.
+**Leo thang:** Nếu nguồn dữ liệu không khả dụng hoặc số liệu trông bất thường (>2σ so với chuẩn)
 
-### Execution Steps
+### Các Bước Thực Hiện
 
-1. Pull metrics from configured sources
-2. Compare to prior week and targets
-3. Generate report in Reports/weekly/YYYY-MM-DD.md
-4. Deliver summary via configured channel
-5. Log completion to Agent/Logs/
+1. Lấy số liệu từ các nguồn đã cấu hình
+2. So sánh với tuần trước và mục tiêu
+3. Tạo báo cáo trong Reports/weekly/YYYY-MM-DD.md
+4. Gửi tóm tắt qua kênh đã cấu hình
+5. Ghi nhật ký hoàn thành vào Agent/Logs/
 
-### What NOT to Do
+### Những Điều Không Được Làm
 
-- Do not send reports to external parties
-- Do not modify source data
-- Do not skip delivery if metrics look bad — report accurately
+- Không gửi báo cáo cho các bên ngoài
+- Không sửa đổi dữ liệu nguồn
+- Không bỏ qua việc gửi nếu số liệu xấu — báo cáo chính xác
 ```
 
-## Standing Orders + Cron Jobs
+## Lệnh Thường Trực + Cron Jobs
 
-Standing orders define **what** the agent is authorized to do. [Cron jobs](/automation/cron-jobs) define **when** it happens. They work together:
+Lệnh thường trực xác định **những gì** tác nhân được phép làm. [Cron jobs](/automation/cron-jobs) xác định **khi nào** điều đó xảy ra. Chúng hoạt động cùng nhau:
 
 ```
-Standing Order: "You own the daily inbox triage"
+Lệnh Thường Trực: "Bạn phụ trách phân loại hộp thư hàng ngày"
     ↓
-Cron Job (8 AM daily): "Execute inbox triage per standing orders"
+Cron Job (8 AM hàng ngày): "Thực hiện phân loại hộp thư theo lệnh thường trực"
     ↓
-Agent: Reads standing orders → executes steps → reports results
+Tác nhân: Đọc lệnh thường trực → thực hiện các bước → báo cáo kết quả
 ```
 
-The cron job prompt should reference the standing order rather than duplicating it:
+Lệnh cron job nên tham chiếu đến lệnh thường trực thay vì lặp lại nó:
 
 ```bash
 openclaw cron create \
@@ -94,158 +94,158 @@ openclaw cron create \
   --announce \
   --channel bluebubbles \
   --to "+1XXXXXXXXXX" \
-  --message "Execute daily inbox triage per standing orders. Check mail for new alerts. Parse, categorize, and persist each item. Report summary to owner. Escalate unknowns."
+  --message "Thực hiện phân loại hộp thư hàng ngày theo lệnh thường trực. Kiểm tra thư để tìm cảnh báo mới. Phân tích, phân loại và lưu trữ từng mục. Báo cáo tóm tắt cho chủ sở hữu. Leo thang nếu không rõ."
 ```
 
-## Examples
+## Ví Dụ
 
-### Example 1: Content & Social Media (Weekly Cycle)
+### Ví Dụ 1: Nội Dung & Truyền Thông Xã Hội (Chu Kỳ Hàng Tuần)
 
 ```markdown
-## Program: Content & Social Media
+## Chương Trình: Nội Dung & Truyền Thông Xã Hội
 
-**Authority:** Draft content, schedule posts, compile engagement reports
-**Approval gate:** All posts require owner review for first 30 days, then standing approval
-**Trigger:** Weekly cycle (Monday review → mid-week drafts → Friday brief)
+**Quyền hạn:** Soạn thảo nội dung, lên lịch đăng bài, tổng hợp báo cáo tương tác
+**Cổng phê duyệt:** Tất cả bài đăng cần chủ sở hữu xem xét trong 30 ngày đầu, sau đó được phê duyệt thường trực
+**Kích hoạt:** Chu kỳ hàng tuần (Thứ Hai xem xét → giữa tuần soạn thảo → Thứ Sáu tóm tắt)
 
-### Weekly Cycle
+### Chu Kỳ Hàng Tuần
 
-- **Monday:** Review platform metrics and audience engagement
-- **Tuesday–Thursday:** Draft social posts, create blog content
-- **Friday:** Compile weekly marketing brief → deliver to owner
+- **Thứ Hai:** Xem xét số liệu nền tảng và tương tác của khán giả
+- **Thứ Ba–Thứ Năm:** Soạn thảo bài đăng xã hội, tạo nội dung blog
+- **Thứ Sáu:** Tổng hợp tóm tắt tiếp thị hàng tuần → gửi cho chủ sở hữu
 
-### Content Rules
+### Quy Tắc Nội Dung
 
-- Voice must match the brand (see SOUL.md or brand voice guide)
-- Never identify as AI in public-facing content
-- Include metrics when available
-- Focus on value to audience, not self-promotion
+- Giọng điệu phải phù hợp với thương hiệu (xem SOUL.md hoặc hướng dẫn giọng điệu thương hiệu)
+- Không bao giờ nhận dạng là AI trong nội dung công khai
+- Bao gồm số liệu khi có sẵn
+- Tập trung vào giá trị cho khán giả, không phải tự quảng cáo
 ```
 
-### Example 2: Finance Operations (Event-Triggered)
+### Ví Dụ 2: Hoạt Động Tài Chính (Kích Hoạt Theo Sự Kiện)
 
 ```markdown
-## Program: Financial Processing
+## Chương Trình: Xử Lý Tài Chính
 
-**Authority:** Process transaction data, generate reports, send summaries
-**Approval gate:** None for analysis. Recommendations require owner approval.
-**Trigger:** New data file detected OR scheduled monthly cycle
+**Quyền hạn:** Xử lý dữ liệu giao dịch, tạo báo cáo, gửi tóm tắt
+**Cổng phê duyệt:** Không có cho phân tích. Khuyến nghị cần sự phê duyệt của chủ sở hữu.
+**Kích hoạt:** Phát hiện file dữ liệu mới HOẶC chu kỳ hàng tháng đã lên lịch
 
-### When New Data Arrives
+### Khi Có Dữ Liệu Mới
 
-1. Detect new file in designated input directory
-2. Parse and categorize all transactions
-3. Compare against budget targets
-4. Flag: unusual items, threshold breaches, new recurring charges
-5. Generate report in designated output directory
-6. Deliver summary to owner via configured channel
+1. Phát hiện file mới trong thư mục đầu vào được chỉ định
+2. Phân tích và phân loại tất cả giao dịch
+3. So sánh với mục tiêu ngân sách
+4. Đánh dấu: các mục bất thường, vi phạm ngưỡng, các khoản phí định kỳ mới
+5. Tạo báo cáo trong thư mục đầu ra được chỉ định
+6. Gửi tóm tắt cho chủ sở hữu qua kênh đã cấu hình
 
-### Escalation Rules
+### Quy Tắc Leo Thang
 
-- Single item > $500: immediate alert
-- Category > budget by 20%: flag in report
-- Unrecognizable transaction: ask owner for categorization
-- Failed processing after 2 retries: report failure, do not guess
+- Mục đơn > $500: cảnh báo ngay lập tức
+- Danh mục > ngân sách 20%: đánh dấu trong báo cáo
+- Giao dịch không nhận dạng được: yêu cầu chủ sở hữu phân loại
+- Xử lý thất bại sau 2 lần thử: báo cáo thất bại, không đoán
 ```
 
-### Example 3: Monitoring & Alerts (Continuous)
+### Ví Dụ 3: Giám Sát & Cảnh Báo (Liên Tục)
 
 ```markdown
-## Program: System Monitoring
+## Chương Trình: Giám Sát Hệ Thống
 
-**Authority:** Check system health, restart services, send alerts
-**Approval gate:** Restart services automatically. Escalate if restart fails twice.
-**Trigger:** Every heartbeat cycle
+**Quyền hạn:** Kiểm tra sức khỏe hệ thống, khởi động lại dịch vụ, gửi cảnh báo
+**Cổng phê duyệt:** Tự động khởi động lại dịch vụ. Leo thang nếu khởi động lại thất bại hai lần.
+**Kích hoạt:** Mỗi chu kỳ nhịp tim
 
-### Checks
+### Kiểm Tra
 
-- Service health endpoints responding
-- Disk space above threshold
-- Pending tasks not stale (>24 hours)
-- Delivery channels operational
+- Điểm cuối sức khỏe dịch vụ phản hồi
+- Dung lượng đĩa trên ngưỡng
+- Nhiệm vụ đang chờ không bị trì trệ (>24 giờ)
+- Kênh giao hàng hoạt động
 
-### Response Matrix
+### Ma Trận Phản Hồi
 
-| Condition        | Action                   | Escalate?                |
+| Điều Kiện        | Hành Động                 | Leo Thang?               |
 | ---------------- | ------------------------ | ------------------------ |
-| Service down     | Restart automatically    | Only if restart fails 2x |
-| Disk space < 10% | Alert owner              | Yes                      |
-| Stale task > 24h | Remind owner             | No                       |
-| Channel offline  | Log and retry next cycle | If offline > 2 hours     |
+| Dịch vụ ngừng    | Tự động khởi động lại    | Chỉ khi khởi động lại thất bại 2 lần |
+| Dung lượng đĩa < 10% | Cảnh báo chủ sở hữu    | Có                      |
+| Nhiệm vụ trì trệ > 24h | Nhắc nhở chủ sở hữu  | Không                   |
+| Kênh ngoại tuyến | Ghi nhật ký và thử lại chu kỳ tiếp theo | Nếu ngoại tuyến > 2 giờ |
 ```
 
-## The Execute-Verify-Report Pattern
+## Mô Hình Thực Hiện-Xác Minh-Báo Cáo
 
-Standing orders work best when combined with strict execution discipline. Every task in a standing order should follow this loop:
+Lệnh thường trực hoạt động tốt nhất khi kết hợp với kỷ luật thực hiện nghiêm ngặt. Mỗi nhiệm vụ trong lệnh thường trực nên tuân theo vòng lặp này:
 
-1. **Execute** — Do the actual work (don't just acknowledge the instruction)
-2. **Verify** — Confirm the result is correct (file exists, message delivered, data parsed)
-3. **Report** — Tell the owner what was done and what was verified
+1. **Thực hiện** — Thực hiện công việc thực tế (không chỉ xác nhận hướng dẫn)
+2. **Xác minh** — Xác nhận kết quả là chính xác (file tồn tại, tin nhắn đã gửi, dữ liệu đã phân tích)
+3. **Báo cáo** — Thông báo cho chủ sở hữu về những gì đã làm và đã xác minh
 
 ```markdown
-### Execution Rules
+### Quy Tắc Thực Hiện
 
-- Every task follows Execute-Verify-Report. No exceptions.
-- "I'll do that" is not execution. Do it, then report.
-- "Done" without verification is not acceptable. Prove it.
-- If execution fails: retry once with adjusted approach.
-- If still fails: report failure with diagnosis. Never silently fail.
-- Never retry indefinitely — 3 attempts max, then escalate.
+- Mỗi nhiệm vụ tuân theo Thực hiện-Xác minh-Báo cáo. Không có ngoại lệ.
+- "Tôi sẽ làm điều đó" không phải là thực hiện. Hãy làm, sau đó báo cáo.
+- "Đã xong" mà không có xác minh là không chấp nhận được. Chứng minh điều đó.
+- Nếu thực hiện thất bại: thử lại một lần với cách tiếp cận điều chỉnh.
+- Nếu vẫn thất bại: báo cáo thất bại với chẩn đoán. Không bao giờ thất bại trong im lặng.
+- Không bao giờ thử lại vô thời hạn — tối đa 3 lần, sau đó leo thang.
 ```
 
-This pattern prevents the most common agent failure mode: acknowledging a task without completing it.
+Mô hình này ngăn chặn chế độ thất bại phổ biến nhất của tác nhân: xác nhận một nhiệm vụ mà không hoàn thành nó.
 
-## Multi-Program Architecture
+## Kiến Trúc Đa Chương Trình
 
-For agents managing multiple concerns, organize standing orders as separate programs with clear boundaries:
+Đối với các tác nhân quản lý nhiều mối quan tâm, tổ chức lệnh thường trực thành các chương trình riêng biệt với ranh giới rõ ràng:
 
 ```markdown
-# Standing Orders
+# Lệnh Thường Trực
 
-## Program 1: [Domain A] (Weekly)
-
-...
-
-## Program 2: [Domain B] (Monthly + On-Demand)
+## Chương Trình 1: [Lĩnh Vực A] (Hàng Tuần)
 
 ...
 
-## Program 3: [Domain C] (As-Needed)
+## Chương Trình 2: [Lĩnh Vực B] (Hàng Tháng + Theo Yêu Cầu)
 
 ...
 
-## Escalation Rules (All Programs)
+## Chương Trình 3: [Lĩnh Vực C] (Khi Cần)
 
-- [Common escalation criteria]
-- [Approval gates that apply across programs]
+...
+
+## Quy Tắc Leo Thang (Tất Cả Chương Trình)
+
+- [Tiêu chí leo thang chung]
+- [Cổng phê duyệt áp dụng cho tất cả chương trình]
 ```
 
-Each program should have:
+Mỗi chương trình nên có:
 
-- Its own **trigger cadence** (weekly, monthly, event-driven, continuous)
-- Its own **approval gates** (some programs need more oversight than others)
-- Clear **boundaries** (the agent should know where one program ends and another begins)
+- Nhịp kích hoạt riêng (hàng tuần, hàng tháng, theo sự kiện, liên tục)
+- Cổng phê duyệt riêng (một số chương trình cần giám sát nhiều hơn)
+- Ranh giới rõ ràng (tác nhân nên biết nơi một chương trình kết thúc và chương trình khác bắt đầu)
 
-## Best Practices
+## Thực Hành Tốt Nhất
 
-### Do
+### Nên
 
-- Start with narrow authority and expand as trust builds
-- Define explicit approval gates for high-risk actions
-- Include "What NOT to do" sections — boundaries matter as much as permissions
-- Combine with cron jobs for reliable time-based execution
-- Review agent logs weekly to verify standing orders are being followed
-- Update standing orders as your needs evolve — they're living documents
+- Bắt đầu với quyền hạn hẹp và mở rộng khi niềm tin tăng lên
+- Xác định cổng phê duyệt rõ ràng cho các hành động có rủi ro cao
+- Bao gồm các phần "Những Điều Không Được Làm" — ranh giới quan trọng như quyền hạn
+- Kết hợp với cron jobs để thực thi theo thời gian đáng tin cậy
+- Xem xét nhật ký tác nhân hàng tuần để xác minh lệnh thường trực đang được tuân thủ
+- Cập nhật lệnh thường trực khi nhu cầu của bạn phát triển — chúng là tài liệu sống
 
-### Don't
+### Không Nên
 
-- Grant broad authority on day one ("do whatever you think is best")
-- Skip escalation rules — every program needs a "when to stop and ask" clause
-- Assume the agent will remember verbal instructions — put everything in the file
-- Mix concerns in a single program — separate programs for separate domains
-- Forget to enforce with cron jobs — standing orders without triggers become suggestions
+- Cấp quyền hạn rộng ngay từ đầu ("làm bất cứ điều gì bạn nghĩ là tốt nhất")
+- Bỏ qua quy tắc leo thang — mỗi chương trình cần một điều khoản "khi nào dừng lại và hỏi"
+- Giả định tác nhân sẽ nhớ hướng dẫn bằng lời nói — đặt mọi thứ vào file
+- Trộn lẫn các mối quan tâm trong một chương trình — chương trình riêng cho các lĩnh vực riêng
+- Quên thực thi với cron jobs — lệnh thường trực không có kích hoạt trở thành gợi ý
 
-## Related
+## Liên Quan
 
-- [Cron Jobs](/automation/cron-jobs) — Schedule enforcement for standing orders
-- [Agent Workspace](/concepts/agent-workspace) — Where standing orders live, including the full list of auto-injected bootstrap files (AGENTS.md, SOUL.md, etc.)
+- [Cron Jobs](/automation/cron-jobs) — Lên lịch thực thi cho lệnh thường trực
+- [Agent Workspace](/concepts/agent-workspace) — Nơi lệnh thường trực tồn tại, bao gồm danh sách đầy đủ các file bootstrap tự động chèn (AGENTS.md, SOUL.md, v.v.)
