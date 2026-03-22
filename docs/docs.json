@@ -54,810 +54,807 @@
   "redirects": [
     {
       "source": "/platforms/oracle",
-      "destination": "/vi-VN/install/oracle"
+      "destination": "/vn/install/oracle"
     },
     {
       "source": "/platforms/digitalocean",
-      "destination": "/vi-VN/install/digitalocean"
+      "destination": "/vn/install/digitalocean"
     },
     {
       "source": "/platforms/raspberry-pi",
-      "destination": "/vi-VN/install/raspberry-pi"
+      "destination": "/vn/install/raspberry-pi"
     },
     {
       "source": "/plugins/building-extensions",
-      "destination": "/vi-VN/plugins/building-plugins"
+      "destination": "/vn/plugins/building-plugins"
     },
     {
       "source": "/plugins/agent-tools",
-      "destination": "/vi-VN/plugins/building-plugins#registering-agent-tools"
+      "destination": "/vn/plugins/building-plugins#registering-agent-tools"
     },
     {
       "source": "/tools/capability-cookbook",
-      "destination": "/vi-VN/plugins/architecture"
+      "destination": "/vn/plugins/architecture"
     },
     {
       "source": "/brave-search",
-      "destination": "/vi-VN/tools/brave-search"
+      "destination": "/vn/tools/brave-search"
     },
     {
       "source": "/perplexity",
-      "destination": "/vi-VN/tools/perplexity-search"
+      "destination": "/vn/tools/perplexity-search"
     },
     {
       "source": "/tts",
-      "destination": "/vi-VN/tools/tts"
+      "destination": "/vn/tools/tts"
     },
     {
       "source": "/messages",
-      "destination": "/vi-VN/concepts/messages"
+      "destination": "/vn/concepts/messages"
     },
     {
       "source": "/context",
-      "destination": "/vi-VN/concepts/context"
+      "destination": "/vn/concepts/context"
     },
     {
       "source": "/compaction",
-      "destination": "/vi-VN/concepts/compaction"
+      "destination": "/vn/concepts/compaction"
     },
     {
       "source": "/context-engine",
-      "destination": "/vi-VN/concepts/context-engine"
+      "destination": "/vn/concepts/context-engine"
     },
     {
       "source": "/cron",
-      "destination": "/vi-VN/automation/cron-jobs"
+      "destination": "/vn/automation/cron-jobs"
     },
     {
       "source": "/minimax",
-      "destination": "/vi-VN/providers/minimax"
+      "destination": "/vn/providers/minimax"
     },
     {
       "source": "/xiaomi",
-      "destination": "/vi-VN/providers/xiaomi"
+      "destination": "/vn/providers/xiaomi"
     },
     {
       "source": "/openai",
-      "destination": "/vi-VN/providers/openai"
+      "destination": "/vn/providers/openai"
     },
     {
       "source": "/openai/",
-      "destination": "/vi-VN/providers/openai"
+      "destination": "/vn/providers/openai"
     },
     {
       "source": "/anthropic",
-      "destination": "/vi-VN/providers/anthropic"
+      "destination": "/vn/providers/anthropic"
     },
     {
       "source": "/anthropic/",
-      "destination": "/vi-VN/providers/anthropic"
+      "destination": "/vn/providers/anthropic"
     },
     {
       "source": "/moonshot",
-      "destination": "/vi-VN/providers/moonshot"
+      "destination": "/vn/providers/moonshot"
     },
     {
       "source": "/mistral",
-      "destination": "/vi-VN/providers/mistral"
+      "destination": "/vn/providers/mistral"
     },
     {
       "source": "/openrouter",
-      "destination": "/vi-VN/providers/openrouter"
+      "destination": "/vn/providers/openrouter"
     },
     {
       "source": "/opencode",
-      "destination": "/vi-VN/providers/opencode"
+      "destination": "/vn/providers/opencode"
     },
     {
       "source": "/opencode-go",
-      "destination": "/vi-VN/providers/opencode-go"
+      "destination": "/vn/providers/opencode-go"
     },
     {
       "source": "/qianfan",
-      "destination": "/vi-VN/providers/qianfan"
+      "destination": "/vn/providers/qianfan"
     },
     {
       "source": "/mattermost",
-      "destination": "/vi-VN/channels/mattermost"
+      "destination": "/vn/channels/mattermost"
     },
     {
       "source": "/line",
-      "destination": "/vi-VN/channels/line"
+      "destination": "/vn/channels/line"
     },
     {
       "source": "/glm",
-      "destination": "/vi-VN/providers/glm"
+      "destination": "/vn/providers/glm"
     },
     {
       "source": "/zai",
-      "destination": "/vi-VN/providers/zai"
+      "destination": "/vn/providers/zai"
     },
     {
       "source": "/message",
-      "destination": "/vi-VN/cli/message"
+      "destination": "/vn/cli/message"
     },
     {
       "source": "/providers/discord",
-      "destination": "/vi-VN/channels/discord"
+      "destination": "/vn/channels/discord"
     },
     {
       "source": "/providers/googlechat",
-      "destination": "/vi-VN/channels/googlechat"
+      "destination": "/vn/channels/googlechat"
     },
     {
       "source": "/providers/grammy",
-      "destination": "/vi-VN/channels/telegram"
+      "destination": "/vn/channels/telegram"
     },
     {
       "source": "/providers/imessage",
-      "destination": "/vi-VN/channels/imessage"
+      "destination": "/vn/channels/imessage"
     },
     {
       "source": "/providers/location",
-      "destination": "/vi-VN/channels/location"
+      "destination": "/vn/channels/location"
     },
     {
       "source": "/providers/mattermost",
-      "destination": "/vi-VN/channels/mattermost"
+      "destination": "/vn/channels/mattermost"
     },
     {
       "source": "/providers/msteams",
-      "destination": "/vi-VN/channels/msteams"
+      "destination": "/vn/channels/msteams"
     },
     {
       "source": "/providers/line",
-      "destination": "/vi-VN/channels/line"
+      "destination": "/vn/channels/line"
     },
     {
       "source": "/providers/signal",
-      "destination": "/vi-VN/channels/signal"
+      "destination": "/vn/channels/signal"
     },
     {
       "source": "/providers/slack",
-      "destination": "/vi-VN/channels/slack"
+      "destination": "/vn/channels/slack"
     },
     {
       "source": "/providers/telegram",
-      "destination": "/vi-VN/channels/telegram"
+      "destination": "/vn/channels/telegram"
     },
     {
       "source": "/providers/troubleshooting",
-      "destination": "/vi-VN/channels/troubleshooting"
+      "destination": "/vn/channels/troubleshooting"
     },
     {
       "source": "/providers/zalo",
-      "destination": "/vi-VN/channels/zalo"
+      "destination": "/vn/channels/zalo"
     },
     {
       "source": "/providers/whatsapp",
-      "destination": "/vi-VN/channels/whatsapp"
+      "destination": "/vn/channels/whatsapp"
     },
     {
       "source": "/sandbox",
-      "destination": "/vi-VN/cli/sandbox"
+      "destination": "/vn/cli/sandbox"
     },
     {
       "source": "/sandboxing",
-      "destination": "/vi-VN/gateway/sandboxing"
+      "destination": "/vn/gateway/sandboxing"
     },
     {
       "source": "/AGENTS.default",
-      "destination": "/vi-VN/reference/AGENTS.default"
+      "destination": "/vn/reference/AGENTS.default"
     },
     {
       "source": "/RELEASING",
-      "destination": "/vi-VN/reference/RELEASING"
+      "destination": "/vn/reference/RELEASING"
     },
     {
       "source": "/agent",
-      "destination": "/vi-VN/concepts/agent"
+      "destination": "/vn/concepts/agent"
     },
     {
       "source": "/agent-loop",
-      "destination": "/vi-VN/concepts/agent-loop"
+      "destination": "/vn/concepts/agent-loop"
     },
     {
       "source": "/agent-send",
-      "destination": "/vi-VN/tools/agent-send"
+      "destination": "/vn/tools/agent-send"
     },
     {
       "source": "/agent-workspace",
-      "destination": "/vi-VN/concepts/agent-workspace"
+      "destination": "/vn/concepts/agent-workspace"
     },
     {
       "source": "/android",
-      "destination": "/vi-VN/platforms/android"
+      "destination": "/vn/platforms/android"
     },
     {
       "source": "/architecture",
-      "destination": "/vi-VN/concepts/architecture"
+      "destination": "/vn/concepts/architecture"
     },
     {
       "source": "/audio",
-      "destination": "/vi-VN/nodes/audio"
+      "destination": "/vn/nodes/audio"
     },
     {
       "source": "/background-process",
-      "destination": "/vi-VN/gateway/background-process"
+      "destination": "/vn/gateway/background-process"
     },
     {
       "source": "/bash",
-      "destination": "/vi-VN/tools/exec"
+      "destination": "/vn/tools/exec"
     },
     {
       "source": "/tools/bash",
-      "destination": "/vi-VN/tools/exec"
+      "destination": "/vn/tools/exec"
     },
     {
       "source": "/bonjour",
-      "destination": "/vi-VN/gateway/bonjour"
+      "destination": "/vn/gateway/bonjour"
     },
     {
       "source": "/browser",
-      "destination": "/vi-VN/tools/browser"
+      "destination": "/vn/tools/browser"
     },
     {
       "source": "/browser-linux-troubleshooting",
-      "destination": "/vi-VN/tools/browser-linux-troubleshooting"
+      "destination": "/vn/tools/browser-linux-troubleshooting"
     },
     {
       "source": "/bun",
-      "destination": "/vi-VN/install/bun"
+      "destination": "/vn/install/bun"
     },
     {
       "source": "/auth-monitoring",
-      "destination": "/vi-VN/automation/auth-monitoring"
+      "destination": "/vn/automation/auth-monitoring"
     },
     {
       "source": "/camera",
-      "destination": "/vi-VN/nodes/camera"
+      "destination": "/vn/nodes/camera"
     },
     {
       "source": "/clawd",
-      "destination": "/vi-VN/start/openclaw"
+      "destination": "/vn/start/openclaw"
     },
     {
       "source": "/start/clawd",
-      "destination": "/vi-VN/start/openclaw"
+      "destination": "/vn/start/openclaw"
     },
     {
       "source": "/start/clawd/",
-      "destination": "/vi-VN/start/openclaw"
+      "destination": "/vn/start/openclaw"
     },
     {
       "source": "/start/pairing",
-      "destination": "/vi-VN/channels/pairing"
+      "destination": "/vn/channels/pairing"
     },
     {
       "source": "/clawhub",
-      "destination": "/vi-VN/tools/clawhub"
+      "destination": "/vn/tools/clawhub"
     },
     {
       "source": "/clawdhub",
-      "destination": "/vi-VN/tools/clawhub"
+      "destination": "/vn/tools/clawhub"
     },
     {
       "source": "/tools/clawdhub",
-      "destination": "/vi-VN/tools/clawhub"
+      "destination": "/vn/tools/clawhub"
     },
     {
       "source": "/configuration",
-      "destination": "/vi-VN/gateway/configuration"
+      "destination": "/vn/gateway/configuration"
     },
     {
       "source": "/control-ui",
-      "destination": "/vi-VN/web/control-ui"
+      "destination": "/vn/web/control-ui"
     },
     {
       "source": "/cron-jobs",
-      "destination": "/vi-VN/automation/cron-jobs"
+      "destination": "/vn/automation/cron-jobs"
     },
     {
       "source": "/cron-vs-heartbeat",
-      "destination": "/vi-VN/automation/cron-vs-heartbeat"
+      "destination": "/vn/automation/cron-vs-heartbeat"
     },
     {
       "source": "/dashboard",
-      "destination": "/vi-VN/web/dashboard"
+      "destination": "/vn/web/dashboard"
     },
     {
       "source": "/device-models",
-      "destination": "/vi-VN/reference/device-models"
+      "destination": "/vn/reference/device-models"
     },
     {
       "source": "/discord",
-      "destination": "/vi-VN/channels/discord"
+      "destination": "/vn/channels/discord"
     },
     {
       "source": "/discovery",
-      "destination": "/vi-VN/gateway/discovery"
+      "destination": "/vn/gateway/discovery"
     },
     {
       "source": "/docker",
-      "destination": "/vi-VN/install/docker"
+      "destination": "/vn/install/docker"
     },
     {
       "source": "/podman",
-      "destination": "/vi-VN/install/podman"
+      "destination": "/vn/install/podman"
     },
     {
       "source": "/doctor",
-      "destination": "/vi-VN/gateway/doctor"
+      "destination": "/vn/gateway/doctor"
     },
     {
       "source": "/elevated",
-      "destination": "/vi-VN/tools/elevated"
+      "destination": "/vn/tools/elevated"
     },
     {
       "source": "/faq",
-      "destination": "/vi-VN/help/faq"
+      "destination": "/vn/help/faq"
     },
     {
       "source": "/gateway-lock",
-      "destination": "/vi-VN/gateway/gateway-lock"
+      "destination": "/vn/gateway/gateway-lock"
     },
     {
       "source": "/getting-started",
-      "destination": "/vi-VN/start/getting-started"
+      "destination": "/vn/start/getting-started"
     },
     {
       "source": "/quickstart",
-      "destination": "/vi-VN/start/getting-started"
+      "destination": "/vn/start/getting-started"
     },
     {
       "source": "/start/quickstart",
-      "destination": "/vi-VN/start/getting-started"
+      "destination": "/vn/start/getting-started"
     },
     {
       "source": "/gmail-pubsub",
-      "destination": "/vi-VN/automation/gmail-pubsub"
+      "destination": "/vn/automation/gmail-pubsub"
     },
     {
       "source": "/grammy",
-      "destination": "/vi-VN/channels/telegram"
+      "destination": "/vn/channels/telegram"
     },
     {
       "source": "/channels/grammy",
-      "destination": "/vi-VN/channels/telegram"
+      "destination": "/vn/channels/telegram"
     },
     {
       "source": "/group-messages",
-      "destination": "/vi-VN/channels/group-messages"
+      "destination": "/vn/channels/group-messages"
     },
     {
       "source": "/groups",
-      "destination": "/vi-VN/channels/groups"
+      "destination": "/vn/channels/groups"
     },
     {
       "source": "/health",
-      "destination": "/vi-VN/gateway/health"
+      "destination": "/vn/gateway/health"
     },
     {
       "source": "/heartbeat",
-      "destination": "/vi-VN/gateway/heartbeat"
+      "destination": "/vn/gateway/heartbeat"
     },
     {
       "source": "/hubs",
-      "destination": "/vi-VN/start/hubs"
+      "destination": "/vn/start/hubs"
     },
     {
       "source": "/images",
-      "destination": "/vi-VN/nodes/images"
+      "destination": "/vn/nodes/images"
     },
     {
       "source": "/imessage",
-      "destination": "/vi-VN/channels/imessage"
+      "destination": "/vn/channels/imessage"
     },
     {
       "source": "/ios",
-      "destination": "/vi-VN/platforms/ios"
+      "destination": "/vn/platforms/ios"
     },
     {
       "source": "/linux",
-      "destination": "/vi-VN/platforms/linux"
+      "destination": "/vn/platforms/linux"
     },
     {
       "source": "/location",
-      "destination": "/vi-VN/channels/location"
+      "destination": "/vn/channels/location"
     },
     {
       "source": "/location-command",
-      "destination": "/vi-VN/nodes/location-command"
+      "destination": "/vn/nodes/location-command"
     },
     {
       "source": "/lore",
-      "destination": "/vi-VN/start/lore"
+      "destination": "/vn/start/lore"
     },
     {
       "source": "/mac/bun",
-      "destination": "/vi-VN/platforms/mac/bundled-gateway"
+      "destination": "/vn/platforms/mac/bundled-gateway"
     },
     {
       "source": "/platforms/mac/bun",
-      "destination": "/vi-VN/platforms/mac/bundled-gateway"
+      "destination": "/vn/platforms/mac/bundled-gateway"
     },
     {
       "source": "/mac/canvas",
-      "destination": "/vi-VN/platforms/mac/canvas"
+      "destination": "/vn/platforms/mac/canvas"
     },
     {
       "source": "/mac/child-process",
-      "destination": "/vi-VN/platforms/mac/child-process"
+      "destination": "/vn/platforms/mac/child-process"
     },
     {
       "source": "/mac/dev-setup",
-      "destination": "/vi-VN/platforms/mac/dev-setup"
+      "destination": "/vn/platforms/mac/dev-setup"
     },
     {
       "source": "/mac/health",
-      "destination": "/vi-VN/platforms/mac/health"
+      "destination": "/vn/platforms/mac/health"
     },
     {
       "source": "/mac/icon",
-      "destination": "/vi-VN/platforms/mac/icon"
+      "destination": "/vn/platforms/mac/icon"
     },
     {
       "source": "/mac/logging",
-      "destination": "/vi-VN/platforms/mac/logging"
+      "destination": "/vn/platforms/mac/logging"
     },
     {
       "source": "/mac/menu-bar",
-      "destination": "/vi-VN/platforms/mac/menu-bar"
+      "destination": "/vn/platforms/mac/menu-bar"
     },
     {
       "source": "/mac/peekaboo",
-      "destination": "/vi-VN/platforms/mac/peekaboo"
+      "destination": "/vn/platforms/mac/peekaboo"
     },
     {
       "source": "/mac/permissions",
-      "destination": "/vi-VN/platforms/mac/permissions"
+      "destination": "/vn/platforms/mac/permissions"
     },
     {
       "source": "/mac/release",
-      "destination": "/vi-VN/reference/RELEASING"
+      "destination": "/vn/reference/RELEASING"
     },
     {
       "source": "/mac/remote",
-      "destination": "/vi-VN/platforms/mac/remote"
+      "destination": "/vn/platforms/mac/remote"
     },
     {
       "source": "/mac/signing",
-      "destination": "/vi-VN/platforms/mac/signing"
+      "destination": "/vn/platforms/mac/signing"
     },
     {
       "source": "/mac/skills",
-      "destination": "/vi-VN/platforms/mac/skills"
+      "destination": "/vn/platforms/mac/skills"
     },
     {
       "source": "/mac/voice-overlay",
-      "destination": "/vi-VN/platforms/mac/voice-overlay"
+      "destination": "/vn/platforms/mac/voice-overlay"
     },
     {
       "source": "/mac/voicewake",
-      "destination": "/vi-VN/platforms/mac/voicewake"
+      "destination": "/vn/platforms/mac/voicewake"
     },
     {
       "source": "/mac/webchat",
-      "destination": "/vi-VN/platforms/mac/webchat"
+      "destination": "/vn/platforms/mac/webchat"
     },
     {
       "source": "/mac/xpc",
-      "destination": "/vi-VN/platforms/mac/xpc"
+      "destination": "/vn/platforms/mac/xpc"
     },
     {
       "source": "/macos",
-      "destination": "/vi-VN/platforms/macos"
+      "destination": "/vn/platforms/macos"
     },
     {
       "source": "/model-failover",
-      "destination": "/vi-VN/concepts/model-failover"
+      "destination": "/vn/concepts/model-failover"
     },
     {
       "source": "/model",
-      "destination": "/vi-VN/concepts/models"
+      "destination": "/vn/concepts/models"
     },
     {
       "source": "/model/",
-      "destination": "/vi-VN/concepts/models"
+      "destination": "/vn/concepts/models"
     },
     {
       "source": "/models",
-      "destination": "/vi-VN/concepts/models"
+      "destination": "/vn/concepts/models"
     },
     {
       "source": "/multi-agent",
-      "destination": "/vi-VN/concepts/multi-agent"
+      "destination": "/vn/concepts/multi-agent"
     },
     {
       "source": "/nix",
-      "destination": "/vi-VN/install/nix"
+      "destination": "/vn/install/nix"
     },
     {
       "source": "/onboarding",
-      "destination": "/vi-VN/start/onboarding"
+      "destination": "/vn/start/onboarding"
     },
     {
       "source": "/pairing",
-      "destination": "/vi-VN/channels/pairing"
+      "destination": "/vn/channels/pairing"
     },
     {
       "source": "/experiments/plans/cron-add-hardening",
-      "destination": "/vi-VN/automation/cron-jobs"
+      "destination": "/vn/automation/cron-jobs"
     },
     {
       "source": "/experiments/plans/group-policy-hardening",
-      "destination": "/vi-VN/channels/groups"
+      "destination": "/vn/channels/groups"
     },
     {
       "source": "/poll",
-      "destination": "/vi-VN/automation/poll"
+      "destination": "/vn/automation/poll"
     },
     {
       "source": "/presence",
-      "destination": "/vi-VN/concepts/presence"
+      "destination": "/vn/concepts/presence"
     },
     {
       "source": "/provider-routing",
-      "destination": "/vi-VN/channels/channel-routing"
+      "destination": "/vn/channels/channel-routing"
     },
     {
       "source": "/concepts/provider-routing",
-      "destination": "/vi-VN/channels/channel-routing"
+      "destination": "/vn/channels/channel-routing"
     },
     {
       "source": "/queue",
-      "destination": "/vi-VN/concepts/queue"
+      "destination": "/vn/concepts/queue"
     },
     {
       "source": "/remote",
-      "destination": "/vi-VN/gateway/remote"
+      "destination": "/vn/gateway/remote"
     },
     {
       "source": "/remote-gateway-readme",
-      "destination": "/vi-VN/gateway/remote-gateway-readme"
+      "destination": "/vn/gateway/remote-gateway-readme"
     },
     {
       "source": "/rpc",
-      "destination": "/vi-VN/reference/rpc"
+      "destination": "/vn/reference/rpc"
     },
     {
       "source": "/security",
-      "destination": "/vi-VN/gateway/security"
+      "destination": "/vn/gateway/security"
     },
     {
       "source": "/session",
-      "destination": "/vi-VN/concepts/session"
+      "destination": "/vn/concepts/session"
     },
     {
       "source": "/session-tool",
-      "destination": "/vi-VN/concepts/session-tool"
+      "destination": "/vn/concepts/session-tool"
     },
     {
       "source": "/sessions",
-      "destination": "/vi-VN/concepts/session"
+      "destination": "/vn/concepts/session"
     },
     {
       "source": "/setup",
-      "destination": "/vi-VN/start/setup"
+      "destination": "/vn/start/setup"
     },
     {
       "source": "/showcase",
-      "destination": "/vi-VN/start/showcase"
+      "destination": "/vn/start/showcase"
     },
     {
       "source": "/signal",
-      "destination": "/vi-VN/channels/signal"
+      "destination": "/vn/channels/signal"
     },
     {
       "source": "/skills",
-      "destination": "/vi-VN/tools/skills"
+      "destination": "/vn/tools/skills"
     },
     {
       "source": "/skills-config",
-      "destination": "/vi-VN/tools/skills-config"
+      "destination": "/vn/tools/skills-config"
     },
     {
       "source": "/slack",
-      "destination": "/vi-VN/channels/slack"
+      "destination": "/vn/channels/slack"
     },
     {
       "source": "/slash-commands",
-      "destination": "/vi-VN/tools/slash-commands"
+      "destination": "/vn/tools/slash-commands"
     },
     {
       "source": "/subagents",
-      "destination": "/vi-VN/tools/subagents"
+      "destination": "/vn/tools/subagents"
     },
     {
       "source": "/tailscale",
-      "destination": "/vi-VN/gateway/tailscale"
+      "destination": "/vn/gateway/tailscale"
     },
     {
       "source": "/talk",
-      "destination": "/vi-VN/nodes/talk"
+      "destination": "/vn/nodes/talk"
     },
     {
       "source": "/telegram",
-      "destination": "/vi-VN/channels/telegram"
+      "destination": "/vn/channels/telegram"
     },
     {
       "source": "/templates/AGENTS",
-      "destination": "/vi-VN/reference/templates/AGENTS"
+      "destination": "/vn/reference/templates/AGENTS"
     },
     {
       "source": "/templates/BOOT",
-      "destination": "/vi-VN/reference/templates/BOOT"
+      "destination": "/vn/reference/templates/BOOT"
     },
     {
       "source": "/templates/BOOTSTRAP",
-      "destination": "/vi-VN/reference/templates/BOOTSTRAP"
+      "destination": "/vn/reference/templates/BOOTSTRAP"
     },
     {
       "source": "/templates/HEARTBEAT",
-      "destination": "/vi-VN/reference/templates/HEARTBEAT"
+      "destination": "/vn/reference/templates/HEARTBEAT"
     },
     {
       "source": "/templates/IDENTITY",
-      "destination": "/vi-VN/reference/templates/IDENTITY"
+      "destination": "/vn/reference/templates/IDENTITY"
     },
     {
       "source": "/templates/SOUL",
-      "destination": "/vi-VN/reference/templates/SOUL"
+      "destination": "/vn/reference/templates/SOUL"
     },
     {
       "source": "/templates/TOOLS",
-      "destination": "/vi-VN/reference/templates/TOOLS"
+      "destination": "/vn/reference/templates/TOOLS"
     },
     {
       "source": "/templates/USER",
-      "destination": "/vi-VN/reference/templates/USER"
+      "destination": "/vn/reference/templates/USER"
     },
     {
       "source": "/test",
-      "destination": "/vi-VN/reference/test"
+      "destination": "/vn/reference/test"
     },
     {
       "source": "/thinking",
-      "destination": "/vi-VN/tools/thinking"
+      "destination": "/vn/tools/thinking"
     },
     {
       "source": "/timezone",
-      "destination": "/vi-VN/concepts/timezone"
+      "destination": "/vn/concepts/timezone"
     },
     {
       "source": "/troubleshooting",
-      "destination": "/vi-VN/help/troubleshooting"
+      "destination": "/vn/help/troubleshooting"
     },
     {
       "source": "/tui",
-      "destination": "/vi-VN/web/tui"
+      "destination": "/vn/web/tui"
     },
     {
       "source": "/typebox",
-      "destination": "/vi-VN/concepts/typebox"
+      "destination": "/vn/concepts/typebox"
     },
     {
       "source": "/updating",
-      "destination": "/vi-VN/install/updating"
+      "destination": "/vn/install/updating"
     },
     {
       "source": "/voicewake",
-      "destination": "/vi-VN/nodes/voicewake"
+      "destination": "/vn/nodes/voicewake"
     },
     {
       "source": "/webchat",
-      "destination": "/vi-VN/web/webchat"
+      "destination": "/vn/web/webchat"
     },
     {
       "source": "/webhook",
-      "destination": "/vi-VN/automation/webhook"
+      "destination": "/vn/automation/webhook"
     },
     {
       "source": "/whatsapp",
-      "destination": "/vi-VN/channels/whatsapp"
+      "destination": "/vn/channels/whatsapp"
     },
     {
       "source": "/windows",
-      "destination": "/vi-VN/platforms/windows"
+      "destination": "/vn/platforms/windows"
     },
     {
       "source": "/wizard",
-      "destination": "/vi-VN/start/wizard"
+      "destination": "/vn/start/wizard"
     },
     {
       "source": "/start/wizard-cli-flow",
-      "destination": "/vi-VN/start/wizard-cli-reference"
+      "destination": "/vn/start/wizard-cli-reference"
     },
     {
       "source": "/start/wizard-cli-auth",
-      "destination": "/vi-VN/start/wizard-cli-reference"
+      "destination": "/vn/start/wizard-cli-reference"
     },
     {
       "source": "/start/wizard-cli-outputs",
-      "destination": "/vi-VN/start/wizard-cli-reference"
+      "destination": "/vn/start/wizard-cli-reference"
     },
     {
       "source": "/start/faq",
-      "destination": "/vi-VN/help/faq"
+      "destination": "/vn/help/faq"
     },
     {
       "source": "/oauth",
-      "destination": "/vi-VN/concepts/oauth"
+      "destination": "/vn/concepts/oauth"
     },
     {
       "source": "/plugin",
-      "destination": "/vi-VN/tools/plugin"
+      "destination": "/vn/tools/plugin"
     },
     {
       "source": "/plugins",
-      "destination": "/vi-VN/tools/plugin"
+      "destination": "/vn/tools/plugin"
     },
     {
       "source": "/railway",
-      "destination": "/vi-VN/install/railway"
+      "destination": "/vn/install/railway"
     },
     {
       "source": "/northflank",
-      "destination": "/vi-VN/install/northflank"
+      "destination": "/vn/install/northflank"
     },
     {
       "source": "/render",
-      "destination": "/vi-VN/install/render"
+      "destination": "/vn/install/render"
     },
     {
       "source": "/gcp",
-      "destination": "/vi-VN/install/gcp"
+      "destination": "/vn/install/gcp"
     },
     {
       "source": "/azure",
-      "destination": "/vi-VN/install/azure"
+      "destination": "/vn/install/azure"
     },
     {
       "source": "/platforms/fly",
-      "destination": "/vi-VN/install/fly"
+      "destination": "/vn/install/fly"
     },
     {
       "source": "/platforms/hetzner",
-      "destination": "/vi-VN/install/hetzner"
+      "destination": "/vn/install/hetzner"
     },
     {
       "source": "/platforms/gcp",
-      "destination": "/vi-VN/install/gcp"
+      "destination": "/vn/install/gcp"
     },
     {
       "source": "/platforms/azure",
-      "destination": "/vi-VN/install/azure"
+      "destination": "/vn/install/azure"
     },
     {
       "source": "/platforms/macos-vm",
-      "destination": "/vi-VN/install/macos-vm"
+      "destination": "/vn/install/macos-vm"
     },
     {
       "source": "/platforms/exe-dev",
-      "destination": "/vi-VN/install/exe-dev"
+      "destination": "/vn/install/exe-dev"
     },
     {
       "source": "/platforms/railway",
-      "destination": "/vi-VN/install/railway"
+      "destination": "/vn/install/railway"
     },
     {
       "source": "/platforms/render",
-      "destination": "/vi-VN/install/render"
+      "destination": "/vn/install/render"
     },
     {
       "source": "/platforms/northflank",
-      "destination": "/vi-VN/install/northflank"
+      "destination": "/vn/install/northflank"
     },
     {
       "source": "/gateway/trusted-proxy",
-      "destination": "/vi-VN/gateway/trusted-proxy-auth"
+      "destination": "/vn/gateway/trusted-proxy-auth"
     }
   ],
   "navigation": {
-    "languages": [
-      {
-        "language": "vi",
-        "tabs": [
+    "tabs": [
           {
             "tab": "Bắt đầu",
             "groups": [
@@ -1544,7 +1541,5 @@
             ]
           }
         ]
-      }
-    ]
   }
 }
