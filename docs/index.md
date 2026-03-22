@@ -1,7 +1,7 @@
 ---
-summary: "OpenClaw is a multi-channel gateway for AI agents that runs on any OS."
+summary: "OpenClaw là gateway đa kênh dành cho các AI Agent, có thể chạy trên mọi hệ điều hành."
 read_when:
-  - Introducing OpenClaw to newcomers
+  - Giới thiệu OpenClaw cho người mới
 title: "OpenClaw"
 ---
 
@@ -22,123 +22,123 @@ title: "OpenClaw"
     />
 </p>
 
-> _"EXFOLIATE! EXFOLIATE!"_ — A space lobster, probably
+> _"EXFOLIATE! EXFOLIATE!"_ — Có lẽ là lời của một con tôm hùm vũ trụ nào đó
 
 <p align="center">
-  <strong>Any OS gateway for AI agents across WhatsApp, Telegram, Discord, iMessage, and more.</strong><br />
-  Send a message, get an agent response from your pocket. Plugins add Mattermost and more.
+  <strong>Gateway chạy trên mọi hệ điều hành dành cho các tác nhân AI qua WhatsApp, Telegram, Discord, iMessage và nhiều nền tảng khác.</strong><br />
+  Chỉ cần gửi tin nhắn là bạn sẽ nhận được phản hồi từ AI ngay trên điện thoại. Có thể bổ sung Mattermost và các kênh khác thông qua plugin.
 </p>
 
 <Columns>
-  <Card title="Get Started" href="/start/getting-started" icon="rocket">
-    Install OpenClaw and bring up the Gateway in minutes.
+  <Card title="Bắt đầu ngay" href="/start/getting-started" icon="rocket">
+    Cài đặt OpenClaw và khởi chạy Gateway chỉ trong vài phút.
   </Card>
-  <Card title="Run Onboarding" href="/start/wizard" icon="sparkles">
-    Guided setup with `openclaw onboard` and pairing flows.
+  <Card title="Khởi chạy cấu hình" href="/start/wizard" icon="sparkles">
+    Thiết lập theo từng bước với lệnh `openclaw onboard` và quy trình liên kết.
   </Card>
-  <Card title="Open the Control UI" href="/web/control-ui" icon="layout-dashboard">
-    Launch the browser dashboard for chat, config, and sessions.
+  <Card title="Mở Control UI" href="/web/control-ui" icon="layout-dashboard">
+    Khởi chạy bảng điều khiển (dashboard) trên trình duyệt để quản lý chat, cấu hình và phiên (sessions).
   </Card>
 </Columns>
 
-## What is OpenClaw?
+## OpenClaw là gì?
 
-OpenClaw is a **self-hosted gateway** that connects your favorite chat apps — WhatsApp, Telegram, Discord, iMessage, and more — to AI coding agents like Pi. You run a single Gateway process on your own machine (or a server), and it becomes the bridge between your messaging apps and an always-available AI assistant.
+OpenClaw là một **gateway tự lưu trữ (self-hosted)** giúp kết nối các ứng dụng chat quen thuộc của bạn — như WhatsApp, Telegram, Discord, iMessage, và nhiều nền tảng khác — với các tác nhân AI lập trình như Pi. Bạn chỉ cần chạy một quy trình Gateway duy nhất trên máy tính (hoặc server) của mình, và nó sẽ trở thành cầu nối giữa các ứng dụng nhắn tin và trợ lý AI luôn sẵn sàng phục vụ.
 
-**Who is it for?** Developers and power users who want a personal AI assistant they can message from anywhere — without giving up control of their data or relying on a hosted service.
+**Dành cho ai?** Dành cho các nhà phát triển và người dùng chuyên nghiệp (power users) muốn có một trợ lý AI cá nhân để nhắn tin từ bất kỳ đâu — mà không phải đánh đổi quyền kiểm soát dữ liệu hay phụ thuộc vào các dịch vụ bên thứ ba.
 
-**What makes it different?**
+**Điều gì làm nên sự khác biệt?**
 
-- **Self-hosted**: runs on your hardware, your rules
-- **Multi-channel**: one Gateway serves WhatsApp, Telegram, Discord, and more simultaneously
-- **Agent-native**: built for coding agents with tool use, sessions, memory, and multi-agent routing
-- **Open source**: MIT licensed, community-driven
+- **Tự lưu trữ**: chạy trên thiết bị của bạn, theo quy tắc của bạn
+- **Đa kênh**: một Gateway duy nhất phục vụ đồng thời WhatsApp, Telegram, Discord và nhiều kênh khác
+- **Tối ưu cho tác nhân AI**: được xây dựng riêng cho các tác nhân lập trình với khả năng sử dụng công cụ, quản lý phiên (sessions), bộ nhớ (memory) và định tuyến đa tác nhân (multi-agent routing)
+- **Mã nguồn mở**: cấp phép theo chuẩn MIT, thân thiện với cộng đồng
 
-**What do you need?** Node 24 (recommended), or Node 22 LTS (`22.16+`) for compatibility, an API key from your chosen provider, and 5 minutes. For best quality and security, use the strongest latest-generation model available.
+**Bạn cần chuẩn bị gì?** Node 24 (khuyên dùng), hoặc Node 22 LTS (`22.16+`) để tương thích tốt nhất; một API key từ nhà cung cấp mô hình (provider) bạn chọn; và khoảng 5 phút thiết lập. Để đạt được chất lượng và độ bảo mật cao nhất, hãy sử dụng mô hình thế hệ mới nhất hiện có.
 
-## How it works
+## Cách thức hoạt động
 
 ```mermaid
 flowchart LR
-  A["Chat apps + plugins"] --> B["Gateway"]
-  B --> C["Pi agent"]
+  A["Các ứng dụng chat + plugin"] --> B["Gateway"]
+  B --> C["Tác nhân Pi"]
   B --> D["CLI"]
   B --> E["Web Control UI"]
-  B --> F["macOS app"]
-  B --> G["iOS and Android nodes"]
+  B --> F["Ứng dụng macOS"]
+  B --> G["Các node iOS và Android"]
 ```
 
-The Gateway is the single source of truth for sessions, routing, and channel connections.
+Gateway đóng vai trò là nguồn dữ liệu thực (source of truth) duy nhất quản lý các phiên (sessions), định tuyến (routing) và các kết nối kênh.
 
-## Key capabilities
+## Các tính năng chính
 
 <Columns>
-  <Card title="Multi-channel gateway" icon="network">
-    WhatsApp, Telegram, Discord, and iMessage with a single Gateway process.
+  <Card title="Gateway đa kênh" icon="network">
+    Kết nối WhatsApp, Telegram, Discord và iMessage chỉ bằng một quy trình Gateway duy nhất.
   </Card>
-  <Card title="Plugin channels" icon="plug">
-    Add Mattermost and more with extension packages.
+  <Card title="Kênh Plugin" icon="plug">
+    Bổ sung Mattermost và các nền tảng khác bằng các gói tiện ích mở rộng (extension).
   </Card>
-  <Card title="Multi-agent routing" icon="route">
-    Isolated sessions per agent, workspace, or sender.
+  <Card title="Định tuyến đa tác nhân" icon="route">
+    Các phiên được tách biệt riêng cho từng tác nhân, workspace hoặc người gửi.
   </Card>
-  <Card title="Media support" icon="image">
-    Send and receive images, audio, and documents.
+  <Card title="Hỗ trợ đa phương tiện" icon="image">
+    Gửi và nhận hình ảnh, âm thanh, cũng như tài liệu.
   </Card>
   <Card title="Web Control UI" icon="monitor">
-    Browser dashboard for chat, config, sessions, and nodes.
+    Bảng điều khiển trên trình duyệt để quản lý chat, cấu hình, phiên và các node.
   </Card>
-  <Card title="Mobile nodes" icon="smartphone">
-    Pair iOS and Android nodes for Canvas, camera, and voice-enabled workflows.
+  <Card title="Các node di động" icon="smartphone">
+    Liên kết các node iOS và Android để sử dụng Canvas, camera và các luồng công việc kích hoạt bằng giọng nói.
   </Card>
 </Columns>
 
-## Quick start
+## Hướng dẫn nhanh
 
 <Steps>
-  <Step title="Install OpenClaw">
+  <Step title="Cài đặt OpenClaw">
     ```bash
     npm install -g openclaw@latest
     ```
   </Step>
-  <Step title="Onboard and install the service">
+  <Step title="Cấu hình và cài đặt dịch vụ">
     ```bash
     openclaw onboard --install-daemon
     ```
   </Step>
-  <Step title="Chat">
-    Open the Control UI in your browser and send a message:
+  <Step title="Bắt đầu chat">
+    Mở Control UI trên trình duyệt và gửi tin nhắn:
 
     ```bash
     openclaw dashboard
     ```
 
-    Or connect a channel ([Telegram](/channels/telegram) is fastest) and chat from your phone.
+    Hoặc kết nối một kênh ([Telegram](/channels/telegram) dễ kết nối nhất) và chat ngay từ điện thoại của bạn.
 
   </Step>
 </Steps>
 
-Need the full install and dev setup? See [Getting Started](/start/getting-started).
+Nếu bạn cần hướng dẫn chi tiết về quy trình cài đặt và thiết lập môi trường phát triển (dev setup), hãy xem phần [Bắt đầu](/start/getting-started).
 
-## Dashboard
+## Bảng điều khiển (Dashboard)
 
-Open the browser Control UI after the Gateway starts.
+Mở Control UI trên trình duyệt sau khi Gateway khởi động thành công.
 
-- Local default: [http://127.0.0.1:18789/](http://127.0.0.1:18789/)
-- Remote access: [Web surfaces](/web) and [Tailscale](/gateway/tailscale)
+- Mặc định trên máy cục bộ: [http://127.0.0.1:18789/](http://127.0.0.1:18789/)
+- Truy cập từ xa: Qua [các giao diện Web](/web) và [Tailscale](/gateway/tailscale)
 
 <p align="center">
   <img src="/whatsapp-openclaw.jpg" alt="OpenClaw" width="420" />
 </p>
 
-## Configuration (optional)
+## Cấu hình (Tùy chọn)
 
-Config lives at `~/.openclaw/openclaw.json`.
+File cấu hình được lưu tại `~/.openclaw/openclaw.json`.
 
-- If you **do nothing**, OpenClaw uses the bundled Pi binary in RPC mode with per-sender sessions.
-- If you want to lock it down, start with `channels.whatsapp.allowFrom` and (for groups) mention rules.
+- Nếu bạn **không thiết lập gì**, OpenClaw sẽ sử dụng luồng chạy (binary) Pi được tích hợp sẵn ở chế độ RPC với các phiên được tách riêng theo từng người gửi.
+- Nếu bạn muốn thắt chặt quyền truy cập, hãy bắt đầu với mục `channels.whatsapp.allowFrom` và cấu hình luật bắt buộc nhắc đến (requireMention) đối với các nhóm.
 
-Example:
+Ví dụ:
 
 ```json5
 {
@@ -152,45 +152,45 @@ Example:
 }
 ```
 
-## Start here
+## Bắt đầu từ đây
 
 <Columns>
-  <Card title="Docs hubs" href="/start/hubs" icon="book-open">
-    All docs and guides, organized by use case.
+  <Card title="Trung tâm tài liệu" href="/start/hubs" icon="book-open">
+    Toàn bộ tài liệu và hướng dẫn, được phân loại theo từng mục đích sử dụng.
   </Card>
-  <Card title="Configuration" href="/gateway/configuration" icon="settings">
-    Core Gateway settings, tokens, and provider config.
+  <Card title="Cấu hình" href="/gateway/configuration" icon="settings">
+    Các thiết lập cốt lõi của Gateway, quản lý token và cấu hình nhà cung cấp (provider).
   </Card>
-  <Card title="Remote access" href="/gateway/remote" icon="globe">
-    SSH and tailnet access patterns.
+  <Card title="Truy cập từ xa" href="/gateway/remote" icon="globe">
+    Tổ chức truy cập qua SSH và mạng tailnet.
   </Card>
-  <Card title="Channels" href="/channels/telegram" icon="message-square">
-    Channel-specific setup for WhatsApp, Telegram, Discord, and more.
+  <Card title="Các kênh" href="/channels/telegram" icon="message-square">
+    Hướng dẫn thao tác thiết lập đặc thù cho WhatsApp, Telegram, Discord và nhiều nền tảng khác.
   </Card>
-  <Card title="Nodes" href="/nodes" icon="smartphone">
-    iOS and Android nodes with pairing, Canvas, camera, and device actions.
+  <Card title="Các node" href="/nodes" icon="smartphone">
+    Các node trên iOS và Android với khả năng kết nối thiết bị để dùng Canvas, camera và ra lệnh hệ thống.
   </Card>
-  <Card title="Help" href="/help" icon="life-buoy">
-    Common fixes and troubleshooting entry point.
+  <Card title="Trợ giúp" href="/help" icon="life-buoy">
+    Điểm dừng chân đầu tiên khi có sự cố và các cách khắc phục phổ biến.
   </Card>
 </Columns>
 
-## Learn more
+## Tìm hiểu thêm
 
 <Columns>
-  <Card title="Full feature list" href="/concepts/features" icon="list">
-    Complete channel, routing, and media capabilities.
+  <Card title="Danh sách tính năng đầy đủ" href="/concepts/features" icon="list">
+    Tổng hợp toàn bộ khả năng về kênh hỗ trợ, định tuyến và đa phương tiện.
   </Card>
-  <Card title="Multi-agent routing" href="/concepts/multi-agent" icon="route">
-    Workspace isolation and per-agent sessions.
+  <Card title="Định tuyến đa tác nhân" href="/concepts/multi-agent" icon="route">
+    Sự tách biệt workspace và quản lý phiên (session) theo từng tác nhân.
   </Card>
-  <Card title="Security" href="/gateway/security" icon="shield">
-    Tokens, allowlists, and safety controls.
+  <Card title="Bảo mật" href="/gateway/security" icon="shield">
+    Quản lý tokens, danh sách cho phép (allowlists) và các lớp kiểm soát an toàn.
   </Card>
-  <Card title="Troubleshooting" href="/gateway/troubleshooting" icon="wrench">
-    Gateway diagnostics and common errors.
+  <Card title="Khắc phục sự cố" href="/gateway/troubleshooting" icon="wrench">
+    Công cụ chẩn đoán Gateway và các lỗi thường gặp trong quá trình vận hành.
   </Card>
-  <Card title="About and credits" href="/reference/credits" icon="info">
-    Project origins, contributors, and license.
+  <Card title="Giới thiệu và đội ngũ" href="/reference/credits" icon="info">
+    Nguồn gốc dự án, những người đóng góp và thông tin giấy phép.
   </Card>
 </Columns>
