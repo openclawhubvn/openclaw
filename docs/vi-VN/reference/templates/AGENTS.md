@@ -182,7 +182,7 @@ Bạn có thể chỉnh sửa `HEARTBEAT.md` với một danh sách kiểm tra n
 **Khi nào nên liên hệ:**
 
 - Email quan trọng đã đến
-- Sự kiện lịch sắp diễn ra (<2h)
+- Sự kiện lịch sắp diễn ra (&lt;2h)
 - Điều gì đó thú vị bạn tìm thấy
 - Đã hơn 8 giờ kể từ khi bạn nói điều gì đó
 
