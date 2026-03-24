@@ -1,5 +1,5 @@
 ---
-summary: "Khám phá OpenClaw, gateway đa kênh cho tác nhân AI, hoạt động trên mọi hệ điều hành. Tối ưu hóa hiệu suất AI của bạn ngay hôm nay."
+summary: "Hehe Khám phá OpenClaw, gateway đa kênh cho tác nhân AI, hoạt động trên mọi hệ điều hành. Tối ưu hóa hiệu suất AI của bạn ngay hôm nay."
 read_when:
   - Giới thiệu OpenClaw cho người mới
 title: "Hướng Dẫn Sử Dụng OpenClaw Trợ Lý AI"
