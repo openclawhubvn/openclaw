@@ -33,7 +33,7 @@ title: "Hướng Dẫn Sử Dụng OpenClaw Trợ Lý AI"
   </Card>
 </Columns>
 
-## OpenClaw là gì hehe?
+## OpenClaw là gì?
 
 OpenClaw là một **gateway tự lưu trữ (self-hosted)** giúp kết nối các ứng dụng chat quen thuộc của bạn — như WhatsApp, Telegram, Discord, iMessage, và nhiều nền tảng khác — với các tác nhân AI lập trình như Pi. Bạn chỉ cần chạy một quy trình Gateway duy nhất trên máy tính (hoặc server) của mình, và nó sẽ trở thành cầu nối giữa các ứng dụng nhắn tin và trợ lý AI luôn sẵn sàng phục vụ.
 
